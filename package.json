@@ -1,0 +1,23 @@
+{
+  "name": "supercolliderjs",
+  "description": "Minimalist SuperCollider framework for Node.js",
+  "version": "0.0.1",
+  "author": "Felix <crucialfelix@gmail.com>",
+  "contributors": [
+    { "name": "Chris Sattinger", "email": "crucialfelix@gmail.com" },
+  ],
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  //"publishConfig": { "tag": "3.0" },
+  "keywords": ["supercollider", "synthesis", "music", "sound"],
+  "repository": "git://github.com/crucialfelix/supercolliderjs",
+  "main": "supercollider",
+  //"bin": { "scsynth": "./bin/scsynth" },
+  //"scripts": {
+  //  "prepublish" : "npm prune",
+  //  "test": "make test"
+  //},
+  "engines": { "node": "*" }
+}
