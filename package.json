@@ -7,6 +7,7 @@
     { "name": "Chris Sattinger", "email": "crucialfelix@gmail.com" },
   ],
   "dependencies": {
+    "underscore": "*"
   },
   "devDependencies": {
   },
