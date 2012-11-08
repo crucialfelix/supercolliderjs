@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+<title>fiddling</title>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1 class="heroUnit">jQuery to SuperCollider</h1>
+
+<div class="row-fluid">
+	<div class="span7">
+
+		<form class="form form-horizontal" id="callform">
+			<div class="control-group">
+				<label class="control-label">path</label>
+				<div class="controls"><input type="text" name="path" value="/test/one" /></div>
+			</div>
+			<div class="control-group">
+				<label class="control-label">args</label>
+				<div class="controls"><input type="text" name="args" value="[1,2,'three']" /></div>
+			</div>
+			<div class="controls"><input type="submit" value="call" class="btn btn-primary" id="submit" /></div>
+		</form>
+
+		<div id="response" class="info">
+		</div>
+
+	</div>
+
+</div>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+
+
+<!--
+	this seems to be a different version than what npm delivers
+	npm is 0.9.11
+	cdn is 0.6
+<script src="http://cdn.socket.io/stable/socket.io.js"></script>
+<script type="text/javascript">
+	WEB_SOCKET_SWF_LOCATION = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//cdn.socket.io/' + this.io.version + '/WebSocketMain.swf';
+</script>
+-->
+<script src="/socket.io/socket.io.js"></script>
+
+<script src="/media/js/scapi.js"></script>
+
+
+<script type='text/javascript'>
+
+	var sc = new SCApi("localhost", 4040);
+
+	$("#callform").submit(function(e) {
+		var path = $("input[name=path]", this).val(),
+			args = $("input[name=args]", this).val();
+		e.preventDefault();
+		if(args) {
+			args = eval(args); // evil
+		}
+		sc.call(path, args,
+			function(data) {
+				$("#response").html(data).attr('class','alert alert-success');
+			},
+			function(data) {
+				$("#response").html(data).attr('class','alert alert-error');
+			}
+		);
+	});
+
+</script>
+</body>
+
+</html>
