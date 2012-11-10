@@ -59,7 +59,7 @@ function call(client_id, request_id, path, args) {
     console.log(args);
 
     var buf = osc.toBuffer({
-        address : '/API/http/call',
+        address : '/API/call',
         args : args
     });
     udp.send(buf, 0, buf.length, scport, schost);
@@ -88,13 +88,14 @@ udp.on('message', function(msgbuf, rinfo) {
     var msg = osc.fromBuffer(msgbuf);
     //console.log("message");
     //console.log(msg);
-    if(msg.address === '/API/http/not_found') {
+    // console.log(rinfo);
+    if(msg.address === '/API/not_found') {
         return reply('scapi_error', msg);
     }
-    if(msg.address === '/API/http/error') {
+    if(msg.address === '/API/error') {
         return reply('scapi_error', msg);
     }
-    if(msg.address === '/API/http/reply') {
+    if(msg.address === '/API/reply') {
         return reply('reply', msg);
     }
 });
