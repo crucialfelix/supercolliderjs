@@ -39,8 +39,8 @@
 			<div class="controls"><input type="submit" value="call" class="btn btn-primary" id="submit" /></div>
 		</form>
 
-		<div id="response" class="info">
-		</div>
+		<div id="response_time"></div>
+		<div id="response" class="info"></div>
 
 	</div>
 
@@ -68,6 +68,10 @@
 
 	var sc = new SCApi("localhost", 4040);
 
+	function timestamp() {
+		var now = new Date();
+		$("#response_time").html(now.toTimeString());
+	}
 	$("#callform").submit(function(e) {
 		var path = $("input[name=path]", this).val(),
 			args = $("input[name=args]", this).val();
@@ -78,8 +82,10 @@
 		sc.call(path, args,
 			function(data) {
 				$("#response").html(data).attr('class','alert alert-success');
+				timestamp();
 			},
 			function(data) {
+				timestamp();
 				$("#response").html(data).attr('class','alert alert-error');
 			}
 		);
