@@ -7,6 +7,24 @@ SuperCollider is an environment and programming language for real time audio syn
 
 SuperCollider.js communicates with the language application and directly with the synthesis server, using OSC in both cases.
 
+It contains code for use on a server (under Node.js)
+
+and it also includes code for use in the browser:
+
+	sc = new SCApi("localhost", 4040);
+	sc.call("server.boot", ["default"], function() {
+		// server is booted now
+		sc.call("group.new", [], function(groupID) {
+			// spawn synths into this group
+			sc.call("synth.new", ["scarysound", 100.0, 666.0, 7], function(synthID) {
+				// enable things on the page to send control changes to the scarysound
+			});
+		});
+	});
+
+
+It is not yet on npm but will be soon.
+
 Things you could do with this
 -----------------------------
 
@@ -62,7 +80,7 @@ Navigate to http://localhost:4040/
 
 This is a webserver, a websocket server and an OSC client.
 
-![Index Screenshot](examples/images/index-screenshot.png)
+![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/master/examples/images/index-screenshot.png?raw=true)
 
 In the browser
 --------------
