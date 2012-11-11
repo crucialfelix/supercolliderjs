@@ -75,6 +75,11 @@ function reply(signal, msg) {
     // so must store them in this process
     var socket = sockets[client_id];
 
+    if(signal === 'reply') {
+        result = JSON.parse( result );
+        result = result.result;
+    }
+
     if(socket && (!socket.disconnected)) {
         socket.emit(signal, {'request_id': request_id, 'result': result });
     } else {
