@@ -50,6 +50,11 @@
 	</div>
 </div>
 
+<div class="row-fluid">
+	<div class="span12" id="code">
+		<h4>View Source</h4>
+		<pre class="hidden"><code></code></pre>
+	</div>
 </div>
 
 
@@ -70,8 +75,7 @@
 
 <script src="/media/js/scapi.js"></script>
 
-
-<script type='text/javascript'>
+<script type='text/javascript' id="main">
 
 	var sc = new SCApi("localhost", 4040);
 
@@ -118,6 +122,13 @@
 
 </script>
 
-</body>
+<script type="text/javascript">
+// show the source code for the above
+$("#code h4").click(function() {
+	$("#code pre code").html( _.escape($("#main").html()) );
+	$("#code pre").toggleClass("hidden");
+});
+</script>
 
+</body>
 </html>
