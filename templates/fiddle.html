@@ -4,7 +4,11 @@
 <head>
 
 <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
-
+<style type="text/css">
+	#response {
+		overflow: auto;
+	}
+</style>
 <title>SuperCollider API</title>
 
 </head>
@@ -50,9 +54,17 @@
 	</div>
 </div>
 
+<hr />
+
 <div class="row-fluid">
 	<div class="span12" id="code">
-		<h4>View Source</h4>
+		<h4>Global Variables on this page</h4>
+		Open the inspector (right click, inspect) and play with the javascript on this page.
+
+		<p><code>sc</code> is the SCApi object used to send request.</p>
+		<p><code>result</code> is set to the returned result from each request.</p>
+
+		<h4>Click to view the source of this page</h4>
 		<pre class="hidden"><code></code></pre>
 	</div>
 </div>
@@ -85,6 +97,7 @@
 			function(data) {
 				var formatted;
 				timestamp(start);
+				window.result = data;
 				if(_.isArray(data)) {
 					formatted = $("<ul></ul>");
 					_.each(data,function(it) {
