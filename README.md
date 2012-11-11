@@ -80,7 +80,7 @@ Navigate to http://localhost:4040/
 
 This is a webserver, a websocket server and an OSC client.
 
-![Index Screenshot](examples/images/index-screenshot.png)
+![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/master/examples/images/index-screenshot.png?raw=true)
 
 In the browser
 --------------
