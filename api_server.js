@@ -91,9 +91,6 @@ function reply(signal, msg) {
 // receive OSC
 udp.on('message', function(msgbuf, rinfo) {
     var msg = osc.fromBuffer(msgbuf);
-    //console.log("message");
-    //console.log(msg);
-    // console.log(rinfo);
     if(msg.address === '/API/not_found') {
         return reply('scapi_error', msg);
     }
@@ -110,18 +107,9 @@ udp.on('message', function(msgbuf, rinfo) {
 
 // incoming websockets
 io.sockets.on('connection', function(socket) {
-
-    console.log("connection");
-    //console.log(socket);
-
-    socket.emit('hello', { msg: 'connected' });
     socket.on('call', function (data) {
-        // console.log("CALLING");
-        // console.log(data.path);
-        // console.log(data.args);
         sockets[socket.id] = socket;
         call(socket.id, data.request_id, data.path, data.args);
-
     });
 });
 
