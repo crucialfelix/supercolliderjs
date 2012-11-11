@@ -92,8 +92,17 @@
 		}
 		sc.call(path, args,
 			function(data) {
-				$("#response").html(data).attr('class','alert alert-success');
+				var formatted;
 				timestamp();
+				if(_.isArray(data)) {
+					formatted = $("<ul></ul>");
+					_.each(data,function(it) {
+						formatted.append("<li>" + it + "</li>");
+					});
+				} else {
+					formatted = data ? data : "OK";
+				}
+				$("#response").html(formatted).attr('class','alert alert-success');
 			},
 			function(data) {
 				timestamp();
