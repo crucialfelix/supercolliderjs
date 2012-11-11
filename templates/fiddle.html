@@ -84,8 +84,8 @@
 		$("#response_time").html(now.toTimeString());
 	}
 	$("#callform").submit(function(e) {
-		var path = $("input[name=path]", this).val(),
-			args = $("input[name=args]", this).val();
+		var path = $("#path", this).val(),
+			args = $("#args", this).val();
 		e.preventDefault();
 		if(args) {
 			args = eval(args); // evil
