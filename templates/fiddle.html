@@ -91,7 +91,14 @@
 						formatted.append("<li>" + it + "</li>");
 					});
 				} else {
-					formatted = data ? data : "OK";
+					if(_.isObject(data)) {
+						formatted = $("<table class='table table-striped table-hover'></table>");
+						_.each(data,function(v, k) {
+							formatted.append("<tr><th>" + k + "</th><td>" + v + "</td></tr>");
+						});
+					} else {
+						formatted = data ? data : "OK";
+					}
 				}
 				$("#response").html(formatted).attr('class','alert alert-success');
 			},
