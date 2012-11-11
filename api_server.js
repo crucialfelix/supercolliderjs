@@ -76,8 +76,15 @@ function reply(signal, msg) {
     var socket = sockets[client_id];
 
     if(signal === 'reply') {
-        result = JSON.parse( result );
-        result = result.result;
+        try {
+            result = JSON.parse( result );
+            result = result.result;
+        } catch(e) {
+            console.log("Malformed JSON");
+            console.log(result);
+            result = "MALFORMED JSON RESPONSE:" + result;
+            signal = 'scapi_error';
+        }
     }
 
     if(socket && (!socket.disconnected)) {
