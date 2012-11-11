@@ -68,21 +68,23 @@
 
 	var sc = new SCApi("localhost", 4040);
 
-	function timestamp() {
+	function timestamp(start) {
 		var now = new Date();
-		$("#response_time").html(now.toTimeString());
+		$("#response_time").html(now.toTimeString() + " [" + (now-start) + "ms]");
 	}
 	$("#callform").submit(function(e) {
 		var path = $("#path", this).val(),
-			args = $("#args", this).val();
+			args = $("#args", this).val(),
+			start = new Date();
 		e.preventDefault();
 		if(args) {
 			args = eval(args); // evil
 		}
+		$("#response").html("<i class='icon-time'></i> loading...");
 		sc.call(path, args,
 			function(data) {
 				var formatted;
-				timestamp();
+				timestamp(start);
 				if(_.isArray(data)) {
 					formatted = $("<ul></ul>");
 					_.each(data,function(it) {
@@ -94,7 +96,7 @@
 				$("#response").html(formatted).attr('class','alert alert-success');
 			},
 			function(data) {
-				timestamp();
+				timestamp(start);
 				$("#response").html(data).attr('class','alert alert-error');
 			}
 		);
