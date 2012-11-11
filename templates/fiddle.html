@@ -108,7 +108,16 @@
 			$("#callform #path").val($(this).html());
 		});
 	});
+
+	// show connection status
+    function setStatus(way) {
+        $("#connection_status").html(way ? "connected" : "disconnected").toggleClass("label-success", way).toggleClass("label-important", !way);
+    }
+    sc.socket.on("connect", function() { setStatus(true); } );
+    sc.socket.on("disconnect", function() { setStatus(false); } );
+
 </script>
+
 </body>
 
 </html>
