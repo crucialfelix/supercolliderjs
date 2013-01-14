@@ -1,7 +1,7 @@
 {
   "name": "supercolliderjs",
   "description": "SuperCollider communication tools for web browsers and node applications",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Felix <crucialfelix@gmail.com>",
   "contributors": [
     {
@@ -20,8 +20,17 @@
   },
   "license" : "GPL",
   "keywords": ["supercollider", "synthesis", "music", "sound"],
-  "repository": "git://github.com/crucialfelix/supercolliderjs",
-  "main": "supercollider",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/crucialfelix/supercolliderjs"
+  },
+  "main": "index",
+  "bin": {
+    "scapi" : "bin/scapi-server.js"
+  },
+  "scripts" : {
+    "scapi": "node bin/scapi-server.js"
+  },
   "engines": {
     "node": ">=0.8"
   }
