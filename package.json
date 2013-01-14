@@ -25,6 +25,9 @@
   "bin": {
     "scapi" : "bin/scapi-server.js"
   },
+  "scripts" : {
+    "scapi": "node bin/scapi-server.js"
+  },
   "engines": {
     "node": ">=0.8"
   }
