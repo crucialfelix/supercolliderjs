@@ -22,6 +22,9 @@
   "keywords": ["supercollider", "synthesis", "music", "sound"],
   "repository": "git://github.com/crucialfelix/supercolliderjs",
   "main": "supercollider",
+  "bin": {
+    "scapi" : "bin/scapi-server.js"
+  },
   "engines": {
     "node": ">=0.8"
   }
