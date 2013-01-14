@@ -5,11 +5,11 @@ Tools for communicating with the SuperCollider music synthesis language and dire
 
 SuperCollider is an environment and programming language for real time audio synthesis and algorithmic composition. It provides an interpreted object-oriented language which functions as a network client to a state of the art, realtime sound synthesis server.
 
-SuperCollider.js communicates with the language application and directly with the synthesis server, using OSC in both cases.
+SuperCollider.js communicates with the language application and/or directly with the synthesis server, using OSC in both cases.
 
 It contains code for use on a server (under Node.js)
 
-and it also includes code for use in the browser:
+and it also includes code for use in a webbrowser:
 
 	sc = new SCApi("localhost", 4040);
 	sc.call("server.boot", ["default"], function() {
@@ -22,8 +22,6 @@ and it also includes code for use in the browser:
 		});
 	});
 
-
-It is not yet on npm but will be soon.
 
 Things you could do with this
 -----------------------------
