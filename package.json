@@ -20,7 +20,10 @@
   },
   "license" : "GPL",
   "keywords": ["supercollider", "synthesis", "music", "sound"],
-  "repository": "git://github.com/crucialfelix/supercolliderjs",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/crucialfelix/supercolliderjs"
+  },
   "main": "index",
   "bin": {
     "scapi" : "bin/scapi-server.js"
