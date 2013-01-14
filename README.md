@@ -97,7 +97,9 @@ which relays messages via OSC to SuperCollider's API Quark
 		});
 	});
 
-[Note: calls will soon support jQuery Deferreds so that this pyramid of callback death can be dispensed with]
+call returns a jQuery Deferred so you should  be able to use libraries like async.
+
+[TODO write examples of this]
 
 Results are returned in JSON format so the SuperCollider APIs can return dictionaries and lists and these will be available as JavaScript objects in the return function.
 
