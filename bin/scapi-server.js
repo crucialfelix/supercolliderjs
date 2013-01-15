@@ -14,12 +14,14 @@
 
     Start SuperCollider
     Install the API quark ( > 2.0 )
-    Activate the OSC responders in supercollider: API.mountHTTP
+    Activate the OSC responders in supercollider:
+      API.mountDuplexOSC
 
     Start this server:
         node bin/scapi-server.js
 
-    Navigate browser to http://localhost:4040/fiddle.html
+    Navigate browser to
+      http://localhost:4040/fiddle.html
 
 */
 
