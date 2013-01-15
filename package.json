@@ -1,6 +1,6 @@
 {
   "name": "supercolliderjs",
-  "description": "SuperCollider communication tools for web browsers and node applications",
+  "description": "Tools for communicating with the SuperCollider music language environment",
   "version": "0.2.1",
   "author": "Felix <crucialfelix@gmail.com>",
   "contributors": [
