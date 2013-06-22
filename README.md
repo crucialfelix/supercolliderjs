@@ -36,7 +36,6 @@ It uses http://socket.io which is loads of fun and should prove quite useful for
 
 Build standalone applications using App.js etc.
 
-
 Communicate with the SuperCollider language via the API Quark
 =============================================================
 
@@ -51,14 +50,24 @@ and then the reply:
 =websockets=> [browser]
 
 
-In SuperCollider
+Configuring SuperCollider
 ----------------
 
-	// make sure you have the Quark
+First download and install The API Quark:
+
+
+
+In SuperCollider:
+
+```// make sure you have the Quark
+	Quarks.gui
+
 	Quarks.install("API");
 
 	// enable the OSC in SuperCollider
 	API.mountDuplexOSC;
+	// now leave this running
+```
 
 This loads the APIs that come with the API Quark.  See API below.
 
@@ -70,9 +79,17 @@ You can easily write APIs for your own application just by putting a file contai
 Start the Node.js web/api server
 ----------------------------
 
-In a terminal start the webserver listening on localhost:4040
+At this time, the easiest way to get started is to clone the project. First install "make" by installing.
 
-	node api_server.js
+For OS X, install the Apple Developer Tools: http://stackoverflow.com/questions/1469994/using-make-on-osx
+
+```git clone git@github.com:oatkiller/supercolliderjs.git
+npm install
+```
+
+To run the local web server UI:
+
+```node bin/scapi-server.js```
 
 Navigate to http://localhost:4040/
 
