@@ -50,18 +50,13 @@ and then the reply:
 =websockets=> [browser]
 
 
-Configuring SuperCollider
-----------------
+## Configuring SuperCollider
 
-First download and install The API Quark:
-
-
+First install the API quark
 
 In SuperCollider:
 
-```// make sure you have the Quark
-	Quarks.gui
-
+```
 	Quarks.install("API");
 
 	// enable the OSC in SuperCollider
@@ -76,34 +71,37 @@ You can easily write APIs for your own application just by putting a file contai
 	{yourquark}/apis/{apiname}.api.scd
 
 
-Start the Node.js web/api server
-----------------------------
+## Installation
 
-At this time, the easiest way to get started is to clone the project. First install "make" by installing.
+Clone or fork this repository
 
-For OS X, install the Apple Developer Tools: http://stackoverflow.com/questions/1469994/using-make-on-osx
+	git clone git@github.com:crucialfelix/supercolliderjs.git
 
-```git clone git@github.com:oatkiller/supercolliderjs.git
-npm install
-```
+Install the dependencies:
 
-To run the local web server UI:
+	cd supercolliderjs
+	npm install
 
-```node bin/scapi-server.js```
 
-Navigate to http://localhost:4040/
+## Start the Node.js web/api server
 
-This is a webserver, a websocket server and an OSC client.
+This runs a nodejs process that communicates with SuperCollider and also presents a little webserver. It currently only serves one page called "fiddle" for testing the API.
+
+	node bin/scapi-server.js
+
+In your browser open: 
+
+	open http://localhost:4040/
 
 ![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/master/examples/images/index-screenshot.png?raw=true)
 
-In the browser
---------------
 
-javascript on that page connects to the api_server using websockets
-(ancient browsers will fallback to flash)
-which relays messages via OSC to SuperCollider's API Quark
+## In the browser
 
+JavaScript on that page connects to the api_server using websockets
+(ancient browsers will fallback to flash) which relays messages via OSC to SuperCollider's API Quark
+
+	// javascript
 	sc = new SCApi("localhost",4040);
 	sc.call("server.boot", ["default"], function() {
 		// server is booted now
@@ -117,6 +115,7 @@ call returns a jQuery Deferred so you should  be able to use libraries like asyn
 [TODO write examples of this]
 
 Results are returned in JSON format so the SuperCollider APIs can return dictionaries and lists and these will be available as JavaScript objects in the return function.
+
 
 Security
 --------
@@ -146,7 +145,7 @@ Support to send directly to scsynth without going through API and the language.
 
 eg.
 
-	sc.server.sendMsg("set",nodeID,"freq",300);
+	sc.server.sendMsg("set", nodeID, "freq", 300);
 
 It receives JSON objects like {key: value, list: [1,2,3]} but at the moment doesn't send objects in requests.  SuperCollider needs a solid and safe JSON parser.  3.6 has a YAML parser I think.
 
@@ -224,11 +223,4 @@ This is probably out of date already:
 	synth.set
 	synthdef.remove
 	synthdef.add
-
-
-LICENSE
-=======
-
-For now its GPL like SuperCollider.
-
 
