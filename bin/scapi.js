@@ -26,7 +26,7 @@
 */
 
 
-var scapi = require('../lib/nodejs/scapi-server.js');
+var scapi = require('../lib/nodejs/scapi.js');
 
 /**
   * Optional arguments:

@@ -87,7 +87,7 @@ Install the dependencies:
 
 This runs a nodejs process that communicates with SuperCollider and also presents a little webserver. It currently only serves one page called "fiddle" for testing the API.
 
-	node bin/scapi-server.js
+	node bin/scapi.js
 
 In your browser open: 
 
