@@ -26,7 +26,7 @@
 */
 
 
-var scapi = require("../lib/server/scapi-server.js");
+var scapi = require('../lib/server/scapi-server.js');
 
 /**
   * Optional arguments:
@@ -38,4 +38,3 @@ var scapi = require("../lib/server/scapi-server.js");
 */
 
 scapi.listen();
-
