@@ -8,11 +8,15 @@
  */
 
 var SCLang = require('../lib/nodejs/sclang.js');
+var options = require('../lib/nodejs/parse-options');
 
-var dir = '/Users/crucial/code/supercollider/build/install/SuperCollider/SuperCollider-3-7.app/Contents/Resources/';
 
+var o = options();
 // do not echo to console
-var sclang = new SCLang({'cwd': dir, 'echo': false});
+o.echo = false;
+
+var sclang = new SCLang(o);
+
 sclang.boot();
 
 // get output and do what you like with it
@@ -28,5 +32,5 @@ sclang.on('stderr', function(d) {
 console.log('Waiting 5 seconds till sc compiles...');
 setTimeout(function() {
   console.log('writing to STDIN: "1 + 1"');
-  sclang.write("1 + 1");
+  sclang.write('1 + 1');
 }, 5000);

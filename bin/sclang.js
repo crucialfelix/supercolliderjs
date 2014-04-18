@@ -1,8 +1,7 @@
 
 var SCLang = require('../lib/nodejs/sclang.js');
+var options = require('../lib/nodejs/parse-options');
 
-var p = '/Users/crucial/code/supercollider/build/install/SuperCollider/SuperCollider-3-7.app/Contents/Resources/';
-
-var s = new SCLang({'cwd': p});
+var s = new SCLang(options());
 
 s.boot();
