@@ -116,7 +116,7 @@ Javascript in the browser:
 
 A test page is provided to browse the API:
 
-![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/index-screenshot.png?raw=true)
+![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/scapi.png?raw=true)
 
 
 ## Installation
