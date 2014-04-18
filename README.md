@@ -1,15 +1,107 @@
 supercollider.js
 ================
 
-Tools for communicating with the SuperCollider music synthesis language and directly with the SuperCollider synthesis server.
+Node JS tools for communicating with SuperCollider
 
 SuperCollider is an environment and programming language for real time audio synthesis and algorithmic composition. It provides an interpreted object-oriented language which functions as a network client to a state of the art, realtime sound synthesis server.
 
-SuperCollider.js communicates with the language application and/or directly with the synthesis server, using OSC in both cases.
+This library provides light weight tools for communicating with scsynth (the synthesis server), sclang (supercollider language interpreter) and the SuperCollider application.
 
-It contains code for use on a server (under Node.js)
+## scsynth
 
-and it also includes code for use in a webbrowser:
+Run the SuperCollider synthesis server 'scsynth'. Send and receive OSC messages.
+
+	node bin/scsynth.js
+
+Use it in your projects:
+
+	var scsynth = require('supercolliderjs').scsynth;
+	var s = new scsynth();
+	s.boot();
+	// wait for it to boot. not ideal
+	setTimeout(function() {
+	  s.connect();
+	  s.sendMsg('/notify', [1]);
+	  s.sendMsg('/status', []);
+	  s.sendMsg('/dumpOSC', []);
+	}, 1000);
+	s.on('OSC', function(addr, msg) {
+		// mesage from the server
+		console.log(addr + msg);
+	});
+
+![scsynth](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/scsynth.png?raw=true)
+
+
+## sclang
+
+Run a headless language interpreter.
+
+	node bin/sclang.js
+
+Use it in your projects:
+
+	var SCLang = require('supercolliderjs').sclang;
+	var sclang = new SCLang();
+	sclang.boot();
+	// send code to be interpreted
+	sclang.write("1 + 1");
+	// handle stdout and stderr in any way you please
+	sclang.on('stdout', function(d) {
+	  console.log('STDOUT:' + d);
+	});
+	sclang.on('stderr', function(d) {
+	  console.log('STDERR:' + d);
+	});
+
+![sclang](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/sclang.png?raw=true)
+
+
+## API
+
+Run either the full Super Collider app or a headless sclang and call API functions using the API quark.  Results are returned via callbacks or promises.
+
+	var SCAPI = require('supercolliderjs').scapi;
+	var scapi = new SCAPI();
+	scapi.connect();
+	// call registered API functions with a callback
+	scapi.call('api.apis', [], function(response) {
+	  console.log(response);
+	});
+	// You can interpret code or execute files.
+	scapi.call('interpreter.interpret', ["1 + 1"])
+		// .call returns a Q promise
+		.then(function(result) {
+				console.log(result);  // integer 2
+			}, function(err) {
+				console.log("ERROR:" + err);
+			});
+
+https://github.com/crucialfelix/API
+
+This is better than just trying to communicate with sclang over STDOUT/STDIN.  The reply (or error) you get is directly connected with the message you sent.
+
+You can easily write APIs for your own application just by putting a file containing a dictionary of handlers in:
+
+	{yourquark}/apis/{apiname}.api.scd
+
+Example server.api.scd:
+
+	(
+		boot: { arg reply, name=\default;
+			Server.fromName(name).waitForBoot(reply, 100, {
+				Error("Server failed to boot").throw
+			});
+		}
+	)
+
+## Websocket bridge for web browsers
+
+With javascript in the browser, call SuperCollider API functions via websockets -> OSC.
+
+	node bin/scapi.js
+
+Javascript in the browser:
 
 	sc = new SCApi("localhost", 4040);
 	sc.call("server.boot", ["default"], function() {
@@ -22,88 +114,84 @@ and it also includes code for use in a webbrowser:
 		});
 	});
 
+A test page is provided to browse the API:
 
-Things you could do with this
------------------------------
-
-Hooking up your JavaScript/processing.js app to easily trigger and control sounds from the Instr sound library.  [no knowledge of SuperCollider required, just read the API and play with it]
-
-Build dynamic localhosted web apps that communicate with your personal local copy of SuperCollider.  Make use of the rich library of JavaScript graphics, networking and UI libraries.  JavaScript on V8 in Chrome browser and in Node.js is significantly faster than SuperCollider and has a much larger array of development tools and documentation.  WebKit has a full featured debugger with breakpoints and all of that.
-
-Deploy webapps to a public server so that visitors can interact with your SuperCollider language based apps or can interact to play with sounds on the SC server.  The server can be piped into Icecast and streamed back to the visitors or it could be used in an exhibition or gallery situation where everybody can hear it.
-
-It uses http://socket.io which is loads of fun and should prove quite useful for installations and pieces that allow many people to interact with a single SuperCollider using mobile phones over normal webrowsers. Visitors can communicate with each other and messages can be broadcast to all joined parties.
-
-Build standalone applications using App.js etc.
-
-Communicate with the SuperCollider language via the API Quark
-=============================================================
-
-[webbrowser] =websockets=> [node api_server.js]
-
-=OSC=> [API Quark in supercollider] =sc-calls-the-API=> [your API]
-
-and then the reply:
-
-[API Quark] =OSC=> [node api_server.js]
-
-=websockets=> [browser]
+![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/scapi.png?raw=true)
 
 
-Configuring SuperCollider
-----------------
+## Installation
 
-First download and install The API Quark:
+To play with the examples you should clone clone or fork this repository:
+
+	git clone git@github.com:crucialfelix/supercolliderjs.git
+
+Install the dependencies:
+
+	cd supercolliderjs
+	npm install
 
 
+To use this library in your own nodejs application, add it as a dependency:
+
+	npm install supercolliderjs --save
+
+and require the module as needed in your code:
+
+	require('supercolliderjs').scsynth
+	require('supercolliderjs').sclang
+	require('supercolliderjs').scapi
+
+
+## Configuration
+
+SuperCollider is assumed to be located at `/Applications/SuperCollider/SuperCollider.app/Contents/Resources/`
+
+If your copy is not there, then pass commandline args:
+
+	node bin/scsynth.js --path /correct/path/to/scsynth/folder
+
+Or better yet create a `.supercolliderjs JSON` file in your project or home directory:
+
+	{
+	    "path": "/Users/crucial/code/supercollider/build/install/SuperCollider/SuperCollider-3-7.app/Contents/Resources"
+	}
+
+Other default settings will be kept there in the future.
+
+
+### Configuring SuperCollider for API
+
+First install the API quark
 
 In SuperCollider:
-
-```// make sure you have the Quark
-	Quarks.gui
 
 	Quarks.install("API");
 
 	// enable the OSC in SuperCollider
 	API.mountDuplexOSC;
-	// now leave this running
-```
-
-This loads the APIs that come with the API Quark.  See API below.
-
-You can easily write APIs for your own application just by putting a file containing a dictionary of handlers in:
-
-	{yourquark}/apis/{apiname}.api.scd
+	// and leave supercollider running
 
 
-Start the Node.js web/api server
-----------------------------
+This loads the APIs that come with the API Quark.
 
-At this time, the easiest way to get started is to clone the project. First install "make" by installing.
+### Start the Node.js web/api server
 
-For OS X, install the Apple Developer Tools: http://stackoverflow.com/questions/1469994/using-make-on-osx
+This runs a nodejs process that presents a little webserver, connects with browsers using websockets and communicates with SuperCollider using OSC. It currently only serves one page called "fiddle" for testing the API.
 
-```git clone git@github.com:oatkiller/supercolliderjs.git
-npm install
-```
+	node bin/scapi.js
 
-To run the local web server UI:
+In your browser open:
 
-```node bin/scapi-server.js```
+	open http://localhost:4040/
 
-Navigate to http://localhost:4040/
 
-This is a webserver, a websocket server and an OSC client.
 
-![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/master/examples/images/index-screenshot.png?raw=true)
+### In the browser
 
-In the browser
---------------
+JavaScript on that page connects to the api_server using websockets
+(ancient browsers will fallback to flash) which relays messages via OSC to SuperCollider's API Quark
 
-javascript on that page connects to the api_server using websockets
-(ancient browsers will fallback to flash)
-which relays messages via OSC to SuperCollider's API Quark
-
+	// javascript
 	sc = new SCApi("localhost",4040);
 	sc.call("server.boot", ["default"], function() {
 		// server is booted now
@@ -118,117 +206,17 @@ call returns a jQuery Deferred so you should  be able to use libraries like asyn
 
 Results are returned in JSON format so the SuperCollider APIs can return dictionaries and lists and these will be available as JavaScript objects in the return function.
 
-Security
---------
+### Security
 
 At the moment the API quark exposes "interpreter.interpret" and "synthdef.new" which would allow all kinds of mischeif.
 
-So you probably don't want to do this [1]:
 
-	gem install localtunnel
-	localtunnel 4040
+## Things you could do with this
 
-Navigate to the URL it posts.  Your laptop is now available on a public URL.
+Hooking up your JavaScript/processing.js app to easily trigger and control sounds from the Instr sound library.  [no knowledge of SuperCollider required, just read the API and play with it]
 
-People will come and sniff your packets.  Be forewarned.
+Build dynamic localhosted web apps that communicate with your personal local copy of SuperCollider.  Make use of the rich library of JavaScript graphics, networking and UI libraries.  JavaScript on V8 in Chrome browser and in Node.js is significantly faster than SuperCollider and has a much larger array of development tools and documentation.  WebKit has a full featured debugger with breakpoints and all of that.
 
-[1] http://progrium.com/localtunnel/
+Deploy webapps to a public server so that visitors can interact with your SuperCollider language based apps or can interact to play with sounds on the SC server.  The server can be piped into Icecast and streamed back to the visitors or it could be used in an exhibition or gallery situation where everybody can hear it.
 
-
-Planned
--------
-
-See ISSUES on github
-
-Calls will return jQuery Promises so that libraries like Q and Async can be used for chaining, waterfall, parallel etc.  This is a coding style that is well suited to working with the SuperCollider server.
-
-Support to send directly to scsynth without going through API and the language.
-
-eg.
-
-	sc.server.sendMsg("set",nodeID,"freq",300);
-
-It receives JSON objects like {key: value, list: [1,2,3]} but at the moment doesn't send objects in requests.  SuperCollider needs a solid and safe JSON parser.  3.6 has a YAML parser I think.
-
-Mx, Instr and Patch will have full API support for web-based guis.  Equivalents to Instr browser and the Mx patching interface that currently exist in SuperCollider (but are much slower there).
-
-Develop the npm package more so the server code can be easily imported, extended, tweaked and reused.
-
-Some way to either generate a project from a template or by forking a repo so that people can throw together sketches very quickly.
-
-Command line args to the server.
-
-
-Direct Communication with the Server
-====================================
-
-Initially all I've finished implementing is starting the server:
-
-	node boot-server.js
-
-[Note for sc people: This is done as a proper child process so there is no need of the alive thread and guessing-game that SuperCollider language currently does.  The death of the server is instantly known and never exagerrated.]
-
-Planned
--------
-
-I had some problems with the OSC library I was using and am going to switch it to min-osc.
-
-I'm not intending to replicate the SuperCollider language framework.  I wrote or worked on many of the base classes for SuperCollider (Node Synth Group Bus Buffer etc) but they have become quite messy and have multiple usage styles piled on top of each other.  Javascript is more flexible with mixins and prototypical inheritance so its easier to separate usage styles and keep packages clean.
-
-The classes here will use Node's EventEmitter for Server and Synth/Group notifications.
-
-API
-===
-
-This is probably out of date already:
-
-	group.head
-	group.free
-	group.tail
-	group.new
-	instr.list
-	instr.play
-	instr.head
-	instr.detail
-	instr.listBySpec
-	instr.addSynthDesc
-	instr.after
-	instr.loadAll
-	instr.tail
-	instr.before
-	instr.replace
-	class.allClasses
-	class.subclasses
-	class.helpFile
-	class.helpFilePath
-	class.hasHelpFile
-	class.allSubclasses
-	API.apis
-	API.paths
-	interpreter.interpret
-	interpreter.play
-	interpreter.executeFile
-	server.freeAll
-	server.boot
-	server.sendMsg
-	server.quit
-	server.nextNodeID
-	server.isRunning
-	synth.head
-	synth.release
-	synth.grain
-	synth.free
-	synth.tail
-	synth.new
-	synth.get
-	synth.set
-	synthdef.remove
-	synthdef.add
-
-
-LICENSE
-=======
-
-For now its GPL like SuperCollider.
-
-
+It uses http://socket.io which is loads of fun and should prove quite useful for installations and pieces that allow many people to interact with a single SuperCollider using mobile phones over normal webrowsers. Visitors can communicate with each other and messages can be broadcast to all joined parties.

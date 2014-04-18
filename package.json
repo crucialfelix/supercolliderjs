@@ -1,7 +1,7 @@
 {
   "name": "supercolliderjs",
   "description": "Tools for communicating with the SuperCollider music language environment",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": "Felix <crucialfelix@gmail.com>",
   "contributors": [
     {
@@ -10,27 +10,39 @@
     }
   ],
   "dependencies": {
-    "socket.io" : "0.9.x",
-    "osc-min" : "*",
-    "express" : "3.x",
-    "underscore": "1.3.x"
+    "socket.io": "0.9.x",
+    "osc-min": "0.1.x",
+    "express": "3.5.x",
+    "underscore": "1.3.x",
+    "node-uuid": "~1.4.1",
+    "q": "~1.0.1",
+    "colors": "~0.6.2",
+    "commander": "~2.2.0",
+    "rcfinder": "~0.1.6"
   },
   "devDependencies": {
+    "grunt": "0.4.x",
+    "grunt-contrib-jshint": "0.6.x",
+    "matchdep": "0.1.x"
   },
-  "license" : "GPL",
-  "keywords": ["supercollider", "synthesis", "music", "sound"],
+  "license": "MIT",
+  "keywords": [
+    "supercollider",
+    "synthesis",
+    "music",
+    "sound"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/crucialfelix/supercolliderjs"
   },
   "main": "index",
   "bin": {
-    "scapi" : "bin/scapi-server.js"
-  },
-  "scripts" : {
-    "scapi": "node bin/scapi-server.js"
+    "scapi": "./bin/scapi.js",
+    "scsynth": "./bin/scsynth.js",
+    "sclang": "./bin/sclang.js"
   },
   "engines": {
-    "node": ">=0.8"
+    "node": ">=0.10.0"
   }
 }

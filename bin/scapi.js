@@ -26,16 +26,14 @@
 */
 
 
-var scapi = require("../lib/server/scapi-server.js");
+var webserver = require('../lib/nodejs/scapi-webserver.js');
+
+webserver.listen();
+
 
 /**
   * Optional arguments:
-  * host   (default: localhost)
-  * port   (default: 4040)
   * schost (default: localhost)
   * scport (default: 57120)
-  * @return {http.Server}
 */
-
-scapi.listen();
 
