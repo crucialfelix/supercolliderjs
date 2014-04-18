@@ -35,7 +35,8 @@
   },
   "main": "index",
   "bin": {
-    "scapi": "./bin/scapi.js"
+    "scapi": "./bin/scapi.js",
+    "scsynth": "./bin/scsynth.js"
   },
   "engines": {
     "node": ">=0.10.0"
