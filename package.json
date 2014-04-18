@@ -1,7 +1,7 @@
 {
   "name": "supercolliderjs",
   "description": "Tools for communicating with the SuperCollider music language environment",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": "Felix <crucialfelix@gmail.com>",
   "contributors": [
     {
@@ -25,7 +25,7 @@
     "grunt-contrib-jshint": "0.6.x",
     "matchdep": "0.1.x"
   },
-  "license": "GPL",
+  "license": "MIT",
   "keywords": [
     "supercollider",
     "synthesis",
