@@ -30,7 +30,7 @@ Use it in your projects:
 		console.log(addr + msg);
 	});
 
-![scsynth](https://github.com/crucialfelix/supercolliderjs/blob/develop/docs/images/scsynth.png?raw=true)
+![scsynth](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/scsynth.png?raw=true)
 
 
 ## sclang
@@ -54,7 +54,7 @@ Use it in your projects:
 	  console.log('STDERR:' + d);
 	});
 
-![sclang](https://github.com/crucialfelix/supercolliderjs/blob/develop/docs/images/sclang.png?raw=true)
+![sclang](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/sclang.png?raw=true)
 
 
 ## API
@@ -116,7 +116,7 @@ Javascript in the browser:
 
 A test page is provided to browse the API:
 
-![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/develop/docs/images/index-screenshot.png?raw=true)
+![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/index-screenshot.png?raw=true)
 
 
 ## Installation
@@ -184,7 +184,6 @@ In your browser open:
 
 	open http://localhost:4040/
 
-![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/master/docs/images/scapi.png?raw=true)
 
 
 ### In the browser
