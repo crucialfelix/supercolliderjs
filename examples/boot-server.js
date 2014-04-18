@@ -1,8 +1,8 @@
 /*
-	this just boots the local scsynth server,
-	holding it as a spawned child process.
+  this just boots the local scsynth server,
+  holding it as a spawned child process.
 
-	next step: osc message to the server
+  next step: osc message to the server
 */
 
 
@@ -15,8 +15,16 @@ var s = new scsynth(options());
 
 s.boot();
 
-console.log('s.options', s.options);
+setTimeout(function() {
 
-// s.sendMsg()
+  s.connect();
+  s.sendMsg('/notify', [1]);
+  s.sendMsg('/status', []);
+  s.sendMsg('/dumpOSC', []);
+
+}, 1000);
+
+
+
 
 // s.quit();
