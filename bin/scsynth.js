@@ -3,9 +3,9 @@
 var
     path = require('path'),
     lib = path.join(__dirname, '../lib/nodejs/'),
-    SCLang = require(lib + 'sclang'),
+    Server = require(lib + 'scsynth'),
     options = require(lib + 'parse-options');
 
-var s = new SCLang(options());
+var s = new Server(options());
 
 s.boot();
