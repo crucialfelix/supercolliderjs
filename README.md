@@ -13,6 +13,10 @@ Run the SuperCollider synthesis server 'scsynth'. Send and receive OSC messages.
 
 	node bin/scsynth.js
 
+If you install supercolliderjs globally then simply:
+
+	scsynth
+
 Use it in your projects:
 
 	var scsynth = require('supercolliderjs').scsynth;
@@ -38,6 +42,12 @@ Use it in your projects:
 Run a headless language interpreter.
 
 	node bin/sclang.js
+
+If you install supercolliderjs globally then simply:
+
+	sclang
+
+It does not currently accept STDIN so you will have to talk to the process using OSC.
 
 Use it in your projects:
 
@@ -150,7 +160,7 @@ If your copy is not there, then pass commandline args:
 
 	node bin/scsynth.js --path /correct/path/to/scsynth/folder
 
-Or better yet create a `.supercolliderjs JSON` file in your project or home directory:
+Or better yet create a `.supercolliderjs` JSON file in your project or home directory:
 
 	{
 	    "path": "/Users/crucial/code/supercollider/build/install/SuperCollider/SuperCollider-3-7.app/Contents/Resources"
