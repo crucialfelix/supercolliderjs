@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 
 /*
 	Runs a webserver and web-socket server for communicating from a browser webpage to a running SuperCollider (sclang) application.
@@ -25,15 +26,10 @@
 
 */
 
-
-var webserver = require('../lib/nodejs/scapi-webserver.js');
+var
+	path = require('path'),
+	lib = path.join(__dirname, '../lib/nodejs/'),
+	webserver = require(lib + 'scapi-webserver'),
+	options = require(lib + 'parse-options');
 
 webserver.listen();
-
-
-/**
-  * Optional arguments:
-  * schost (default: localhost)
-  * scport (default: 57120)
-*/
-
