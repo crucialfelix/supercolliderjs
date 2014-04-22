@@ -206,6 +206,20 @@ call returns a jQuery Deferred so you should  be able to use libraries like asyn
 
 Results are returned in JSON format so the SuperCollider APIs can return dictionaries and lists and these will be available as JavaScript objects in the return function.
 
+### Command line
+
+If you install supercolliderjs globally
+
+		npm install -g supercolliderjs
+
+then `scsynth` `sclang` and `scapi` will be added to your path and you can use this to easily start up an sclang or scsynth process.
+
+TODO:
+- Passing full command line args including class dirs
+- getting server options from your ~/.supercolliderjs file
+- passing file args so `sclang path/to/some/file.scd` would work
+
+
 ### Security
 
 At the moment the API quark exposes "interpreter.interpret" and "synthdef.new" which would allow all kinds of mischeif.
