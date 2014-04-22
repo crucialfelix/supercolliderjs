@@ -47,12 +47,12 @@ If you install supercolliderjs globally then simply:
 
 	sclang
 
-It does not currently accept STDIN so you will have to talk to the process using OSC.
+By default this accepts STDIN, so its a REPL.
 
 Use it in your projects:
 
 	var SCLang = require('supercolliderjs').sclang;
-	var sclang = new SCLang();
+	var sclang = new SCLang({stdin: false, echo: false});
 	sclang.boot();
 	// send code to be interpreted
 	sclang.write("1 + 1");
@@ -66,6 +66,7 @@ Use it in your projects:
 
 ![sclang](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/sclang.png?raw=true)
 
+You could then pipe it to a webpage or to Atom or Sublime, though using the API 'interpreter.interpret' is better since you get non-blocking async and a clear connection between commands and results.
 
 ## API
 
