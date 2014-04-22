@@ -12,7 +12,9 @@ var options = require('../lib/nodejs/parse-options');
 
 
 var o = options();
-// do not echo to console
+// no STDIN, all input will be programmatic
+o.stdin = false;
+// do not echo to console, that's handled here
 o.echo = false;
 
 var sclang = new SCLang(o);
