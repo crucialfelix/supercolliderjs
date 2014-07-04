@@ -29,7 +29,12 @@
 var
 	path = require('path'),
 	lib = path.join(__dirname, '../lib/nodejs/'),
-	webserver = require(lib + 'webserver');
-	// options = require(lib + 'parse-options');
+	webserver = require(lib + 'webserver'),
+	root = null;
+	// options = require(lib + 'parse-options')();
 
-webserver.listen();
+if(process.argv.length > 2) {
+	root = process.argv[2];
+}
+
+webserver.listen(null, null, null, null, root);
