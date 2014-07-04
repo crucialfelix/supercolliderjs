@@ -7,7 +7,7 @@
 
 	/fiddle.html
 		A page with an interface for exploring the SC API and sending/receiving responses.
-	/media/js/scapi.js
+	/static/js/scapi.js
 		The browser side javascript library used for communciating with this server
 	/socket.io
 		The javascript for socket.io (for websocket support)
