@@ -29,7 +29,7 @@
 var
 	path = require('path'),
 	lib = path.join(__dirname, '../lib/nodejs/'),
-	webserver = require(lib + 'scapi-webserver'),
-	options = require(lib + 'parse-options');
+	webserver = require(lib + 'webserver');
+	// options = require(lib + 'parse-options');
 
 webserver.listen();
