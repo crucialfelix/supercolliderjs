@@ -18,7 +18,8 @@
     "q": "1.0.x",
     "colors": "0.6.x",
     "commander": "2.2.x",
-    "rcfinder": "~0.1.7"
+    "rcfinder": "~0.1.7",
+    "commander-config": "0.0.3"
   },
   "devDependencies": {
     "grunt": "0.4.x",
