@@ -45,14 +45,38 @@
 */
 
 var
-	path = require('path'),
-	lib = path.join(__dirname, '../lib/nodejs/'),
-	webserver = require(lib + 'webserver'),
-	root = null;
-	// options = require(lib + 'parse-options')();
+	join = require('path').join,
+	pkg = require(join(__dirname, '../package.json')),
+	lib = join(__dirname, '../lib/nodejs/'),
+	program = require('commander'),
+	resolveOptions = require('../lib/nodejs/resolveOptions'),
 
-if(process.argv.length > 2) {
-	root = process.argv[2];
+	webserver = require(lib + 'webserver'),
+	options = {},
+	root;
+
+
+program.version(pkg.version)
+	.option('--config <path>', 'Configuration file eg. .supercollider.yaml')
+	.option('-p --port <port>', 'Port to run local webserver on [default=4040]');
+
+program.parse(process.argv);
+
+['config', 'verbose'].forEach(function(k) {
+	if(k in program) {
+		options[k] = program[k];
+	}
+});
+
+if(program.port) {
+	options.websocketPort = program.port;
 }
 
-webserver.listen(null, null, null, null, root);
+if(program.args.length) {
+	root = program.args[0];
+}
+
+resolveOptions(program.config, options)
+	.then(function(opts) {
+		webserver.listen(root, opts);
+	});
