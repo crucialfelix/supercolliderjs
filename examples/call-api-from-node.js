@@ -9,7 +9,6 @@
 
 */
 
-
 // npm install supercolliderjs
 // then import like so:
 // var scjs = require('supercolliderjs');
@@ -29,14 +28,12 @@ scjs.resolveOptions().then(function(options) {
     console.log(response);
   });
 
-
   // with ok and error callback
   scapi.call('nope.wrong.address', [], function(response) {
     console.log(response);
   }, function(err) {
     console.log('err: ', err);
   });
-
 
   // call returns a Q promise
   // so you can use .then

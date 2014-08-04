@@ -15,7 +15,6 @@
 
  */
 
-
 // npm install supercolliderjs
 // then import like so:
 // var scjs = require('supercolliderjs');
@@ -39,7 +38,7 @@ scjs.resolveOptions(null, {
   // wait for it to compile
   console.log('Waiting 5 seconds till sc compiles...');
   setTimeout(function() {
-    sclang.write("1 + 1");
+    sclang.write('1 + 1');
   }, 5000);
 
 });
