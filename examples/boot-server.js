@@ -5,26 +5,26 @@
   next step: osc message to the server
 */
 
+// npm install supercolliderjs
+// then import like so:
+// var scjs = require('supercolliderjs');
 
-var scsynth = require('../lib/nodejs/scsynth.js');
-var options = require('../lib/nodejs/parse-options');
+// from within this example folder this is the same thing:
+var scjs = require('../index.js');
+var Server = scjs.scsynth;
 
+scjs.resolveOptions().then(function(options) {
 
-var s = new scsynth(options());
+  var s = new Server(options);
 
+  s.boot();
 
-s.boot();
+  setTimeout(function() {
+    s.connect();
+    s.sendMsg('/notify', [1]);
+    s.sendMsg('/status', []);
+    s.sendMsg('/dumpOSC', []);
 
-setTimeout(function() {
+  }, 1000);
 
-  s.connect();
-  s.sendMsg('/notify', [1]);
-  s.sendMsg('/status', []);
-  s.sendMsg('/dumpOSC', []);
-
-}, 1000);
-
-
-
-
-// s.quit();
+});

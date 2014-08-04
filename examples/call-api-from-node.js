@@ -10,31 +10,41 @@
 */
 
 
-var SCAPI = require('../lib/nodejs/scapi.js');
+// npm install supercolliderjs
+// then import like so:
+// var scjs = require('supercolliderjs');
 
-var scapi = new SCAPI();
-scapi.connect();
+// from within this example folder this is the same thing:
+var scjs = require('../index.js');
 
-// simple API call with a callback
-scapi.call('api.apis', [], function(response) {
-  console.log(response);
-});
+var SCAPI = scjs.scapi;
 
+scjs.resolveOptions().then(function(options) {
 
-// with ok and error callback
-scapi.call('nope.wrong.address', [], function(response) {
-  console.log(response);
-}, function(err) {
-  console.log('err: ', err);
-});
+  var scapi = new SCAPI(options);
+  scapi.connect();
 
-
-// call returns a Q promise
-// so you can use .then
-scapi.call('instr.list')
-  .then(function(response) {
-    console.log(response.result);
-  }, function(err) {
-    console.log(err);
+  // simple API call with a callback
+  scapi.call('api.apis', [], function(response) {
+    console.log(response);
   });
 
+
+  // with ok and error callback
+  scapi.call('nope.wrong.address', [], function(response) {
+    console.log(response);
+  }, function(err) {
+    console.log('err: ', err);
+  });
+
+
+  // call returns a Q promise
+  // so you can use .then
+  scapi.call('instr.list')
+    .then(function(response) {
+      console.log(response.result);
+    }, function(err) {
+      console.log(err);
+    });
+
+});
