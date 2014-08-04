@@ -18,7 +18,7 @@
     "q": "1.0.x",
     "colors": "0.6.x",
     "commander": "2.2.x",
-    "rcfinder": "~0.1.7"
+    "commander-config": "0.0.3"
   },
   "devDependencies": {
     "grunt": "0.4.x",
@@ -39,8 +39,8 @@
   "main": "index",
   "bin": {
     "scapi": "./bin/scapi.js",
-    "scsynth": "./bin/scsynth.js",
-    "sclang": "./bin/sclang.js"
+    "supercollider-server": "./bin/server.js",
+    "supercollider": "./bin/interpreter.js"
   },
   "engines": {
     "node": ">=0.10.0"
