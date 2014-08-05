@@ -38,7 +38,8 @@ scjs.resolveOptions(null, {
   // wait for it to compile
   console.log('Waiting 5 seconds till sc compiles...');
   setTimeout(function() {
-    sclang.write('1 + 1');
+    // raw write
+    sclang.write('1 + 1;');
   }, 5000);
 
 });
