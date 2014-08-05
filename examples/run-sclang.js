@@ -27,19 +27,16 @@ var SCLang = scjs.sclang;
 scjs.resolveOptions(null, {
   // no STDIN, all input will be programmatic
   stdin: false,
-  // do not echo to console, that's handled here
-  echo: false
+  echo: true,
+  debug: true
 }).then(function(options) {
 
   var sclang = new SCLang(options);
 
-  sclang.boot();
-
-  // wait for it to compile
-  console.log('Waiting 5 seconds till sc compiles...');
-  setTimeout(function() {
-    // raw write
-    sclang.write('1 + 1;');
-  }, 5000);
+  sclang.boot()
+    .then(function() {
+      // raw write
+      sclang.write('1 + 1;');
+    });
 
 });

@@ -24,21 +24,21 @@ scjs.resolveOptions(null, {
 
   var sclang = new SCLang(options);
 
-  sclang.boot();
-
-  // get output and do what you like with it
+  // sclang will emit the 'stdout' event
   sclang.on('stdout', function(d) {
     console.log('STDOUT:' + d);
   });
 
+  // and 'stderr' but these are system level errors
+  // not syntax or sc run time errors
   sclang.on('stderr', function(d) {
     console.log('STDERR:' + d);
   });
 
-  // need to wait for it to compile
-  console.log('Waiting 5 seconds till sc compiles...');
-  setTimeout(function() {
-    console.log('writing to STDIN: "1 + 1"');
-    sclang.write('1 + 1');
-  }, 5000);
+  sclang.boot()
+    .then(function() {
+      console.log('writing to STDIN: "1 + 1"');
+      sclang.write('1 + 1');
+    });
+
 });
