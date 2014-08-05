@@ -35,8 +35,15 @@ scjs.resolveOptions(null, {
 
   sclang.boot()
     .then(function() {
+
       // raw write
       sclang.write('1 + 1;');
-    });
 
+      setTimeout(function() {
+        sclang.quit()
+          .then(function() {
+            console.log('sclang process has exited');
+          });
+      }, 3000);
+    });
 });
