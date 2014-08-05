@@ -62,13 +62,22 @@ scjs.resolveOptions(null, {
       sclang.interpret('1 + 1.pleaseDontDoThisToMe')
         .then(function(result) {
           console.log('Answer is: (should be runtime error)' + result);
-        }, function(type, err) {
-          console.log('error (should be runtime error):' + type);
+        }, function(err) {
+          console.log('error (should be Error):');
           console.log(err);
+          // { type: 'Error',
+          //   error:
+          //    { selector: 'pleaseDontDoThisToMe',
+          //      what: 'DoesNotUnderstandError',
+          //      args: [],
+          //      receiver: { asString: '1', class: 'Integer' },
+          //      class: 'DoesNotUnderstandError',
+          //      path: '5f4b9581-1c83-11e4-bff4-77673f16fd9d',
+          //      errorString: 'ERROR: Message \'pleaseDontDoThisToMe\' not understood by Integer 1' } }
         });
 
       // out of band error
 
     });
-  }, 5000);
+  }, 2000);
 });

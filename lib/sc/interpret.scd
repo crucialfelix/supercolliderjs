@@ -1,6 +1,7 @@
 var tab = [$\\,$\\,$t].as(String),
     nl = [$\\,$\\,$n].as(String),
-    toJSON = IdentityDictionary.new;
+    toJSON = IdentityDictionary.new,
+    errorToJSON = IdentityDictionary.new;
 
 Library.put(\supercolliderjs, \interpret,
   { arg guid, escapedCode, executingPath, returnResultAsString;
@@ -24,15 +25,11 @@ Library.put(\supercolliderjs, \interpret,
         result = compiled.value();
       }.try({ arg err;
         err.path = executingPath ? guid;
-        error = Library.at(\supercolliderjs, \errorToJSON, err.class).value(err);
-        if(error.isNil, {
-          // unknown error type
-          error = Library.at(\supercolliderjs, \errorToJSON, Error).value(err);
-        });
+        error = errorToJSON.at(\getData).value(err);
       });
       if(error.notNil, {
         Library.at(\supercolliderjs, \return)
-          .value(guid, "Error", error);
+          .value(guid, "Error", error.insp("return"));
       }, {
         Library.at(\supercolliderjs, \return)
           .value(guid, "Result", if(returnResultAsString.isNil, { result }, { result.asString }));
@@ -52,14 +49,90 @@ Library.put(\supercolliderjs, \return,
 
 /******************    errors    *****************************************/
 
-Library.put(\supercolliderjs, \errorToJSON, Error,
-  { arg err;
+errorToJSON = (
+  getData: { arg err;
+    var data = ();
+    err.class.superclassesDo({ arg class;
+      var handler = errorToJSON.at(class.name);
+      if(handler.notNil, {
+        data.putAll(handler.value(err));
+      });
+    });
+    data
+  },
+  Exception: { arg err;
     (
-      class: "Error",
-      what: err.what,
-      path: err.path
+        class: err.class.asString,
+        what: err.what,
+        path: err.path,
+        errorString: err.errorString
     )
-  });
+  },
+  MethodError: { arg err;
+    (
+      receiver: (
+        class: err.receiver.class.name,
+        asString: err.receiver.asString
+      )
+    )
+  },
+  PrimitiveFailedError: { arg err;
+    (
+      failedPrimitiveName: err.failedPrimitiveName
+    )
+  },
+  SubclassResponsibilityError: { arg err;
+    (
+      method: err.method.name,
+      class: err.class.name
+    )
+  },
+  ShouldNotImplementError: { arg err;
+    (
+      method: err.method.name,
+      class: err.class.name
+    )
+  },
+  DoesNotUnderstandError: { arg err;
+    (
+      selector: err.selector,
+      args: err.args.collect({ arg a; (class: a.class, asString: a.asString)})
+    )
+  },
+  OutOfContextReturnError: { arg err;
+    (
+      method: (
+        name: err.method.name,
+        ownerClass: err.method.ownerClass.name
+      ),
+      result: (
+        class: err.result.class.name,
+        asString: err.result.asString
+      )
+    )
+  },
+  ImmutableError: { arg err;
+    (
+      value: (
+        class: err.value.class.name,
+        asString: err.value.asString
+      )
+    )
+  },
+  DeprecatedError: { arg err;
+    (
+      method: (
+        name: err.method.name,
+        ownerClass: err.method.ownerClass.name
+      ),
+      class: err.class.name, // not used ?
+      alternateMethod: (
+        name: err.alternateMethod.name,
+        ownerClass: err.alternateMethod.ownerClass.name
+      )
+    )
+  }
+);
 
 
 /********************   a portable JSON stringify ************************/
