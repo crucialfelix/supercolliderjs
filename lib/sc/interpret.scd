@@ -29,7 +29,7 @@ Library.put(\supercolliderjs, \interpret,
       });
       if(error.notNil, {
         Library.at(\supercolliderjs, \return)
-          .value(guid, "Error", error.insp("return"));
+          .value(guid, "Error", error);
       }, {
         Library.at(\supercolliderjs, \return)
           .value(guid, "Result", if(returnResultAsString.isNil, { result }, { result.asString }));
