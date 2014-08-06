@@ -34,7 +34,7 @@ Use it in your projects:
 		console.log(addr + msg);
 	});
 
-![scsynth](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/scsynth.png?raw=true)
+![scsynth](https://github.com/crucialfelix/supercolliderjs/blob/develop/docs/images/scsynth.png?raw=true)
 
 
 ## sclang
@@ -64,7 +64,7 @@ Use it in your projects:
 	  console.log('STDERR:' + d);
 	});
 
-![sclang](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/sclang.png?raw=true)
+![sclang](https://github.com/crucialfelix/supercolliderjs/blob/develop/docs/images/sclang.png?raw=true)
 
 You could then pipe it to a webpage or to Atom or Sublime, though using the API 'interpreter.interpret' is better since you get non-blocking async and a clear connection between commands and results.
 
@@ -127,7 +127,7 @@ Javascript in the browser:
 
 A test page is provided to browse the API:
 
-![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/develop/doc/images/scapi.png?raw=true)
+![Index Screenshot](https://github.com/crucialfelix/supercolliderjs/blob/develop/docs/images/scapi.png?raw=true)
 
 
 ## Installation
