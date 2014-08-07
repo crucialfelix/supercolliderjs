@@ -33,26 +33,21 @@ Example
 -------
 
 		var scjs = require('supercolliderjs');
-		var SCLang = scjs.sclang;
 
-		scjs.resolveOptions().then(function(options) {
+		scjs.sclang.boot()
+			.then(function(sclang) {
 
-			var sclang = new SCLang(options);
-
-			sclang.boot()
-				.then(function() {
-					sclang.initInterpreter(function() {
-						console.log('(1..8).pyramid');
-						sclang.interpret('(1..8).pyramid')
-							.then(function(result) {
-								// JSON
-								console.log('= ' + result);
-							}, function(error) {
-								console.log(error);
-							});
+				sclang.interpret('(1..8).pyramid')
+					.then(function(result) {
+						// result is a native javascript array
+						console.log('= ' + result);
+					}, function(error) {
+						// syntax or runtime errors
+						// are returned as javascript objects
+						console.log(error);
 					});
-				});
-		});
+
+			});
 
 
 Contribute
