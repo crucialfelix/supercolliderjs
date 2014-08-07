@@ -94,7 +94,7 @@
 			args = $("#args", this).val(),
 			start = new Date();
 		e.preventDefault();
-		if(args) {
+		if (args) {
 			args = eval(args); // evil
 		}
 		$("#response").html("<i class='icon-time'></i> loading...");
@@ -103,13 +103,13 @@
 				var formatted;
 				timestamp(start);
 				window.result = data;
-				if(_.isArray(data)) {
+				if (_.isArray(data)) {
 					formatted = $("<ul></ul>");
 					_.each(data,function(it) {
 						formatted.append("<li>" + it + "</li>");
 					});
 				} else {
-					if(_.isObject(data)) {
+					if (_.isObject(data)) {
 						formatted = $("<table class='table table-striped table-hover'></table>");
 						_.each(data,function(v, k) {
 							formatted.append("<tr><th>" + k + "</th><td>" + v + "</td></tr>");

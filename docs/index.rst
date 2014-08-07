@@ -1,3 +1,8 @@
+.. supercolliderjs documentation master file, created by
+   sphinx-quickstart on Tue Aug  5 22:34:40 2014.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
 supercollider.js
 ================
 
@@ -12,12 +17,6 @@ This library provides tools for working with:
 - sclang running in SuperCollider application (IDE + sclang).
 
 
-Documentation
--------------
-
-http://supercolliderjs.readthedocs.org/en/latest/
-
-
 Features
 --------
 
@@ -27,27 +26,6 @@ Features
 - Send and receive OSC messages to scsynth
 - Call API endpoints in SuperCollider from a browser using JavaScript and a websocket/OSC bridge
 - Communicate with sclang running in SuperCollider.app (SC IDE) using OSC
-
-
-Example
--------
-
-		var scjs = require('supercolliderjs');
-
-		scjs.sclang.boot()
-			.then(function(sclang) {
-
-				sclang.interpret('(1..8).pyramid')
-					.then(function(result) {
-						// result is a native javascript array
-						console.log('= ' + result);
-					}, function(error) {
-						// syntax or runtime errors
-						// are returned as javascript objects
-						console.log(error);
-					});
-
-			});
 
 
 Contribute
@@ -61,3 +39,29 @@ License
 -------
 
 The project is licensed under the MIT license.
+
+
+Docs
+====
+
+.. toctree::
+   :maxdepth: 2
+
+   quick-start
+   configuration
+
+   bin-supercollider
+   bin-supercollider-server
+   bin-scapi
+
+   sclang
+   scsynth
+   scapi
+   bridge
+   webserver
+   resolveOptions
+
+   atom-supercollider
+
+* :ref:`genindex`
+* :ref:`search`

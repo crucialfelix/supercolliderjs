@@ -15,17 +15,35 @@
 
  */
 
-var SCLang = require('../lib/nodejs/sclang.js');
-var options = require('../lib/nodejs/parse-options');
+// npm install supercolliderjs
+// then import like so:
+// var scjs = require('supercolliderjs');
 
-var sclang = new SCLang(options());
+// from within this example folder this is the same thing:
+var scjs = require('../index.js');
 
-sclang.boot();
+var SCLang = scjs.sclang;
 
-// wait for it to compile
-console.log('Waiting 5 seconds till sc compiles...');
+scjs.resolveOptions(null, {
+  // no STDIN, all input will be programmatic
+  stdin: false,
+  echo: true,
+  debug: true
+}).then(function(options) {
 
-setTimeout(function() {
-  sclang.write("1 + 1");
-}, 5000);
+  var sclang = new SCLang(options);
 
+  sclang.boot()
+    .then(function() {
+
+      // raw write
+      sclang.write('1 + 1;');
+
+      setTimeout(function() {
+        sclang.quit()
+          .then(function() {
+            console.log('sclang process has exited');
+          });
+      }, 3000);
+    });
+});

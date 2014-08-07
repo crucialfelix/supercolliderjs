@@ -1,40 +1,37 @@
 #!/usr/bin/env node
-
 /*
-	Runs a websockets <-> OSC bridge for communicating
-	from a browser through to SuperCollider
+  Runs a websockets <-> OSC bridge for communicating
+  from a browser through to SuperCollider
 
-	Usage:
+  Usage:
 
-		Start SuperCollider
-		Install the API quark ( > 2.0 )
-		Activate the OSC responders in supercollider:
-			API.mountDuplexOSC
+    Start SuperCollider
+    Install the API quark ( > 2.0 )
+    Activate the OSC responders in supercollider:
+      API.mountDuplexOSC
 
+    Start this server:
 
-		Start this server:
+    // serves a default page where you can view registered API endpoints
+    // and make api calls, get resposnes
+    // A page with an interface for exploring the SC API and sending/receiving responses.
+    scapi
 
-		// serves a default page where you can view registered API endpoints
-		// and make api calls, get resposnes
-		// A page with an interface for exploring the SC API and sending/receiving responses.
-		scapi
+    // Starts a webserver with the specified path as web root.
+    // eg: current directory
+    scapi ./
 
-		// Starts a webserver with the specified path as web root.
-		// eg: current directory
-		scapi ./
+  These special URLs are also served:
 
+  /static/js/scapi.js
+    The browser side javascript library used for communciating with this server
 
-	These special URLs are also served:
+  /socket.io
+    The javascript for socket.io (for websocket support)
 
-	/static/js/scapi.js
-		The browser side javascript library used for communciating with this server
+  If you have installed this package globally then 'scapi' is on your path.
 
-	/socket.io
-		The javascript for socket.io (for websocket support)
-
-	If you have installed this package globally then 'scapi' is on your path.
-
-	If you have cloned this then call the file directly using node:
+  If you have cloned this then call the file directly using node:
 
       node bin/scapi-server.js
 
@@ -45,14 +42,37 @@
 */
 
 var
-	path = require('path'),
-	lib = path.join(__dirname, '../lib/nodejs/'),
-	webserver = require(lib + 'webserver'),
-	root = null;
-	// options = require(lib + 'parse-options')();
+  join = require('path').join,
+  pkg = require(join(__dirname, '../package.json')),
+  lib = join(__dirname, '../lib/nodejs/'),
+  program = require('commander'),
+  resolveOptions = require('../lib/nodejs/resolveOptions'),
 
-if(process.argv.length > 2) {
-	root = process.argv[2];
+  webserver = require(lib + 'webserver'),
+  options = {},
+  root;
+
+program.version(pkg.version)
+  .option('--config <path>', 'Configuration file eg. .supercollider.yaml')
+  .option('-p --port <port>', 'Port to run local webserver on [default=4040]');
+
+program.parse(process.argv);
+
+['config', 'verbose'].forEach(function(k) {
+  if (k in program) {
+    options[k] = program[k];
+  }
+});
+
+if (program.port) {
+  options.websocketPort = program.port;
 }
 
-webserver.listen(null, null, null, null, root);
+if (program.args.length) {
+  root = program.args[0];
+}
+
+resolveOptions(program.config, options)
+  .then(function(opts) {
+    webserver.listen(root, opts);
+  });
