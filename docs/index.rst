@@ -11,6 +11,7 @@ Node JS and webrowser tools for working with SuperCollider.
 SuperCollider is an environment and programming language for real time audio synthesis and algorithmic composition. It provides an interpreted object-oriented language which functions as a network client to a state of the art, realtime sound synthesis server.
 
 This library provides tools for working with:
+
 - scsynth (the synthesis server)
 - sclang (supercollider language interpreter)
 - sclang running in SuperCollider application (IDE + sclang).

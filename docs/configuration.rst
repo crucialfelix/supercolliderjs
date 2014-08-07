@@ -4,10 +4,9 @@ Configuration
 An optional config file specifies the paths to the sclang and scsynth executables. If not found then it assumes that SuperCollider is installed in the standard place for your platform. It should just work.
 
 Searches upwards from current working directory:
-- `.supercollider.yaml`
-- ...
-- `~/.supercollider.yaml`
-- ...
+
+* .supercollider.yaml
+* ~/.supercollider.yaml
 
 Matching config files in child directories are shallow merged into config files found in parent directories.
 
@@ -32,6 +31,7 @@ settings and defaults
     websocketPort: 4040
 
 
+On linux: /usr/bin/local/sclang
 
 http://www.yaml.org/start.html
 http://en.wikipedia.org/wiki/YAML#Sample_document

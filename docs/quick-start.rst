@@ -15,11 +15,11 @@ Commands
 This will also install three commands to your executable path:
 
 - supercollider
-- bin-supercollider-server
+- supercollider-server
 - scapi
 
 
-If you are using atom-supercollider then the latest supercolliderjs is installed with that, but not globally so the commands are not installed for you.
+If you are using atom-supercollider then the latest supercolliderjs is installed inside of that, you do not need to install this for atom to work. But supercolliderjs is not installed globally so if you want the command line commands then install this.
 
 
 
