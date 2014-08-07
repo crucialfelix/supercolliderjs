@@ -19,7 +19,8 @@
     "colors": "0.6.x",
     "commander": "2.2.x",
     "commander-config": "0.0.3",
-    "untildify": "~1.0.0"
+    "untildify": "~1.0.0",
+    "js-yaml": "~3.1.0"
   },
   "devDependencies": {
     "grunt": "0.4.x",

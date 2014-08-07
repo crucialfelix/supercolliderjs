@@ -12,7 +12,10 @@ Matching config files in child directories are shallow merged into config files 
 
 This means you can create your personal default `~/.supercollider.yaml` and then create a local project specific `./.supercollider.yaml` that inherits from it.
 
-The binaries supercollider and supercollider-server also take command line args and (TODO) an explicit --config=/path/to/conf.yaml
+The binaries (supercollider, supercollider-server and scapi) can also take an explicit config to load: `--config=/path/to/conf.yaml`
+
+~ are resolved to absolute paths
+
 
 settings and defaults
 ---------------------

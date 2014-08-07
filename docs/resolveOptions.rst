@@ -5,7 +5,7 @@ Loads configs for scsynth and sclang
 
 Looks for '.supercollider.yaml' starting from current working directory.
 
-see :doc:configuration
+see :doc:`configuration`
 
 
 Usage::
