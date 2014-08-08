@@ -62,6 +62,7 @@ Docs
    resolveOptions
 
    atom-supercollider
+   CHANGELOG
 
 * :ref:`genindex`
 * :ref:`search`
