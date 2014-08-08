@@ -41,8 +41,8 @@
   "main": "index",
   "bin": {
     "scapi": "./bin/scapi.js",
-    "supercollider-server": "./bin/server.js",
-    "supercollider": "./bin/interpreter.js"
+    "supercollider-server": "./bin/scsynth.js",
+    "supercollider": "./bin/sclang.js"
   },
   "engines": {
     "node": ">=0.10.0"
