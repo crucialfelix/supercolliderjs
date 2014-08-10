@@ -79,9 +79,9 @@ This is a complete two-way bridge from javascript to supercollider.
 
 Params::
 
-    @param {string} code
+    @param {String} code
            source code to evaluate
-    @param {string} nowExecutingPath
+    @param {String} nowExecutingPath
              set thisProcess.nowExecutingPath
            for use in a REPL to evaluate text in a file
            and let sclang know what file it is executing.
