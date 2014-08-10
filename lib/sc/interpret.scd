@@ -30,7 +30,7 @@ Library.put(\supercolliderjs, \interpret,
         error = errorToJSON.at(\getData).value(err);
 
         // classic mode
-        if(reportError.notNil, {
+        if(reportError.asBoolean, {
           err.reportError;
         });
       });
