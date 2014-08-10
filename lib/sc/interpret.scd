@@ -4,7 +4,7 @@ var tab = [$\\,$\\,$t].as(String),
     errorToJSON = IdentityDictionary.new;
 
 Library.put(\supercolliderjs, \interpret,
-  { arg guid, escapedCode, executingPath, returnResultAsString;
+  { arg guid, escapedCode, executingPath, returnResultAsString, reportError;
 
     var code = escapedCode.replace("__NL__", Char.nl),
         compiled,
@@ -13,10 +13,12 @@ Library.put(\supercolliderjs, \interpret,
         saveExecutingPath = thisProcess.nowExecutingPath;
 
     thisProcess.nowExecutingPath = executingPath;
+    // this is really used only by SC IDE
+    // thisProcess.interpreter.cmdLine = code;
 
     compiled = code.compile;
+
     if(compiled.isNil, {
-      // "syntax error".postln;
       // will have to parse the message from STDOUT
       Library.at(\supercolliderjs, \return)
         .value(guid, "SyntaxError", executingPath);
@@ -26,6 +28,11 @@ Library.put(\supercolliderjs, \interpret,
       }.try({ arg err;
         err.path = executingPath ? guid;
         error = errorToJSON.at(\getData).value(err);
+
+        // classic mode
+        if(reportError.notNil, {
+          err.reportError;
+        });
       });
       if(error.notNil, {
         Library.at(\supercolliderjs, \return)
