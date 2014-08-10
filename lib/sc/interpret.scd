@@ -67,9 +67,15 @@ errorToJSON = (
     });
     data
   },
+  obj: { arg obj;
+    (
+      class: obj.class,
+      asString: obj.asString
+    )
+  },
   Exception: { arg err;
     (
-        class: err.class.asString,
+        class: err.class,
         what: err.what,
         path: err.path,
         errorString: err.errorString
@@ -77,10 +83,7 @@ errorToJSON = (
   },
   MethodError: { arg err;
     (
-      receiver: (
-        class: err.receiver.class.name,
-        asString: err.receiver.asString
-      )
+      receiver: errorToJSON.at(\obj).value(err.receiver)
     )
   },
   PrimitiveFailedError: { arg err;
@@ -91,51 +94,45 @@ errorToJSON = (
   SubclassResponsibilityError: { arg err;
     (
       method: err.method.name,
-      class: err.class.name
+      class: err.class
     )
   },
   ShouldNotImplementError: { arg err;
     (
       method: err.method.name,
-      class: err.class.name
+      class: err.class
     )
   },
   DoesNotUnderstandError: { arg err;
     (
       selector: err.selector,
-      args: err.args.collect({ arg a; (class: a.class, asString: a.asString)})
+      args: err.args.collect({ arg a; errorToJSON.at(\obj).value(a)})
     )
   },
   OutOfContextReturnError: { arg err;
     (
       method: (
         name: err.method.name,
-        ownerClass: err.method.ownerClass.name
+        ownerClass: err.method.ownerClass
       ),
-      result: (
-        class: err.result.class.name,
-        asString: err.result.asString
-      )
+      result: errorToJSON.at(\obj).value(err.result)
     )
   },
   ImmutableError: { arg err;
     (
-      value: (
-        class: err.value.class.name,
-        asString: err.value.asString
-      )
+      value: errorToJSON.at(\obj).value(err.value)
     )
   },
   DeprecatedError: { arg err;
     (
       method: (
         name: err.method.name,
-        ownerClass: err.method.ownerClass.name
+        ownerClass: err.method.ownerClass
       ),
-      class: err.class.name, // not used ?
+      class: err.class, // not used ?
       alternateMethod: (
         name: err.alternateMethod.name,
-        ownerClass: err.alternateMethod.ownerClass.name
+        ownerClass: err.alternateMethod.ownerClass
       )
     )
   }
@@ -163,6 +160,9 @@ toJSON.putPairs([
   },
   Symbol, { arg obj;
     toJSON.at(\stringify).value(obj.asString);
+  },
+  Class, { arg obj;
+    toJSON.at(\stringify).value(obj.name.asString);
   },
   Dictionary, { arg obj;
     var out = List.new;
