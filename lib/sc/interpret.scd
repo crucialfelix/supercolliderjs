@@ -21,7 +21,7 @@ Library.put(\supercolliderjs, \interpret,
     if(compiled.isNil, {
       // will have to parse the message from STDOUT
       Library.at(\supercolliderjs, \return)
-        .value(guid, "SyntaxError", executingPath);
+        .value(guid, "SyntaxError", nil);
     }, {
       {
         result = compiled.value();
@@ -41,9 +41,9 @@ Library.put(\supercolliderjs, \interpret,
         Library.at(\supercolliderjs, \return)
           .value(guid, "Result", if(returnResultAsString.isNil, { result }, { result.asString }));
       });
-
-      thisProcess.nowExecutingPath = saveExecutingPath;
     });
+
+    thisProcess.nowExecutingPath = saveExecutingPath;
   });
 
 Library.put(\supercolliderjs, \return,
