@@ -151,15 +151,22 @@ errorToJSON = (
 			});
 
       vv[\args] = def.argNames.collect({ |name, i|
+        // if arg is Function then get source, context
+        var obj = currentFrame.args[i];
+        var val = errorToJSON.at(\obj).value(obj);
+        if(obj.class === Function, {
+          val.sourceCode = obj.def.sourceCode;
+          // val.context = errorToJSON.at('frameContext').value(currentFrame.context)
+        });
         (
             name: name,
-            value: errorToJSON.at(\obj).value(currentFrame.args[i]);
+            value: val
         )
       });
       vv[\vars] = def.varNames.collect({ |name, i|
         (
             name: name,
-            value: errorToJSON.at(\obj).value(currentFrame.vars[i]);
+            value: errorToJSON.at(\obj).value(currentFrame.vars[i])
         )
       });
 
