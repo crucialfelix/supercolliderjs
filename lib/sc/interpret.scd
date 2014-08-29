@@ -4,7 +4,7 @@ var tab = [$\\,$\\,$t].as(String),
     errorToJSON = IdentityDictionary.new;
 
 Library.put(\supercolliderjs, \interpret,
-  { arg guid, escapedCode, executingPath, returnResultAsString;
+  { arg guid, escapedCode, executingPath, returnResultAsString=true, reportError=true, getBacktrace=false;
 
     var code = escapedCode.replace("__NL__", Char.nl),
         compiled,
@@ -13,19 +13,26 @@ Library.put(\supercolliderjs, \interpret,
         saveExecutingPath = thisProcess.nowExecutingPath;
 
     thisProcess.nowExecutingPath = executingPath;
+    // this is really used only by SC IDE
+    // thisProcess.interpreter.cmdLine = code;
 
     compiled = code.compile;
+
     if(compiled.isNil, {
-      // "syntax error".postln;
       // will have to parse the message from STDOUT
       Library.at(\supercolliderjs, \return)
-        .value(guid, "SyntaxError", executingPath);
+        .value(guid, "SyntaxError", nil);
     }, {
       {
         result = compiled.value();
       }.try({ arg err;
         err.path = executingPath ? guid;
-        error = errorToJSON.at(\getData).value(err);
+        error = errorToJSON.at(\getData).value(err, getBacktrace, compiled);
+
+        // classic mode
+        if(reportError.asBoolean, {
+          err.reportError;
+        });
       });
       if(error.notNil, {
         Library.at(\supercolliderjs, \return)
@@ -34,9 +41,9 @@ Library.put(\supercolliderjs, \interpret,
         Library.at(\supercolliderjs, \return)
           .value(guid, "Result", if(returnResultAsString.isNil, { result }, { result.asString }));
       });
-
-      thisProcess.nowExecutingPath = saveExecutingPath;
     });
+
+    thisProcess.nowExecutingPath = saveExecutingPath;
   });
 
 Library.put(\supercolliderjs, \return,
@@ -50,7 +57,7 @@ Library.put(\supercolliderjs, \return,
 /******************    errors    *****************************************/
 
 errorToJSON = (
-  getData: { arg err;
+  getData: { arg err, getBacktrace=false, compiledFunc;
     var data = ();
     err.class.superclassesDo({ arg class;
       var handler = errorToJSON.at(class.name);
@@ -58,11 +65,121 @@ errorToJSON = (
         data.putAll(handler.value(err));
       });
     });
+    if(getBacktrace, {
+      data['backtrace'] = errorToJSON.at(\getBacktrace).value(err, compiledFunc);
+    });
     data
   },
+  obj: { arg obj;
+    (
+      class: obj.class,
+      asString: obj.asString
+    )
+  },
+  frameContext: { arg frame;
+  	// 'context' points to another DebugFrame for the frame lexically enclosing this one.
+    // This searches up the context chain for the enclosing method
+    // where the function was defined.
+    var def;
+    if(frame.isNil, {
+      nil
+    }, {
+      def = frame.functionDef;
+      if(def.class === Method, {
+        if(def.ownerClass === Interpreter, {
+          nil
+        }, {
+          (
+            class: def.ownerClass,
+            method: def.name,
+            file: def.filenameSymbol,
+            charPos: def.charPos,
+            source: def.sourceCode
+          )
+        });
+      }, {
+        if(frame.context.isNil, {
+          nil
+        }, {
+          errorToJSON.at('frameContext').value(frame.context);
+        })
+      })
+    });
+  },
+  getBacktrace: { arg err, compiledFunc;
+		var out, currentFrame, def, ownerClass, methodName, callerAddress;
+		out = [];
+		currentFrame = err.protectedBacktrace;
+
+  	// 'caller' points to another DebugFrame for the caller to this function.
+    callerAddress = { arg caller;
+      caller !? { caller.address.asString }
+    };
+
+		while({
+      currentFrame.notNil and: {
+        // end when we reach the compiled func
+        // after that is internal to intrepret.scd
+        (currentFrame.functionDef !== compiledFunc.def)
+      }
+    }, {
+      var vv;
+			def = currentFrame.functionDef;
+
+			if(def.isKindOf(Method), {
+				ownerClass = def.ownerClass;
+				methodName = def.name;
+        vv = (
+          type: "Method",
+          class: ownerClass,
+          method: methodName,
+          file: def.filenameSymbol,
+          charPos: def.charPos,
+          source: def.sourceCode,
+          address: currentFrame.address.asString,
+          caller: callerAddress.(currentFrame.caller)
+        );
+			}, {
+         vv = (
+          type: "Function",
+          address: currentFrame.address.asString,
+          source: def.sourceCode,
+          caller: callerAddress.(currentFrame.caller),
+          // maybe indicate if its an inner function
+          context: errorToJSON.at('frameContext').value(currentFrame.context)
+        );
+			});
+
+      vv[\args] = def.argNames.collect({ |name, i|
+        // if arg is Function then get source, context
+        var obj = currentFrame.args[i];
+        var val = errorToJSON.at(\obj).value(obj);
+        if(obj.class === Function, {
+          val.sourceCode = obj.def.sourceCode;
+          // val.context = errorToJSON.at('frameContext').value(currentFrame.context)
+        });
+        (
+            name: name,
+            value: val
+        )
+      });
+      vv[\vars] = def.varNames.collect({ |name, i|
+        (
+            name: name,
+            value: errorToJSON.at(\obj).value(currentFrame.vars[i])
+        )
+      });
+
+      out = out.add(vv);
+			currentFrame = currentFrame.caller;
+		});
+
+    out;
+  },
+  // error classes
   Exception: { arg err;
     (
-        class: err.class.asString,
+        class: err.class,
         what: err.what,
         path: err.path,
         errorString: err.errorString
@@ -70,10 +187,7 @@ errorToJSON = (
   },
   MethodError: { arg err;
     (
-      receiver: (
-        class: err.receiver.class.name,
-        asString: err.receiver.asString
-      )
+      receiver: errorToJSON.at(\obj).value(err.receiver)
     )
   },
   PrimitiveFailedError: { arg err;
@@ -83,52 +197,49 @@ errorToJSON = (
   },
   SubclassResponsibilityError: { arg err;
     (
-      method: err.method.name,
-      class: err.class.name
+      method: (
+        name: err.method.name,
+        class: err.class
+      )
     )
   },
   ShouldNotImplementError: { arg err;
     (
-      method: err.method.name,
-      class: err.class.name
+      method: (
+        name: err.method.name,
+        class: err.class
+      )
     )
   },
   DoesNotUnderstandError: { arg err;
     (
       selector: err.selector,
-      args: err.args.collect({ arg a; (class: a.class, asString: a.asString)})
+      args: err.args.collect({ arg a; errorToJSON.at(\obj).value(a)})
     )
   },
   OutOfContextReturnError: { arg err;
     (
       method: (
         name: err.method.name,
-        ownerClass: err.method.ownerClass.name
+        class: err.method.ownerClass
       ),
-      result: (
-        class: err.result.class.name,
-        asString: err.result.asString
-      )
+      result: errorToJSON.at(\obj).value(err.result)
     )
   },
   ImmutableError: { arg err;
     (
-      value: (
-        class: err.value.class.name,
-        asString: err.value.asString
-      )
+      value: errorToJSON.at(\obj).value(err.value)
     )
   },
   DeprecatedError: { arg err;
     (
       method: (
         name: err.method.name,
-        ownerClass: err.method.ownerClass.name
+        class: err.method.ownerClass
       ),
-      class: err.class.name, // not used ?
       alternateMethod: (
         name: err.alternateMethod.name,
-        ownerClass: err.alternateMethod.ownerClass.name
+        class: err.alternateMethod.ownerClass
       )
     )
   }
@@ -156,6 +267,9 @@ toJSON.putPairs([
   },
   Symbol, { arg obj;
     toJSON.at(\stringify).value(obj.asString);
+  },
+  Class, { arg obj;
+    toJSON.at(\stringify).value(obj.name.asString);
   },
   Dictionary, { arg obj;
     var out = List.new;
