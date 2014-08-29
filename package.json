@@ -1,7 +1,7 @@
 {
   "name": "supercolliderjs",
   "description": "Tools for working with the SuperCollider music language environment",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "author": "Felix <crucialfelix@gmail.com>",
   "contributors": [
     {
