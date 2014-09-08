@@ -247,6 +247,8 @@ errorToJSON = (
   }
 );
 
+Library.put(\supercolliderjs, \errorToJSON, errorToJSON);
+
 
 /********************   a portable JSON stringify ************************/
 
