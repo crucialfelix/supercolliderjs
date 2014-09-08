@@ -12,6 +12,8 @@ Library.put(\supercolliderjs, \interpret,
         error,
         saveExecutingPath = thisProcess.nowExecutingPath;
 
+    code = code.replace("__SLASH__", $\\);
+
     thisProcess.nowExecutingPath = executingPath;
     // this is really used only by SC IDE
     // thisProcess.interpreter.cmdLine = code;
