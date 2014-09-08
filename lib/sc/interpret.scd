@@ -41,7 +41,7 @@ Library.put(\supercolliderjs, \interpret,
           .value(guid, "Error", error);
       }, {
         Library.at(\supercolliderjs, \return)
-          .value(guid, "Result", if(returnResultAsString.isNil, { result }, { result.asString }));
+          .value(guid, "Result", if(returnResultAsString ? true, { result.asString }, { result }));
       });
     });
 
