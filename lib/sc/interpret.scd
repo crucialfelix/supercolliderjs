@@ -15,8 +15,6 @@ Library.put(\supercolliderjs, \interpret,
     code = code.replace("__SLASH__", $\\);
 
     thisProcess.nowExecutingPath = executingPath;
-    // this is really used only by SC IDE
-    // thisProcess.interpreter.cmdLine = code;
 
     compiled = code.compile;
 
@@ -79,7 +77,7 @@ errorToJSON = (
     )
   },
   frameContext: { arg frame;
-  	// 'context' points to another DebugFrame for the frame lexically enclosing this one.
+    // 'context' points to another DebugFrame for the frame lexically enclosing this one.
     // This searches up the context chain for the enclosing method
     // where the function was defined.
     var def;
@@ -109,28 +107,35 @@ errorToJSON = (
     });
   },
   getBacktrace: { arg err, compiledFunc;
-		var out, currentFrame, def, ownerClass, methodName, callerAddress;
-		out = [];
-		currentFrame = err.protectedBacktrace;
+    var out, currentFrame, def, ownerClass, methodName, callerAddress,
+      startAtDef, stopAtDef, addingFrame = false;
+    out = [];
 
-  	// 'caller' points to another DebugFrame for the caller to this function.
+    currentFrame = err.protectedBacktrace ?? { err.getBackTrace };
+
+    // 'caller' points to another DebugFrame for the caller to this function.
     callerAddress = { arg caller;
       caller !? { caller.address.asString }
     };
+    // the source code to interpret compiled to a function
+    if(compiledFunc.notNil, {
+      stopAtDef = compiledFunc.def;
+    /*}, {
+      // out of band thrown Error
+      startAtDef = Object.findMethod('throw');*/
+    });
 
-		while({
+    while({
       currentFrame.notNil and: {
-        // end when we reach the compiled func
-        // after that is internal to intrepret.scd
-        (currentFrame.functionDef !== compiledFunc.def)
+        currentFrame.functionDef !== stopAtDef
       }
     }, {
       var vv;
-			def = currentFrame.functionDef;
+      def = currentFrame.functionDef;
 
-			if(def.isKindOf(Method), {
-				ownerClass = def.ownerClass;
-				methodName = def.name;
+      if(def.isKindOf(Method), {
+        ownerClass = def.ownerClass;
+        methodName = def.name;
         vv = (
           type: "Method",
           class: ownerClass,
@@ -141,7 +146,7 @@ errorToJSON = (
           address: currentFrame.address.asString,
           caller: callerAddress.(currentFrame.caller)
         );
-			}, {
+      }, {
          vv = (
           type: "Function",
           address: currentFrame.address.asString,
@@ -150,7 +155,7 @@ errorToJSON = (
           // maybe indicate if its an inner function
           context: errorToJSON.at('frameContext').value(currentFrame.context)
         );
-			});
+      });
 
       vv[\args] = def.argNames.collect({ |name, i|
         // if arg is Function then get source, context
@@ -163,6 +168,7 @@ errorToJSON = (
         (
             name: name,
             value: val
+            // get slots of val
         )
       });
       vv[\vars] = def.varNames.collect({ |name, i|
@@ -173,10 +179,10 @@ errorToJSON = (
       });
 
       out = out.add(vv);
-			currentFrame = currentFrame.caller;
-		});
+      currentFrame = currentFrame.caller;
+    });
 
-    out;
+    out
   },
   // error classes
   Exception: { arg err;
