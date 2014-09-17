@@ -48,9 +48,14 @@ Library.put(\supercolliderjs, \interpret,
 
 Library.put(\supercolliderjs, \return,
   { arg guid, type, object;
-    // posts a message to STDOUT
+    // posts to STDOUT
     var json = toJSON.at(\stringify).value(object);
-    "SUPERCOLLIDERJS:%:%:%".format(guid, type, json).postln;
+    "SUPERCOLLIDERJS:%:START:%".format(guid, type).postln;
+    // sclang screws up when posting long lines in a single chunk
+    json.clump(2048).do { arg chunk;
+      "SUPERCOLLIDERJS:%:CHUNK:%".format(guid, chunk).postln;
+    };
+    "SUPERCOLLIDERJS:%:END:%s".format(guid, type).postln;
   });
 
 
