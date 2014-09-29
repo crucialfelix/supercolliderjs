@@ -75,11 +75,36 @@ errorToJSON = (
     });
     data
   },
-  obj: { arg obj;
-    (
+  obj: { arg obj, deep=false;
+    var dd, asString, class = obj.class;
+    if(class.class === Class or: {class === Main}, {
+      deep = false;
+    });
+    if(class === String or: (class === Symbol), {
+      asString = obj.asCompileString;
+    }, {
+      {
+        asString = obj.asString;
+      }.try({
+        asString = "(asString error)";
+      });
+    });
+    dd = (
       class: obj.class,
-      asString: obj.asString
-    )
+      asString: asString
+    );
+    if(class === Function, {
+      dd.sourceCode = obj.def.sourceCode
+    });
+    if(deep, {
+      dd.vars = (obj.class.instVarNames ? []).collect({ arg v, i;
+        (
+          name: v,
+          value: errorToJSON.at(\obj).value(obj.instVarAt(i), false)
+        )
+      });
+    });
+    dd
   },
   frameContext: { arg frame;
     // 'context' points to another DebugFrame for the frame lexically enclosing this one.
@@ -163,23 +188,15 @@ errorToJSON = (
       });
 
       vv[\args] = def.argNames.collect({ |name, i|
-        // if arg is Function then get source, context
-        var obj = currentFrame.args[i];
-        var val = errorToJSON.at(\obj).value(obj);
-        if(obj.class === Function, {
-          val.sourceCode = obj.def.sourceCode;
-          // val.context = errorToJSON.at('frameContext').value(currentFrame.context)
-        });
         (
             name: name,
-            value: val
-            // get slots of val
+            value: errorToJSON.at(\obj).value(currentFrame.args[i], true)
         )
       });
       vv[\vars] = def.varNames.collect({ |name, i|
         (
             name: name,
-            value: errorToJSON.at(\obj).value(currentFrame.vars[i])
+            value: errorToJSON.at(\obj).value(currentFrame.vars[i], true)
         )
       });
 
