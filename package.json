@@ -1,7 +1,7 @@
 {
   "name": "supercolliderjs",
   "description": "Tools for working with the SuperCollider music language environment",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "author": "Felix <crucialfelix@gmail.com>",
   "contributors": [
     {
@@ -20,7 +20,8 @@
     "commander": "2.2.x",
     "commander-config": "0.0.3",
     "untildify": "~1.0.0",
-    "js-yaml": "~3.1.0"
+    "js-yaml": "~3.1.0",
+    "temp": "~0.8.1"
   },
   "devDependencies": {
     "grunt": "0.4.x",
