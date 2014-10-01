@@ -1,9 +1,17 @@
 resolveOptions
 ==============
 
-Loads configs for scsynth and sclang
+Loads configs for scsynth and sclang from a yaml file
 
-Looks for '.supercollider.yaml' starting from current working directory.
+Tries in order::
+
+    .supercollider.yaml
+    ~/.supercollider.yaml
+
+and merges those on top of the defaults.
+
+If these are not found the it uses only the defaults
+
 
 see :doc:`configuration`
 

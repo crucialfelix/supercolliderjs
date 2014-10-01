@@ -3,18 +3,16 @@ Configuration
 
 An optional config file specifies the paths to the sclang and scsynth executables. If not found then it assumes that SuperCollider is installed in the standard place for your platform. It should just work.
 
-Searches upwards from current working directory:
+Searches for the first found of:
 
 * .supercollider.yaml
 * ~/.supercollider.yaml
 
-Matching config files in child directories are shallow merged into config files found in parent directories.
-
-This means you can create your personal default `~/.supercollider.yaml` and then create a local project specific `./.supercollider.yaml` that inherits from it.
+If its not finding the sclang you want to use then you can write a config file.
 
 The binaries (supercollider, supercollider-server and scapi) can also take an explicit config to load: `--config=/path/to/conf.yaml`
 
-~ are resolved to absolute paths
+~ (tildas) and relative paths are resolved to absolute paths
 
 
 settings and defaults
@@ -33,40 +31,62 @@ settings and defaults
     protocol: udp
     websocketPort: 4040
 
+The only one you need to specify normally is sclang.
 
-On linux: /usr/bin/local/sclang
+YAML format
+-----------
 
 http://www.yaml.org/start.html
 http://en.wikipedia.org/wiki/YAML#Sample_document
 
 
-planned
--------
+Usual locations of sclang
+-------------------------
 
-Specify sc class paths.
+These are the defaults
 
-- includePaths
-- excludePaths
+OS X::
 
-An sclang_conf.yaml will be generated on the fly and passed to sclang.  Will support relative paths and ~
+    /Applications/SuperCollider/SuperCollider.app/Contents/Resources/sclang
 
-This would make it much easier to write classes and simply use them from your current directory without having to install them in the global Extensions.
+Linux::
 
-Would also enable installing quarks to a local folder just for a single project, and for easily running downloaded examples that use custom classes and quarks. No need to install and uninstall anything, just run the code from within the source directory.
+    /usr/bin/local/sclang
 
-paths and config
-----------------
+Windows::
 
-If you wish to switch easily back and forth with the SC IDE then you may wish to continue to do your config using startup.scd and sclang_conf.yaml and avoid new fancy features for a bit.
+    C:\Program Files (x86)\SuperCollider\sclang.exe
 
-stability
----------
 
-beta. things will change but will eventually be guaranteed stabile.
+
+
+sclang_config.yaml
+------------------
+
+An sclang_conf.yaml is generated on the fly and passed to sclang.
+
+The following variables are copied from .supercollider.yaml into the dynamically created sclang_conf.yaml::
+
+    includePaths
+    excludePaths
+    postInlineWarnings
+
+There are several benefits to doing this.
+
+- You can maintain a single config file
+- Use relative paths and ~ in paths
+- Easily include local project paths into the compilation
+
+This means you can keep your classes anywhere you like without having to put them in Extensions.
+
+On OS X the Extensions folder and config folder are now in ~/Library/Application Support/SuperCollider which is now invisible to the Finder. This (IMO) is no longer a user friendly place to keep user files.
+
 
 previous versions
 -----------------
 
 supercolliderjs 0.3.x used a JSON file called .supercolliderjs
 
-YAML is nicer for humans. Format thrashing is annoying for humans. Sorry.
+YAML is nicer for humans.
+
+Format thrashing is annoying for humans. Sorry.
