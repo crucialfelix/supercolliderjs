@@ -16,10 +16,12 @@ Library.put(\supercolliderjs, \interpret,
 
     thisProcess.nowExecutingPath = executingPath;
 
+    // capture compile errors, stdout
+    "\nSUPERCOLLIDERJS:%:CAPTURE:START\n".format(guid).postln;
     compiled = code.compile;
 
     if(compiled.isNil, {
-      // will have to parse the message from STDOUT
+      "\nSUPERCOLLIDERJS:%:CAPTURE:END".format(guid).postln;
       Library.at(\supercolliderjs, \return)
         .value(guid, "SyntaxError", nil);
     }, {
@@ -34,6 +36,7 @@ Library.put(\supercolliderjs, \interpret,
           err.reportError;
         });
       });
+      "\nSUPERCOLLIDERJS:%:CAPTURE:END".format(guid).postln;
       if(error.notNil, {
         Library.at(\supercolliderjs, \return)
           .value(guid, "Error", error);
