@@ -16,10 +16,12 @@ Library.put(\supercolliderjs, \interpret,
 
     thisProcess.nowExecutingPath = executingPath;
 
+    // capture compile errors, stdout
+    "\nSUPERCOLLIDERJS:%:CAPTURE:START\n".format(guid).postln;
     compiled = code.compile;
 
     if(compiled.isNil, {
-      // will have to parse the message from STDOUT
+      "\nSUPERCOLLIDERJS:%:CAPTURE:END".format(guid).postln;
       Library.at(\supercolliderjs, \return)
         .value(guid, "SyntaxError", nil);
     }, {
@@ -34,6 +36,7 @@ Library.put(\supercolliderjs, \interpret,
           err.reportError;
         });
       });
+      "\nSUPERCOLLIDERJS:%:CAPTURE:END".format(guid).postln;
       if(error.notNil, {
         Library.at(\supercolliderjs, \return)
           .value(guid, "Error", error);
@@ -50,12 +53,12 @@ Library.put(\supercolliderjs, \return,
   { arg guid, type, object;
     // posts to STDOUT
     var json = toJSON.at(\stringify).value(object);
-    "SUPERCOLLIDERJS:%:START:%".format(guid, type).postln;
+    "\nSUPERCOLLIDERJS:%:START:%".format(guid, type).postln;
     // sclang screws up when posting long lines in a single chunk
     json.clump(2048).do { arg chunk;
       "SUPERCOLLIDERJS:%:CHUNK:%".format(guid, chunk).postln;
     };
-    "SUPERCOLLIDERJS:%:END:%s".format(guid, type).postln;
+    "SUPERCOLLIDERJS:%:END:%".format(guid, type).postln;
   });
 
 
@@ -342,4 +345,4 @@ toJSON.putPairs([
   }
 ]);
 
-"SUPERCOLLIDERJS-interpreter-loaded".postln;
+"\nSUPERCOLLIDERJS-interpreter-loaded".postln;
