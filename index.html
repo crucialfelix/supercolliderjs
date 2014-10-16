@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Supercolliderjs by crucialfelix</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Supercolliderjs</h1>
+        <p>Tools for working with the SuperCollider music synthesis language and synthesis server.  </p>
+
+        <p class="view"><a href="https://github.com/crucialfelix/supercolliderjs">View the Project on GitHub <small>crucialfelix/supercolliderjs</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/crucialfelix/supercolliderjs/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/crucialfelix/supercolliderjs/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/crucialfelix/supercolliderjs">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="supercolliderjs" class="anchor" href="#supercolliderjs"><span class="octicon octicon-link"></span></a>supercollider.js</h1>
+
+<p>Node JS and webrowser tools for working with SuperCollider.</p>
+
+<p>SuperCollider is an environment and programming language for real time audio synthesis and algorithmic composition. It provides an interpreted object-oriented language which functions as a network client to a state of the art, realtime sound synthesis server.</p>
+
+<p>This library provides tools for working with:</p>
+
+<ul>
+<li>scsynth (the synthesis server)</li>
+<li>sclang (supercollider language interpreter)</li>
+<li>sclang running in SuperCollider application (IDE + sclang).</li>
+</ul>
+
+<h2>
+<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation</h2>
+
+<p><a href="http://supercolliderjs.readthedocs.org/en/latest/">http://supercolliderjs.readthedocs.org/en/latest/</a></p>
+
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<ul>
+<li>Spawn headless SuperCollider language interpreters (sclang)</li>
+<li>Execute SuperCollider code from node js and get results or errors returned as JSON</li>
+<li>Spawn SuperCollider synthesis servers (scsynth)</li>
+<li>Send and receive OSC messages to scsynth</li>
+<li>Call API endpoints in SuperCollider from a browser using JavaScript and a websocket/OSC bridge</li>
+<li>Communicate with sclang running in SuperCollider.app (SC IDE) using OSC</li>
+</ul>
+
+<h2>
+<a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
+
+<pre><code>    var scjs = require('supercolliderjs');
+
+    scjs.sclang.boot()
+        .then(function(sclang) {
+
+            sclang.interpret('(1..8).pyramid')
+                .then(function(result) {
+                    // result is a native javascript array
+                    console.log('= ' + result);
+                }, function(error) {
+                    // syntax or runtime errors
+                    // are returned as javascript objects
+                    console.log(error);
+                });
+
+        });
+</code></pre>
+
+<h2>
+<a name="contribute" class="anchor" href="#contribute"><span class="octicon octicon-link"></span></a>Contribute</h2>
+
+<ul>
+<li>Issue Tracker: <a href="https://github.com/crucialfelix/supercolliderjs/issues">https://github.com/crucialfelix/supercolliderjs/issues</a>
+</li>
+<li>Source Code: <a href="https://github.com/crucialfelix/supercolliderjs">https://github.com/crucialfelix/supercolliderjs</a>
+</li>
+</ul>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>The project is licensed under the MIT license.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/crucialfelix">crucialfelix</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-154147-9");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
