@@ -5,6 +5,8 @@ var help = [
   '',
   'By default evaluates STDIN and posts to STDOUT. This is a simple command line repl without multi-line support.',
   '',
+  'package.json specifies this as an executable with the name of "supercollider" so installing supercollider.js with the global flag will add this to your shell executable path.',
+  '',
   'Examples:',
   '',
   'supercollider',
