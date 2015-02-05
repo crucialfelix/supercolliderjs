@@ -1,4 +1,3 @@
-
 /*
   Example usage in a node-js app to call supercollider API functions
 
@@ -9,39 +8,50 @@
 
 */
 
-// npm install supercolliderjs
-// then import like so:
+// usually you have installed supercolliderjs
+// so in your node scripts you import it this way:
 // var scjs = require('supercolliderjs');
 
-// from within this example folder this is the same thing:
+// but if you are running this from inside this example folder
+// then let's import from a relative path
+// index.js exports an object containing the supercollider.js modules
 var scjs = require('../index.js');
 
+// the SCAPI class is accessibl as .scapi
 var SCAPI = scjs.scapi;
 
 scjs.resolveOptions().then(function(options) {
 
-  var scapi = new SCAPI(options);
+  var scapi = new SCAPI(options.host, options.langPort);
+  // scapi comes with a logger utility
+  // which is nicer than console.log
+  // because it dumps objects and formats them
+  // see Logger
+  scapi.log.dbug(options);
+
   scapi.connect();
 
   // simple API call with a callback
-  scapi.call('api.apis', [], function(response) {
-    console.log(response);
-  });
+  scapi.call(0, 'API.apis', [])
+    .then(function(response) {
+      scapi.log.rcvosc(response);
+    }, function(err) {
+      scapi.log.err(err);
+    });
 
   // with ok and error callback
-  scapi.call('nope.wrong.address', [], function(response) {
-    console.log(response);
-  }, function(err) {
-    console.log('err: ', err);
-  });
+  scapi.call(1, 'nope.wrong.address', [])
+    .then(function(response) {
+      scapi.log.rcvosc(response);
+    }, function(err) {
+      scapi.log.err(err);
+    });
 
   // call returns a Q promise
   // so you can use .then
-  scapi.call('instr.list')
+  scapi.call(2, 'instr.list')
     .then(function(response) {
-      console.log(response.result);
-    }, function(err) {
-      console.log(err);
-    });
+      scapi.log.rcvosc(response.result);
+    }, scapi.log.err);
 
 });
