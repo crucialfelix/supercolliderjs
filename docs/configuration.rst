@@ -2,6 +2,7 @@ Configuration
 =============
 
 An optional config file specifies the paths to the sclang and scsynth executables. If not found then it assumes that SuperCollider is installed in the standard place for your platform. It should just work.
+You only need to make a configuration file if it doesn't.
 
 Searches for the first found of:
 
@@ -12,16 +13,31 @@ If its not finding the sclang you want to use then you can write a config file.
 
 The binaries (supercollider, supercollider-server and scapi) can also take an explicit config to load: `--config=/path/to/conf.yaml`
 
-~ (tildas) and relative paths are resolved to absolute paths
+~ (tilde) and relative paths are resolved to absolute paths
+The tilde should work on Windows.
 
 
 settings and defaults
 ---------------------
 
+supercollider js needs to be pointed to the sclang binary and to the sclang configuration file.
+
+The simplest configuration would be:
+
+~/.supercollider.yaml::
+
+    sclang: /Applications/SuperCollider/SuperCollider.app/Contents/Resources/sclang
+    sclang_conf: ~/Library/Application Support/SuperCollider/sclang_conf.yaml
+
+Adjust those paths for linux or windows.
+
+A full configuration would be:
+
 ~/.supercollider.yaml::
 
     sclang: /Applications/SuperCollider/SuperCollider.app/Contents/Resources/sclang
     scsynth: /Applications/SuperCollider/SuperCollider.app/Contents/Resources/scsynth
+    sclang_conf: ~/Library/Application Support/SuperCollider/sclang_conf.yaml
     debug: true
     echo: true
     stdin: true
@@ -31,7 +47,6 @@ settings and defaults
     protocol: udp
     websocketPort: 4040
 
-The only one you need to specify normally is sclang.
 
 YAML format
 -----------
@@ -58,18 +73,20 @@ Windows::
     C:\Program Files (x86)\SuperCollider\sclang.exe
 
 
+.supercollider.yaml and sclang_config.yaml
+------------------------------------------
 
-
-sclang_config.yaml
-------------------
-
-An sclang_conf.yaml is generated on the fly and passed to sclang.
+An sclang_conf.yaml is generated dynamically and passed as a command line argument to sclang.
 
 The following variables are copied from .supercollider.yaml into the dynamically created sclang_conf.yaml::
 
     includePaths
     excludePaths
     postInlineWarnings
+
+When you install Quarks using the new Quarks system (3.7 development) these are added to the includePaths of your sclang_conf.yaml
+
+If your .supercollider.yaml file specifies the path to your sclang_conf then it will load that sclang_conf and merge the includePaths and excludePaths with the dynamic ones.
 
 There are several benefits to doing this.
 
@@ -79,14 +96,5 @@ There are several benefits to doing this.
 
 This means you can keep your classes anywhere you like without having to put them in Extensions.
 
-On OS X the Extensions folder and config folder are now in ~/Library/Application Support/SuperCollider which is now invisible to the Finder. This (IMO) is no longer a user friendly place to keep user files.
-
-
-previous versions
------------------
-
-supercolliderjs 0.3.x used a JSON file called .supercolliderjs
-
-YAML is nicer for humans.
-
-Format thrashing is annoying for humans. Sorry.
+On OS X the Extensions folder and config folder are now in ~/Library/Application Support/SuperCollider which is now invisible to the Finder.
+This (IMO) is no longer a user friendly place to keep user files.

@@ -13,6 +13,7 @@ var scjs = require('../index.js'),
     stdin: false,
     // echo STDOUT to console
     echo: true,
+    // debug is on so you will see all traffic posted to the console
     debug: true
   };
 
