@@ -2,7 +2,7 @@
   Example usage in a node-js app to call supercollider API functions
 
   Start SuperCollider
-  Install the API quark ( > 2.0 )
+  Install the API quark ( >= 2.0.2 )
   Activate the OSC responders in supercollider:
     API.mountDuplexOSC
 
@@ -31,27 +31,37 @@ scjs.resolveOptions().then(function(options) {
 
   scapi.connect();
 
-  // simple API call with a callback
+  // call returns a Q promise
+  // https://github.com/kriskowal/q
+  // so you use .then(ok, error)
   scapi.call(0, 'API.apis', [])
     .then(function(response) {
-      scapi.log.rcvosc(response);
+      scapi.log.dbug(response);
     }, function(err) {
       scapi.log.err(err);
     });
+  // note: check your version of API quark is >= 2.0.2
+  // previous versions had registered it as lower case: 'api.apis'
 
-  // with ok and error callback
+  // also read about Q so you can chain promises
+  // and return new promises from your ok function.
+
+  // This one will throw an error.
+  // scapi.log.err will post the json error object to the console in red
   scapi.call(1, 'nope.wrong.address', [])
     .then(function(response) {
-      scapi.log.rcvosc(response);
+      scapi.log.dbug(response);
     }, function(err) {
       scapi.log.err(err);
     });
 
-  // call returns a Q promise
-  // so you can use .then
-  scapi.call(2, 'instr.list')
-    .then(function(response) {
-      scapi.log.rcvosc(response.result);
-    }, scapi.log.err);
+  scapi.call(2, 'server.boot')
+    .then(function() {
+      scapi.log.dbug("server booted");
+      return scapi.call(3, 'group.new')
+        .then(function(response) {
+          scapi.log.debug(response);
+        });
+    });
 
 });
