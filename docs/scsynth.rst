@@ -16,9 +16,9 @@ and the responses are emitted as 'OSC'::
 
 Example::
 
-  var scjs = require('supercolliderjs');
+  var supercolliderjs = require('supercolliderjs');
 
-  scjs.resolveOptions().then(function(options) {
+  supercolliderjs.resolveOptions().then(function(options) {
 
     var Server = require('supercolliderjs').scsynth;
     var s = new Server(options);

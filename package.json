@@ -1,7 +1,7 @@
 {
   "name": "supercolliderjs",
   "description": "Tools for working with the SuperCollider music language environment",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "author": "Felix <crucialfelix@gmail.com>",
   "contributors": [
     {
@@ -40,7 +40,6 @@
   },
   "main": "index",
   "bin": {
-    "scapi": "./bin/scapi.js",
     "supercollider-server": "./bin/scsynth.js",
     "supercollider": "./bin/sclang.js"
   },

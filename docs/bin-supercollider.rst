@@ -7,7 +7,7 @@ This is a command wrapper for sclang (the supercollider language interpreter) us
 
 Usage::
 
-  sclang [options]
+  supercollider [options]
 
 Options::
 

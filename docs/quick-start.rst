@@ -31,15 +31,15 @@ To add to your node js project::
 
 In your code require the package::
 
-  var scjs = require('supercolliderjs');
+  var supercolliderjs = require('supercolliderjs');
 
-  scjs.resolveOptions().then(function(options) {
+  supercolliderjs.resolveOptions().then(function(options) {
 
-    var SCLang = scjs.sclang;
+    var SCLang = supercolliderjs.sclang;
     var lang = new SCLang(options);
     lang.boot();
 
-    var Server = scjs.scsynth;
+    var Server = supercolliderjs.scsynth;
     var s = new Server(options);
     s.boot();
 
