@@ -18,20 +18,20 @@ see :doc:`configuration`
 
 Usage::
 
-  var scjs = require('supercolliderjs');
+  var supercolliderjs = require('supercolliderjs');
 
   // search for .supercollider.yaml
-  scjs.resolveOptions().then(function(options) {
+  supercolliderjs.resolveOptions().then(function(options) {
     console.log(options);
   });
 
   // load an explicit config file
-  scjs.resolveOptions('path/to/config.yaml').then(function(options) {
+  supercolliderjs.resolveOptions('path/to/config.yaml').then(function(options) {
     console.log(options);
   });
 
   // overide some loaded options
-  scjs.resolveOptions(null, {
+  supercolliderjs.resolveOptions(null, {
     langPort: 8000
   }).then(function(options) {
     console.log(options);
