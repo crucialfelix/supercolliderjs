@@ -52,13 +52,10 @@ Docs
 
    bin-supercollider
    bin-supercollider-server
-   bin-scapi
 
    sclang
    scsynth
    scapi
-   bridge
-   webserver
    resolveOptions
 
    atom-supercollider

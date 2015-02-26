@@ -16,7 +16,6 @@ This will also install three commands to your executable path:
 
 - supercollider
 - supercollider-server
-- scapi
 
 
 If you are using atom-supercollider then the latest supercolliderjs is installed inside of that, you do not need to install this for atom to work. But supercolliderjs is not installed globally so if you want the command line commands then install this.
@@ -55,6 +54,4 @@ See detailed documentation for each module.
 - :doc:`sclang`
 - :doc:`scsynth`
 - :doc:`scapi`
-- :doc:`bridge`
 - :doc:`resolveOptions`
-- :doc:`webserver`
