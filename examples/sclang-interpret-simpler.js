@@ -6,8 +6,8 @@
  */
 
 
-// var scjs = require('supercolliderjs');
-var scjs = require('../index.js'),
+// var supercolliderjs = require('supercolliderjs');
+var supercolliderjs = require('../index.js'),
   options = {
     // no STDIN, all input will be programmatic
     stdin: false,
@@ -17,7 +17,7 @@ var scjs = require('../index.js'),
     debug: true
   };
 
-scjs.sclang.boot(options)
+supercolliderjs.sclang.boot(options)
   .then(function(sc) {
 
     // interpret and return result as promise
