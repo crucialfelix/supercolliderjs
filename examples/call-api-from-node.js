@@ -10,17 +10,17 @@
 
 // usually you have installed supercolliderjs
 // so in your node scripts you import it this way:
-// var scjs = require('supercolliderjs');
+// var supercolliderjs = require('supercolliderjs');
 
 // but if you are running this from inside this example folder
 // then let's import from a relative path
 // index.js exports an object containing the supercollider.js modules
-var scjs = require('../index.js');
+var supercolliderjs = require('../index.js');
 
 // the SCAPI class is accessibl as .scapi
-var SCAPI = scjs.scapi;
+var SCAPI = supercolliderjs.scapi;
 
-scjs.resolveOptions().then(function(options) {
+supercolliderjs.resolveOptions().then(function(options) {
 
   var scapi = new SCAPI(options.host, options.langPort);
   // scapi comes with a logger utility

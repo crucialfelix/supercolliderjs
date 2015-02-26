@@ -7,13 +7,13 @@
 
 // npm install supercolliderjs
 // then import like so:
-// var scjs = require('supercolliderjs');
+// var supercolliderjs = require('supercolliderjs');
 
 // from within this example folder this is the same thing:
-var scjs = require('../index.js');
-var Server = scjs.scsynth;
+var supercolliderjs = require('../index.js');
+var Server = supercolliderjs.scsynth;
 
-scjs.resolveOptions().then(function(options) {
+supercolliderjs.resolveOptions().then(function(options) {
 
   var s = new Server(options);
 

@@ -17,14 +17,14 @@
 
 // npm install supercolliderjs
 // then import like so:
-// var scjs = require('supercolliderjs');
+// var supercolliderjs = require('supercolliderjs');
 
 // from within this example folder this is the same thing:
-var scjs = require('../index.js');
+var supercolliderjs = require('../index.js');
 
-var SCLang = scjs.sclang;
+var SCLang = supercolliderjs.sclang;
 
-scjs.resolveOptions(null, {
+supercolliderjs.resolveOptions(null, {
   // no STDIN, all input will be programmatic
   stdin: false,
   echo: true,

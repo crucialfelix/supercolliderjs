@@ -7,9 +7,9 @@ This is the same executable that the SC IDE launches and has the same capabiliti
 
 Example::
 
-    var scjs = require('supercolliderjs');
+    var supercolliderjs = require('supercolliderjs');
 
-    scjs.sclang.boot()
+    supercolliderjs.sclang.boot()
       .then(function(sclang) {
 
         sclang.interpret('(1..8).pyramid')
