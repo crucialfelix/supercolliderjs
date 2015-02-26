@@ -40,7 +40,6 @@
   },
   "main": "index",
   "bin": {
-    "scapi": "./bin/scapi.js",
     "supercollider-server": "./bin/scsynth.js",
     "supercollider": "./bin/sclang.js"
   },
