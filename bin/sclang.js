@@ -17,9 +17,9 @@ var help = [
 ];
 
 var
-    join = require('path').join,
-    pkg = require(join(__dirname, '../package.json')),
-    lib = join(__dirname, '../lib/nodejs/'),
+    path = require('path'),
+    pkg = require(path.join(__dirname, '../package.json')),
+    lib = path.join(__dirname, '../lib/nodejs/'),
     program = require('commander'),
     resolveOptions = require('../lib/nodejs/resolveOptions'),
     SCLang = require(lib + 'sclang'),
@@ -55,7 +55,8 @@ program.parse(process.argv);
 
 // pass a filename for sclang to execute
 if (program.args.length) {
-  options.executeFile = program.args[0];
+  options.executeFile = path.resolve(program.args[0]);
+}
 }
 
 resolveOptions(options.config, options).then(function(options) {
