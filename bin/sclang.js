@@ -57,24 +57,27 @@ program.parse(process.argv);
 if (program.args.length) {
   options.executeFile = path.resolve(program.args[0]);
 }
+
+function die(error) {
+  console.error(error);
+  process.exit(1);
 }
 
 resolveOptions(options.config, options).then(function(options) {
 
-  var l = new SCLang(options);
+  var sclang = new SCLang(options);
 
-  l.boot();
+  return sclang.boot()
+    .then(function() {
+      sclang.on('exit', function() {
+        console.warn('sclang exited');
+        console.info(options);
+        process.exit(1);
+      });
+    });
 
-  l.on('exit', function() {
-    console.warn('sclang exited');
-    console.info(options);
-    process.exit(1);
-  });
+}).fail(die);
 
-}, function(err) {
-  console.error(err);
-  process.exit(1);
-});
 
 // forever: automatically reboot if sclang crashes
 // else: should exit when sclang exits
