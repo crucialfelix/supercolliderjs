@@ -20,9 +20,15 @@
 
 + Exception {
   reportError {
-    var error = Library.at(\supercolliderjs, \errorToJSON).at(\getData).value(this, true, nil);
-    if(error.notNil, {
-      Library.at(\supercolliderjs, \return).value("0", "Error", error);
+    var errorHandler = Library.at(\supercolliderjs, \errorToJSON);
+    if(errorHandler.notNil, {
+        var error = errorHandler.at(\getData).value(this, true, nil);
+        if(error.notNil, {
+          Library.at(\supercolliderjs, \return).value("0", "Error", error);
+        });
+    }, {
+        // interpreter.scd did not load successfully
+        super.reportError;
     });
   }
 }
