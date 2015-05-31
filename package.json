@@ -11,13 +11,13 @@
   ],
   "dependencies": {
     "chalk": "^1.0.0",
-    "commander": "^2.6.0",
-    "js-yaml": "^3.2.7",
-    "node-uuid": "^1.4.2",
+    "commander": "^2.8.1",
+    "js-yaml": "^3.3.1",
+    "node-uuid": "^1.4.3",
     "osc-min": "^0.2.0",
     "q": "^1.2.0",
     "temp": "~0.8.1",
-    "underscore": "^1.8.2",
+    "underscore": "^1.8.3",
     "untildify": "^2.0.0"
   },
   "devDependencies": {
