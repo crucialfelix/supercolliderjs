@@ -28,6 +28,8 @@
         });
     }, {
         // interpreter.scd did not load successfully
+        "supercolliderjs errorHandler not found".error;
+        this.dump;
         super.reportError;
     });
   }
