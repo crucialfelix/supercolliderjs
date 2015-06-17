@@ -22,9 +22,7 @@
   },
   "devDependencies": {
     "babel": "^5.5.8",
-    "grunt": "^0.4.5",
-    "grunt-contrib-jshint": "^0.11.0",
-    "matchdep": "^0.3.0",
+    "jshint": "^2.8.0",
     "mocha": "^2.1.0",
     "should": "^5.0.1"
   },
@@ -46,6 +44,7 @@
   },
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha",
+    "lint": "jshint src/* bin/* examples/*",
     "compile": "babel -d lib/js src/",
     "prepublish": "npm run compile"
   },
