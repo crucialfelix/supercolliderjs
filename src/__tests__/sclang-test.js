@@ -29,7 +29,7 @@ describe('sclang', function() {
     it('should read a supplied sclang_conf', function() {
       var sclang = new SCLang({});
       var opts = sclang.sclangConfigOptions({
-        sclang_conf: path.join(__dirname, '../../tests/sclang_test_conf.yaml')
+        sclang_conf: path.join(__dirname, '../../test-fixtures/sclang_test_conf.yaml')
       });
       expect(opts.includePaths.length).toEqual(2);
       expect(opts.excludePaths.length).toEqual(1);
@@ -38,7 +38,7 @@ describe('sclang', function() {
     it('should merge sclang_conf with supplied includePaths', function() {
       var sclang = new SCLang({});
       var opts = sclang.sclangConfigOptions({
-        sclang_conf: path.join(__dirname, '../../tests/sclang_test_conf.yaml'),
+        sclang_conf: path.join(__dirname, '../../test-fixtures/sclang_test_conf.yaml'),
         includePaths: [
           '/custom/one',
           '/path/include/one'
