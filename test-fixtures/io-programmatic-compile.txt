@@ -1,0 +1,6 @@
+*** Welcome to SuperCollider 3.7alpha1. *** For help press Cmd-D.
+SCDoc: Indexing help-files...
+SCDoc: Indexed 1347 documents in 1.3 seconds
+empty
+compiling class library...
+	NumPrimitives = 710
