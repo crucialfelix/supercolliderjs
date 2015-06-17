@@ -1,5 +1,5 @@
 
-exports.sclang = require('./lib/nodejs/sclang');
-exports.scsynth = require('./lib/nodejs/scsynth');
-exports.scapi = require('./lib/nodejs/scapi');
-exports.resolveOptions = require('./lib/nodejs/resolveOptions');
+exports.sclang = require('./lib/js/sclang');
+exports.scsynth = require('./lib/js/scsynth');
+exports.scapi = require('./lib/js/scapi');
+exports.resolveOptions = require('./lib/js/resolveOptions');
