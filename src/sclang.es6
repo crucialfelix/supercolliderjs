@@ -37,7 +37,7 @@ class SCLang extends events.EventEmitter {
    */
   constructor(options) {
     super();
-    this.options = options;
+    this.options = options || {};
     this.process = null;
     this.calls = {};
     this.responseCollectors = {};

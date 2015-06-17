@@ -53,4 +53,11 @@ describe('sclang', function() {
 
   });
 
+  describe('args', function() {
+    var sclang = new SCLang();
+    var args = sclang.args({langPort: 4});
+    expect(args.length).toEqual(2);
+    expect(args[1]).toEqual(4);
+  });
+
 });
