@@ -23,8 +23,8 @@
   "devDependencies": {
     "babel": "^5.5.8",
     "jshint": "^2.8.0",
-    "mocha": "^2.1.0",
-    "should": "^5.0.1"
+    "babel-jest": "*",
+    "jest-cli": "*"
   },
   "license": "MIT",
   "keywords": [
@@ -43,10 +43,15 @@
     "supercollider": "./bin/sclang.js"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha",
+    "test": "jest",
     "lint": "jshint src/* bin/* examples/*",
     "compile": "babel -d lib/js src/",
     "prepublish": "npm run compile"
+  },
+  "jest": {
+    "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
+    "testFileExtensions": ["es6", "js"],
+    "moduleFileExtensions": ["js", "json", "es6"]
   },
   "engines": {
     "node": ">=0.10.0"
