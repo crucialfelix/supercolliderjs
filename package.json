@@ -21,6 +21,7 @@
     "untildify": "^2.0.0"
   },
   "devDependencies": {
+    "babel": "^5.5.8",
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^0.11.0",
     "matchdep": "^0.3.0",
@@ -44,7 +45,9 @@
     "supercollider": "./bin/sclang.js"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/mocha/bin/mocha",
+    "compile": "babel -d lib/js src/",
+    "prepublish": "npm run compile"
   },
   "engines": {
     "node": ">=0.10.0"
