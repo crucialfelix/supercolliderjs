@@ -1,5 +1,3 @@
-node_modules
-docs/_build
-
-notes
-doing
+/node_modules
+/docs/_build
+/lib/js

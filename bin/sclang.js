@@ -19,7 +19,7 @@ var help = [
 var
     path = require('path'),
     pkg = require(path.join(__dirname, '../package.json')),
-    lib = path.join(__dirname, '../lib/nodejs/'),
+    lib = path.join(__dirname, '../lib/js/'),
     program = require('commander'),
     SCLang = require(lib + 'sclang'),
     options = {};
