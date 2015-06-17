@@ -50,6 +50,14 @@ Example
 			});
 
 
+Compatibility
+-------------
+
+Works on Node 0.10.x, 0.11.x, 0.12.x and iojs 2.3
+
+Note that the testing framework (jest) does not work on anything except Node 0.10.x, so travis is currently not set to test any other versions.
+
+
 Contribute
 ----------
 
