@@ -1,3 +1,3 @@
-node_modules
-docs/_build
-lib/js
+/node_modules
+/docs/_build
+/lib/js
