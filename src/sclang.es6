@@ -72,7 +72,7 @@ class SCLang extends events.EventEmitter {
       o.push('-l', options.config);
     }
     return o;
-  };
+  }
 
 
   /**

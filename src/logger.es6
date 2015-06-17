@@ -8,7 +8,7 @@ var chalk = require('chalk'),
       stdin: chalk.blue,
       sendosc: chalk.cyan,
       rcvosc: chalk.yellow
-    }
+    };
 
 /**
  * usage:

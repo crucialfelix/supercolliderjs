@@ -44,7 +44,7 @@
   },
   "scripts": {
     "test": "jest",
-    "lint": "jshint src/* bin/* examples/*",
+    "lint": "jshint src/*.es6 bin/* examples/*",
     "compile": "cd src && babel *.es6 --out-dir ../lib/js",
     "prepublish": "npm run compile"
   },

@@ -159,7 +159,7 @@ class SCAPI extends events.EventEmitter {
       'signal': signal,
       'request_id': requestId,
       'result': result
-    }
+    };
 
     if (signal === 'reply') {
       request.resolve(response);
