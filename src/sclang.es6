@@ -222,7 +222,7 @@ SCLang.prototype.sclangConfigOptions = function(options) {
       sclang_conf = yaml.safeLoad(fs.readFileSync(untildify(options.sclang_conf), 'utf8'));
     } catch (e) {
       this.log.err(e);
-      throw 'Cannot open or read specified sclang_conf' + options.sclang_conf;
+      throw 'Cannot open or read specified sclang_conf ' + options.sclang_conf;
     }
   }
 
