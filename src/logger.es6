@@ -8,7 +8,7 @@ var chalk = require('chalk'),
       stdin: chalk.blue,
       sendosc: chalk.cyan,
       rcvosc: chalk.yellow
-    };
+    }
 
 /**
  * usage:
@@ -22,65 +22,69 @@ var chalk = require('chalk'),
  * log.stderr('error from server')
  *
  */
-var Logger = function(debug, echo) {
-  this.debug = debug;
-  this.echo = echo;
-};
 
-Logger.prototype.dbug = function(text) {
-  if (this.debug) {
-    this.print('  debug  - ', text, c.debug);
+class Logger {
+
+  constructor(debug, echo) {
+    this.debug = debug;
+    this.echo = echo;
   }
-};
 
-Logger.prototype.err = function(text) {
-  this.print('  error  - ', text, c.error);
-};
-
-Logger.prototype.stdin = function(text) {
-  if (this.echo) {
-    this.print('  stdin  - ', text, c.stdin);
+  dbug(text) {
+    if (this.debug) {
+      this.print('  debug  - ', text, c.debug);
+    }
   }
-};
 
-Logger.prototype.stdout = function(text) {
-  if (this.echo) {
-    this.print('  stdout - ', text, c.stdout);
+  err(text) {
+    this.print('  error  - ', text, c.error);
   }
-};
 
-Logger.prototype.stderr = function(text) {
-  if (this.echo) {
-    this.print('  stderr - ', text, c.stderr);
+  stdin(text) {
+    if (this.echo) {
+      this.print('  stdin  - ', text, c.stdin);
+    }
   }
-};
 
-Logger.prototype.sendosc = function(text) {
-  if (this.echo) {
-    this.print('  sendosc - ', text, c.sendosc);
+  stdout(text) {
+    if (this.echo) {
+      this.print('  stdout - ', text, c.stdout);
+    }
   }
-};
 
-Logger.prototype.rcvosc = function(text) {
-  if (this.echo) {
-    this.print('  rcvosc  - ', text, c.rcvosc);
+  stderr(text) {
+    if (this.echo) {
+      this.print('  stderr - ', text, c.stderr);
+    }
   }
-};
 
-Logger.prototype.print = function(label, text, color) {
-  if (typeof text !== 'string') {
-    text = JSON.stringify(text, undefined, 2);
+  sendosc(text) {
+    if (this.echo) {
+      this.print('  sendosc - ', text, c.sendosc);
+    }
   }
-  var
-    lines = text.split('\n'),
-    clean = [label + lines[0]],
-    rest = lines.slice(1);
-  rest = rest.filter(function(s) { return s.length > 0; });
-  rest = rest.map(function(s) {
-    return '           ' + s;
-  });
-  clean = clean.concat(rest);
-  console.log(color(clean.join('\n')));
-};
+
+  rcvosc(text) {
+    if (this.echo) {
+      this.print('  rcvosc  - ', text, c.rcvosc);
+    }
+  }
+
+  print(label, text, color) {
+    if (typeof text !== 'string') {
+      text = JSON.stringify(text, undefined, 2);
+    }
+    var
+      lines = text.split('\n'),
+      clean = [label + lines[0]],
+      rest = lines.slice(1);
+    rest = rest.filter(function(s) { return s.length > 0; });
+    rest = rest.map(function(s) {
+      return '           ' + s;
+    });
+    clean = clean.concat(rest);
+    console.log(color(clean.join('\n')));
+  }
+}
 
 module.exports = Logger;
