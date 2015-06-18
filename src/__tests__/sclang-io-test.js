@@ -49,4 +49,16 @@ describe('sclang-io', function() {
     expect(io.state).toEqual(STATES.COMPILING);
   });
 
+  it('should detect a duplicate class compile failure', function() {
+    var io = new SclangIO();
+    io.setState(STATES.BOOTING);
+    feedIt('io-duplicate-class.txt', io);
+    expect(io.state).toEqual(STATES.COMPILE_ERROR);
+    expect(io.compileErrors).toBeDefined;
+    expect(io.compileErrors.duplicateClasses).toBeDefined;
+    expect(io.compileErrors.duplicateClasses.length).toEqual(1);
+    expect(io.compileErrors.duplicateClasses[0].forClass).toEqual('Crucial');
+    expect(io.compileErrors.duplicateClasses[0].files[0]).toEqual('/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc');
+  });
+
 });

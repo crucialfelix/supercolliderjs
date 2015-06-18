@@ -114,7 +114,7 @@ class SclangIO extends EventEmitter {
           {
             re: /^ERROR: There is a discrepancy\./m,
             fn: function(match, text) {
-              self.parseErrors.push(text);
+              // self.parseErrors.push(text);
               self.finalizeCompileErrors();
               self.setState(STATES.COMPILE_ERROR);
             }
@@ -310,6 +310,7 @@ class SclangIO extends EventEmitter {
       stdout: text,
       errors: [],
       extensionErrors: [],
+      duplicateClasses: [],
       dirs: []
     };
 
@@ -333,6 +334,7 @@ class SclangIO extends EventEmitter {
         // in file 'path' line x char y:
         errRe = /([^\n]+)\n\s+in file '([^']+)'\n\s+line ([0-9]+) char ([0-9]+)/mg,
         nonExistentRe = /ERROR: Class extension for nonexistent class '([A-Za-z0-9\_]+)[\s\S]+In file:'(.+)'/mg,
+        duplicateRe = /^ERROR: duplicate Class found: '([A-Za-z0-9\_]+)'\n([^\n]+)\n([^\n]+)\n/mg,
         commonPath = /^\/Common/;
 
     while (match = errRe.exec(rest)) {
@@ -356,12 +358,19 @@ class SclangIO extends EventEmitter {
       });
     }
 
+    while ((match = duplicateRe.exec(text)) !== null) {
+      errors.duplicateClasses.push({
+        forClass: match[1],
+        files: [
+          match[2],
+          match[3]
+        ]
+      });
+    }
+
     return errors;
   }
 }
 
 
-module.exports = {
-  SclangIO: SclangIO,
-  STATES: STATES
-};
+export { STATES, SclangIO };
