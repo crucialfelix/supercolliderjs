@@ -165,7 +165,7 @@ class SCLang extends EventEmitter {
         this.removeListener('state', bootListener);
         // probably should remove all listeners
       }
-    }
+    };
 
     // temporary listener until booted ready or compileError
     // that removes itself
