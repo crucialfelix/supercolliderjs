@@ -1,0 +1,6 @@
+includePaths:
+    - /path/include/one
+    - /path/include/two
+excludePaths:
+    - /path/exclude
+postInlineWarnings: false

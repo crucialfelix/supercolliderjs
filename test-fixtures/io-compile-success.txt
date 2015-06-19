@@ -1,0 +1,26 @@
+init_OSC
+empty
+compiling class library...
+	NumPrimitives = 710
+	compiling dir: '/Users/crucial/code/supercollider/build/Install/SuperCollider/SuperCollider.app/Contents/Resources/SCClassLibrary'
+	compiling dir: '/Users/crucial/github/atom-supercollider/node_modules/supercolliderjs/lib/sc-classes'
+	compiling dir: '/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/Steno'
+	pass 1 done
+	numentries = 819694 / 11593660 = 0.071
+	5185 method selectors, 2236 classes
+	method table size 12622504 bytes, big table size 92749280
+	Number of Symbols 11816
+	Byte Code Size 359053
+	compiled 322 files in 0.43 seconds
+
+Info: 8 methods are currently overwritten by extensions. To see which, execute:
+MethodOverride.printAll
+
+compile done
+Class tree inited in 0.01 seconds
+Cleaning up temp synthdefs...
+
+
+*** Welcome to SuperCollider 3.7alpha1. *** For help press Cmd-D.
+SCDoc: Indexing help-files...
+SCDoc: Indexed 1347 documents in 1.3 seconds

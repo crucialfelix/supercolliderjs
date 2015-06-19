@@ -1,14 +1,14 @@
 
-var supercolliderjs = require('../index');
-var SCSynth = supercolliderjs.scsynth;
-var should = require('should');
+jest.autoMockOff();
+
+var SCSynth = require('../scsynth');
 
 describe('scsynth', function() {
 
   describe('default constructor', function() {
     it('should exist', function() {
       var synth = new SCSynth({});
-      should.exist(synth);
+      expect(synth).toBeDefined();
     });
   });
 

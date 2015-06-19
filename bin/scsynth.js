@@ -15,9 +15,9 @@ var help = [
 var
     join = require('path').join,
     pkg = require(join(__dirname, '../package.json')),
-    lib = join(__dirname, '../lib/nodejs/'),
+    lib = join(__dirname, '../lib/js/'),
     program = require('commander'),
-    resolveOptions = require('../lib/nodejs/resolveOptions'),
+    resolveOptions = require(lib + 'resolveOptions'),
     Server = require(lib + 'scsynth'),
     options = {};
 

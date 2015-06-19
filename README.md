@@ -1,7 +1,10 @@
 supercollider.js
 ================
 
-Node JS and webrowser tools for working with SuperCollider.
+[![npm version](https://badge.fury.io/js/supercolliderjs.svg)](http://badge.fury.io/js/supercolliderjs) [![Build Status](https://travis-ci.org/crucialfelix/supercolliderjs.svg?branch=master)](https://travis-ci.org/crucialfelix/supercolliderjs) [![Dependency Status](https://david-dm.org/crucialfelix/supercolliderjs.svg)](https://david-dm.org/crucialfelix/supercolliderjs) [![devDependency Status](https://david-dm.org/crucialfelix/supercolliderjs/dev-status.svg)](https://david-dm.org/crucialfelix/supercolliderjs#info=devDependencies)
+
+
+Node JS tools for working with the SuperCollider language and synthesis server.
 
 SuperCollider is an environment and programming language for real time audio synthesis and algorithmic composition. It provides an interpreted object-oriented language which functions as a network client to a state of the art, realtime sound synthesis server.
 
@@ -9,7 +12,6 @@ This library provides tools for working with:
 
 - scsynth (the synthesis server)
 - sclang (supercollider language interpreter)
-- sclang running in SuperCollider application (IDE + sclang).
 
 
 Documentation
@@ -48,6 +50,14 @@ Example
 					});
 
 			});
+
+
+Compatibility
+-------------
+
+Works on Node 0.10.x, 0.11.x, 0.12.x and iojs 2.3
+
+Note that the testing framework (jest) does not work on anything except Node 0.10.x, so travis is currently not set to test any other versions.
 
 
 Contribute

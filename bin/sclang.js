@@ -17,11 +17,10 @@ var help = [
 ];
 
 var
-    join = require('path').join,
-    pkg = require(join(__dirname, '../package.json')),
-    lib = join(__dirname, '../lib/nodejs/'),
+    path = require('path'),
+    pkg = require(path.join(__dirname, '../package.json')),
+    lib = path.join(__dirname, '../lib/js/'),
     program = require('commander'),
-    resolveOptions = require('../lib/nodejs/resolveOptions'),
     SCLang = require(lib + 'sclang'),
     options = {};
 
@@ -55,25 +54,20 @@ program.parse(process.argv);
 
 // pass a filename for sclang to execute
 if (program.args.length) {
-  options.executeFile = program.args[0];
+  options.executeFile = path.resolve(program.args[0]);
 }
 
-resolveOptions(options.config, options).then(function(options) {
 
-  var l = new SCLang(options);
-
-  l.boot();
-
-  l.on('exit', function() {
+SCLang.boot(options).then(function(sclang) {
+  // sclang exited
+  sclang.on('exit', function() {
     console.warn('sclang exited');
     console.info(options);
     process.exit(1);
   });
-
-}, function(err) {
-  console.error(err);
+}).fail(function(error) {
+  // failure to startup
+  console.error(error);
+  console.trace();
   process.exit(1);
 });
-
-// forever: automatically reboot if sclang crashes
-// else: should exit when sclang exits

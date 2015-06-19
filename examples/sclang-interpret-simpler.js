@@ -17,6 +17,12 @@ var supercolliderjs = require('../index.js'),
     debug: true
   };
 
+function onError(error) {
+  console.error(error);
+  console.trace();
+  process.exit(1);
+}
+
 supercolliderjs.sclang.boot(options)
   .then(function(sc) {
 
@@ -47,4 +53,4 @@ supercolliderjs.sclang.boot(options)
         console.log(error);
       });
 
-  });
+  }).fail(onError);
