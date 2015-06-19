@@ -1,0 +1,12 @@
+empty
+compiling class library...
+	NumPrimitives = 710
+	compiling dir: '/Users/crucial/code/supercollider/build/Install/SuperCollider/SuperCollider.app/Contents/Resources/SCClassLibrary'
+	compiling dir: '/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library'
+ERROR: duplicate Class found: 'Crucial'
+/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc
+/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/ServerTools/BusPool.sc
+
+	pass 1 done
+ERROR: There is a discrepancy.
+numClassDeps 1323   gNumClasses 2644
