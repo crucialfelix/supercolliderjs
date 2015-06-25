@@ -9,43 +9,55 @@
  *
  */
 
-var program = require('commander'),
-    path = require('path'),
+var path = require('path'),
     join = path.join,
     untildify = require('untildify'),
     os = require('os'),
     yaml = require('js-yaml'),
     fs   = require('fs'),
     _ = require('underscore'),
-    Q = require('q'),
+    Q = require('q');
+
+function defaultOptions() {
+  var opts = {
+      'debug': false,
+      'echo': true,
+      'stdin': true,
+      'langPort': 57120,
+      'serverPort': 57110,
+      'host': '127.0.0.1',
+      'protocol': 'udp',
+      'websocketPort': 4040
+    },
+    defaultRoot,
     platform = os.platform();
 
-var defaultOptions = {
-    'debug': false,
-    'echo': true,
-    'stdin': true,
-    'langPort': 57120,
-    'serverPort': 57110,
-    'host': '127.0.0.1',
-    'protocol': 'udp',
-    'websocketPort': 4040
-  },
-  defaultRoot;
+  if (platform === 'darwin') {
+    defaultRoot = '/Applications/SuperCollider/SuperCollider.app/Contents/MacOS';
+  } else if (platform === 'win32') {
+    defaultRoot = 'C:\\Program Files (x86)\\SuperCollider';
+  } else {
+    defaultRoot = '/usr/local/bin';
+  }
 
-if (platform === 'darwin') {
-  defaultRoot =
-    '/Applications/SuperCollider/SuperCollider.app/Contents/MacOS';
-} else if (platform === 'win32') {
-  defaultRoot = 'C:\\Program Files (x86)\\SuperCollider';
-} else {
-  defaultRoot = '/usr/local/bin';
+  opts.sclang = join(defaultRoot, 'sclang');
+  opts.scsynth = join(defaultRoot, 'scsynth');
+  return opts;
 }
-
-defaultOptions.sclang = join(defaultRoot, 'sclang');
-defaultOptions.scsynth = join(defaultRoot, 'scsynth');
 
 function getUserHome() {
   return process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+}
+
+function filterUndefs(opts) {
+  var cleaned = {};
+  for (let key in opts) {
+    let val = opts[key];
+    if (!_.isUndefined(val)) {
+      cleaned[key] = val;
+    }
+  }
+  return cleaned;
 }
 
 /**
@@ -61,46 +73,58 @@ function getUserHome() {
   *            a dict of options to be merged over the loaded config.
   *            eg. supplied command line options --sclang=/some/path/to/sclang
   *
-  * @returns: promise
+  * @returns: {Promise}
   */
-function resolveOptions(configPath, commandLineOptions) {
+export default function resolveOptions(configPath, commandLineOptions) {
   var deferred = Q.defer(),
       promise = deferred.promise;
 
-  function ok(o, configPath) {
-    var options = _.extend(defaultOptions, o, commandLineOptions);
+  function ok(opts, aPath) {
+    var options = _.extend(defaultOptions(),
+      filterUndefs(opts),
+      filterUndefs(commandLineOptions),
+      {configPath: aPath});
+
     options.sclang = path.resolve(untildify(options.sclang));
     options.scsynth = path.resolve(untildify(options.scsynth));
-    options.configPath = configPath;
+
     deferred.resolve(options);
   }
 
-  function loadPath(configPath) {
-    var fileExists;
-    configPath = path.resolve(configPath);
-    fileExists = fs.existsSync(configPath);
-    if(fileExists) {
-      try {
-        var options = yaml.safeLoad(fs.readFileSync(configPath, 'utf8'));
-        ok(options, configPath);
-      } catch (e) {
-        deferred.reject({configPath: configPath, message:'Error reading config file', error: e});
-      }
+  function checkPath(aPath) {
+    let resolvedPath = path.resolve(untildify(aPath));
+    return fs.existsSync(resolvedPath) ? resolvedPath : null;
+  }
+
+  function loadConfig(aPath) {
+    try {
+      var options = yaml.safeLoad(fs.readFileSync(aPath, 'utf8'));
+      ok(options, aPath);
+    } catch (e) {
+      deferred.reject({configPath: aPath, message:'Error reading config file', error: e});
     }
-    return fileExists;
   }
 
   if(configPath) {
-    // explict config path
-    configPath = untildify(configPath);
-    if(!loadPath(configPath)) {
+    // explicit config path supplied
+    let explicitConfigPath = checkPath(configPath);
+    if (!explicitConfigPath) {
       deferred.reject({message: 'Config file not found', configPath: configPath});
-      return;
+    } else {
+      loadConfig(explicitConfigPath);
     }
   } else {
-    if(!loadPath('.supercollider.yaml')) {
-      configPath = path.join(getUserHome(), '.supercollider.yaml');
-      if(!loadPath(configPath)) {
+    // look in cwd
+    let localConfigPath = checkPath('.supercollider.yaml');
+    if (localConfigPath) {
+      loadConfig(localConfigPath);
+    } else {
+      // look in ~
+      let homeDirConfigPath = checkPath(path.join(getUserHome(), '.supercollider.yaml'));
+      if (homeDirConfigPath) {
+        loadConfig(homeDirConfigPath);
+      } else {
+        // use the defaults
         ok({}, null);
       }
     }
@@ -108,5 +132,3 @@ function resolveOptions(configPath, commandLineOptions) {
 
   return promise;
 }
-
-module.exports = resolveOptions;
