@@ -51,7 +51,9 @@
   "jest": {
     "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
     "testFileExtensions": ["es6", "js"],
-    "moduleFileExtensions": ["js", "json", "es6"]
+    "testPathDirs": ["src"],
+    "moduleFileExtensions": ["js", "json", "es6"],
+    "collectCoverage": true
   },
   "engines": {
     "node": ">=0.10.0"
