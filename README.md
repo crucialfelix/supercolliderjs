@@ -4,7 +4,7 @@ supercollider.js
 [![npm version](https://badge.fury.io/js/supercolliderjs.svg)](http://badge.fury.io/js/supercolliderjs) [![Build Status](https://travis-ci.org/crucialfelix/supercolliderjs.svg?branch=master)](https://travis-ci.org/crucialfelix/supercolliderjs) [![Dependency Status](https://david-dm.org/crucialfelix/supercolliderjs.svg)](https://david-dm.org/crucialfelix/supercolliderjs) [![devDependency Status](https://david-dm.org/crucialfelix/supercolliderjs/dev-status.svg)](https://david-dm.org/crucialfelix/supercolliderjs#info=devDependencies)
 
 
-Node JS tools for working with the SuperCollider language and synthesis server.
+Node.js tools for working with the SuperCollider language and synthesis server.
 
 SuperCollider is an environment and programming language for real time audio synthesis and algorithmic composition. It provides an interpreted object-oriented language which functions as a network client to a state of the art, realtime sound synthesis server.
 
@@ -34,22 +34,24 @@ Features
 Example
 -------
 
-		var scjs = require('supercolliderjs');
+```javascript
+var scjs = require('supercolliderjs');
 
-		scjs.sclang.boot()
-			.then(function(sclang) {
+scjs.sclang.boot()
+  .then(function(sclang) {
 
-				sclang.interpret('(1..8).pyramid')
-					.then(function(result) {
-						// result is a native javascript array
-						console.log('= ' + result);
-					}, function(error) {
-						// syntax or runtime errors
-						// are returned as javascript objects
-						console.log(error);
-					});
+    sclang.interpret('(1..8).pyramid')
+      .then(function(result) {
+        // result is a native javascript array
+        console.log('= ' + result);
+      }, function(error) {
+        // syntax or runtime errors
+        // are returned as javascript objects
+        console.log(error);
+      });
 
-			});
+  });
+```
 
 
 Compatibility
