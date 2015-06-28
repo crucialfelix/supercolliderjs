@@ -1,7 +1,7 @@
 {
   "name": "supercolliderjs",
   "description": "Tools for working with the SuperCollider music language environment",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "author": "Felix <crucialfelix@gmail.com>",
   "contributors": [
     {
@@ -50,9 +50,18 @@
   },
   "jest": {
     "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
-    "testFileExtensions": ["es6", "js"],
-    "testPathDirs": ["src"],
-    "moduleFileExtensions": ["js", "json", "es6"],
+    "testFileExtensions": [
+      "es6",
+      "js"
+    ],
+    "testPathDirs": [
+      "src"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "es6"
+    ],
     "collectCoverage": true
   },
   "engines": {
