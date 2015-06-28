@@ -32,7 +32,7 @@ var
 import {SclangIO, STATES} from './sclang-io';
 
 
-class SCLang extends EventEmitter {
+export default class SCLang extends EventEmitter {
 
   /*
    * @param {object} options - sclang command line options
@@ -43,6 +43,7 @@ class SCLang extends EventEmitter {
     this.process = null;
     this.log = new Logger(this.options.debug, this.options.echo);
     this.log.dbug(this.options);
+    this.stateWatcher = this.makeStateWatcher();
   }
 
   /**
@@ -90,10 +91,9 @@ class SCLang extends EventEmitter {
       write options as yaml to a temp file
       and return the path
     **/
-    var addPath, includePaths, str;
     var deferred = Q.defer();
+    var str = yaml.safeDump(config, {indent: 4});
 
-    str = yaml.safeDump(config, {indent: 4});
     temp.open('sclang-config', function(err, info) {
       if(err) {
         return deferred.reject(err);
@@ -124,14 +124,10 @@ class SCLang extends EventEmitter {
     // merge supercollider.js options with any sclang_conf
     var config = this.sclangConfigOptions(this.options);
 
-    if(config.includePaths || config.excludePaths) {
-      return this.makeSclangConfig(config)
-        .then((configPath) => {
-          return this.spawnProcess(this.options.sclang, _.extend({}, this.options, {config: configPath}));
-        });
-    } else {
-      return this.spawnProcess(this.options.sclang, _.extend({}, this.options));
-    }
+    return this.makeSclangConfig(config)
+      .then((configPath) => {
+        return this.spawnProcess(this.options.sclang, _.extend({}, this.options, {config: configPath}));
+      });
   }
 
   /**
@@ -157,10 +153,10 @@ class SCLang extends EventEmitter {
       });
 
     var bootListener = (state) => {
-      if (state === 'ready') {
+      if (state === STATES.READY) {
         deferred.resolve();
         this.removeListener('state', bootListener);
-      } else if (state === 'compileError') {
+      } else if (state === STATES.COMPILE_ERROR) {
         deferred.reject(this.stateWatcher.compileErrors);
         this.removeListener('state', bootListener);
         // probably should remove all listeners
@@ -172,8 +168,7 @@ class SCLang extends EventEmitter {
     this.addListener('state', bootListener);
 
     // long term listeners
-    this.installListeners();
-
+    this.installListeners(this.process, Boolean(this.options.stdin));
     return deferred.promise;
   }
 
@@ -213,17 +208,25 @@ class SCLang extends EventEmitter {
     return {
       includePaths: _.union(sclang_conf.includePaths, options.includePaths, runtimeIncludePaths),
       excludePaths: _.union(sclang_conf.excludePaths, options.excludePaths),
-      postInlineWarning: _.isUndefined(options.postInlineWarnings) ? sclang_conf.postInlineWarnings : options.postInlineWarnings
+      postInlineWarning: _.isUndefined(options.postInlineWarnings) ? Boolean(sclang_conf.postInlineWarnings) : Boolean(options.postInlineWarnings)
     };
   }
 
-  /**
-    * listen to process and SclangIO events
-    */
-  installListeners() {
-    this.stateWatcher = new SclangIO(this);
+  makeStateWatcher() {
+    var stateWatcher = new SclangIO(this);
+    for (let name of ['interpreterLoaded', 'error', 'stdout', 'state']) {
+      stateWatcher.on(name, (...args) => {
+        this.emit(name, ...args);
+      });
+    }
+    return stateWatcher;
+  }
 
-    if (this.options.stdin) {
+  /**
+    * listen to events from process and pipe stdio to the stateWatcher
+    */
+  installListeners(subprocess, listenToStdin) {
+    if (listenToStdin) {
       // stdin of the global top level nodejs process
       process.stdin.setEncoding('utf8');
       process.stdin.on('data', (chunk) => {
@@ -232,39 +235,33 @@ class SCLang extends EventEmitter {
         }
       });
     }
-    this.process.stdout.on('data', (data) => {
+    subprocess.stdout.on('data', (data) => {
       this.stateWatcher.parse(String(data));
     });
-    this.process.stderr.on('data', (data) => {
+    subprocess.stderr.on('data', (data) => {
       var error = String(data);
       this.log.stderr(error);
       this.emit('stderr', error);
     });
-    this.process.on('error', (err) => {
+    subprocess.on('error', (err) => {
       this.log.err('ERROR:' + err, 'error');
       this.emit('stderr', err);
     });
-    this.process.on('close', (code, signal) => {
+    subprocess.on('close', (code, signal) => {
       this.log.dbug('close ' + code + signal);
       this.emit('exit', code);
       this.setState(null);
     });
-    this.process.on('exit', (code, signal) => {
+    subprocess.on('exit', (code, signal) => {
       this.log.dbug('exit ' + code + signal);
       this.emit('exit', code);
       this.setState(null);
     });
-    this.process.on('disconnect', () => {
+    subprocess.on('disconnect', () => {
       this.log.dbug('disconnect');
       this.emit('exit');
       this.setState(null);
     });
-
-    var echo = (...args) => this.emit(...args);
-    this.stateWatcher.on('interpreterLoaded', echo);
-    this.stateWatcher.on('error', echo);
-    this.stateWatcher.on('stdout', echo);
-    this.stateWatcher.on('state', echo);
   }
 
   /**
@@ -300,8 +297,13 @@ class SCLang extends EventEmitter {
         var configPath = path.resolve(untildify(this.options.sclang_conf));
         var setConfigPath = 'Library.put(\'supercolliderjs\', \'sclang_conf\', "' + configPath + '");';
         this.interpret(setConfigPath, null, true, false, false)
-          .then(() => { deferred.resolve(this); },
+          .then(
+            () => {
+              deferred.resolve(this);
+            },
             deferred.reject);
+      } else {
+        deferred.resolve(this);
       }
     });
 
@@ -363,12 +365,13 @@ class SCLang extends EventEmitter {
 
   quit() {
     var deferred = Q.defer();
+    var cleanup = () => {
+      this.process = null;
+      this.setState(null);
+      deferred.resolve();
+    };
     if (this.process) {
-      this.process.once('exit', () => {
-        this.process = null;
-        this.setState(null);
-        deferred.resolve();
-      });
+      this.process.once('exit', cleanup);
       // request a polite shutdown
       this.process.kill('SIGINT');
       setTimeout(() => {
@@ -376,11 +379,11 @@ class SCLang extends EventEmitter {
         // but SIGTERM causes it to crash
         if(this.process) {
           this.process.kill('SIGTERM');
+          cleanup();
         }
       }, 250);
     } else {
-      this.setState(null);
-      deferred.resolve();
+      cleanup();
     }
     return deferred.promise;
   }
@@ -411,6 +414,3 @@ SCLang.boot = function(options) {
   });
 
 };
-
-
-module.exports = SCLang;
