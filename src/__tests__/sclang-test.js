@@ -1,9 +1,13 @@
 
 jest.autoMockOff();
+jest.mock('child_process');
 
 var SCLang = require('../sclang');
 var _ = require('underscore');
 var path = require('path');
+var EventEmitter = require('events').EventEmitter;
+import {STATES} from '../sclang-io';
+
 
 describe('sclang', function() {
 
@@ -78,4 +82,67 @@ describe('sclang', function() {
     });
   });
 
+  describe('sclangConfigOptions', function() {
+    it('should include sc-classes', function() {
+      var sclang = new SCLang();
+      var config = sclang.sclangConfigOptions({errorsAsJSON: true});
+      expect(config.includePaths.length).toEqual(1);
+      expect(config.includePaths[0].match(/sc-classes/)).toBeTruthy();
+    });
+
+    it('postInlineWarning should not be undefined', function() {
+      var sclang = new SCLang();
+      var config = sclang.sclangConfigOptions({});
+      expect(config.postInlineWarning).toBeDefined();
+
+      config = sclang.sclangConfigOptions({postInlineWarning: undefined});
+      expect(config.postInlineWarning).toEqual(false);
+    });
+  });
+
+  describe('installListeners', function() {
+
+    class MockProcess extends EventEmitter {
+      constructor() {
+        super();
+        this.stdout = new EventEmitter();
+        this.stderr = new EventEmitter();
+      }
+    }
+
+    it('should install event listeners', function() {
+      var subprocess = new MockProcess();
+      var sclang = new SCLang();
+      sclang.installListeners(subprocess, true);
+    });
+
+    it('should respond to subprocess events', function() {
+      /**
+       * TODO needs to be properly mocked
+       */
+      var subprocess = new MockProcess();
+      var sclang = new SCLang();
+      sclang.setState(STATES.BOOTING);
+      sclang.installListeners(subprocess, true);
+
+      process.stdin.emit('data', '');
+      subprocess.stdout.emit('data', 'data');
+      subprocess.stderr.emit('data', 'data');
+      subprocess.emit('error', 'error');
+      subprocess.emit('close', 0, 'close');
+      subprocess.emit('exit', 0, 'exit');
+      subprocess.emit('disconnect');
+    });
+  });
+
+  describe('spawnProcess', function() {
+    // mock spawn to return an event emitter
+    it('should spawnProcess', function() {
+      var sclang = new SCLang();
+      spyOn(sclang, 'installListeners');
+      var promise = sclang.spawnProcess('/tmp/fake/path', {});
+      expect(promise).toBeTruthy();
+    });
+
+  });
 });

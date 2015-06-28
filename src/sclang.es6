@@ -43,6 +43,7 @@ class SCLang extends EventEmitter {
     this.process = null;
     this.log = new Logger(this.options.debug, this.options.echo);
     this.log.dbug(this.options);
+    this.stateWatcher = this.makeStateWatcher();
   }
 
   /**
@@ -167,7 +168,7 @@ class SCLang extends EventEmitter {
     this.addListener('state', bootListener);
 
     // long term listeners
-    this.installListeners();
+    this.installListeners(this.process, this.options.stdin);
 
     return deferred.promise;
   }
@@ -212,13 +213,21 @@ class SCLang extends EventEmitter {
     };
   }
 
-  /**
-    * listen to process and SclangIO events
-    */
-  installListeners() {
-    this.stateWatcher = new SclangIO(this);
+  makeStateWatcher() {
+    var echo = (...args) => this.emit(...args);
+    var stateWatcher = new SclangIO(this);
+    stateWatcher.on('interpreterLoaded', echo);
+    stateWatcher.on('error', echo);
+    stateWatcher.on('stdout', echo);
+    stateWatcher.on('state', echo);
+    return stateWatcher;
+  }
 
-    if (this.options.stdin) {
+  /**
+    * listen to events from process and pipe stdio to the stateWatcher
+    */
+  installListeners(subprocess, listenToStdin) {
+    if (listenToStdin) {
       // stdin of the global top level nodejs process
       process.stdin.setEncoding('utf8');
       process.stdin.on('data', (chunk) => {
@@ -227,39 +236,33 @@ class SCLang extends EventEmitter {
         }
       });
     }
-    this.process.stdout.on('data', (data) => {
+    subprocess.stdout.on('data', (data) => {
       this.stateWatcher.parse(String(data));
     });
-    this.process.stderr.on('data', (data) => {
+    subprocess.stderr.on('data', (data) => {
       var error = String(data);
       this.log.stderr(error);
       this.emit('stderr', error);
     });
-    this.process.on('error', (err) => {
+    subprocess.on('error', (err) => {
       this.log.err('ERROR:' + err, 'error');
       this.emit('stderr', err);
     });
-    this.process.on('close', (code, signal) => {
+    subprocess.on('close', (code, signal) => {
       this.log.dbug('close ' + code + signal);
       this.emit('exit', code);
       this.setState(null);
     });
-    this.process.on('exit', (code, signal) => {
+    subprocess.on('exit', (code, signal) => {
       this.log.dbug('exit ' + code + signal);
       this.emit('exit', code);
       this.setState(null);
     });
-    this.process.on('disconnect', () => {
+    subprocess.on('disconnect', () => {
       this.log.dbug('disconnect');
       this.emit('exit');
       this.setState(null);
     });
-
-    var echo = (...args) => this.emit(...args);
-    this.stateWatcher.on('interpreterLoaded', echo);
-    this.stateWatcher.on('error', echo);
-    this.stateWatcher.on('stdout', echo);
-    this.stateWatcher.on('state', echo);
   }
 
   /**
