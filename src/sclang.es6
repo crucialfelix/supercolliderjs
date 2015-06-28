@@ -90,10 +90,9 @@ class SCLang extends EventEmitter {
       write options as yaml to a temp file
       and return the path
     **/
-    var addPath, includePaths, str;
     var deferred = Q.defer();
+    var str = yaml.safeDump(config, {indent: 4});
 
-    str = yaml.safeDump(config, {indent: 4});
     temp.open('sclang-config', function(err, info) {
       if(err) {
         return deferred.reject(err);
@@ -124,14 +123,10 @@ class SCLang extends EventEmitter {
     // merge supercollider.js options with any sclang_conf
     var config = this.sclangConfigOptions(this.options);
 
-    if(config.includePaths || config.excludePaths) {
-      return this.makeSclangConfig(config)
-        .then((configPath) => {
-          return this.spawnProcess(this.options.sclang, _.extend({}, this.options, {config: configPath}));
-        });
-    } else {
-      return this.spawnProcess(this.options.sclang, _.extend({}, this.options));
-    }
+    return this.makeSclangConfig(config)
+      .then((configPath) => {
+        return this.spawnProcess(this.options.sclang, _.extend({}, this.options, {config: configPath}));
+      });
   }
 
   /**
@@ -213,7 +208,7 @@ class SCLang extends EventEmitter {
     return {
       includePaths: _.union(sclang_conf.includePaths, options.includePaths, runtimeIncludePaths),
       excludePaths: _.union(sclang_conf.excludePaths, options.excludePaths),
-      postInlineWarning: _.isUndefined(options.postInlineWarnings) ? sclang_conf.postInlineWarnings : options.postInlineWarnings
+      postInlineWarning: _.isUndefined(options.postInlineWarnings) ? Boolean(sclang_conf.postInlineWarnings) : Boolean(options.postInlineWarnings)
     };
   }
 

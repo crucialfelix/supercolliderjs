@@ -60,4 +60,22 @@ describe('sclang', function() {
     expect(args[1]).toEqual(4);
   });
 
+  describe('boot', function() {
+    pit('should call spawnProcess', function() {
+      var sclang = new SCLang();
+      var SPAWNED = 'SPAWNED';
+      spyOn(sclang, 'spawnProcess').andReturn(SPAWNED);
+      var fail = (err) => this.fail(err);
+      return sclang.boot().then((result) => expect(result).toEqual(SPAWNED)).fail(fail);
+    });
+  });
+
+  describe('makeSclangConfig', function() {
+    pit('should write a yaml file and resolve with a path', function() {
+      var sclang = new SCLang();
+      return sclang.makeSclangConfig({includePaths: [], excludePaths: []})
+        .then((tmpPath) => expect(tmpPath).toBeTruthy()).fail(this.fail);
+    });
+  });
+
 });
