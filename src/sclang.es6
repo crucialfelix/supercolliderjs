@@ -361,12 +361,13 @@ class SCLang extends EventEmitter {
 
   quit() {
     var deferred = Q.defer();
+    var cleanup = () => {
+      this.process = null;
+      this.setState(null);
+      deferred.resolve();
+    };
     if (this.process) {
-      this.process.once('exit', () => {
-        this.process = null;
-        this.setState(null);
-        deferred.resolve();
-      });
+      this.process.once('exit', cleanup);
       // request a polite shutdown
       this.process.kill('SIGINT');
       setTimeout(() => {
@@ -374,11 +375,11 @@ class SCLang extends EventEmitter {
         // but SIGTERM causes it to crash
         if(this.process) {
           this.process.kill('SIGTERM');
+          cleanup();
         }
       }, 250);
     } else {
-      this.setState(null);
-      deferred.resolve();
+      cleanup();
     }
     return deferred.promise;
   }
