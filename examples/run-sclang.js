@@ -24,6 +24,7 @@ var supercolliderjs = require('../index.js');
 
 var SCLang = supercolliderjs.sclang;
 
+
 supercolliderjs.resolveOptions(null, {
   // no STDIN, all input will be programmatic
   stdin: false,
@@ -35,9 +36,11 @@ supercolliderjs.resolveOptions(null, {
 
   sclang.boot()
     .then(function() {
+      console.log('Booted, interpreting...');
 
-      // raw write
+      // RAW WRITING TO THE STDIN
       sclang.write('1 + 1;');
+      // NO RESULT IS RETURNED
 
       setTimeout(function() {
         sclang.quit()
@@ -45,5 +48,5 @@ supercolliderjs.resolveOptions(null, {
             console.log('sclang process has exited');
           });
       }, 3000);
-    });
+    }).fail(console.error);
 });
