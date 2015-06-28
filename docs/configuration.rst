@@ -26,7 +26,7 @@ The simplest configuration would be:
 
 ~/.supercollider.yaml::
 
-    sclang: /Applications/SuperCollider/SuperCollider.app/Contents/Resources/sclang
+    sclang: /Applications/SuperCollider/SuperCollider.app/Contents/MacOS/sclang
     sclang_conf: ~/Library/Application Support/SuperCollider/sclang_conf.yaml
 
 Adjust those paths for linux or windows.
@@ -35,8 +35,8 @@ A full configuration would be:
 
 ~/.supercollider.yaml::
 
-    sclang: /Applications/SuperCollider/SuperCollider.app/Contents/Resources/sclang
-    scsynth: /Applications/SuperCollider/SuperCollider.app/Contents/Resources/scsynth
+    sclang: /Applications/SuperCollider/SuperCollider.app/Contents/MacOS/sclang
+    scsynth: /Applications/SuperCollider/SuperCollider.app/Contents/MacOS/scsynth
     sclang_conf: ~/Library/Application Support/SuperCollider/sclang_conf.yaml
     debug: true
     echo: true
@@ -62,7 +62,7 @@ These are the defaults
 
 OS X::
 
-    /Applications/SuperCollider/SuperCollider.app/Contents/Resources/sclang
+    /Applications/SuperCollider/SuperCollider.app/Contents/MacOS/sclang
 
 Linux::
 
