@@ -32,7 +32,7 @@ var
 import {SclangIO, STATES} from './sclang-io';
 
 
-class SCLang extends EventEmitter {
+export default class SCLang extends EventEmitter {
 
   /*
    * @param {object} options - sclang command line options
@@ -153,10 +153,10 @@ class SCLang extends EventEmitter {
       });
 
     var bootListener = (state) => {
-      if (state === 'ready') {
+      if (state === STATES.READY) {
         deferred.resolve();
         this.removeListener('state', bootListener);
-      } else if (state === 'compileError') {
+      } else if (state === STATES.COMPILE_ERROR) {
         deferred.reject(this.stateWatcher.compileErrors);
         this.removeListener('state', bootListener);
         // probably should remove all listeners
@@ -168,8 +168,7 @@ class SCLang extends EventEmitter {
     this.addListener('state', bootListener);
 
     // long term listeners
-    this.installListeners(this.process, this.options.stdin);
-
+    this.installListeners(this.process, Boolean(this.options.stdin));
     return deferred.promise;
   }
 
@@ -214,12 +213,12 @@ class SCLang extends EventEmitter {
   }
 
   makeStateWatcher() {
-    var echo = (...args) => this.emit(...args);
     var stateWatcher = new SclangIO(this);
-    stateWatcher.on('interpreterLoaded', echo);
-    stateWatcher.on('error', echo);
-    stateWatcher.on('stdout', echo);
-    stateWatcher.on('state', echo);
+    for (let name of ['interpreterLoaded', 'error', 'stdout', 'state']) {
+      stateWatcher.on(name, (...args) => {
+        this.emit(name, ...args);
+      });
+    }
     return stateWatcher;
   }
 
@@ -298,8 +297,13 @@ class SCLang extends EventEmitter {
         var configPath = path.resolve(untildify(this.options.sclang_conf));
         var setConfigPath = 'Library.put(\'supercolliderjs\', \'sclang_conf\', "' + configPath + '");';
         this.interpret(setConfigPath, null, true, false, false)
-          .then(() => { deferred.resolve(this); },
+          .then(
+            () => {
+              deferred.resolve(this);
+            },
             deferred.reject);
+      } else {
+        deferred.resolve(this);
       }
     });
 
@@ -410,6 +414,3 @@ SCLang.boot = function(options) {
   });
 
 };
-
-
-module.exports = SCLang;

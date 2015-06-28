@@ -7,6 +7,17 @@ var _ = require('underscore');
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
 import {STATES} from '../sclang-io';
+var Q = require('q');
+
+
+class MockProcess extends EventEmitter {
+  constructor() {
+    super();
+    this.stdout = new EventEmitter();
+    this.stderr = new EventEmitter();
+  }
+  kill() {}
+}
 
 
 describe('sclang', function() {
@@ -100,15 +111,20 @@ describe('sclang', function() {
     });
   });
 
-  describe('installListeners', function() {
+  describe('makeStateWatcher', function() {
+    it('should echo events from SclangIO to SCLang', function() {
+      var sclang = new SCLang();
+      var did = false;
+      var stateWatcher = sclang.makeStateWatcher();
+      sclang.on('state', () => {
+        did = true;
+      });
+      stateWatcher.emit('state', 'READY');
+      expect(did).toEqual(true);
+    });
+  });
 
-    class MockProcess extends EventEmitter {
-      constructor() {
-        super();
-        this.stdout = new EventEmitter();
-        this.stderr = new EventEmitter();
-      }
-    }
+  describe('installListeners', function() {
 
     it('should install event listeners', function() {
       var subprocess = new MockProcess();
@@ -143,6 +159,49 @@ describe('sclang', function() {
       var promise = sclang.spawnProcess('/tmp/fake/path', {});
       expect(promise).toBeTruthy();
     });
-
   });
+
+  describe('interpret', function() {
+    it('should call this.write', function() {
+      var sclang = new SCLang();
+      spyOn(sclang, 'write').andReturn(null);
+      var p = sclang.interpret('1 + 1', '/tmp/source.scd', false, true, true);
+      expect(sclang.write).toHaveBeenCalled();
+    });
+  });
+
+  describe('initInterpreter', function() {
+    pit('should interpet the load script', function() {
+      var sclang = new SCLang();
+      sclang.options.sclang_conf = '/tmp/sclang_conf.yaml';
+      spyOn(sclang, 'write').andReturn(null);
+      var p = Q.defer();
+      spyOn(sclang, 'interpret').andReturn(p.promise);
+      p.resolve();
+      var p2 = sclang.initInterpreter();
+      sclang.emit('interpreterLoaded');
+      return p2;
+    });
+  });
+
+  describe('quit', function() {
+    pit('should quit silently if not booted', function() {
+      var sclang = new SCLang();
+      return sclang.quit();
+    });
+
+    pit('should quit process', function() {
+      var sclang = new SCLang();
+      sclang.process = new MockProcess();
+      spyOn(sclang.process, 'kill').andReturn(null);
+      var p = sclang.quit().then(() => {
+        expect(sclang.process).toEqual(null);
+      });
+      sclang.process.emit('exit');
+      return p;
+    });
+  });
+
+
+
 });
