@@ -1,0 +1,33 @@
+compiling class library...
+	NumPrimitives = 710
+	compiling dir: '/Users/crucial/code/supercollider/build/Install/SuperCollider/SuperCollider.app/Contents/Resources/SCClassLibrary'
+ERROR: Parse error
+  in file '/Common/Quarks/Git.sc'
+  line 58 char 39:
+
+  			match = out.findRegexp("tag: ([^ ,\)]+)");
+
+  			if(match.size > 0, {
+-----------------------------------
+opening bracket was a '[', but found a ')'
+  in file '/Common/Quarks/Git.sc' line 58 char 39
+ERROR: Parse error
+  in file '/Common/Quarks/Git.sc'
+  line 58 char 40:
+
+  			match = out.findRegexp("tag: ([^ ,\)]+)");
+                                         ^
+  			if(match.size > 0, {
+-----------------------------------
+opening bracket was a '(', but found a ']'
+  in file '/Common/Quarks/Git.sc' line 58 char 40
+Expected class name.  got token: ']' 280
+  in file '/Common/Quarks/Git.sc'
+  line 58 char 40:
+
+  			match = out.findRegexp("tag: ([^ ,\)]+)");
+                                         ^
+  			if(match.size > 0, {
+-----------------------------------
+	compiling dir: '/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library'
+	pass 1 done

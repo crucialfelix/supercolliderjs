@@ -1,0 +1,8 @@
+Class extension for nonexistent class 'Document'
+     In file:'/deprecated/3.7/deprecated-3.7.sc'
+	numentries = 1028128 / 14762880 = 0.07
+	5592 method selectors, 2640 classes
+	method table size 16451808 bytes, big table size 118103040
+	Number of Symbols 12979
+	Byte Code Size 404479
+	compiled 397 files in 0.34 seconds
