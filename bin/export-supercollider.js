@@ -6,112 +6,82 @@ var help = [
 
 // TODO sclang and all classfiles
 
-var join = require('path').join;
+var path = require('path');
+var join = path.join;
 var pkg = require(join(__dirname, '../package.json'));
 var fs = require('fs');
+var ncp = require('ncp').ncp;
 var lib = join(__dirname, '../lib/js/');
 var program = require('commander');
 var resolveOptions = require(lib + 'resolveOptions');
 var Server = require(lib + 'scsynth');
-var options = {};
+var Q = require('q');
 
-function copyFile(source, target, mode, cb) {
-  var cbCalled = false;
-
-  var rd = fs.createReadStream(source);
-  rd.on('error', function(err) {
-    done(err);
-  });
-  var wr = fs.createWriteStream(target);
-  wr.on('error', function(err) {
-    done(err);
-  });
-  wr.on('close', function(ex) {
-    done();
-  });
-  rd.pipe(wr);
-
-  function done(err) {
-    if (!cbCalled) {
-      if (!err) {
-        fs.chmodSync(target, mode);
-      }
-      cb(err);
-      cbCalled = true;
-    }
+function makeDir(dest) {
+  if (fs.existsSync(dest)) {
+    return Q();
   }
+  return Q.nfapply(fs.mkdir, [dest]);
 }
 
-function maybeDie(error, label) {
-  if (error) {
-    console.error('ERROR:' + label);
-    console.error(error);
-    console.trace();
-    process.exit(1);
-  }
-  console.log(label);
-}
+function makeExecScript(source, dest) {
+  var execScript = [
+    '#!/bin/bash',
+    'DIR="${BASH_SOURCE%/*}";',
+    'if [[ -z "$@" ]]; then',
+    '  ARGS="-u 57110";',
+    'else',
+    '  ARGS="$@";',
+    'fi',
+    'if [[ -z "$SC_SYNTHDEF_PATH" ]]; then',
+    '  export SC_SYNTHDEF_PATH="$DIR/synthdefs/"',
+    'fi',
+    'export SC_PLUGIN_PATH="$DIR/plugins/";',
+    'exec "$DIR/bin/scsynth" $ARGS;'
+  ];
 
-function makeBin(dest, done) {
-  var bin = join(dest, 'bin');
-  if (fs.existsSync(bin)) {
-    return done();
-  }
-  var binDir = join(dest, 'bin');
-  fs.mkdir(binDir, function(error) {
-    maybeDie(error, 'Create' + binDir);
-    done();
-  });
-}
-
-function makeExecScript(source, dest, done) {
-  var execScript = '#!/bin/bash\n' +
-    'exec "' + source + '" "$@"\n;';
   if (fs.exists(dest)) {
-    return done();
+    return Q();
   }
-  fs.writeFile(dest,
-    execScript,
+  return Q.nfapply(fs.writeFile, [
+    dest,
+    execScript.join('\n'),
     {
       mode: 0755
-    },
-    function(error) {
-      maybeDie(error, 'Write exec script ' + dest);
-      done();
-    });
+    }
+  ]);
 }
 
-function exportScsynth(dest, done) {
-  if (!fs.existsSync(dest)) {
-    console.error('Destination directory does not exist' + dest);
-    process.exit(1);
-  }
-  resolveOptions().then(function(options) {
-    makeBin(dest, function() {
-      var destscsynth = join(dest, 'bin', 'scsynth');
-
-      copyFile(options.scsynth, destscsynth, 0755,
-        function(error) {
-          var scsynthPath = join(dest, 'scsynth');
-          maybeDie(error, 'copy scsynth to ' + scsynthPath);
-          makeExecScript(destscsynth,
-            scsynthPath,
-            done);
-        });
+function exportScsynth(dest) {
+  return resolveOptions().then(function(options) {
+    if (!fs.existsSync(dest)) {
+      return Q.reject('Destination directory does not exist' + dest);
+    }
+    return makeDir(join(dest, 'bin')).then(function() {
+      var destScsynth = join(dest, 'bin', 'scsynth');
+      var srcPlugins = join(path.dirname(options.scsynth),
+        '..', 'Resources', 'plugins');
+      return Q.all([
+        Q.nfcall(ncp, options.scsynth, destScsynth),
+        Q.nfcall(ncp, srcPlugins, join(dest, 'plugins')),
+        makeDir(join(dest, 'synthdefs'))
+      ]).then(function() {
+        return makeExecScript(destScsynth, join(dest, 'scsynth'));
+      });
     });
   });
 }
-
-program.version(pkg.version);
 
 program
   .command('scsynth <dest>')
-  .description('Copy scsynth to the destination directory')
+  .description('Copy scsynth and plugins to the destination directory')
   .action(function(dest) {
-    function done() {
-      console.log('Finished');
-    }
-    exportScsynth(dest, done);
+    exportScsynth(path.resolve(dest))
+      .then(function() {
+        console.log('Finished');
+      }, function(err) {
+        throw Error(err);
+      }).done();
   });
 
 program.on('--help', function() {
@@ -120,8 +90,4 @@ program.on('--help', function() {
   });
 });
 
-program.parse(process.argv);
-
-if (!program.args.length) {
-  program.help();
-}
+program.version(pkg.version).parse(process.argv);
