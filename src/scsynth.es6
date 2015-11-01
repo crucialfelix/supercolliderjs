@@ -167,8 +167,8 @@ export class Server extends EventEmitter {
 
   sendMsg(address, args) {
     var buf = osc.toBuffer({
-      address : address,
-      args : args
+      address: address,
+      args: args
     });
     this.log.sendosc(address + ' ' + args.join(' '));
     this.udp.send(buf, 0, buf.length, this.options.serverPort, this.options.host);

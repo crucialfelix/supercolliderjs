@@ -81,23 +81,23 @@ class SCAPI extends events.EventEmitter {
 
     requestId = _.isUndefined(requestId) ? uuid() : requestId;
     args = args ? args : [];
-    if(!_.isString(oscpath)) {
-      self.log.err("Bad oscpath" + oscpath);
-      throw "Bad oscpath" + oscpath;
+    if (!_.isString(oscpath)) {
+      self.log.err('Bad oscpath' + oscpath);
+      throw 'Bad oscpath' + oscpath;
     }
     a = [clientId, requestId, oscpath];
 
     function sender(requestId, oscArgs) {
       var
         buf = osc.toBuffer({
-          address : '/API/call',
-          args : [clientId, requestId, oscpath].concat(oscArgs)
+          address: '/API/call',
+          args: [clientId, requestId, oscpath].concat(oscArgs)
         });
       self.udp.send(buf, 0, buf.length, self.scport, self.schost,
         function(err, bytes) {
           // this will get DNS errors
           // but not packet-too-big errors
-          if(err) {
+          if (err) {
             self.log.err(err);
           }
         }
@@ -117,7 +117,7 @@ class SCAPI extends events.EventEmitter {
       return _.isObject(a) || _.isArray(a) || (_.isString(a) && a.length > 7168);
     }
 
-    if(_.some(args, isNotOsc)) {
+    if (_.some(args, isNotOsc)) {
       clumps = JSON.stringify(args).match(/.{1,7168}/g);
       _.each(clumps, function(clump, i) {
         var rid = '' + (i + 1) + ',' + clumps.length + ':' + requestId;

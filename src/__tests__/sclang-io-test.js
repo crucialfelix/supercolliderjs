@@ -12,13 +12,13 @@ import {join} from 'path';
 import fs from 'fs';
 
 // parse a series of output files with the option to break into chunks
-function feedIt(filename, io) {
-  io.parse(readFile(filename));
-}
-
 function readFile(filename) {
   let abs = join(__dirname, '../../test-fixtures/', filename);
   return fs.readFileSync(abs, {encoding: 'utf8'});
+}
+
+function feedIt(filename, io) {
+  io.parse(readFile(filename));
 }
 
 describe('sclang-io', function() {
@@ -63,8 +63,8 @@ describe('sclang-io', function() {
     io.setState(STATES.BOOTING);
     feedIt('io-duplicate-class.txt', io);
     expect(io.state).toEqual(STATES.COMPILE_ERROR);
-    expect(io.compileErrors).toBeDefined;
-    expect(io.compileErrors.duplicateClasses).toBeDefined;
+    expect(io.compileErrors).toBeDefined();
+    expect(io.compileErrors.duplicateClasses).toBeDefined();
     expect(io.compileErrors.duplicateClasses.length).toEqual(1);
     expect(io.compileErrors.duplicateClasses[0].forClass).toEqual('Crucial');
     expect(io.compileErrors.duplicateClasses[0].files[0]).toEqual('/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc');
@@ -76,8 +76,8 @@ describe('sclang-io', function() {
       io.setState(STATES.BOOTING);
       var errors = io.parseCompileErrors(readFile('io-duplicate-class.txt'));
 
-      expect(errors).toBeDefined;
-      expect(errors.duplicateClasses).toBeDefined;
+      expect(errors).toBeDefined();
+      expect(errors.duplicateClasses).toBeDefined();
       expect(errors.duplicateClasses.length).toEqual(1);
       expect(errors.duplicateClasses[0].forClass).toEqual('Crucial');
       expect(errors.duplicateClasses[0].files[0]).toEqual('/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc');
@@ -88,8 +88,8 @@ describe('sclang-io', function() {
       io.setState(STATES.BOOTING);
       var errors = io.parseCompileErrors(readFile('io-extension-for-non-existent-class.txt'));
 
-      expect(errors).toBeDefined;
-      expect(errors.extensionErrors).toBeDefined;
+      expect(errors).toBeDefined();
+      expect(errors.extensionErrors).toBeDefined();
       expect(errors.extensionErrors[0].forClass).toEqual('Document');
       expect(errors.extensionErrors[0].file).toEqual('/deprecated/3.7/deprecated-3.7.sc');
     });

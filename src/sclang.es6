@@ -83,7 +83,7 @@ export default class SCLang extends EventEmitter {
    * This is the config file that sclang reads, specifying
    * includePaths and excludePaths
    *
-   * @param {object} options - options to write to file
+   * @param {object} config - options to write to file
    * @returns {Promise} resolving with the path of the temp config file
    */
   makeSclangConfig(config) {
@@ -95,12 +95,12 @@ export default class SCLang extends EventEmitter {
     var str = yaml.safeDump(config, {indent: 4});
 
     temp.open('sclang-config', function(err, info) {
-      if(err) {
+      if (err) {
         return deferred.reject(err);
       }
       fs.write(info.fd, str);
       fs.close(info.fd, function(err) {
-        if(err) {
+        if (err) {
           return deferred.reject(err);
         }
         deferred.resolve(info.path);
@@ -196,7 +196,7 @@ export default class SCLang extends EventEmitter {
       runtimeIncludePaths = [path.resolve(__dirname, '../sc-classes')];
     }
 
-    if(options.sclang_conf) {
+    if (options.sclang_conf) {
       try {
         sclang_conf = yaml.safeLoad(fs.readFileSync(untildify(options.sclang_conf), 'utf8'));
       } catch (e) {
@@ -208,7 +208,9 @@ export default class SCLang extends EventEmitter {
     return {
       includePaths: _.union(sclang_conf.includePaths, options.includePaths, runtimeIncludePaths),
       excludePaths: _.union(sclang_conf.excludePaths, options.excludePaths),
-      postInlineWarning: _.isUndefined(options.postInlineWarnings) ? Boolean(sclang_conf.postInlineWarnings) : Boolean(options.postInlineWarnings)
+      postInlineWarning: _.isUndefined(options.postInlineWarnings) ?
+        Boolean(sclang_conf.postInlineWarnings) :
+        Boolean(options.postInlineWarnings)
     };
   }
 
@@ -377,7 +379,7 @@ export default class SCLang extends EventEmitter {
       setTimeout(() => {
         // 3.6.6 doesn't fully respond to SIGINT
         // but SIGTERM causes it to crash
-        if(this.process) {
+        if (this.process) {
           this.process.kill('SIGTERM');
           cleanup();
         }

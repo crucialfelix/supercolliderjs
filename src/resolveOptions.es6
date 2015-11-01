@@ -73,7 +73,7 @@ function filterUndefs(opts) {
   *            a dict of options to be merged over the loaded config.
   *            eg. supplied command line options --sclang=/some/path/to/sclang
   *
-  * @returns: {Promise}
+  * @returns {Promise}
   */
 export default function resolveOptions(configPath, commandLineOptions) {
   var deferred = Q.defer(),
@@ -101,11 +101,11 @@ export default function resolveOptions(configPath, commandLineOptions) {
       var options = yaml.safeLoad(fs.readFileSync(aPath, 'utf8'));
       ok(options, aPath);
     } catch (e) {
-      deferred.reject({configPath: aPath, message:'Error reading config file', error: e});
+      deferred.reject({configPath: aPath, message: 'Error reading config file', error: e});
     }
   }
 
-  if(configPath) {
+  if (configPath) {
     // explicit config path supplied
     let explicitConfigPath = checkPath(configPath);
     if (!explicitConfigPath) {

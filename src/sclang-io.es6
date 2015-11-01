@@ -42,7 +42,7 @@ class SclangIO extends EventEmitter {
   }
 
   /**
-  * @param {string} stdout of supercollider
+  * @param {string} input - parse the stdout of supercollider
   */
   parse(input) {
     var echo = true,
@@ -50,15 +50,15 @@ class SclangIO extends EventEmitter {
         last = 0;
     this.states[this.state].forEach((stf) => {
       var match;
-      if(this.state === startState) {
-        while((match = stf.re.exec(input)) !== null) {
+      if (this.state === startState) {
+        while ((match = stf.re.exec(input)) !== null) {
           last = match.index + match[0].length;
           // do not post if any handler returns true
           if (stf.fn(match, input) === true) {
             echo = false;
           }
           // break if its not a /g regex with multiple results
-          if(!stf.re.global) {
+          if (!stf.re.global) {
             break;
           }
         }
@@ -68,7 +68,7 @@ class SclangIO extends EventEmitter {
       this.emit('stdout', input);
     }
     // state has changed and there is still text to parse
-    if(last < input.length && (startState !== this.state)) {
+    if (last < input.length && (startState !== this.state)) {
       // parse remainder with new state
       this.parse(input.substr(last));
     }
@@ -167,7 +167,7 @@ class SclangIO extends EventEmitter {
         ready: [
           {
             re: /^SUPERCOLLIDERJS\:([0-9a-f\-]+)\:([A-Za-z]+)\:(.*)$/mg,
-            fn : function(match, text) {
+            fn: function(match, text) {
               var
                 guid = match[1],
                 type = match[2],
@@ -176,23 +176,23 @@ class SclangIO extends EventEmitter {
                 stdout,
                 obj,
                 lines,
-                started=false,
-                stopped=false;
+                started = false,
+                stopped = false;
 
-              if(type === 'CAPTURE') {
-                if(body === 'START') {
+              if (type === 'CAPTURE') {
+                if (body === 'START') {
                   self.capturing[guid] = [];
                 }
-                if(body === 'START') {
+                if (body === 'START') {
                   lines = [];
                   // yuck
                   _.each(text.split('\n'), function(l) {
-                    if(l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:START/)) {
+                    if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:START/)) {
                       started = true;
-                    } else if(l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:END/)) {
+                    } else if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:END/)) {
                       stopped = true;
                     } else {
-                      if(started && (!stopped)) {
+                      if (started && (!stopped)) {
                         lines.push(l);
                       }
                     }
@@ -201,23 +201,23 @@ class SclangIO extends EventEmitter {
                 }
                 return true;
               }
-              if(type === 'START') {
+              if (type === 'START') {
                 self.responseCollectors[guid] = {
                   type: body,
                   chunks: []
                 };
                 return true;
               }
-              if(type === 'CHUNK') {
+              if (type === 'CHUNK') {
                 self.responseCollectors[guid].chunks.push(body);
                 return true;
               }
-              if(type === 'END') {
+              if (type === 'END') {
                 response = self.responseCollectors[guid];
                 stdout = response.chunks.join('');
                 obj = JSON.parse(stdout);
 
-                if(guid in self.calls) {
+                if (guid in self.calls) {
                   if (response.type === 'Result') {
                     self.calls[guid].resolve(obj);
                   } else {
@@ -231,7 +231,7 @@ class SclangIO extends EventEmitter {
                   delete self.calls[guid];
                 } else {
                   // I hope sc doesn't post multiple streams at the same time
-                  if(guid === "0") {
+                  if (guid === '0') {
                     // out of band error
                     self.emit('error', {type: response.type, error: obj});
                   }
@@ -239,14 +239,6 @@ class SclangIO extends EventEmitter {
                 delete self.responseCollectors[guid];
                 return true;
               }
-            }
-          },
-          {
-            // interpreter.scd posts this at the end
-            re: /^SUPERCOLLIDERJS-interpreter-loaded$/m,
-            fn: function() {
-              self.emit('interpreterLoaded');
-              return true;
             }
           },
           {
@@ -260,7 +252,7 @@ class SclangIO extends EventEmitter {
           }
         ]
       };
-      return states;
+    return states;
   }
 
   finalizeCompileErrors() {
@@ -271,10 +263,11 @@ class SclangIO extends EventEmitter {
   }
 
   /**
-   * register for code that is sent to be interpreted
+   * Register for code that is sent to be interpreted
    * and will post a result or error.
-   * @param {string}
-   * @param {Promise}
+   *
+   * @param {string} guid
+   * @param {Promise} promise
    */
   registerCall(guid, promise) {
     this.calls[guid]  = promise;
@@ -340,7 +333,7 @@ class SclangIO extends EventEmitter {
     while (match = errRe.exec(rest)) {
       var file = match[2];
       // errors in Common library are posted as '/Common/...'
-      if(commonPath.exec(file)) {
+      if (commonPath.exec(file)) {
         file = errors.dirs[0] + file;
       }
       errors.errors.push({
