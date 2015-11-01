@@ -63,6 +63,7 @@ export default class SCLang extends EventEmitter {
    */
   args(options) {
     var o = [];
+    o.push('-i', 'supercolliderjs');
     if (options.executeFile) {
       o.push(options.executeFile);
     }
