@@ -5,10 +5,9 @@
  *
  */
 
-
 // var supercolliderjs = require('supercolliderjs');
-var supercolliderjs = require('../index.js'),
-  options = {
+var sc = require('../index.js');
+var options = {
     // no STDIN, all input will be programmatic
     stdin: false,
     // echo STDOUT to console
@@ -17,40 +16,40 @@ var supercolliderjs = require('../index.js'),
     debug: true
   };
 
+// this catches out of band errors:
+// failures in supercolliderjs, the connection,
+// your computer
 function onError(error) {
   console.error(error);
   console.trace();
   process.exit(1);
 }
 
-supercolliderjs.sclang.boot(options)
+sc.lang.boot(options)
   .then(function(sc) {
+
+    function resultHandler(result) {
+      console.log('Result:');
+      console.log(result);
+    }
+
+    function errorHandler(error) {
+      console.log('Error:');
+      console.log(error);
+    }
 
     // interpret and return result as promise
     sc.interpret('(1..8).pyramid')
-      .then(function(result) {
-        console.log('Result: ' + result);
-      }, function(error) {
-        console.log('Error:');
-        console.log(error);
-      });
+      .then(resultHandler, errorHandler);
 
-    // this should cause a syntax error
+    // this will cause a syntax error
+    // and call the errorHandler
     sc.interpret('1 + 1 oh no this is a syntax error')
-      .then(function(result) {
-        console.log('Result:' + result);
-      }, function(error) {
-        console.log('Error:');
-        console.log(error);
-      });
+      .then(resultHandler, errorHandler);
 
-    // this should cause an error
-    sc.interpret('1 + 1.pleaseDontDoThisToMe')
-      .then(function(result) {
-        console.log('Result:' + result);
-      }, function(error) {
-        console.log('Error:');
-        console.log(error);
-      });
+    // supercollider will throw a DoesNotUnderstand error
+    // and the errorHandler here in javascript will get called
+    sc.interpret('1 + 1.integerDoesntHaveThisMethod')
+      .then(resultHandler, errorHandler);
 
   }).fail(onError);

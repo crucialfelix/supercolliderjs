@@ -57,7 +57,7 @@ supercolliderjs.resolveOptions().then(function(options) {
 
   scapi.call(2, 'server.boot')
     .then(function() {
-      scapi.log.dbug("server booted");
+      scapi.log.dbug('server booted');
       return scapi.call(3, 'group.new')
         .then(function(response) {
           scapi.log.debug(response);
