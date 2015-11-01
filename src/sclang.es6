@@ -236,7 +236,9 @@ export default class SCLang extends EventEmitter {
       });
     }
     subprocess.stdout.on('data', (data) => {
-      this.stateWatcher.parse(String(data));
+      var ds = String(data);
+      this.log.dbug(ds);
+      this.stateWatcher.parse(ds);
     });
     subprocess.stderr.on('data', (data) => {
       var error = String(data);
