@@ -32,10 +32,11 @@ var
   spawn = require('child_process').spawn,
   Logger = require('./logger'),
   dgram = require('dgram'),
-  osc = require('osc-min');
+  osc = require('osc-min'),
+  Q = require('q');
 
 
-class Server extends EventEmitter {
+export class Server extends EventEmitter {
 
   /**
    * @param {object} options - server command line options
@@ -44,6 +45,7 @@ class Server extends EventEmitter {
     super();
     this.options = options;
     this.process = null;
+    this.isRunning = false;
     this.log = new Logger(this.options.debug, this.options.echo);
   }
 
@@ -73,7 +75,8 @@ class Server extends EventEmitter {
     var
       self = this,
       execPath = this.options.scsynth,
-      args = this.args();
+      args = this.args(),
+      d = Q.defer();
 
     this.log.dbug(execPath + ' ' + args.join(' '));
     this.process = spawn(execPath, args,
@@ -82,27 +85,42 @@ class Server extends EventEmitter {
       });
     this.log.dbug('Spawned pid: ' + this.process.pid);
 
-    this.process.on('error', function(err) {
-      self.log.err('Server error ' + err);
-      self.emit('exit', err);
+    this.process.on('error', (err) => {
+      this.log.err('Server error ' + err);
+      this.emit('exit', err);
+      // this.isRunning = false;
     });
-    this.process.on('close', function(code, signal) {
-      self.log.dbug('Server closed ' + code);
-      self.emit('exit', code);
+    this.process.on('close', (code, signal) => {
+      this.log.dbug('Server closed ' + code);
+      this.emit('exit', code);
+      this.isRunning = false;
     });
-    this.process.on('exit', function(code, signal) {
-      self.log.dbug('Server exited ' + code);
-      self.emit('exit', code);
+    this.process.on('exit', (code, signal) => {
+      this.log.dbug('Server exited ' + code);
+      this.emit('exit', code);
+      this.isRunning = false;
     });
 
-    this.process.stdout.on('data', function(data) {
-      self.log.stdout('' + data);
-      self.emit('out', data);
+    this.process.stdout.on('data', (data) => {
+      this.log.stdout('' + data);
+      this.emit('out', data);
+      this.isRunning = true;
     });
-    this.process.stderr.on('data', function(data) {
-      self.log.stderr('' + data);
-      self.emit('stderr', data);
+    this.process.stderr.on('data', (data) => {
+      this.log.stderr('' + data);
+      this.emit('stderr', data);
+      this.isRunning = true;
     });
+
+    setTimeout(() => {
+      if (this.isRunning) {
+        d.resolve();
+      } else {
+        d.reject();
+      }
+    }, 100);
+
+    return d.promise;
   }
 
   /**
@@ -118,7 +136,6 @@ class Server extends EventEmitter {
   }
 
   connect() {
-
     var self = this;
     this.udp = dgram.createSocket('udp4');
 
@@ -158,4 +175,17 @@ class Server extends EventEmitter {
   }
 }
 
-module.exports = Server;
+/**
+ * boot a server with options
+ * @returns {Promise}
+ */
+export function boot(options) {
+  var resolveOptions = require('./resolveOptions');
+  return resolveOptions(null, options).then(function(opts) {
+    var s = new Server(opts);
+    return s.boot().then(function() {
+      s.connect();
+      return s;
+    });
+  });
+}
