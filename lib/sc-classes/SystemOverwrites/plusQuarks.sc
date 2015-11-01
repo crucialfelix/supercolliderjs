@@ -38,10 +38,8 @@
 	}
 
 	*configPath {
-		// sclang_config was saved in Library during initInterpreter
-		^Library.at('supercolliderjs', 'sclang_conf') ?? {
-			Error("Library.at('supercolliderjs', 'sclang_conf') should have been set").throw;
-		}
+		// your original sclang_config path was saved to here
+		^SuperColliderJS.sclangConf
 	}
 
 }

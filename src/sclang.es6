@@ -279,36 +279,19 @@ export default class SCLang extends EventEmitter {
   }
 
   /**
-    * initInterpreter
-    *
-    * make sclang execute the interpret.scd file
-    * to load the functions used by interpret
+    * storeSclangConf
     */
-  initInterpreter() {
-    var scriptPath = join(__dirname, '../sc/interpret.scd'),
-        deferred = Q.defer();
-
-    // after the interpreter finishes processing the script this will be triggered
-    this.once('interpreterLoaded', () => {
-      // store the original configuration path into Library.at('supercolliderjs', 'sclang_conf')
-      // so that it can be accessed by Quarks
-      if (this.options.sclang_conf) {
-        var configPath = path.resolve(untildify(this.options.sclang_conf));
-        var setConfigPath = 'Library.put(\'supercolliderjs\', \'sclang_conf\', "' + configPath + '");';
-        this.interpret(setConfigPath, null, true, false, false)
-          .then(
-            () => {
-              deferred.resolve(this);
-            },
-            deferred.reject);
-      } else {
-        deferred.resolve(this);
-      }
-    });
-
-    // load the json interpreter bridge
-    this.write('thisProcess.interpreter.executeFile("' + scriptPath + '");\n', null, true);
-    return deferred.promise;
+  storeSclangConf() {
+    // store the original configuration path
+    // so that it can be accessed by the modified Quarks methods
+    // to store into the correct conf file
+    if (this.options.sclang_conf) {
+      var configPath = path.resolve(untildify(this.options.sclang_conf));
+      var setConfigPath = 'SuperColliderJS.sclangConf = "' + configPath + '";\n\n';
+      return this.interpret(setConfigPath, null, true, true, true);
+    } else {
+      return Promise.resolve(this);
+    }
   }
 
   /**
@@ -336,22 +319,24 @@ export default class SCLang extends EventEmitter {
    * @returns {Promise}
    */
   interpret(code, nowExecutingPath, asString, postErrors, getBacktrace) {
-    var deferred = Q.defer(),
-        escaped = code.replace(/[\n\r]/g, '__NL__').replace(/\\/g, '__SLASH__').replace(/\"/g, '\\"'),
-        scstring = '"' + escaped + '"',
-        guid = uuid.v1(),
-        guidString = '"' + guid + '"',
-        nep = nowExecutingPath ? '"' + nowExecutingPath + '"' : 'nil',
-        rras = asString ? 'true' : 'false',
-        pe = postErrors ? 'true' : 'false',
-        bt = getBacktrace ? 'true' : 'false',
-        args = [guidString, scstring, nep, rras, pe, bt].join(','),
-        scode;
+    var deferred = Q.defer();
+    var escaped = code
+      .replace(/[\n\r]/g, '__NL__')
+      .replace(/\\/g, '__SLASH__')
+      .replace(/\"/g, '\\"');
+    var guid = uuid.v1();
 
-    scode = 'Library.at(\\supercolliderjs, \\interpret).value(' + args + ');"SUPERCOLLIDERJS.interpreted".postln;\n';
+    var args = [
+      '"' + guid + '"',
+      '"' + escaped + '"',
+      nowExecutingPath ? '"' + nowExecutingPath + '"' : 'nil',
+      asString ? 'true' : 'false',
+      postErrors ? 'true' : 'false',
+      getBacktrace ? 'true' : 'false'
+    ].join(',');
 
     this.stateWatcher.registerCall(guid, deferred);
-    this.write(scode, null, true);
+    this.write('SuperColliderJS.interpret(' + args + ');', null, true);
     return deferred.promise;
   }
 

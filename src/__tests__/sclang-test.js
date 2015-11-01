@@ -96,7 +96,7 @@ describe('sclang', function() {
   describe('sclangConfigOptions', function() {
     it('should include sc-classes', function() {
       var sclang = new SCLang();
-      var config = sclang.sclangConfigOptions({errorsAsJSON: true});
+      var config = sclang.sclangConfigOptions();
       expect(config.includePaths.length).toEqual(1);
       expect(config.includePaths[0].match(/sc-classes/)).toBeTruthy();
     });
@@ -170,20 +170,6 @@ describe('sclang', function() {
     });
   });
 
-  describe('initInterpreter', function() {
-    pit('should interpet the load script', function() {
-      var sclang = new SCLang();
-      sclang.options.sclang_conf = '/tmp/sclang_conf.yaml';
-      spyOn(sclang, 'write').andReturn(null);
-      var p = Q.defer();
-      spyOn(sclang, 'interpret').andReturn(p.promise);
-      p.resolve();
-      var p2 = sclang.initInterpreter();
-      sclang.emit('interpreterLoaded');
-      return p2;
-    });
-  });
-
   describe('quit', function() {
     pit('should quit silently if not booted', function() {
       var sclang = new SCLang();
@@ -201,7 +187,5 @@ describe('sclang', function() {
       return p;
     });
   });
-
-
 
 });
