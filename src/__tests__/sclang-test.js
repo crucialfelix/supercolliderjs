@@ -2,13 +2,13 @@
 jest.autoMockOff();
 jest.mock('child_process');
 
-var SCLang = require('../sclang');
+import SCLang from '../sclang';
+
 var _ = require('underscore');
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
 import {STATES} from '../sclang-io';
 var Q = require('q');
-
 
 class MockProcess extends EventEmitter {
   constructor() {
@@ -18,7 +18,6 @@ class MockProcess extends EventEmitter {
   }
   kill() {}
 }
-
 
 describe('sclang', function() {
 

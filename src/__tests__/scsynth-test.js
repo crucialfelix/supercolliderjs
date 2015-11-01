@@ -1,7 +1,9 @@
 
 jest.autoMockOff();
 
-var SCSynth = require('../scsynth');
+var sc = require('../../index');
+
+var SCSynth = sc.server.Server;
 
 describe('scsynth', function() {
 
