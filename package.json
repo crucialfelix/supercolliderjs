@@ -47,8 +47,8 @@
   },
   "scripts": {
     "test": "jest && npm run lint && npm run jsstyle",
-    "lint": "jshint src/*.es6 bin/* examples/*",
-    "jsstyle": "jscs src/*.es6 bin/* examples/*",
+    "lint": "jshint src/*.es6 bin/*.js examples/*.js",
+    "jsstyle": "jscs src/*.es6 bin/*.js examples/*.js",
     "compile": "cd src && babel *.es6 --source-maps --out-dir ../lib/js",
     "watch": "cd src && babel *.es6 --watch --source-maps --out-dir ../lib/js",
     "prepublish": "npm run compile"
