@@ -187,14 +187,11 @@ export default class SCLang extends EventEmitter {
    */
   sclangConfigOptions(options) {
     var
-      runtimeIncludePaths,
+      runtimeIncludePaths = [
+        path.resolve(__dirname, '../sc-classes')
+      ],
       sclang_conf = {},
       config = {};
-
-    // add sc-classes to sclang's compile paths
-    if(options.errorsAsJSON) {
-      runtimeIncludePaths = [path.resolve(__dirname, '../sc-classes')];
-    }
 
     if (options.sclang_conf) {
       try {

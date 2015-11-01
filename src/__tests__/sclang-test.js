@@ -31,9 +31,9 @@ describe('sclang', function() {
 
   describe('sclangConfigOptions', function() {
 
-    it('should include sc-classes if errorsAsJSON is true', function() {
+    it('should include sc-classes', function() {
       var sclang = new SCLang({});
-      var opts = sclang.sclangConfigOptions({errorsAsJSON: true});
+      var opts = sclang.sclangConfigOptions();
       expect(opts.includePaths.length).toEqual(1);
       var isIn = _.some(opts.includePaths, function(p) {
         return p.match(/sc\-classes/);
