@@ -382,20 +382,21 @@ export default class SCLang extends EventEmitter {
   * remember to add a .fail handler to the returned
   * Promise so that you catch any propagated errors
   *
-  * @param {object} sclang options
-  * @returns: {Promise}
+  * @param {object} options
+  * @returns {Promise}
   */
-SCLang.boot = function(options) {
+export function boot(options = {}) {
   var resolveOptions = require('./resolveOptions');
 
-  return resolveOptions(options.config, options).then(function(options) {
-
+  return resolveOptions(options.config, options).then((options) => {
     var sclang = new SCLang(options);
-
-    return sclang.boot()
-      .then(function() {
-        return sclang.initInterpreter();
-      });
+    return sclang.boot().then(() => {
+      return sclang.storeSclangConf().then(() => {
+        return sclang;
+      }).fail(console.error);
+    });
   });
+}
 
-};
+// bwd compat
+SCLang.boot = boot;
