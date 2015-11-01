@@ -10,16 +10,16 @@
     }
   ],
   "dependencies": {
-    "chalk": "^1.0.0",
+    "chalk": "^1.1.1",
     "commander": "^2.9.0",
     "js-yaml": "^3.3.1",
     "ncp": "^2.0.0",
     "node-uuid": "^1.4.3",
     "osc-min": "^0.2.0",
-    "q": "^1.2.0",
-    "temp": "~0.8.1",
+    "q": "^1.4.1",
+    "temp": "~0.8.3",
     "underscore": "^1.8.3",
-    "untildify": "^2.0.0"
+    "untildify": "^2.1.0"
   },
   "devDependencies": {
     "babel": "^5.5.29",
