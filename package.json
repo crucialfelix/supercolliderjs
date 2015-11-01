@@ -22,10 +22,11 @@
     "untildify": "^2.0.0"
   },
   "devDependencies": {
-    "babel": "^5.5.8",
-    "jshint": "^2.8.0",
-    "babel-jest": "*",
-    "jest-cli": "*"
+    "babel": "^5.5.29",
+    "babel-jest": "5.3.0",
+    "jest-cli": "0.6.1",
+    "jscs": "^2.5.0",
+    "jshint": "^2.8.0"
   },
   "license": "MIT",
   "keywords": [
@@ -45,9 +46,10 @@
     "export-supercollider": "./bin/export-supercollider.js"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest && npm run lint && npm run jsstyle",
     "lint": "jshint src/*.es6 bin/* examples/*",
     "compile": "cd src && babel *.es6 --out-dir ../lib/js",
+    "jsstyle": "jscs src/*.es6 bin/* examples/*",
     "prepublish": "npm run compile"
   },
   "jest": {
