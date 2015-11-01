@@ -164,7 +164,16 @@ describe('sclang', function() {
     it('should call this.write', function() {
       var sclang = new SCLang();
       spyOn(sclang, 'write').andReturn(null);
-      var p = sclang.interpret('1 + 1', '/tmp/source.scd', false, true, true);
+      var p = sclang.interpret('1 + 1', '/tmp/source.scd');
+      expect(sclang.write).toHaveBeenCalled();
+    });
+  });
+
+  describe('executeFile', function() {
+    it('should call this.write', function() {
+      var sclang = new SCLang();
+      spyOn(sclang, 'write').andReturn(null);
+      var p = sclang.executeFile('/tmp/source.scd', false, true, true);
       expect(sclang.write).toHaveBeenCalled();
     });
   });

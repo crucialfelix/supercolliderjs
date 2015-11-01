@@ -343,6 +343,18 @@ export default class SCLang extends EventEmitter {
     return deferred.promise;
   }
 
+
+  /**
+   * executeFile
+   */
+  executeFile(path) {
+    var deferred = Q.defer();
+    var guid = uuid.v1();
+    this.stateWatcher.registerCall(guid, deferred);
+    this.write(`SuperColliderJS.executeFile("${ guid }", "${ path }")`, null, true);
+    return deferred.promise;
+  }
+
   /**
    * @private
    */
@@ -395,9 +407,9 @@ export function boot(options = {}) {
     return sclang.boot().then(() => {
       return sclang.storeSclangConf().then(() => {
         return sclang;
-      }).fail(console.error);
+      });
     });
-  });
+  }).fail(console.error);
 }
 
 // bwd compat

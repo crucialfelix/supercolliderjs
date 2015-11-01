@@ -63,6 +63,37 @@ SuperColliderJS {
 		"SUPERCOLLIDERJS:%:END:%".format(guid, type).postln;
 	}
 
+	*executeFile { arg guid, path;
+		var compiled, result, error, saveExecutingPath;
+
+		saveExecutingPath = thisProcess.nowExecutingPath;
+		thisProcess.nowExecutingPath = path;
+
+		// capture compile errors, stdout
+		"\nSUPERCOLLIDERJS:%:CAPTURE:START\n".format(guid).postln;
+		compiled = thisProcess.interpreter.compileFile(path);
+
+		if(compiled.isNil, {
+			"\nSUPERCOLLIDERJS:%:CAPTURE:END".format(guid).postln;
+			this.return(guid, "SyntaxError", nil);
+		}, {
+			{
+				result = compiled.value();
+			}.try({ arg err;
+				err.path = path;
+				error = this.encodeError(err, true, compiled);
+			});
+			"\nSUPERCOLLIDERJS:%:CAPTURE:END".format(guid).postln;
+			if(error.notNil, {
+				this.return(guid, "Error", error);
+			}, {
+				this.return(guid, "Result", result);
+			});
+		});
+
+		thisProcess.nowExecutingPath = saveExecutingPath;
+		"SUPERCOLLIDERJS.interpreted".postln;
+	}
 	/****************** JSON encoding *****************************************/
 
 	*encodeError { arg err, getBacktrace=false, compiledFunc;
