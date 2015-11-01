@@ -276,6 +276,7 @@ export default class SCLang extends EventEmitter {
     if (!noEcho) {
       this.log.stdin(chunk);
     }
+    this.log.dbug(chunk);
     this.process.stdin.write(chunk, 'UTF-8');
     // escape character means execute the currently accumulated command line as SC code
     this.process.stdin.write('\x0c', null, callback);
