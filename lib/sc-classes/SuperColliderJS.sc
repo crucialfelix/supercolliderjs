@@ -319,7 +319,12 @@ SuperColliderJS {
 
 		jsonEncoders = (
 			Object: { arg data;
-				data.asCompileString
+				this.stringify((
+					class: data.class,
+					string: data.asString,
+					compileString: data.asCompileString
+				))
+				// could also use data.storeArgs and get the arg names from *new
 			},
 			String: { arg obj;
 				obj.asCompileString.reject(_.isControl).replace(Char.nl, nl).replace(Char.tab, tab);
