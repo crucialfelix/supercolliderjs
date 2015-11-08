@@ -43,7 +43,8 @@
   "bin": {
     "supercollider-server": "./bin/scsynth.js",
     "supercollider": "./bin/sclang.js",
-    "export-supercollider": "./bin/export-supercollider.js"
+    "export-supercollider": "./bin/export-supercollider.js",
+    "compile-synthdefs": "./bin/compile-synthdefs.js"
   },
   "scripts": {
     "test": "jest && npm run lint && npm run jsstyle",
