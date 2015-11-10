@@ -206,6 +206,59 @@ export class Server extends EventEmitter {
     this.log.sendosc(address + ' ' + args.join(' '));
     this.udp.send(buf, 0, buf.length, this.options.serverPort, this.options.host);
   }
+
+  nextNodeID() {
+    return this._mutateState(keys.NODE_IDS, increment);
+  }
+
+  // temporary raw allocator calls
+  allocAudioBus(numChannels) {
+    return this._allocBlock(keys.AUDIO_BUSSES, numChannels);
+  }
+  allocControlBus(numChannels) {
+    return this._allocBlock(keys.CONTROL_BUSSES, numChannels);
+  }
+  allocBuffer(numChannels) {
+    return this._allocBlock(keys.BUFFERS, numChannels);
+  }
+
+  // these require you to remember the channels and mess it up
+  // if you free it wrong
+  freeAudioBus(index, numChannels) {
+    return this._freeBlock(keys.AUDIO_BUSSES, index, numChannels);
+  }
+  freeControlBus(index, numChannels) {
+    return this._freeBlock(keys.CONTROL_BUSSES, index, numChannels);
+  }
+  freeBuffer(index, numChannels) {
+    return this._freeBlock(keys.BUFFERS, index, numChannels);
+  }
+
+  // private
+  /**
+   * fetch on part of the state
+   * mutate it with the callback
+   * save state and return the result
+   * @returns {any} result
+   */
+  _mutateState(key, fn) {
+    var result, state;
+    [result, state] = fn(this.state.get(key));
+    this.state = this.state.set(key, state);
+    return result;
+  }
+  _mutateStateNoReturn(key, fn) {
+    var state = fn(this.state.get(key));
+    this.state = this.state.set(key, state);
+  }
+  _allocBlock(key, numChannels) {
+    return this._mutateState(key,
+      (state) => block(state, numChannels));
+  }
+  _freeBlock(key, index, numChannels) {
+    return this._mutateStateNoReturn(key,
+      (state) => freeBlock(state, index, numChannels));
+  }
 }
 
 /**
