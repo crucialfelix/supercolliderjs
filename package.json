@@ -52,8 +52,9 @@
     "lint": "jshint src/*.es6 bin/*.js examples/*.js",
     "jsstyle": "jscs src/*.es6 bin/*.js examples/*.js",
     "compile": "cd src && babel *.es6 --source-maps --out-dir ../lib/js",
+    "copy": "cd src && cp *.json ../lib/js/",
     "watch": "cd src && babel *.es6 --watch --source-maps --out-dir ../lib/js",
-    "prepublish": "npm run compile"
+    "prepublish": "npm run compile && npm run copy"
   },
   "jest": {
     "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
