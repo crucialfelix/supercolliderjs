@@ -26,6 +26,9 @@
  *    'OSC'   - OSC responses from the server
  */
 
+import Immutable from 'immutable';
+import {increment, initialBlockState, block, freeBlock, reserveBlock} from './allocators';
+
 var
   _ = require('underscore'),
   EventEmitter = require('events').EventEmitter,
@@ -35,6 +38,14 @@ var
   dgram = require('dgram'),
   osc = require('osc-min'),
   Q = require('q');
+
+
+const keys = {
+  NODE_IDS: 'nodeAllocator',
+  CONTROL_BUSSES: 'controlBusAllocator',
+  AUDIO_BUSSES: 'audioBusAllocator',
+  BUFFERS: 'bufferAllocator'
+};
 
 
 export class Server extends EventEmitter {
@@ -48,6 +59,27 @@ export class Server extends EventEmitter {
     this.process = null;
     this.isRunning = false;
     this.log = new Logger(this.options.debug, this.options.echo);
+    this.resetState();
+  }
+
+  resetState() {
+    var state = Immutable.Map();
+    state = state.set(keys.NODE_IDS, this.options.initialNodeID - 1);
+
+    var numAudioChannels = this.options.numPrivateAudioBusChannels +
+      this.options.numInputBusChannels +
+      this.options.numOutputBusChannels;
+    var ab = initialBlockState(numAudioChannels);
+    ab = reserveBlock(ab, 0, this.options.numInputBusChannels + this.options.numOutputBusChannels);
+    state = state.set(keys.AUDIO_BUSSES, ab);
+
+    var cb = initialBlockState(this.options.numControlBusChannels);
+    state = state.set(keys.CONTROL_BUSSES, cb);
+
+    var bb = initialBlockState(this.options.numBuffers);
+    state = state.set(keys.BUFFERS, cb);
+
+    this.state = state;
   }
 
   /**
