@@ -30,6 +30,7 @@ var
   _ = require('underscore'),
   EventEmitter = require('events').EventEmitter,
   spawn = require('child_process').spawn,
+  defaultOptions = require('./default-server-options.json'),
   Logger = require('./logger'),
   dgram = require('dgram'),
   osc = require('osc-min'),
@@ -41,9 +42,9 @@ export class Server extends EventEmitter {
   /**
    * @param {object} options - server command line options
    */
-  constructor(options) {
+  constructor(options={}) {
     super();
-    this.options = options;
+    this.options = _.defaults(options, defaultOptions);
     this.process = null;
     this.isRunning = false;
     this.log = new Logger(this.options.debug, this.options.echo);
