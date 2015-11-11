@@ -23,13 +23,15 @@
 
 + ControlName {
 	asJSON {
+		var spec = Spec.specs.at(name);
 		^(
 			name: name,
 			index: index,
 			rate: rate,
 			defaultValue: defaultValue,
 			argNum: argNum,
-			lag: lag
+			lag: lag,
+			spec: if(spec.isNil, nil, { spec.asJSON })
 		)
 	}
 }
