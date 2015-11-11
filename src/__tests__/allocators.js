@@ -83,7 +83,7 @@ describe('block allocator', function() {
 
   describe('alloc', function() {
     it('should alloc a 2 chan', function() {
-      var [addr, state] = alloc.block(is, 2);
+      var [addr, state] = alloc.allocBlock(is, 2);
       expect(addr).toBe(0);
       var fb = alloc.freeBlockList(state);
       // there should be one 6 block left
@@ -91,8 +91,8 @@ describe('block allocator', function() {
     });
 
     it('should alloc a 2 chan, twice', function() {
-      var [addr, state] = alloc.block(is, 2);
-      [addr, state] = alloc.block(state, 2);
+      var [addr, state] = alloc.allocBlock(is, 2);
+      [addr, state] = alloc.allocBlock(state, 2);
 
       expect(addr).toBe(2);
       var fb = alloc.freeBlockList(state);
@@ -103,7 +103,7 @@ describe('block allocator', function() {
     it('should throw on allocation failed', function() {
       var state = alloc.reserveBlock(is, 0, 8);
 
-      expect(() => alloc.block(state, 2)).toThrow();
+      expect(() => alloc.allocBlock(state, 2)).toThrow();
     });
 
     // find free space of 2 after a free space of 4
@@ -111,7 +111,7 @@ describe('block allocator', function() {
       // 2:0
       is = alloc.reserveBlock(is, 0, 2);
       is = alloc.reserveBlock(is, 4, 4);
-      var [b, state] = alloc.block(is, 2);
+      var [b, state] = alloc.allocBlock(is, 2);
       expect(b).toBe(2);
 
       var fb = alloc.freeBlockList(state);
@@ -121,7 +121,7 @@ describe('block allocator', function() {
 
   describe('freeBlock', function() {
     it('should free a 2 chan', function() {
-      var [addr, state] = alloc.block(is, 2);
+      var [addr, state] = alloc.allocBlock(is, 2);
       state = alloc.freeBlock(state, addr, 2);
       expectFreeToBe(state, [[0, 8]]);
     });

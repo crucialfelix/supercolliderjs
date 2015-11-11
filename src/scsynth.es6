@@ -27,7 +27,7 @@
  */
 
 import Immutable from 'immutable';
-import {increment, initialBlockState, block, freeBlock, reserveBlock} from './allocators';
+import * as alloc from './allocators';
 
 var
   _ = require('underscore'),
@@ -69,14 +69,14 @@ export class Server extends EventEmitter {
     var numAudioChannels = this.options.numPrivateAudioBusChannels +
       this.options.numInputBusChannels +
       this.options.numOutputBusChannels;
-    var ab = initialBlockState(numAudioChannels);
-    ab = reserveBlock(ab, 0, this.options.numInputBusChannels + this.options.numOutputBusChannels);
+    var ab = alloc.initialBlockState(numAudioChannels);
+    ab = alloc.reserveBlock(ab, 0, this.options.numInputBusChannels + this.options.numOutputBusChannels);
     state = state.set(keys.AUDIO_BUSSES, ab);
 
-    var cb = initialBlockState(this.options.numControlBusChannels);
+    var cb = alloc.initialBlockState(this.options.numControlBusChannels);
     state = state.set(keys.CONTROL_BUSSES, cb);
 
-    var bb = initialBlockState(this.options.numBuffers);
+    var bb = alloc.initialBlockState(this.options.numBuffers);
     state = state.set(keys.BUFFERS, cb);
 
     this.state = state;
@@ -208,14 +208,14 @@ export class Server extends EventEmitter {
   }
 
   nextNodeID() {
-    return this._mutateState(keys.NODE_IDS, increment);
+    return this._mutateState(keys.NODE_IDS, alloc.increment);
   }
 
   // temporary raw allocator calls
-  allocAudioBus(numChannels) {
+  allocAudioBus(numChannels=1) {
     return this._allocBlock(keys.AUDIO_BUSSES, numChannels);
   }
-  allocControlBus(numChannels) {
+  allocControlBus(numChannels=1) {
     return this._allocBlock(keys.CONTROL_BUSSES, numChannels);
   }
   allocBuffer(numChannels) {
@@ -253,11 +253,11 @@ export class Server extends EventEmitter {
   }
   _allocBlock(key, numChannels) {
     return this._mutateState(key,
-      (state) => block(state, numChannels));
+      (state) => alloc.allocBlock(state, numChannels));
   }
   _freeBlock(key, index, numChannels) {
     return this._mutateStateNoReturn(key,
-      (state) => freeBlock(state, index, numChannels));
+      (state) => alloc.freeBlock(state, index, numChannels));
   }
 }
 

@@ -74,7 +74,7 @@ describe('scsynth', function() {
   describe('freeBuffer', function() {
     it('should free a buffer', function() {
       var s = new Server();
-      var b = s.allocBuffer(1);
+      var b = s.allocBufferID(1);
       s.freeBuffer(b, 1);
     });
   });

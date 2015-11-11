@@ -36,7 +36,7 @@ export function initialBlockState(initialSize) {
  * @param {int} blockSize       - number of numbers eg. numChannels
  * @returns {Array}             - [start number {int}, mutated state {Immutable.Map}]
  */
-export function block(state, blockSize) {
+export function allocBlock(state, blockSize) {
   let keys = state.keySeq().sortBy((a, b) => parseInt(a, 10) > parseInt(b, 10));
   var ret;
   keys.forEach(sizeKey => {
