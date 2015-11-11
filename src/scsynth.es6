@@ -218,8 +218,16 @@ export class Server extends EventEmitter {
   allocControlBus(numChannels=1) {
     return this._allocBlock(keys.CONTROL_BUSSES, numChannels);
   }
-  allocBuffer(numChannels) {
-    return this._allocBlock(keys.BUFFERS, numChannels);
+  /**
+   * Allocate a buffer id.
+   *
+   * Note that numChannels is specified when creating the buffer.
+   *
+   * @param {int} numConsecutive - consecutively numbered buffers are needed by VOsc and VOsc3.
+   * @returns {int}
+   */
+  allocBufferID(numConsecutive=1) {
+    return this._allocBlock(keys.BUFFERS, numConsecutive);
   }
 
   // these require you to remember the channels and mess it up

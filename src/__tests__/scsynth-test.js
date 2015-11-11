@@ -47,10 +47,10 @@ describe('scsynth', function() {
     });
   });
 
-  describe('allocBuffer', function() {
+  describe('allocBufferID', function() {
     it('should alloc a buffer', function() {
       var s = new Server();
-      var b = s.allocBuffer(2);
+      var b = s.allocBufferID(2);
       expect(b).toEqual(0);
     });
   });
