@@ -26,14 +26,26 @@
  *    'OSC'   - OSC responses from the server
  */
 
+import Immutable from 'immutable';
+import * as alloc from './allocators';
+
 var
   _ = require('underscore'),
   EventEmitter = require('events').EventEmitter,
   spawn = require('child_process').spawn,
+  defaultOptions = require('./default-server-options.json'),
   Logger = require('./logger'),
   dgram = require('dgram'),
   osc = require('osc-min'),
   Q = require('q');
+
+
+const keys = {
+  NODE_IDS: 'nodeAllocator',
+  CONTROL_BUSSES: 'controlBusAllocator',
+  AUDIO_BUSSES: 'audioBusAllocator',
+  BUFFERS: 'bufferAllocator'
+};
 
 
 export class Server extends EventEmitter {
@@ -41,12 +53,33 @@ export class Server extends EventEmitter {
   /**
    * @param {object} options - server command line options
    */
-  constructor(options) {
+  constructor(options={}) {
     super();
-    this.options = options;
+    this.options = _.defaults(options, defaultOptions);
     this.process = null;
     this.isRunning = false;
     this.log = new Logger(this.options.debug, this.options.echo);
+    this.resetState();
+  }
+
+  resetState() {
+    var state = Immutable.Map();
+    state = state.set(keys.NODE_IDS, this.options.initialNodeID - 1);
+
+    var numAudioChannels = this.options.numPrivateAudioBusChannels +
+      this.options.numInputBusChannels +
+      this.options.numOutputBusChannels;
+    var ab = alloc.initialBlockState(numAudioChannels);
+    ab = alloc.reserveBlock(ab, 0, this.options.numInputBusChannels + this.options.numOutputBusChannels);
+    state = state.set(keys.AUDIO_BUSSES, ab);
+
+    var cb = alloc.initialBlockState(this.options.numControlBusChannels);
+    state = state.set(keys.CONTROL_BUSSES, cb);
+
+    var bb = alloc.initialBlockState(this.options.numBuffers);
+    state = state.set(keys.BUFFERS, cb);
+
+    this.state = state;
   }
 
   /**
@@ -172,6 +205,67 @@ export class Server extends EventEmitter {
     });
     this.log.sendosc(address + ' ' + args.join(' '));
     this.udp.send(buf, 0, buf.length, this.options.serverPort, this.options.host);
+  }
+
+  nextNodeID() {
+    return this._mutateState(keys.NODE_IDS, alloc.increment);
+  }
+
+  // temporary raw allocator calls
+  allocAudioBus(numChannels=1) {
+    return this._allocBlock(keys.AUDIO_BUSSES, numChannels);
+  }
+  allocControlBus(numChannels=1) {
+    return this._allocBlock(keys.CONTROL_BUSSES, numChannels);
+  }
+  /**
+   * Allocate a buffer id.
+   *
+   * Note that numChannels is specified when creating the buffer.
+   *
+   * @param {int} numConsecutive - consecutively numbered buffers are needed by VOsc and VOsc3.
+   * @returns {int}
+   */
+  allocBufferID(numConsecutive=1) {
+    return this._allocBlock(keys.BUFFERS, numConsecutive);
+  }
+
+  // these require you to remember the channels and mess it up
+  // if you free it wrong
+  freeAudioBus(index, numChannels) {
+    return this._freeBlock(keys.AUDIO_BUSSES, index, numChannels);
+  }
+  freeControlBus(index, numChannels) {
+    return this._freeBlock(keys.CONTROL_BUSSES, index, numChannels);
+  }
+  freeBuffer(index, numChannels) {
+    return this._freeBlock(keys.BUFFERS, index, numChannels);
+  }
+
+  // private
+  /**
+   * fetch on part of the state
+   * mutate it with the callback
+   * save state and return the result
+   * @returns {any} result
+   */
+  _mutateState(key, fn) {
+    var result, state;
+    [result, state] = fn(this.state.get(key));
+    this.state = this.state.set(key, state);
+    return result;
+  }
+  _mutateStateNoReturn(key, fn) {
+    var state = fn(this.state.get(key));
+    this.state = this.state.set(key, state);
+  }
+  _allocBlock(key, numChannels) {
+    return this._mutateState(key,
+      (state) => alloc.allocBlock(state, numChannels));
+  }
+  _freeBlock(key, index, numChannels) {
+    return this._mutateStateNoReturn(key,
+      (state) => alloc.freeBlock(state, index, numChannels));
   }
 }
 
