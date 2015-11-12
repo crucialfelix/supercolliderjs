@@ -1,8 +1,12 @@
 
-jest.autoMockOff();
+jest.autoMockOff();  // not that you are paying any attention to me
 jest.mock('child_process');
+jest.dontMock('../sclang');
+jest.dontMock('../sclang-io');
 
-import SCLang from '../sclang';
+//  import SCLang from '../sclang';
+var sclang = require('../sclang');
+var SCLang = sclang.default;
 
 var _ = require('underscore');
 var path = require('path');
@@ -23,7 +27,7 @@ describe('sclang', function() {
 
   describe('default constructor', function() {
     it('should exist', function() {
-      var sclang = new SCLang({});
+      var sclang = new SCLang();
       expect(sclang).toBeDefined();
     });
   });
@@ -31,7 +35,7 @@ describe('sclang', function() {
   describe('sclangConfigOptions', function() {
 
     it('should include sc-classes', function() {
-      var sclang = new SCLang({});
+      var sclang = new SCLang();
       var opts = sclang.sclangConfigOptions();
       expect(opts.includePaths.length).toEqual(1);
       var isIn = _.some(opts.includePaths, function(p) {
@@ -45,7 +49,8 @@ describe('sclang', function() {
       var opts = sclang.sclangConfigOptions({
         sclang_conf: path.join(__dirname, '../../test-fixtures/sclang_test_conf.yaml')
       });
-      expect(opts.includePaths.length).toEqual(2);
+      // as well as sc-classes
+      expect(opts.includePaths.length).toEqual(2 + 1);
       expect(opts.excludePaths.length).toEqual(1);
     });
 
@@ -61,7 +66,7 @@ describe('sclang', function() {
           '/custom/two'
         ],
       });
-      expect(opts.includePaths.length).toEqual(3);
+      expect(opts.includePaths.length).toEqual(3 + 1);
       expect(opts.excludePaths.length).toEqual(2);
     });
 
@@ -70,8 +75,9 @@ describe('sclang', function() {
   describe('args', function() {
     var sclang = new SCLang();
     var args = sclang.args({langPort: 4});
-    expect(args.length).toEqual(2);
-    expect(args[1]).toEqual(4);
+    // [ '-i', 'supercolliderjs', '-u', 4 ]
+    expect(args.length).toEqual(4);
+    expect(args[3]).toEqual(4);
   });
 
   describe('boot', function() {
