@@ -137,6 +137,9 @@ export class Server extends EventEmitter {
     this.process.stdout.on('data', (data) => {
       this.log.stdout('' + data);
       this.emit('out', data);
+      // should say the magical words:
+      // "SuperCollider 3 server ready"
+      // and resolve if not already
       this.isRunning = true;
     });
     this.process.stderr.on('data', (data) => {
@@ -151,7 +154,7 @@ export class Server extends EventEmitter {
       } else {
         d.reject();
       }
-    }, 100);
+    }, 300);
 
     return d.promise;
   }
