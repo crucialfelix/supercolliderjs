@@ -2,7 +2,7 @@
 jest.autoMockOff();  // not that you are paying any attention to me
 jest.mock('child_process');
 jest.dontMock('../sclang');
-jest.dontMock('../sclang-io');
+jest.dontMock('../internals/sclang-io');
 
 //  import SCLang from '../sclang';
 var sclang = require('../sclang');
@@ -11,7 +11,7 @@ var SCLang = sclang.default;
 var _ = require('underscore');
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
-import {STATES} from '../sclang-io';
+import {STATES} from '../internals/sclang-io';
 var Q = require('q');
 
 class MockProcess extends EventEmitter {
@@ -47,7 +47,7 @@ describe('sclang', function() {
     it('should read a supplied sclang_conf', function() {
       var sclang = new SCLang({});
       var opts = sclang.sclangConfigOptions({
-        sclang_conf: path.join(__dirname, '../../test-fixtures/sclang_test_conf.yaml')
+        sclang_conf: path.join(__dirname, 'fixtures', 'sclang_test_conf.yaml')
       });
       // as well as sc-classes
       expect(opts.includePaths.length).toEqual(2 + 1);
@@ -57,7 +57,7 @@ describe('sclang', function() {
     it('should merge sclang_conf with supplied includePaths', function() {
       var sclang = new SCLang({});
       var opts = sclang.sclangConfigOptions({
-        sclang_conf: path.join(__dirname, '../../test-fixtures/sclang_test_conf.yaml'),
+        sclang_conf: path.join(__dirname, 'fixtures', 'sclang_test_conf.yaml'),
         includePaths: [
           '/custom/one',
           '/path/include/one'

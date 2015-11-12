@@ -1,9 +1,10 @@
 
 jest.autoMockOff();
 
-var Server = require('../scsynth').Server;
+jest.dontMock('../server');
+var Server = require('../server').Server;
 
-describe('scsynth', function() {
+describe('Server', function() {
 
   describe('default constructor', function() {
     it('should exist', function() {

@@ -13,7 +13,7 @@ import fs from 'fs';
 
 // parse a series of output files with the option to break into chunks
 function readFile(filename) {
-  let abs = join(__dirname, '../../test-fixtures/', filename);
+  let abs = join(__dirname, 'fixtures', filename);
   return fs.readFileSync(abs, {encoding: 'utf8'});
 }
 

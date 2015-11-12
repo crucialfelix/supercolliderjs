@@ -30,7 +30,7 @@ var
   uuid = require('node-uuid'),
   Q = require('q'),
   _ = require('underscore'),
-  Logger = require('./logger');
+  Logger = require('./utils/logger');
 
 
 class SCAPI extends events.EventEmitter {

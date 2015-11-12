@@ -27,14 +27,14 @@
  */
 
 import Immutable from 'immutable';
-import * as alloc from './allocators';
+import * as alloc from './internals/allocators';
 
 var
   _ = require('underscore'),
   EventEmitter = require('events').EventEmitter,
   spawn = require('child_process').spawn,
   defaultOptions = require('./default-server-options.json'),
-  Logger = require('./logger'),
+  Logger = require('../utils/logger'),
   dgram = require('dgram'),
   osc = require('osc-min'),
   Q = require('q');

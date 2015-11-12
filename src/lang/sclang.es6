@@ -20,7 +20,7 @@ var
   EventEmitter = require('events').EventEmitter,
   spawn = require('child_process').spawn,
   path = require('path'),
-  Logger = require('./logger'),
+  Logger = require('../utils/logger'),
   Q = require('q'),
   uuid = require('node-uuid'),
   join = require('path').join,
@@ -29,7 +29,7 @@ var
   fs   = require('fs'),
   untildify = require('untildify');
 
-import {SclangIO, STATES} from './sclang-io';
+import {SclangIO, STATES} from './internals/sclang-io';
 
 
 export default class SCLang extends EventEmitter {
