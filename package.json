@@ -49,12 +49,12 @@
   },
   "scripts": {
     "test": "jest && npm run lint && npm run jsstyle",
-    "lint": "jshint src/*.es6 bin/*.js examples/*.js",
+    "lint": "jshint src bin examples/*.js",
     "jest": "jest --watch",
-    "jsstyle": "jscs src/*.es6 bin/*.js examples/*.js",
-    "compile": "cd src && babel *.es6 --source-maps --out-dir ../lib/js",
+    "jsstyle": "jscs src bin examples/*.js",
+    "compile": "babel --source-maps --out-dir=./lib/js src",
     "copy": "cd src && cp *.json ../lib/js/",
-    "watch": "cd src && babel *.es6 --watch --source-maps --out-dir ../lib/js",
+    "watch": "babel --watch --source-maps --out-dir ../lib/js src",
     "prepublish": "npm run compile && npm run copy"
   },
   "jest": {
@@ -70,6 +70,14 @@
       "js",
       "json",
       "es6"
+    ],
+    "unmockedModulePathPatterns": [
+      "node_modules/chalk",
+      "node_modules/temp",
+      "node_modules/underscore",
+      "node_modules/immutable",
+      "node_modules/node-uuid",
+      "node_modules/q"
     ],
     "collectCoverage": false
   },
