@@ -94,7 +94,7 @@ export function freeBlock(state, addr, blockSize) {
  * @param {int} addr
  * @param {int} blockSize
  * @returns {Immutable.Map} state
- * @throws Block is already allocated
+ * @throws - Block is already allocated
  */
 export function reserveBlock(state, addr, blockSize) {
   // check if exact match is on free list

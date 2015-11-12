@@ -1,14 +1,16 @@
-var chalk = require('chalk'),
-    _ = require('underscore'),
-    c = {
-      debug: chalk.gray,
-      error: chalk.magenta,
-      stdout: chalk.green,
-      stderr: chalk.bold.red,
-      stdin: chalk.blue,
-      sendosc: chalk.cyan,
-      rcvosc: chalk.yellow
-    };
+
+var chalk = require('chalk');
+var _ = require('underscore');
+
+const c = {
+  debug: chalk.gray,
+  error: chalk.magenta,
+  stdout: chalk.green,
+  stderr: chalk.bold.red,
+  stdin: chalk.blue,
+  sendosc: chalk.cyan,
+  rcvosc: chalk.yellow
+};
 
 /**
  * usage:
@@ -23,7 +25,7 @@ var chalk = require('chalk'),
  *
  */
 
-class Logger {
+export default class Logger {
 
   constructor(debug, echo) {
     this.debug = debug;
@@ -86,5 +88,3 @@ class Logger {
     console.log(color(clean.join('\n')));
   }
 }
-
-module.exports = Logger;

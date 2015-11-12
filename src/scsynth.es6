@@ -51,7 +51,7 @@ const keys = {
 export class Server extends EventEmitter {
 
   /**
-   * @param {object} options - server command line options
+   * @param {Object} options - server command line options
    */
   constructor(options={}) {
     super();
@@ -83,7 +83,7 @@ export class Server extends EventEmitter {
   }
 
   /**
-   * command line args for scsynth
+   * Format command line args for scsynth
    *
    * not yet fully implemented
    *
@@ -198,6 +198,10 @@ export class Server extends EventEmitter {
     }
   }
 
+  /**
+   * @param {String} address - OSC command, referred to as address
+   * @param {Array} args
+   */
   sendMsg(address, args) {
     var buf = osc.toBuffer({
       address: address,
@@ -244,9 +248,10 @@ export class Server extends EventEmitter {
 
   // private
   /**
-   * fetch on part of the state
-   * mutate it with the callback
-   * save state and return the result
+   * Fetch one part of the state,
+   * mutate it with the callback,
+   * save state and return the result.
+   *
    * @returns {any} result
    */
   _mutateState(key, fn) {

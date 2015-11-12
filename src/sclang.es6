@@ -37,7 +37,7 @@ export default class SCLang extends EventEmitter {
   /*
    * @param {object} options - sclang command line options
    */
-  constructor(options) {
+  constructor(options={}) {
     super();
     this.options = options || {};
     this.process = null;
@@ -186,7 +186,7 @@ export default class SCLang extends EventEmitter {
    * @param {object} options - supercolliderJs options
    * @returns {object} - sclang_config variables
    */
-  sclangConfigOptions(options) {
+  sclangConfigOptions(options={}) {
     var
       runtimeIncludePaths = [
         path.resolve(__dirname, '../sc-classes')
