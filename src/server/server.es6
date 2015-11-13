@@ -36,6 +36,7 @@ import * as Q from 'q';
 import Immutable from 'immutable';
 
 import * as alloc from './internals/allocators';
+import SendOSC from './internals/send-osc';
 import defaultOptions from './default-server-options';
 import Logger from '../utils/Logger';
 import resolveOptions from '../utils/resolveOptions';
@@ -48,38 +49,6 @@ const keys = {
   BUFFERS: 'bufferAllocator'
 };
 
-
-class SendOSC extends EventEmitter {
-
-  msg(m) {
-    this.emit('msg', m);
-  }
-
-  bundle(b) {
-    throw new Error('Not yet implemented');
-    // not yet implemented
-    // this will need a time
-    // this.emit('bundle', b);
-  }
-
-  /**
-   * Subscribe to monitor messages and bundles sent.
-   *
-   * Events are: {type: msg|bundle: payload: Array}
-   *
-   * @returns {Rx.Disposable} - `thing.dispose();` to unsubscribe
-   */
-  subscribe(onNext, onError, onComplete) {
-    var msgs = Observable.fromEvent(this, 'msg', (msg) => {
-      return {type: 'msg', payload: msg};
-    });
-    var bundles = Observable.fromEvent(this, 'bundle', (msg) => {
-      return {type: 'bundle', payload: msg};
-    });
-    var combo = msgs.merge(bundles);
-    return combo.subscribe(onNext, onError, onComplete);
-  }
-}
 
 function _noop() {}
 
