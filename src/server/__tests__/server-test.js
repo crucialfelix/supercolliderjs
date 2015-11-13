@@ -1,7 +1,8 @@
 
-jest.autoMockOff();
 
 jest.dontMock('../server');
+jest.dontMock('../internals/allocators');
+jest.dontMock('rx');
 var Server = require('../server').Server;
 
 describe('Server', function() {
@@ -78,6 +79,45 @@ describe('Server', function() {
       var b = s.allocBufferID(1);
       s.freeBuffer(b, 1);
     });
+  });
+
+  describe('oscOnce', function() {
+    pit('should send the msg and fullfill', function() {
+      var s = new Server();
+      var p = s.oscOnce(['/done', '/notify']).then((rest) => {
+
+        console.log(rest);
+      });
+      // console.log('sender', s.send.msg);
+      expect(s.send.msg.mock.calls.length).toBe(1);
+
+      // this will trigger it
+      s.receive.onNext({
+        'address': '/done',
+        'args': [
+          {
+            'type': 'string',
+            'value': '/notify'
+          },
+          {
+            'type': 'integer',
+            'value': 15
+          }
+        ],
+        'oscType': 'message'
+      });
+      return p;
+    });
+
+
+    it('should reject if server is not booted', function() {
+      // this would be send that rejects it
+      // do this later when you implement that
+    });
+    it('should reject if send fails', function() {
+      // s.send.msg.mockReturnValueOnce
+    });
+    // server could respond with command not recognized
   });
 
 });

@@ -78,7 +78,8 @@
       "node_modules/underscore",
       "node_modules/immutable",
       "node_modules/node-uuid",
-      "node_modules/q"
+      "node_modules/q",
+      "node_modules/rx"
     ],
     "collectCoverage": false
   },

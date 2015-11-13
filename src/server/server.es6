@@ -277,6 +277,69 @@ export class Server extends EventEmitter {
     this.send.msg([address].concat(args));
   }
 
+  /**
+   * Wait for a single OSC response from server matching the supplied args.
+   *
+   * This is for getting responses async from the server.
+   * The first part of the message matches the expected args,
+   * and the rest of the message contains the response.
+   *
+   * The Promise fullfills with any remaining payload including in the message.
+   *
+   * @param {Array} args
+   * @param {int} timeout - in milliseconds before the Promise is rejected
+   * @returns {Promise}
+   */
+  oscOnce(args, timeout=4000) {
+    /**
+     * {
+       'address': '/done',
+       'args': [
+         {
+           'type': 'string',
+           'value': '/notify'
+         },
+         {
+           'type': 'integer',
+           'value': 15
+         }
+       ],
+       'oscType': 'message'
+     }
+     */
+    return new Promise((resolve, reject) => {
+      var subscription = this.receive.subscribe((e) => {
+        var msgArgs = [e.address].concat(
+          _.map(e.args, (a) => a.value)
+        );
+        var matchArgs = msgArgs.slice(0, args.length);
+
+        if (_.isEqual(matchArgs, args)) {
+          var payload = msgArgs.slice(args.length);
+          resolve(payload);
+          dispose();
+        }
+      });
+
+      // if timeout then reject and dispose
+      var tid = setTimeout(() => {
+        dispose();
+        reject('Timed out waiting for OSC response: ' + args);
+      }, timeout);
+
+      function dispose() {
+        subscription.dispose();
+        clearTimeout(tid);
+      }
+
+      // send message
+      Promise.resolve(this.send.msg(args)).catch((err) => {
+        dispose();
+        reject(err);
+      });
+    });
+  }
+
   nextNodeID() {
     return this._mutateState(keys.NODE_IDS, alloc.increment);
   }
