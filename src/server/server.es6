@@ -26,18 +26,19 @@
  *    'OSC'   - OSC responses from the server
  */
 
+import {EventEmitter} from 'events';
+import {Observable, Subject} from 'Rx';
+import {spawn} from 'child_process';
+import * as _ from 'underscore';
+import * as dgram from 'dgram';
+import * as osc from 'osc-min';
+import * as Q from 'q';
 import Immutable from 'immutable';
-import * as alloc from './internals/allocators';
 
-var
-  _ = require('underscore'),
-  EventEmitter = require('events').EventEmitter,
-  spawn = require('child_process').spawn,
-  defaultOptions = require('./default-server-options.json'),
-  Logger = require('../utils/logger'),
-  dgram = require('dgram'),
-  osc = require('osc-min'),
-  Q = require('q');
+import * as alloc from './internals/allocators';
+import defaultOptions from './default-server-options';
+import Logger from '../utils/Logger';
+import resolveOptions from '../utils/resolveOptions';
 
 
 const keys = {
@@ -59,6 +60,15 @@ export class Server extends EventEmitter {
     this.process = null;
     this.isRunning = false;
     this.log = new Logger(this.options.debug, this.options.echo);
+
+    // receive is subscribeable even if not yet connected to the server
+    this.receive  = new Subject();
+    this.receive.subscribe((msg) => {
+      this.log.rcvosc(msg);
+      // deprecated. use subscriptions on this.receive
+      this.emit('OSC', msg);
+    });
+
     this.resetState();
   }
 
@@ -171,33 +181,42 @@ export class Server extends EventEmitter {
     }
   }
 
+  /**
+   * Establish connection to scsynth via OSC socket
+   */
   connect() {
     var self = this;
-    this.udp = dgram.createSocket('udp4');
+    this.osc = dgram.createSocket('udp4');
 
-    this.udp.on('message', function(msgbuf, rinfo) {
-      var msg = osc.fromBuffer(msgbuf);
-      self.log.rcvosc(msg);
-      self.emit('OSC', msg);
+    // pipe events to this.receive
+    this._oscIn = Observable.fromEvent(this.osc, 'message', (msgbuf) => {
+      return osc.fromBuffer(msgbuf);
     });
+    this._oscIn.subscribe((e) => {
+      this.receive.onNext(e);
+    }, this.receive.onError, this.receive.onCompleted);
 
-    this.udp.on('error', function(e) {
+    this.osc.on('error', function(e) {
       self.log.err(e);
       self.emit('error', e);
     });
-    this.udp.on('listening', function() {
+    this.osc.on('listening', function() {
       self.log.dbug('udp is listening');
     });
-    this.udp.on('close', function(e) {
+    this.osc.on('close', function(e) {
       self.log.dbug('udp close' + e);
       self.emit('close', e);
     });
   }
 
   disconnect() {
-    if (this.udp) {
-      this.udp.close();
-      delete this.udp;
+    if (this.osc) {
+      this.osc.close();
+      delete this.osc;
+    }
+    if (this._oscIn) {
+      this._oscIn.dispose();
+      delete this._oscIn;
     }
   }
 
@@ -211,7 +230,7 @@ export class Server extends EventEmitter {
       args: args
     });
     this.log.sendosc(address + ' ' + args.join(' '));
-    this.udp.send(buf, 0, buf.length, this.options.serverPort, this.options.host);
+    this.osc.send(buf, 0, buf.length, this.options.serverPort, this.options.host);
   }
 
   nextNodeID() {
@@ -282,7 +301,6 @@ export class Server extends EventEmitter {
  * @returns {Promise}
  */
 export function boot(options) {
-  var resolveOptions = require('./resolveOptions');
   return resolveOptions(null, options).then(function(opts) {
     var s = new Server(opts);
     return s.boot().then(function() {
