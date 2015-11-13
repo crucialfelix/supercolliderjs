@@ -49,27 +49,104 @@ const keys = {
 };
 
 
+class SendOSC extends EventEmitter {
+
+  msg(m) {
+    this.emit('msg', m);
+  }
+
+  bundle(b) {
+    throw new Error('Not yet implemented');
+    // not yet implemented
+    // this will need a time
+    // this.emit('bundle', b);
+  }
+
+  /**
+   * Subscribe to monitor messages and bundles sent.
+   *
+   * Events are: {type: msg|bundle: payload: Array}
+   *
+   * @returns {Rx.Disposable} - `thing.dispose();` to unsubscribe
+   */
+  subscribe(onNext, onError, onComplete) {
+    var msgs = Observable.fromEvent(this, 'msg', (msg) => {
+      return {type: 'msg', payload: msg};
+    });
+    var bundles = Observable.fromEvent(this, 'bundle', (msg) => {
+      return {type: 'bundle', payload: msg};
+    });
+    var combo = msgs.merge(bundles);
+    return combo.subscribe(onNext, onError, onComplete);
+  }
+}
+
+function _noop() {}
+
+
 export class Server extends EventEmitter {
 
   /**
-   * @param {Object} options - server command line options
+   * @param {Object} options - command line options for scsynth
    */
   constructor(options={}) {
     super();
     this.options = _.defaults(options, defaultOptions);
     this.process = null;
     this.isRunning = false;
-    this.log = new Logger(this.options.debug, this.options.echo);
 
-    // receive is subscribeable even if not yet connected to the server
+    // subscribeable streams
+    this.send = new SendOSC();
     this.receive  = new Subject();
+    this.stdout = new Subject();
+    this.processEvents = new Subject();
+
+    this._initLogger();
+    this._initEmitter();
+    this._initSender();
+
+    this._serverObservers = {};
+    this.resetState();
+  }
+
+  _initLogger() {
+    this.log = new Logger(this.options.debug, this.options.echo);
+    this.send.subscribe((event) => {
+      // will be a type:msg or type:bundle
+      var out;
+      if (event.type === 'msg') {
+        out = event.payload.join(' ');
+      } else {
+        out = String(event.payload);
+      }
+      if (!this.osc) {
+        out = '[NOT CONNECTED] ' + out;
+      }
+      this.log.sendosc(out);
+    });
+    this.receive.subscribe((o) => this.log.rcvosc(o));
+    this.stdout.subscribe((o) => this.log.stdout(o), (o) => this.log.stderr(o));
+    this.processEvents.subscribe((o) => this.log.dbug(o), (o) => this.log.err(o));
+  }
+  _initEmitter() {
+    // emit signals are deprecated.
+    // use server.{channel}.subscribe((event) => { })
     this.receive.subscribe((msg) => {
-      this.log.rcvosc(msg);
-      // deprecated. use subscriptions on this.receive
       this.emit('OSC', msg);
     });
-
-    this.resetState();
+    this.processEvents.subscribe(_noop, (err) => this.emit('exit', err));
+    this.stdout.subscribe((out) => this.emit('out', out), (out) => this.emit('stderr', out));
+  }
+  _initSender() {
+    this.send.on('msg', (msg) => {
+      if (this.osc) {
+        var buf = osc.toBuffer({
+          address: msg[0],
+          args: msg.slice(1)
+        });
+        this.osc.send(buf, 0, buf.length, this.options.serverPort, this.options.host);
+      }
+    });
   }
 
   resetState() {
@@ -121,50 +198,55 @@ export class Server extends EventEmitter {
       args = this.args(),
       d = Q.defer();
 
-    this.log.dbug(execPath + ' ' + args.join(' '));
-    this.process = spawn(execPath, args,
-      {
+    this.isRunning = false;
+
+    this.processEvents.onNext(execPath + ' ' + args.join(' '));
+
+    this.process = spawn(execPath, args, {
         cwd: this.options.cwd
       });
-    this.log.dbug('Spawned pid: ' + this.process.pid);
+    this.processEvents.onNext('pid: ' + this.process.pid);
 
     this.process.on('error', (err) => {
-      this.log.err('Server error ' + err);
-      this.emit('exit', err);
-      // this.isRunning = false;
+      this.processEvents.onError(err);
+      this.isRunning = false;
+      // this.disconnect()
     });
     this.process.on('close', (code, signal) => {
-      this.log.dbug('Server closed ' + code);
-      this.emit('exit', code);
+      this.processEvents.onError('Server closed. Exit code: ' + code + ' signal: ' + signal);
       this.isRunning = false;
+      // this.disconnect()
     });
     this.process.on('exit', (code, signal) => {
-      this.log.dbug('Server exited ' + code);
-      this.emit('exit', code);
+      this.processEvents.onError('Server exited. Exit code: ' + code + ' signal: ' + signal);
       this.isRunning = false;
+      // this.disconnect()
     });
 
-    this.process.stdout.on('data', (data) => {
-      this.log.stdout('' + data);
-      this.emit('out', data);
-      // should say the magical words:
-      // "SuperCollider 3 server ready"
-      // and resolve if not already
-      this.isRunning = true;
-    });
-    this.process.stderr.on('data', (data) => {
-      this.log.stderr('' + data);
-      this.emit('stderr', data);
-      this.isRunning = true;
-    });
+    this._serverObservers.stdout = Observable.fromEvent(this.process.stdout, 'data', (data) => String(data));
+    this._serverObservers.stdout.subscribe((e) => this.stdout.onNext(e));
+
+    this._serverObservers.stderr = Observable.fromEvent(this.process.stderr, 'data')
+      .subscribe((out) => {
+        console.log('stderr', out);
+        // just pipe it into the stdout object's error stream
+        this.stdout.onError(out);
+      });
+
+    // watch for ready message
+    this._serverObservers.stdout.takeWhile((text) => (text.match(/SuperCollider 3 server ready/) !== null))
+      .subscribe((next) => {},
+        this.log.err,
+        () => { // onComplete
+          this.isRunning = true;
+          d.resolve();
+        });
 
     setTimeout(() => {
-      if (this.isRunning) {
-        d.resolve();
-      } else {
+      if (!this.isRunning) {
         d.reject();
       }
-    }, 300);
+    }, 3000);
 
     return d.promise;
   }
@@ -189,23 +271,18 @@ export class Server extends EventEmitter {
     this.osc = dgram.createSocket('udp4');
 
     // pipe events to this.receive
-    this._oscIn = Observable.fromEvent(this.osc, 'message', (msgbuf) => {
-      return osc.fromBuffer(msgbuf);
-    });
-    this._oscIn.subscribe((e) => {
-      this.receive.onNext(e);
-    }, this.receive.onError, this.receive.onCompleted);
+    this._serverObservers.oscMessage = Observable.fromEvent(this.osc, 'message', (msgbuf) => osc.fromBuffer(msgbuf));
+    this._serverObservers.oscMessage.subscribe((e) => this.receive.onNext(e));
 
-    this.osc.on('error', function(e) {
-      self.log.err(e);
-      self.emit('error', e);
+    this._serverObservers.oscError = Observable.fromEvent(this.osc, 'error');
+    this._serverObservers.oscError.subscribe((e) => this.receive.onError(e));
+
+    this.osc.on('listening', () => {
+      this.processEvents.onNext('udp is listening');
     });
-    this.osc.on('listening', function() {
-      self.log.dbug('udp is listening');
-    });
-    this.osc.on('close', function(e) {
-      self.log.dbug('udp close' + e);
-      self.emit('close', e);
+    this.osc.on('close', (e) => {
+      this.processEvents.onNext('udp closed: ' + e);
+      // destroy and unsub
     });
   }
 
@@ -214,23 +291,21 @@ export class Server extends EventEmitter {
       this.osc.close();
       delete this.osc;
     }
-    if (this._oscIn) {
-      this._oscIn.dispose();
-      delete this._oscIn;
-    }
+    this._serverObservers.forEach((obs, k) => {
+      obs.dispose();
+    });
+    this._serverObservers = {};
   }
 
   /**
+   * Send OSC message to server
+   *
+   * @deprecated - use: `server.send.msg([address, arg1, arg2])``
    * @param {String} address - OSC command, referred to as address
    * @param {Array} args
    */
   sendMsg(address, args) {
-    var buf = osc.toBuffer({
-      address: address,
-      args: args
-    });
-    this.log.sendosc(address + ' ' + args.join(' '));
-    this.osc.send(buf, 0, buf.length, this.options.serverPort, this.options.host);
+    this.send.msg([address].concat(args));
   }
 
   nextNodeID() {
