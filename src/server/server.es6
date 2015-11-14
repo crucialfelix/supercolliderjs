@@ -348,8 +348,11 @@ export class Server extends EventEmitter {
     return promise;
   }
 
+  /**
+   * @returns {int}
+   */
   nextNodeID() {
-    return this._mutateState(keys.NODE_IDS, alloc.increment);
+    return this.mutateStateAndReturn(keys.NODE_IDS, alloc.increment);
   }
 
   // temporary raw allocator calls
@@ -383,7 +386,6 @@ export class Server extends EventEmitter {
     return this._freeBlock(keys.BUFFERS, index, numChannels);
   }
 
-  // private
   /**
    * Fetch one part of the state,
    * mutate it with the callback,
@@ -391,22 +393,22 @@ export class Server extends EventEmitter {
    *
    * @returns {any} result
    */
-  _mutateState(key, fn) {
+  mutateStateAndReturn(key, fn) {
     var result, state;
     [result, state] = fn(this.state.get(key));
     this.state = this.state.set(key, state);
     return result;
   }
-  _mutateStateNoReturn(key, fn) {
-    var state = fn(this.state.get(key));
-    this.state = this.state.set(key, state);
+  mutateState(key, fn) {
+    this.state = this.state.update(key, Immutable.Map(), fn);
   }
+
   _allocBlock(key, numChannels) {
-    return this._mutateState(key,
+    return this.mutateStateAndReturn(key,
       (state) => alloc.allocBlock(state, numChannels));
   }
   _freeBlock(key, index, numChannels) {
-    return this._mutateStateNoReturn(key,
+    return this.mutateState(key,
       (state) => alloc.freeBlock(state, index, numChannels));
   }
 }
