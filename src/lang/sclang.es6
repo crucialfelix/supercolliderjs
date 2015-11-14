@@ -20,7 +20,6 @@ var
   EventEmitter = require('events').EventEmitter,
   spawn = require('child_process').spawn,
   path = require('path'),
-  Logger = require('../utils/logger'),
   Q = require('q'),
   uuid = require('node-uuid'),
   join = require('path').join,
@@ -29,6 +28,7 @@ var
   fs   = require('fs'),
   untildify = require('untildify');
 
+import Logger from '../utils/logger';
 import {SclangIO, STATES} from './internals/sclang-io';
 
 

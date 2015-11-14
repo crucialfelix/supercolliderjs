@@ -401,9 +401,9 @@ export class Server extends EventEmitter {
  * @returns {Promise}
  */
 export function boot(options) {
-  return resolveOptions(null, options).then(function(opts) {
+  return resolveOptions(undefined, options).then((opts) => {
     var s = new Server(opts);
-    return s.boot().then(function() {
+    return s.boot().then(() => {
       s.connect();
       return s;
     });

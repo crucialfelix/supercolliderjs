@@ -29,8 +29,9 @@ var
   osc = require('osc-min'),
   uuid = require('node-uuid'),
   Q = require('q'),
-  _ = require('underscore'),
-  Logger = require('./utils/logger');
+  _ = require('underscore');
+
+import Logger from './utils/logger';
 
 
 class SCAPI extends events.EventEmitter {
