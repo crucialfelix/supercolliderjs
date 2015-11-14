@@ -37,6 +37,7 @@ import Immutable from 'immutable';
 
 import * as alloc from './internals/allocators';
 import SendOSC from './internals/send-osc';
+import {parseMessage} from './osc/utils';
 import defaultOptions from './default-server-options';
 import Logger from '../utils/Logger';
 import resolveOptions from '../utils/resolveOptions';
@@ -241,7 +242,7 @@ export class Server extends EventEmitter {
 
     // pipe events to this.receive
     this._serverObservers.oscMessage = Observable.fromEvent(this.osc, 'message', (msgbuf) => osc.fromBuffer(msgbuf));
-    this._serverObservers.oscMessage.subscribe((e) => this.receive.onNext(e));
+    this._serverObservers.oscMessage.subscribe((e) => this.receive.onNext(parseMessage(e)));
 
     this._serverObservers.oscError = Observable.fromEvent(this.osc, 'error');
     this._serverObservers.oscError.subscribe((e) => this.receive.onError(e));
@@ -286,36 +287,16 @@ export class Server extends EventEmitter {
    *
    * The Promise fullfills with any remaining payload including in the message.
    *
-   * @param {Array} args
+   * @param {Array} matchArgs - osc message to match as a single array: `[/done, /notify]`
    * @param {int} timeout - in milliseconds before the Promise is rejected
    * @returns {Promise}
    */
-  oscOnce(args, timeout=4000) {
-    /**
-     * {
-       'address': '/done',
-       'args': [
-         {
-           'type': 'string',
-           'value': '/notify'
-         },
-         {
-           'type': 'integer',
-           'value': 15
-         }
-       ],
-       'oscType': 'message'
-     }
-     */
+  oscOnce(matchArgs, timeout=4000) {
     return new Promise((resolve, reject) => {
-      var subscription = this.receive.subscribe((e) => {
-        var msgArgs = [e.address].concat(
-          _.map(e.args, (a) => a.value)
-        );
-        var matchArgs = msgArgs.slice(0, args.length);
-
-        if (_.isEqual(matchArgs, args)) {
-          var payload = msgArgs.slice(args.length);
+      var subscription = this.receive.subscribe((msg) => {
+        var command = msg.slice(0, matchArgs.length);
+        if (_.isEqual(command, matchArgs)) {
+          var payload = msg.slice(matchArgs.length);
           resolve(payload);
           dispose();
         }

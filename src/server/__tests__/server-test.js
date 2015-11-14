@@ -3,6 +3,8 @@
 jest.dontMock('../server');
 jest.dontMock('../internals/allocators');
 jest.dontMock('rx');
+import * as _ from 'underscore';
+
 var Server = require('../server').Server;
 
 describe('Server', function() {
@@ -93,21 +95,8 @@ describe('Server', function() {
       // console.log('sender', s.send.msg);
       expect(s.send.msg.mock.calls.length).toBe(0);
 
-      // this will trigger it
-      s.receive.onNext({
-        'address': '/done',
-        'args': [
-          {
-            'type': 'string',
-            'value': '/notify'
-          },
-          {
-            'type': 'integer',
-            'value': 15
-          }
-        ],
-        'oscType': 'message'
-      });
+      // server responds
+      s.receive.onNext(['/done', '/notify', 15]);
       return p;
     });
 
@@ -138,20 +127,7 @@ describe('Server', function() {
       expect(s.send.msg.mock.calls.length).toBe(1);
 
       // server responds
-      s.receive.onNext({
-        'address': '/done',
-        'args': [
-          {
-            'type': 'string',
-            'value': '/notify'
-          },
-          {
-            'type': 'integer',
-            'value': 15  // clientID
-          }
-        ],
-        'oscType': 'message'
-      });
+      s.receive.onNext(['/done', '/notify', 15]);
 
       return p;
     });
