@@ -38,6 +38,7 @@ import Immutable from 'immutable';
 import * as alloc from './internals/allocators';
 import SendOSC from './internals/send-osc';
 import {parseMessage} from './osc/utils';
+import {watchNodeNotifications} from './node-watcher';
 import defaultOptions from './default-server-options';
 import Logger from '../utils/Logger';
 import resolveOptions from '../utils/resolveOptions';
@@ -67,13 +68,14 @@ export class Server extends EventEmitter {
 
     // subscribeable streams
     this.send = new SendOSC();
-    this.receive  = new Subject();
+    this.receive = new Subject();
     this.stdout = new Subject();
     this.processEvents = new Subject();
 
     this._initLogger();
     this._initEmitter();
     this._initSender();
+    watchNodeNotifications(this);
 
     this._serverObservers = {};
     this.resetState();
