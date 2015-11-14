@@ -1,5 +1,8 @@
 /**
   * Functions that format OSC message arrays
+  * For OSC commands that have an asynchronous response
+  * the function returns a {call: response: } object
+  * to make it easy to map directly to a calling function.
   */
 import _ from 'underscore';
 
@@ -45,7 +48,10 @@ export function quit() {
   * @return {Array} - OSC message
   */
 export function notify(on=1) {
-  return ['/notify', on];
+  return {
+    call: ['/notify', on],
+    response: ['/done', '/notify']  // => clientID
+  };
 }
 
 /**
@@ -56,7 +62,10 @@ export function notify(on=1) {
   * @return {Array} - OSC message
   */
 export function status() {
-  return ['/status'];
+  return {
+    call: ['/status'],
+    response: ['/status.reply']  // => status array
+  };
 }
 
 
@@ -95,12 +104,16 @@ export function dumpOSC(code=1) {
   * @return {Array} - OSC message
   */
 export function sync(id) {
-  return ['/sync', id];
+  return {
+    call: ['/sync', id],
+    response: ['/synced', id]
+  };
 }
 
 
 /**
   * Clear all scheduled bundles. Removes all bundles from the scheduling queue.
+  *
   * @return {Array} - OSC message
   */
 export function clearSched() {
@@ -131,7 +144,10 @@ export function error(on=1) {
   *
   */
 export function defRecv(buffer, completionMsg) {
-  return ['/d_recv', buffer, completionMsg];
+  return {
+    call: ['/d_recv', buffer, completionMsg],
+    response: ['/done']
+  };
 }
 
 
@@ -146,7 +162,10 @@ export function defRecv(buffer, completionMsg) {
   * @return {Array} - OSC message
   */
 export function defLoad(path, completionMsg) {
-  return ['/d_load', path, completionMsg];
+  return {
+    call: ['/d_load', path, completionMsg],
+    response: ['/done']
+  };
 }
 
 
@@ -160,7 +179,10 @@ export function defLoad(path, completionMsg) {
   * @return {Array} - OSC message
   */
 export function defLoadDir(path, completionMsg) {
-  return ['/d_loadDir', path, completionMsg];
+  return {
+    call: ['/d_loadDir', path, completionMsg],
+    response: ['/done']
+  };
 }
 
 
@@ -168,13 +190,13 @@ export function defLoadDir(path, completionMsg) {
   * Delete synth definition.
   *
   * The definition is removed immediately, and does not wait for synth nodes based on that definition to end.
+  *
   * @param {String} defName
   * @return {Array} - OSC message
   */
 export function defFree(defName) {
   return ['/d_free', defName];
 }
-
 
 
 /******* Node Commands **********************  */
@@ -313,24 +335,24 @@ export function nodeMapAudion(nodeID, triples) {
 /**
   Places node A in the same group as node B, to execute immediately before node B.
 
-  * @param {int} movenodeID - the node to move (A)
-  * @param {int} beforenodeID - the node to move A before
+  * @param {int} moveNodeID - the node to move (A)
+  * @param {int} beforeNodeID - the node to move A before
   * @return {Array} - OSC message
   */
-export function nodeBefore(movenodeID, beforenodeID) {
-  return ['/n_before', movenodeID, beforenodeID];
+export function nodeBefore(moveNodeID, beforeNodeID) {
+  return ['/n_before', moveNodeID, beforeNodeID];
 }
 
 
 /**
    Places node A in the same group as node B, to execute immediately after node B.
 
-  * @param {int} movenodeID - the ID of the node to place (A)
-  * @param {int} afternodeID - the ID of the node after which the above is placed (B)
+  * @param {int} moveNodeID - the ID of the node to place (A)
+  * @param {int} afterNodeID - the ID of the node after which the above is placed (B)
   * @return {Array} - OSC message
   */
-export function nodeAfter(movenodeID, afternodeID) {
-  return ['/n_after', movenodeID, afternodeID];
+export function nodeAfter(moveNodeID, afterNodeID) {
+  return ['/n_after', moveNodeID, afterNodeID];
 }
 
 
@@ -341,11 +363,13 @@ export function nodeAfter(movenodeID, afternodeID) {
   See Node Notifications for the format of the /n_info message.
 
   * @param {int} nodeID
-  * @param {...int} more
   * @return {Array} - OSC message
   */
-export function nodeQuery(nodeID, ...more) {
-  return ['/n_query', nodeID].concat(more);
+export function nodeQuery(nodeID) {
+  return {
+    call: ['/n_query', nodeID],
+    response: ['/n_info', nodeID]
+  };
 }
 
 
@@ -355,11 +379,10 @@ export function nodeQuery(nodeID, ...more) {
   Causes a synth to print out the values of the inputs and outputs of its unit generators for one control period. Causes a group to print the node IDs and names of each node in the group for one control period.
 
   * @param {int} nodeID
-  * @param {...int} more
   * @return {Array} - OSC message
   */
-export function nodeTrace(nodeID, ...more) {
-  return ['/n_trace', nodeID].concat(more);
+export function nodeTrace(nodeID) {
+  return ['/n_trace', nodeID];
 }
 
 /**
@@ -387,7 +410,7 @@ export function nodeOrder(addAction, targetID, nodeIDs) {
 
   Controls may be set when creating the synth. The control arguments are the same as for the n_set command.
 
-  If you send /s_new with a synth ID of -1, then the server will generate an ID for you. The server reserves all negative IDs. Since you don't know what the ID is, you cannot talk to this node directly later. So this is useful for nodes that are of finite duration and that get the control information they need from arguments and buses or messages directed to their group. In addition no notifications are sent when there are changes of state for this node, such as `/go`, `/end`, `/on`, `/off`.
+  If you send /s_new with a synth ID of -1, then the server will generate an ID for you. The server reserves all negative IDs. Since you don't know what the ID is, you cannot talk to this node directly later. So this is useful for nodes that are of finite duration and that get the control information they need from arguments and buses or messages directed to their group. In addition no notifications are sent when there are changes of state for this node, such as `/n_go`, `/n_end`, `/n_on`, `/n_off`.
 
   If you use a node ID of -1 for any other command, such as `/n_map`, then it refers to the most recently created node by `/s_new` (auto generated ID or not). This is how you can map  the controls of a node with an auto generated ID. In a multi-client situation, the only way you can be sure what node -1 refers to is to put the messages in a bundle.
 
@@ -418,7 +441,10 @@ export function synthNew(defName, nodeID, addAction, targetID, args) {
   Replies with the corresponding `/n_set` command.
   */
 export function synthGet(synthID, controlNames) {
-  return ['/s_get', synthID].concat(controlNames);
+  return {
+    call: ['/s_get', synthID].concat(controlNames),
+    response: ['/n_set', synthID]
+  };
 }
 
 
@@ -433,7 +459,10 @@ export function synthGet(synthID, controlNames) {
   Get contiguous ranges of controls. Replies with the corresponding `/n_setn` command.
   */
 export function synthGetn(synthID, controlName, n) {
-  return ['/s_getn', synthID, controlName, n];
+  return {
+    call: ['/s_getn', synthID, controlName, n],
+    response: ['/n_setn', synthID]
+  };
 }
 
 
@@ -459,8 +488,8 @@ export function synthNoid(synthIDs) {
   There are four ways to add the group to the tree as determined by the add action argument
 
   * @param {int} nodeID - new group ID
-  * @param {int} addAction - add action (0,1,2, 3 or 4 see below)
-  * @param {int} targetID - add target ID
+  * @param {int} addAction
+  * @param {int} targetID
   * @return {Array} - OSC message
   */
 export function groupNew(nodeID, addAction, targetID) {
@@ -477,8 +506,8 @@ export function groupNew(nodeID, addAction, targetID) {
   Multiple groups may be created in one command by adding arguments. (not implemented here)
 
   * @param {int} groupID - new group ID
-  * @param {int} addAction - add action (0,1,2, 3 or 4 see below)
-  * @param {int} targetID - add target ID
+  * @param {int} addAction - add action
+  * @param {int} targetID
   * @return {Array} - OSC message
   */
 export function parallelGroupNew(groupID, addAction, targetID) {
@@ -542,7 +571,7 @@ export function groupDeepFree(groupID) {
   Posts a representation of this group's node subtree, i.e. all the groups and synths contained within it, optionally including the current control values for synths.
 
   * @param {int} groupID
-  * @param {int} dumpControlValues -  if not 0 the current control (arg) values for synths will be posted
+  * @param {int} dumpControlValues -   if not 0 post current control (arg) values for synths to STDOUT
   * @return {Array} - OSC message
   *
   */
@@ -579,7 +608,10 @@ export function groupDumpTree(groupID, dumpControlValues=0) {
   * @return {Array} - OSC message
   */
 export function groupQueryTree(groupID, dumpControlValues=0) {
-  return ['/g_queryTree', groupID, dumpControlValues];
+  return {
+    call: ['/g_queryTree', groupID, dumpControlValues],
+    response: ['/g_queryTree.reply', groupID]
+  };
 }
 
 
@@ -617,7 +649,10 @@ export function ugenCmd(nodeID, uGenIndex, command, args) {
   * @return {Array} - OSC message
   */
 export function bufferAlloc(bufferID, numFrames, numChannels, completionMsg) {
-  return ['/b_alloc', bufferID, numFrames, numChannels, completionMsg];
+  return {
+    call: ['/b_alloc', bufferID, numFrames, numChannels, completionMsg],
+    response: ['/done', '/b_alloc', bufferID]
+  };
 }
 
 
@@ -635,7 +670,10 @@ export function bufferAlloc(bufferID, numFrames, numChannels, completionMsg) {
   * @return {Array} - OSC message
   */
 export function bufferAllocRead(bufferID, path, startFrame=0, numFramesToRead= -1, completionMsg=undefined) {
-  return ['/b_allocRead', bufferID, path, startFrame, numFramesToRead, completionMsg];
+  return {
+    call: ['/b_allocRead', bufferID, path, startFrame, numFramesToRead, completionMsg],
+    response: ['/done', '/b_allocRead', bufferID]
+  };
 }
 
 
@@ -654,7 +692,10 @@ export function bufferAllocRead(bufferID, path, startFrame=0, numFramesToRead= -
   * @return {Array} - OSC message
   */
 export function bufferAllocReadChannel(bufferID, path, startFrame, numFramesToRead, channels, completionMsg=undefined) {
-  return ['/b_allocReadChannel', bufferID, path, startFrame, numFramesToRead].concat(channels).concat([completionMsg]);
+  return {
+    call: ['/b_allocReadChannel', bufferID, path, startFrame, numFramesToRead].concat(channels).concat([completionMsg]),
+    response: ['/done', '/b_allocReadChannel', bufferID]
+  };
 }
 
 
@@ -677,7 +718,10 @@ export function bufferAllocReadChannel(bufferID, path, startFrame, numFramesToRe
   * @return {Array} - OSC message
   */
 export function bufferRead(bufferID, path, startFrame=0, numFramesToRead= -1, startFrameInBuffer=0, leaveFileOpen=0, completionMsg=undefined) {
-  return ['/b_read', bufferID, path, startFrame, numFramesToRead, startFrameInBuffer, leaveFileOpen, completionMsg];
+  return {
+    call: ['/b_read', bufferID, path, startFrame, numFramesToRead, startFrameInBuffer, leaveFileOpen, completionMsg],
+    response: ['/done', '/b_read', bufferID]
+  };
 }
 
 
@@ -699,14 +743,18 @@ export function bufferRead(bufferID, path, startFrame=0, numFramesToRead= -1, st
   * @return {Array} - OSC message
   */
 export function bufferReadChannel(bufferID, path, startFrame=0, numFramesToRead= -1, startFrameInBuffer=0, leaveFileOpen=0, channels=[], completionMsg=undefined) {
-  return ['/b_readChannel', bufferID, path, startFrame, numFramesToRead, startFrameInBuffer, leaveFileOpen].concat(channels).concat([completionMsg]);
+  return {
+    call: ['/b_readChannel', bufferID, path, startFrame, numFramesToRead, startFrameInBuffer, leaveFileOpen].concat(channels).concat([completionMsg]),
+    response: ['/done', '/b_readChannel', bufferID]
+  };
 }
 
 
 /**
-   Write buffer contents to a sound file.
+  * Write buffer contents to a sound file.
 
-   Not all combinations of header format and sample format are possible.
+  * Not all combinations of header format and sample format are possible.
+
   If number of frames is less than zero, all samples from the starting frame to the end of the buffer are written.
   If opening a file to be used by DiskOut ugen then you will want to set "leave file open" to one, otherwise set it to zero. If "leave file open" is set to one then the file is created, but no frames are written until the DiskOut ugen does so.
 
@@ -725,9 +773,11 @@ export function bufferReadChannel(bufferID, path, startFrame=0, numFramesToRead=
   * @return {Array} - OSC message
   */
 export function bufferWrite(bufferID, path, headerFormat='aiff', sampleFormat='float', numFramesToWrite= -1, startFrameInBuffer=0, leaveFileOpen=0, completionMsg=undefined) {
-  return ['/b_write', bufferID, path, headerFormat, sampleFormat, numFramesToWrite, startFrameInBuffer, leaveFileOpen, completionMsg];
+  return {
+    call: ['/b_write', bufferID, path, headerFormat, sampleFormat, numFramesToWrite, startFrameInBuffer, leaveFileOpen, completionMsg],
+    response: ['/done', '/b_write', bufferID]
+  };
 }
-
 
 
 /**
@@ -740,12 +790,16 @@ export function bufferWrite(bufferID, path, headerFormat='aiff', sampleFormat='f
   * @return {Array} - OSC message
   */
 export function bufferFree(bufferID, completionMsg) {
-  return ['/b_free', bufferID, completionMsg];
+  return {
+    call: ['/b_free', bufferID, completionMsg],
+    response: ['/done', '/b_free', bufferID]
+  };
 }
 
 
 /**
-   Sets all samples in the buffer to zero.
+  * Sets all samples in the buffer to zero.
+  *
   * Asynchronous. Replies with `/done /b_zero bufNum`.
 
   * @param {int} bufferID
@@ -753,7 +807,10 @@ export function bufferFree(bufferID, completionMsg) {
   * @return {Array} - OSC message
   */
 export function bufferZero(bufferID, completionMsg) {
-  return ['/b_zero', bufferID, completionMsg];
+  return {
+    call: ['/b_zero', bufferID, completionMsg],
+    response: ['/done', '/b_zero', bufferID]
+  };
 }
 
 
@@ -813,12 +870,15 @@ export function bufferFill(bufferID, startFrame, numFrames, value) {
   * @return {Array} - OSC message
   */
 export function bufferGen(bufferID, command, args) {
-  return ['/b_gen', bufferID, command].concat(args);
+  return {
+    call: ['/b_gen', bufferID, command].concat(args),
+    response: ['/done', '/b_gen', bufferID]
+  };
 }
 
 
 /**
-  *  After using a buffer with `DiskOut`, close the soundfile and write header information.
+  * After using a buffer with `DiskOut`, close the soundfile and write header information.
 
   * Asynchronous. Replies with `/done /b_close bufNum`.
 
@@ -826,7 +886,10 @@ export function bufferGen(bufferID, command, args) {
   * @return {Array} - OSC message
   */
 export function bufferClose(bufferID) {
-  return ['/b_close', bufferID];
+  return {
+    call: ['/b_close', bufferID],
+    response: ['/done', '/b_close', bufferID]
+  };
 }
 
 
@@ -844,9 +907,11 @@ export function bufferClose(bufferID) {
   * @return {Array} - OSC message
   */
 export function bufferQuery(bufferID) {
-  return ['/b_query', bufferID];
+  return {
+    call: ['/b_query', bufferID],
+    response: ['/b_info', bufferID]  // => [numFrames, numChannels, sampleRate]
+  };
 }
-
 
 
 /**
@@ -857,7 +922,10 @@ export function bufferQuery(bufferID) {
   * @param {Array} framesArray - sample indices to return
   */
 export function bufferGet(bufferID, framesArray) {
-  return ['/b_get', bufferID].concat(framesArray);
+  return {
+    call: ['/b_get', bufferID].concat(framesArray),
+    response: ['/b_set', bufferID]  // => sampleValues
+  };
 }
 
 
@@ -872,7 +940,10 @@ export function bufferGet(bufferID, framesArray) {
   * @return {Array} - OSC message
   */
 export function bufferGetn(bufferID, startFrame, numFrames) {
-  return ['/b_getn', bufferID, startFrame, numFrames];
+  return {
+    call: ['/b_getn', bufferID, startFrame, numFrames],
+    response: ['/b_setn', bufferID]  // => sampleValues
+  };
 }
 
 
@@ -918,13 +989,18 @@ export function controlBusFill(triples) {
 
 
 /**
+  * Get control bus values
+
   * Takes a list of buses and replies with the corresponding `c_set` command.
 
-  * @param {int} busID - a bus index
+  * @param {Array.<int>} busIDs - array of bus ids
   * @return {Array} - OSC message
   */
 export function controlBusGet(busID) {
-  return ['/c_get', busID];
+  return {
+    call: ['/c_get', busID],
+    response: ['/c_set', busID]  // => busValue
+  };
 }
 
 
@@ -936,7 +1012,10 @@ export function controlBusGet(busID) {
   * @return {Array} - OSC message
   */
 export function controlBusGetn(startBusIndex, numBusses) {
-  return ['/c_getn', startBusIndex, numBusses];
+  return {
+    call: ['/c_getn', startBusIndex, numBusses],
+    response: ['/c_setn', startBusIndex]  // => busValues
+  };
 }
 
 
@@ -953,5 +1032,8 @@ export function controlBusGetn(startBusIndex, numBusses) {
   * @return {Array} - OSC message
   */
 export function nonRealTimeEnd() {
-  return ['/nrt_end'];
+  return {
+    call: ['/nrt_end'],
+    response: ['/done']
+  };
 }

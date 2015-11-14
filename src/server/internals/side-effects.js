@@ -17,8 +17,7 @@ export function bootLang() {
  * @private
  */
 export function sendMsg(context, msg) {
-  var [command, ...args] = msg;
-  return context.server.sendMsg(command, args);
+  return context.server.send.msg(msg);
 }
 /**
  * @private

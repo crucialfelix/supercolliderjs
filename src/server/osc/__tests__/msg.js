@@ -8,7 +8,14 @@ describe('msg', function() {
     _.each(msg, function(value, key) {
       if (_.isFunction(value)) {
         var result = value();
-        expect(_.isArray(result)).toBeTruthy();
+        if (_.isArray(result)) {
+          expect(_.isArray(result)).toBeTruthy();
+        } else if (_.isObject(result)) {
+          expect(result.call).toBeDefined();
+          expect(result.response).toBeDefined();
+        } else {
+          fail('wrong type:' + result);
+        }
       }
     });
   });
