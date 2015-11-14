@@ -331,12 +331,6 @@ export class Server extends EventEmitter {
         subscription.dispose();
         clearTimeout(tid);
       }
-
-      // send message
-      Promise.resolve(this.send.msg(args)).catch((err) => {
-        dispose();
-        reject(err);
-      });
     });
   }
 
