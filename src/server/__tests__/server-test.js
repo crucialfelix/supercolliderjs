@@ -122,4 +122,39 @@ describe('Server', function() {
     // server could respond with command not recognized
   });
 
+  describe('callAndResponse', function() {
+    pit('should call and get response', function() {
+      var s = new Server();
+
+      var car = {
+        call: ['/notify'],
+        response: ['/done', '/notify']
+      };
+
+      var p = s.callAndResponse(car).then((response) => {
+        expect(_.isEqual(response, [15])).toBe(true);
+      });
+      // console.log('sender', s.send);
+      expect(s.send.msg.mock.calls.length).toBe(1);
+
+      // server responds
+      s.receive.onNext({
+        'address': '/done',
+        'args': [
+          {
+            'type': 'string',
+            'value': '/notify'
+          },
+          {
+            'type': 'integer',
+            'value': 15  // clientID
+          }
+        ],
+        'oscType': 'message'
+      });
+
+      return p;
+    });
+  });
+
 });

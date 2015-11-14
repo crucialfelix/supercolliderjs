@@ -334,6 +334,20 @@ export class Server extends EventEmitter {
     });
   }
 
+  /**
+   * Send an OSC command that expects a reply from the server.
+   * Promise fullfills with anything the server response includes
+   * after the matched response.
+   *
+   * @param {Object} callAndResponse - {call: [...], response: [...]}
+   * @param {int} timeout
+   */
+  callAndResponse(callAndResponse, timeout=4000) {
+    var promise = this.oscOnce(callAndResponse.response, timeout);
+    this.send.msg(callAndResponse.call);
+    return promise;
+  }
+
   nextNodeID() {
     return this._mutateState(keys.NODE_IDS, alloc.increment);
   }
