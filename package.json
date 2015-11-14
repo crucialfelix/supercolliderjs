@@ -54,8 +54,9 @@
     "jest": "jest --watch",
     "jsstyle": "jscs src bin examples/*.js",
     "compile": "babel --source-maps --out-dir=./lib/js src",
-    "copy": "cd src && cp *.json ../lib/js/",
-    "watch": "babel --watch --source-maps --out-dir ../lib/js src",
+    "copy": "cp src/server/*.json lib/js/server/",
+    "watch": "babel --watch --source-maps --out-dir lib/js src",
+    "docs": "esdoc -c esdoc.json",
     "prepublish": "npm run compile && npm run copy"
   },
   "jest": {
