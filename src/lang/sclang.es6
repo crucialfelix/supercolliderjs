@@ -30,6 +30,7 @@ var
 
 import Logger from '../utils/logger';
 import {SclangIO, STATES} from './internals/sclang-io';
+import resolveOptions from '../utils/resolveOptions';
 
 
 export default class SCLang extends EventEmitter {
@@ -189,7 +190,7 @@ export default class SCLang extends EventEmitter {
   sclangConfigOptions(options={}) {
     var
       runtimeIncludePaths = [
-        path.resolve(__dirname, '../sc-classes')
+        path.resolve(__dirname, '../../lib/sc-classes')
       ],
       sclang_conf = {},
       config = {};
@@ -401,8 +402,6 @@ export default class SCLang extends EventEmitter {
   * @returns {Promise}
   */
 export function boot(options = {}) {
-  var resolveOptions = require('./resolveOptions');
-
   return resolveOptions(options.config, options).then((options) => {
     var sclang = new SCLang(options);
     return sclang.boot().then(() => {

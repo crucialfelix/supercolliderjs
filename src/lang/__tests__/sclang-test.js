@@ -10,6 +10,7 @@ var SCLang = sclang.default;
 
 var _ = require('underscore');
 var path = require('path');
+var fs = require('fs');
 var EventEmitter = require('events').EventEmitter;
 import {STATES} from '../internals/sclang-io';
 var Q = require('q');
@@ -39,9 +40,10 @@ describe('sclang', function() {
       var opts = sclang.sclangConfigOptions();
       expect(opts.includePaths.length).toEqual(1);
       var isIn = _.some(opts.includePaths, function(p) {
-        return p.match(/sc\-classes/);
+        // and that directory should really exist
+        return p.match(/sc\-classes/) && fs.existsSync(p);
       });
-      expect(isIn).toBeDefined();
+      expect(isIn).toBeTruthy();
     });
 
     it('should read a supplied sclang_conf', function() {
