@@ -1,6 +1,6 @@
 /**
  *
- * scsynth - boots a supercollider synthesis server process
+ * Server - boots the SuperCollider synthesis server
  *
  *  SuperCollider comes with an executable called scsynth
  *  which can be communicated with via udp OSC
@@ -172,7 +172,7 @@ export class Server extends EventEmitter {
 
     this.isRunning = false;
 
-    this.processEvents.onNext(execPath + ' ' + args.join(' '));
+    this.processEvents.onNext('Start process: ' + execPath + ' ' + args.join(' '));
 
     this.process = spawn(execPath, args, {
         cwd: this.options.cwd
@@ -197,10 +197,8 @@ export class Server extends EventEmitter {
 
     this._serverObservers.stdout = Observable.fromEvent(this.process.stdout, 'data', (data) => String(data));
     this._serverObservers.stdout.subscribe((e) => this.stdout.onNext(e));
-
     this._serverObservers.stderr = Observable.fromEvent(this.process.stderr, 'data')
       .subscribe((out) => {
-        console.log('stderr', out);
         // just pipe it into the stdout object's error stream
         this.stdout.onError(out);
       });
@@ -220,6 +218,13 @@ export class Server extends EventEmitter {
       }
     }, 3000);
 
+    // when this parent process dies, kill child process
+    process.on('exit', (code) => {
+      if (this.process) {
+        this.process.kill('SIGTERM');
+      }
+    });
+
     return d.promise;
   }
 
@@ -230,6 +235,7 @@ export class Server extends EventEmitter {
    */
   quit() {
     if (this.process) {
+      this.disconnect();
       this.process.kill('SIGTERM');
       this.process = null;
     }
