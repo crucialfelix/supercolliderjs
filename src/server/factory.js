@@ -13,47 +13,58 @@ import {nodeGo, updateNodeState} from './node-watcher';
  * @param {Boolean} requireSClang - will boot language interpreter if required
  */
 export function withContext(parentContext, requireSCSynth=false, requireSClang=false) {
-  var pc = _.assign({id: 0}, parentContext);
+  var context = _.assign({id: '0'}, parentContext);
 
   var deps = {};
-  if (requireSCSynth && !pc.server) {
+  if (requireSCSynth && !context.server) {
     deps.server = bootServer;
   }
-  if (requireSClang && !pc.lang) {
     deps.lang = bootLang;
+  if (requireSClang && !context.lang) {
   }
 
-  return resolveValues(deps).then((resolvedDeps) => {
+  var promise = callAndResolveValues(deps, context).then((resolvedDeps) => {
     if (resolvedDeps.server) {
       // set root node
       resolvedDeps.group = 0;
     }
-    return _.extend({},
-      pc,
-      resolvedDeps,
-      {
-        // wrong, the siblings would have same id
-        // parent should pass ids out to the children
-        id: pc.id + 1
-      });
+    return _.extend(context, resolvedDeps);
   });
+  return promise;
+}
+
+
+export function makeChildContext(parentContext, keyName) {
+  return _.assign({id: parentContext.id + '.' + keyName});
 }
 
 
 /**
- * Resolve each of the values of an Object.
- *
- * @param {Object} object
- * @returns {Promise} - Object with resolved results
+ * If value is a function then call it,
+ * if function returns a Promise then resolve it.
  */
-export function resolveValues(object) {
+function callAndResolve(value, context, keyName) {
+  if (_.isFunction(value)) {
+    value = value(makeChildContext(context, keyName || '_'));
+  }
+  return Promise.resolve(value);
+}
+
+
+/**
+ * Call and resolve each of the values of an Object.
+ *
+ * @param {Object} object - whose values will be called and resolved
+ * @param {Object} context - which is passed into any Functions
+ * @returns {Promise} - resolves to an Object with values mapped to the resolved results
+ */
+export function callAndResolveValues(object, context) {
   const keys = _.keys(object);
-  var promises = _.map(keys, (key) => {
-    var v = object[key];
-    if (_.isFunction(v)) {
-      v = v();
-    }
-    return Promise.resolve(v);
+  if (_.isUndefined(context)) {
+    throw new Error('Missing context for callAndResolveValues');
+  }
+  const promises = _.map(keys, (key, i) => {
+    return callAndResolve(object[key], context, i);
   });
 
   return Promise.all(promises).then((values) => {
@@ -84,18 +95,19 @@ export function resolveValues(object) {
 export function synth(synthDefName, args={}) {
   return (parentContext) => {
     return withContext(parentContext, true).then((context) => {
-      return resolveValues({defName: synthDefName}, context).then((synthDefResult) => {
+      return callAndResolve(synthDefName, context, 'def').then((resolvedDefName) => {
         const nodeID = nextNodeID(context);
         context.nodeID = nodeID;
 
-        return resolveValues(args, context).then((args) => {
-          const oscMessage = msg.synthNew(synthDefResult.defName, nodeID, msg.addAction.TAIL, context.group, args);
+        // will need to store the children ids
+        return callAndResolveValues(args, context).then((args) => {
+          const oscMessage = msg.synthNew(resolvedDefName, nodeID, msg.addAction.TAIL, context.group, args);
 
           sendMsg(context, oscMessage);
 
           return nodeGo(context.server, context.id, nodeID)
             .then((nodeID) => {
-              updateNodeState(context.server, nodeID, {synthDef: synthDefResult.defName});
+              updateNodeState(context.server, nodeID, {synthDef: resolvedDefName});
               return nodeID;
             });
         });
