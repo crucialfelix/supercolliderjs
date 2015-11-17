@@ -62,7 +62,6 @@
   "jest": {
     "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
     "testFileExtensions": [
-      "es6",
       "js"
     ],
     "testPathDirs": [
@@ -70,8 +69,7 @@
     ],
     "moduleFileExtensions": [
       "js",
-      "json",
-      "es6"
+      "json"
     ],
     "unmockedModulePathPatterns": [
       "node_modules/chalk",

@@ -19,6 +19,7 @@ var path = require('path'),
     Q = require('q');
 
 function defaultOptions() {
+  // should get this from server/default-server-options.json
   var opts = {
       'debug': false,
       'echo': true,
@@ -40,6 +41,7 @@ function defaultOptions() {
     defaultRoot = '/usr/local/bin';
   }
 
+  // incorrect for windows
   opts.sclang = join(defaultRoot, 'sclang');
   opts.scsynth = join(defaultRoot, 'scsynth');
   return opts;

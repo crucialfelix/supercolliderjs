@@ -122,6 +122,7 @@ export class Server extends EventEmitter {
   }
 
   resetState() {
+    // mutate
     var state = Immutable.Map();
     state = state.set(keys.NODE_IDS, this.options.initialNodeID - 1);
 
@@ -150,7 +151,8 @@ export class Server extends EventEmitter {
    */
   args() {
     var o = [];
-    o.push(this.options.protocol === 'udp' ? '-u' : '-t');
+    // o.push(this.options.protocol === 'udp' ? '-u' : '-t');
+    o.push('-u');  // only udp socket is implemented right now
     o.push(this.options.serverPort);
     return o;
   }
@@ -232,6 +234,7 @@ export class Server extends EventEmitter {
    * quit
    *
    * kill scsynth process
+   * TODO: should send /quit first for shutting files
    */
   quit() {
     if (this.process) {
