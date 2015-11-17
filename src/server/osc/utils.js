@@ -19,7 +19,7 @@ import _ from 'underscore';
 
  */
 export function parseMessage(msg) {
-  if (msg.type !== 'message') {
+  if (msg.oscType !== 'message') {
     throw new Error('Bundle not yet supported' + JSON.stringify(msg));
   }
   return [msg.address].concat(_.pluck(msg.args, 'value'));
