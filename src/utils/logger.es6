@@ -34,41 +34,41 @@ export default class Logger {
 
   dbug(text) {
     if (this.debug) {
-      this.print('  debug  - ', text, c.debug);
+      this.print('debug   - ', text, c.debug);
     }
   }
 
   err(text) {
-    this.print('  error  - ', text, c.error);
+    this.print('error   - ', text, c.error);
   }
 
   stdin(text) {
     if (this.echo) {
-      this.print('  stdin  - ', text, c.stdin);
+      this.print('stdin   - ', text, c.stdin);
     }
   }
 
   stdout(text) {
     if (this.echo) {
-      this.print('  stdout - ', text, c.stdout);
+      this.print('stdout  - ', text, c.stdout);
     }
   }
 
   stderr(text) {
     if (this.echo) {
-      this.print('  stderr - ', text, c.stderr);
+      this.print('stderr  - ', text, c.stderr);
     }
   }
 
   sendosc(text) {
     if (this.echo) {
-      this.print('  sendosc - ', text, c.sendosc);
+      this.print('sendosc - ', text, c.sendosc);
     }
   }
 
   rcvosc(text) {
     if (this.echo) {
-      this.print('  rcvosc  - ', text, c.rcvosc);
+      this.print('rcvosc  - ', text, c.rcvosc);
     }
   }
 
