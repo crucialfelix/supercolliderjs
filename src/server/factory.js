@@ -1,9 +1,12 @@
 
 import * as msg from './osc/msg';
 import _ from 'underscore';
-import {bootServer, bootLang, sendMsg, nextNodeID} from './internals/side-effects';
+import {bootServer, bootLang, sendMsg, nextNodeID, interpret} from './internals/side-effects';
 import {nodeGo, updateNodeState} from './node-watcher';
 
+const StateKeys = {
+  SYNTH_DEFS: 'SYNTH_DEFS'
+};
 
 /**
  * Create a context, inheriting from parentContext.
@@ -19,8 +22,16 @@ export function withContext(parentContext, requireSCSynth=false, requireSClang=f
   if (requireSCSynth && !context.server) {
     deps.server = bootServer;
   }
-    deps.lang = bootLang;
   if (requireSClang && !context.lang) {
+    deps.lang = () => {
+      const options = {
+        stdin: false,
+        echo: false,
+        debug: false
+        // langPort
+      };
+      return bootLang(options);
+    };
   }
 
   var promise = callAndResolveValues(deps, context).then((resolvedDeps) => {
@@ -35,7 +46,7 @@ export function withContext(parentContext, requireSCSynth=false, requireSClang=f
 
 
 export function makeChildContext(parentContext, keyName) {
-  return _.assign({id: parentContext.id + '.' + keyName});
+  return _.assign({}, parentContext, {id: parentContext.id + '.' + keyName});
 }
 
 
@@ -132,7 +143,42 @@ export function group(children) {
   };
 }
 
-// compileSynthDef(source)
+
+/**
+ * Compile a SynthDef from a snippet of supercollider source code
+ * send it to the server and stores the SynthDesc in server.state
+ *
+ * @param {String} defName
+ * @param {String} sourceCode - Supports SynthDef, {}, Instr and anything else that responds to .asSynthDef
+ */
+export function compileSynthDef(defName, sourceCode) {
+  return (parentContext) => {
+    return withContext(parentContext, true, true).then((context) => {
+      var host = context.server.options.host;
+      var port = context.server.options.port;
+      var fullCode = `{
+        var def = (${ sourceCode }).asSynthDef(name: "${ defName }");
+        def.doSend(Server("server", NetAddr("${ host }", ${ port })));
+        def.asSynthDesc.asJSON();
+      }.value`;
+
+      return interpret(context, fullCode).then((result) => {
+        putSynthDef(context, defName, result);
+        return defName;
+      }, (error) => {
+        return Promise.reject(error);
+      });
+    });
+  };
+}
+
+
+export function putSynthDef(context, defName, synthDesc) {
+  context.server.mutateState(StateKeys.SYNTH_DEFS, (state) => {
+    return state.set(defName, synthDesc);
+  });
+}
+
 // loadSynthDef(path, defName)
 // buffer(secs, numChans)
 // loadBuffer(path)

@@ -5,6 +5,7 @@ var f = require('../factory');
 var ext = require('../internals/side-effects');
 var nodeWatcher = require('../node-watcher');
 
+// move this into a describe
 /**
  * supply return values for mocked functions
  */
@@ -14,7 +15,8 @@ function mockExternals() {
       options: {
         host: '127.0.0.1',
         port: '57110'
-      }
+      },
+      mutateState: jest.genMockFunction()
     },
     lang: {
       options: {
@@ -28,12 +30,6 @@ function mockExternals() {
   };
 
   ext.bootServer.mockReturnValue(Promise.resolve(values.server));
-
-  // ext.bootServer.mockReturnValue({
-  //   then: function(callback) {
-  //     callback(values.server);
-  //   }
-  // });
 
   ext.bootLang.mockReturnValue(Promise.resolve(values.lang));
 
@@ -108,6 +104,18 @@ describe('withContext', function() {
   });
 });
 
+describe('makeChildContext', function() {
+  it('should append keyName to the id', function() {
+    var child = f.makeChildContext({id: '0'}, '1');
+    expect(child.id).toBe('0.1');
+  });
+
+  it('should copy parentContext in', function() {
+    var child = f.makeChildContext({id: '0', key: 'value'}, '1');
+    expect(child.key).toBe('value');
+  });
+});
+
 describe('synth', function() {
   pit('should resolve with a nodeID', function() {
 
@@ -118,11 +126,37 @@ describe('synth', function() {
       expect(nodeID).toBe(values.nodeID);
     });
   });
+
+  // expect sendMsg to have been called
+  // expect args to have been spawned
 });
 
 
+describe('compileSynthDef', function() {
+  pit('should resolve with a defName', function() {
 
-      // expect sendMsg to have been called
+    var defName = 'defName';
+
+    ext.interpret.mockReturnValue(Promise.resolve({result: 'some object'}));
+
+    return f.compileSynthDef(defName, 'sc source code')().then((resolvedDefName) => {
+      expect(resolvedDefName).toBe(defName);
     });
   });
+
+  pit('should propagate a compile or runtime error in sc source code', function() {
+    var defName = 'defName';
+
+    ext.interpret.mockReturnValue(Promise.reject({error: 'some reason'}));
+
+    return f.compileSynthDef(defName, 'sc source code')().then((resolvedDefName) => {
+      expect(true).toBe(false); // should not have resolved
+      expect(resolvedDefName).toBe(defName);
+    }, (error) => {
+      // this is to be expected
+      // console.log(error, 'did error');
+      return Promise.resolve(true);
+    });
+  });
+
 });

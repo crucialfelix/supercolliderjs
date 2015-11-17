@@ -1,4 +1,8 @@
 {
+  "host": "127.0.0.1",
+  "port": "57110",
+  "protocol": "udp",
+
   "numPrivateAudioBusChannels": 112,
   "numAudioBusChannels": 128,
   "numControlBusChannels": 4096,
@@ -8,7 +12,6 @@
 
   "maxNodes": 1024,
   "maxSynthDefs": 1024,
-  "protocol": "udp",
   "blockSize": 64,
   "hardwareBufferSize": null,
 
