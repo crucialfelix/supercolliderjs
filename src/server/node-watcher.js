@@ -69,6 +69,23 @@ export function onNodeGo(server, id, nodeID, handler) {
   return _registerHandler(keys.ON_NODE_GO, server, id, nodeID, handler);
 }
 
+
+/**
+ * Returns a Promise that resolves when the server sends an /n_go message
+ * The id is usually a context id but could be a random guid
+ *
+ * @param {Server} server
+ * @param {String} id - unique id for this callback registration
+ * @param {int} nodeID
+ * @returns {Promise} - resolves with nodeID
+ */
+export function nodeGo(server, id, nodeID) {
+  return new Promise((resolve, reject) => {
+    onNodeGo(server, id, nodeID, () => resolve(nodeID));
+  });
+}
+
+
 /**
  * Call a function when the server sends an /n_end message
  * One callback allowed per id and node.
@@ -86,6 +103,18 @@ export function onNodeEnd(server, id, nodeID, handler) {
 function disposeForId(server, id) {
   // remove all by matching the context id
   throw new Error('Not Yet Implemented');
+}
+
+/**
+ * Update values in the Server's node state registery
+ */
+export function updateNodeState(server, nodeID, nodeState) {
+  // unless its n_end then delete
+  server.mutateState(keys.NODE_WATCHER, (state) => {
+    return state.mergeIn([keys.NODES, String(nodeID)],
+      Immutable.Map(),
+      nodeState);
+  });
 }
 
 /***   @private  ************************************************/
@@ -161,20 +190,14 @@ function _saveNodeState(server, set, msg) {
     nodeState.tail = msg[6];
   }
   nodeState = _.assign(nodeState, set);
-
-  server.mutateState(keys.NODE_WATCHER, (state) => {
-    // unless its n_end then delete
-    return state.mergeIn([keys.NODES, String(nodeID)],
-      Immutable.Map(),
-      nodeState);
-  });
+  updateNodeState(server, nodeID, nodeState);
 }
 
 /**
  * Call any handlers registered for n_XXX events
  */
 function _callNodeHandlers(server, eventType, nodeID) {
-  _handlersFor(server, eventType, nodeID).forEach((h) => h(nodeId));
+  _handlersFor(server, eventType, nodeID).forEach((h) => h(nodeID));
 }
 
 

@@ -2,6 +2,7 @@
 import * as msg from './osc/msg';
 import _ from 'underscore';
 import {bootServer, bootLang, sendMsg, nextNodeID} from './internals/side-effects';
+import {nodeGo, updateNodeState} from './node-watcher';
 
 
 /**
@@ -72,37 +73,31 @@ export function resolveValues(object) {
  * -- when the Synth has succesfully started playing --
  * resolve with the Synth's nodeID.
  *
- * @param {String|Function} synthDef
- *     If the synthDef is a function, it will be called and resolved.
+ * @param {String|Function} synthDefName - the name of the synthDef
+ *     or a function that can be called and resolve to a synthDef name
  * @param {Object} args - Arguments may be int|float|string
       If an argument is a function then it will be called.
       If that returns a Promise then it will be resolved and the result of that
       is the final value passed to the Synth.
- * @returns {Function} - when evaluated returns a Promise
+ * @returns {Function} - when evaluated returns a Promise that resolves with the Synth starts
  */
-export function synth(synthDef, args={}) {
+export function synth(synthDefName, args={}) {
   return (parentContext) => {
     return withContext(parentContext, true).then((context) => {
-      return resolveValues({defName: synthDef}, context).then((synthDefResult) => {
-        return resolveValues(args, context).then((args) => {
+      return resolveValues({defName: synthDefName}, context).then((synthDefResult) => {
+        const nodeID = nextNodeID(context);
+        context.nodeID = nodeID;
 
-          const nodeID = nextNodeID(context);
-          var oscMessage = msg.synthNew(synthDefResult.defName, nodeID, msg.addAction.TAIL, context.group, args);
+        return resolveValues(args, context).then((args) => {
+          const oscMessage = msg.synthNew(synthDefResult.defName, nodeID, msg.addAction.TAIL, context.group, args);
 
           sendMsg(context, oscMessage);
 
-          // return new Promise(function(resolve, reject) {
-          //   // on n_go resolve and unsubscribe
-          //   // on n_off or other failure then reject
-          //   // registers for notification
-          //   //   on
-          //   //   off
-          //   //   server quit it kills all responders
-          //   //   op context stop
-          //
-          // });
-          // for now, no notifier
-          return Promise.resolve(nodeID);
+          return nodeGo(context.server, context.id, nodeID)
+            .then((nodeID) => {
+              updateNodeState(context.server, nodeID, {synthDef: synthDefResult.defName});
+              return nodeID;
+            });
         });
       });
     });
