@@ -35,15 +35,9 @@ describe('dryads', function() {
 
     ext.bootServer.mockReturnValue(Promise.resolve(values.server));
     ext.bootLang.mockReturnValue(Promise.resolve(values.lang));
-
-    ext.sendMsg.mockReturnValue({
-      then: function(callback) {
-        callback(values.msg);
-      }
-    });
-
+    ext.sendMsg.mockReturnValue(Promise.resolve(values.msg));
     ext.nextNodeID.mockReturnValue(values.nodeID);
-    nodeWatcher.nodeGo.mockReturnValue(Promise.resolve(values.nodeID));
+    nodeWatcher.whenNodeGo.mockReturnValue(Promise.resolve(values.nodeID));
 
     return values;
   }
@@ -70,13 +64,35 @@ describe('dryads', function() {
     // expect args to have been spawned
   });
 
+  describe('group', function() {
+
+    var g = f.group([
+      f.synth('saw', {freq: 440, sustain: 1.2}),
+      f.synth('saw', {freq: 445, sustain: 1.2}),
+    ]);
+
+    pit('should spawn children', function() {
+      // should be 3 send messages
+      return g().then(() => {
+        // for (var ins of ext.sendMsg.mock.calls) {
+        //   console.log(ins);
+        // }
+        // 3, no ?
+        expect(ext.sendMsg.mock.calls.length).toBe(4);
+      });
+    });
+  });
 
   describe('compileSynthDef', function() {
     pit('should resolve with a defName', function() {
 
       var defName = 'defName';
+      var def = {
+        synthDesc: {meta: 'data'},
+        bytes: [1, 2, 3]
+      };
 
-      ext.interpret.mockReturnValue(Promise.resolve({result: 'some object'}));
+      ext.interpret.mockReturnValue(Promise.resolve({result: def}));
 
       return f.compileSynthDef(defName, 'sc source code')().then((resolvedDefName) => {
         expect(resolvedDefName).toBe(defName);

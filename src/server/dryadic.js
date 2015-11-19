@@ -9,6 +9,11 @@ Promise.onPossiblyUnhandledRejection((error) => {
 });
 
 
+export function dryadic(fn, requireSCSynth=false, requireSClang=false) {
+  return (parentContext) => {
+    return withContext(parentContext, requireSCSynth, requireSClang).then(fn);
+  };
+}
 
 /**
  * Create a context, inheriting from parentContext.
@@ -88,5 +93,18 @@ export function callAndResolveValues(object, context) {
       result[key] = values[i];
     });
     return result;
+  });
+}
+
+
+/**
+ * Call and resolve each of the items in a list
+ * @param {Array} things
+ * @param {Object} parentContext
+ * @returns {Promise} - resolves to an Array with the resolved things
+ */
+export function callAndResolveAll(things, parentContext) {
+  return Promise.map(things, (thing, i) => {
+    return callAndResolve(thing, parentContext, i);
   });
 }

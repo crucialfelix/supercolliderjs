@@ -16,7 +16,7 @@ import _ from 'underscore';
   * 3 add the new group just after the node specified by the add target ID.
   * 4 the new node replaces the node specified by the add target ID. The target node is freed.
  */
-export const addAction = {
+export const AddActions = {
   HEAD: 0,
   TAIL: 1,
   BEFORE: 2,
@@ -134,7 +134,7 @@ export function error(on=1) {
   *
   * Asynchronous. Replies with `/done`.
   *
-  * @param {data} buffer - TODO(crucialfelix): how is data buffer passed ?
+  * @param {Buffer} buffer - A node global datatype: new Buffer(array)
   * @param {Array} completionMsg
   * @return {Array} - OSC message
   *
@@ -142,7 +142,7 @@ export function error(on=1) {
 export function defRecv(buffer, completionMsg=null) {
   return {
     call: ['/d_recv', buffer, completionMsg],
-    response: ['/done']
+    response: ['/done', '/d_recv']
   };
 }
 
@@ -422,7 +422,7 @@ export function nodeOrder(addAction, targetID, nodeIDs) {
       A symbol argument consisting of the letter 'c' or 'a' (for control or audio) followed by the bus's index.
   * @return {Array} - OSC message
   */
-export function synthNew(defName, nodeID, addAction, targetID, args) {
+export function synthNew(defName, nodeID, addAction=AddActions.HEAD, targetID=0, args=[]) {
   return ['/s_new', defName, nodeID, addAction, targetID].concat(_.flatten(_.pairs(args)));
 }
 

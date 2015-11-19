@@ -1,8 +1,13 @@
 
-import {withContext, makeChildContext, callAndResolve, callAndResolveValues} from './dryadic';
+import {withContext, makeChildContext, callAndResolve, callAndResolveValues, callAndResolveAll, dryadic} from './dryadic';
 import * as msg from './osc/msg';
 import {bootServer, bootLang, sendMsg, nextNodeID, interpret} from './internals/side-effects';
-import {nodeGo, updateNodeState} from './node-watcher';
+import {whenNodeGo, updateNodeState} from './node-watcher';
+import {Promise} from 'bluebird';
+
+Promise.onPossiblyUnhandledRejection((error) => {
+  throw error;
+});
 
 const StateKeys = {
   SYNTH_DEFS: 'SYNTH_DEFS'
@@ -33,11 +38,10 @@ export function synth(synthDefName, args={}) {
 
         // will need to store the children ids
         return callAndResolveValues(args, context).then((args) => {
-          const oscMessage = msg.synthNew(resolvedDefName, nodeID, msg.addAction.TAIL, context.group, args);
-
+          const oscMessage = msg.synthNew(resolvedDefName, nodeID, msg.AddActions.TAIL, context.group, args);
           sendMsg(context, oscMessage);
 
-          return nodeGo(context.server, context.id, nodeID)
+          return whenNodeGo(context.server, context.id, nodeID)
             .then((nodeID) => {
               updateNodeState(context.server, nodeID, {synthDef: resolvedDefName});
               return nodeID;
@@ -54,42 +58,44 @@ export function group(children) {
     return withContext(parentContext, true).then((context) => {
 
       const nodeID = nextNodeID(context);
-      var msg = msg.groupNew(nodeID, msg.addAction.TAIL, context.group);
-      sendMsg(context, msg);
-
-      return nodeGo(server, context.id, nodeID);
-      // then spawn children...
+      var message = msg.groupNew(nodeID, msg.AddActions.TAIL, context.group);
+      sendMsg(context, message);
+      return whenNodeGo(context.server, context.id, nodeID)
+        .then(() => {
+          return callAndResolveAll(children, context);
+        });
     });
   };
 }
 
 
 /**
- * Compile a SynthDef from a snippet of supercollider source code
+ * Compile a SynthDef from a snippet of supercollider source code,
  * send it to the server and stores the SynthDesc in server.state
  *
  * @param {String} defName
  * @param {String} sourceCode - Supports SynthDef, {}, Instr and anything else that responds to .asSynthDef
  */
 export function compileSynthDef(defName, sourceCode) {
-  return (parentContext) => {
-    return withContext(parentContext, true, true).then((context) => {
-      var host = context.server.options.host;
-      var port = context.server.options.port;
-      var fullCode = `{
-        var def = (${ sourceCode }).asSynthDef(name: "${ defName }");
-        def.doSend(Server("server", NetAddr("${ host }", ${ port })));
-        def.asSynthDesc.asJSON();
-      }.value`;
+  return dryadic((context) => {
+    // Better to use an isolated sclang so any Quarks won't try to mess with this Server
+    var fullCode = `{
+      var def = (${ sourceCode }).asSynthDef(name: "${ defName }");
+      (
+        synthDesc: def.asSynthDesc.asJSON(),
+        bytes: def.asBytes()
+      )
+    }.value`;
 
-      return interpret(context, fullCode).then((result) => {
-        putSynthDef(context, defName, result);
-        return defName;
-      }, (error) => {
-        return Promise.reject(error);
-      });
+    return interpret(context, fullCode).then((result) => {
+      putSynthDef(context, defName, result.synthDesc);
+      return context.server.callAndResponse(msg.defRecv(new Buffer(result.bytes)))
+        .then((r) => {
+          return defName;
+        });
     });
-  };
+
+  }, true, true);
 }
 
 

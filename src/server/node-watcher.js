@@ -80,7 +80,7 @@ export function onNodeGo(server, id, nodeID, handler) {
  * @param {int} nodeID
  * @returns {Promise} - resolves with nodeID
  */
-export function nodeGo(server, id, nodeID) {
+export function whenNodeGo(server, id, nodeID) {
   return new Promise((resolve, reject) => {
     onNodeGo(server, id, nodeID, () => resolve(nodeID));
   });
