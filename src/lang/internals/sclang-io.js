@@ -15,7 +15,7 @@ import {EventEmitter} from 'events';
 import _ from 'underscore';
 import {Promise} from 'bluebird';
 
-var STATES = {
+const STATES = {
   NULL: null,
   BOOTING: 'booting',
   COMPILED: 'compiled',
@@ -98,10 +98,10 @@ class SclangIO extends EventEmitter {
           {
             re: /^compile done/m,
             fn: function() {
-              var parsed = self.parseCompileErrors(self.parseErrors.join('\n'));
+              var parsed = self.parseCompileErrors((self.parseErrors || []).join('\n'));
               self.compiledDirs = parsed.dirs;
-              self.setState(STATES.COMPILED);
               delete self.parseErrors;
+              self.setState(STATES.COMPILED);
             }
           },
           {
@@ -109,7 +109,6 @@ class SclangIO extends EventEmitter {
             fn: function(match, text) {
               self.parseErrors.push(text);
               self.finalizeCompileErrors();
-              self.setState(STATES.COMPILE_ERROR);
             }
           },
           {
@@ -117,7 +116,6 @@ class SclangIO extends EventEmitter {
             fn: function(match, text) {
               // self.parseErrors.push(text);
               self.finalizeCompileErrors();
-              self.setState(STATES.COMPILE_ERROR);
             }
           },
           {
@@ -125,7 +123,7 @@ class SclangIO extends EventEmitter {
             re: /Welcome to SuperCollider ([0-9a-zA-Z\.]+)\. /m,
             fn: function(match) {
               self.version = match[1];
-              var parsed = self.parseCompileErrors(self.parseErrors.join('\n'));
+              var parsed = self.parseCompileErrors((self.parseErrors || []).join('\n'));
               self.compiledDirs = parsed.dirs;
               delete self.parseErrors;
               self.setState(STATES.READY);
