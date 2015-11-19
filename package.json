@@ -53,11 +53,12 @@
     "lint": "jshint src bin examples/*.js",
     "jest": "jest --watch",
     "jsstyle": "jscs src bin examples/*.js",
-    "compile": "babel --source-maps --out-dir=./lib/js src",
-    "copy": "cp src/server/*.json lib/js/server/",
-    "watch": "babel --watch --source-maps --out-dir lib/js src",
+    "compile": "babel --source-maps --out-dir=./lib src",
+    "watch": "babel --watch --source-maps --out-dir=./lib src",
+    "copy": "cp src/server/*.json lib/server/ && cp -R src/sc-classes lib/",
     "docs": "esdoc -c esdoc.json",
-    "prepublish": "npm run compile && npm run copy"
+    "build": "npm run compile && npm run copy",
+    "prepublish": "npm run build"
   },
   "jest": {
     "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",

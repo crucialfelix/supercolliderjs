@@ -1,4 +1,4 @@
 /node_modules
 /docs/_build
-/lib/js
+/lib
 coverage
