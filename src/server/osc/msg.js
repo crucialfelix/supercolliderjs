@@ -6,10 +6,6 @@
   */
 import _ from 'underscore';
 
-function _ifdef(list) {
-  return _.reject(list, _.isUndefined);
-}
-
 
 /**
  * add actions for specifying relationship of newly adding node
@@ -143,7 +139,7 @@ export function error(on=1) {
   * @return {Array} - OSC message
   *
   */
-export function defRecv(buffer, completionMsg) {
+export function defRecv(buffer, completionMsg=null) {
   return {
     call: ['/d_recv', buffer, completionMsg],
     response: ['/done']
@@ -161,7 +157,7 @@ export function defRecv(buffer, completionMsg) {
   * @param {Array} completionMsg
   * @return {Array} - OSC message
   */
-export function defLoad(path, completionMsg) {
+export function defLoad(path, completionMsg=null) {
   return {
     call: ['/d_load', path, completionMsg],
     response: ['/done']
@@ -178,7 +174,7 @@ export function defLoad(path, completionMsg) {
   * @param {Array} completionMsg
   * @return {Array} - OSC message
   */
-export function defLoadDir(path, completionMsg) {
+export function defLoadDir(path, completionMsg=null) {
   return {
     call: ['/d_loadDir', path, completionMsg],
     response: ['/done']
@@ -648,7 +644,7 @@ export function ugenCmd(nodeID, uGenIndex, command, args) {
   * @param {Array} completionMsg - (optional)
   * @return {Array} - OSC message
   */
-export function bufferAlloc(bufferID, numFrames, numChannels, completionMsg) {
+export function bufferAlloc(bufferID, numFrames, numChannels, completionMsg=null) {
   return {
     call: ['/b_alloc', bufferID, numFrames, numChannels, completionMsg],
     response: ['/done', '/b_alloc', bufferID]
@@ -789,7 +785,7 @@ export function bufferWrite(bufferID, path, headerFormat='aiff', sampleFormat='f
   * @param {Array} completionMsg - (optional)
   * @return {Array} - OSC message
   */
-export function bufferFree(bufferID, completionMsg) {
+export function bufferFree(bufferID, completionMsg=null) {
   return {
     call: ['/b_free', bufferID, completionMsg],
     response: ['/done', '/b_free', bufferID]
@@ -806,7 +802,7 @@ export function bufferFree(bufferID, completionMsg) {
   * @param {Array} completionMsg - (optional)
   * @return {Array} - OSC message
   */
-export function bufferZero(bufferID, completionMsg) {
+export function bufferZero(bufferID, completionMsg=null) {
   return {
     call: ['/b_zero', bufferID, completionMsg],
     response: ['/done', '/b_zero', bufferID]
