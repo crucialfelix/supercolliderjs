@@ -38,6 +38,7 @@ import {Promise} from 'bluebird';
 import * as alloc from './internals/allocators';
 import SendOSC from './internals/send-osc';
 import {parseMessage} from './osc/utils';
+import {notify} from './osc/msg';
 import {watchNodeNotifications} from './node-watcher';
 import defaultOptions from './default-server-options';
 import Logger from '../utils/Logger';
@@ -258,7 +259,6 @@ export class Server extends EventEmitter {
 
       this.osc.on('listening', () => {
         this.processEvents.onNext(udpListening);
-        resolve();
       });
       this.osc.on('close', (e) => {
         this.processEvents.onNext('udp closed: ' + e);
@@ -276,9 +276,11 @@ export class Server extends EventEmitter {
       });
 
       // this will trigger a response from server
-      // and a udp listening event and the promise will resolve
-      // thus we know for sure that we are connected
-      this.sendMsg('/notify', [1]);
+      // which will cause a udp listening event.
+      // After server responds then we are truly connected.
+      this.callAndResponse(notify()).then(() => {
+        resolve();
+      });
     });
   }
 
