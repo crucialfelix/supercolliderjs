@@ -65,7 +65,7 @@ SCLang.boot(options).then(function(sclang) {
     console.info(options);
     process.exit(1);
   });
-}).fail(function(error) {
+}, function(error) {
   // failure to startup
   console.error(error);
   console.trace();

@@ -5,6 +5,7 @@ jest.dontMock('../dryadic');
 var f = require('../dryads');
 var ext = require('../internals/side-effects');
 var nodeWatcher = require('../node-watcher');
+import {Promise} from 'bluebird';
 
 // move this into a describe
 describe('dryads', function() {

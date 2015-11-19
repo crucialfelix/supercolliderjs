@@ -1,6 +1,7 @@
 
 import Immutable from 'immutable';
 import * as _ from 'underscore';
+import {Promise} from 'bluebird';
 
 const keys = {
   NODE_WATCHER: 'NODE_WATCHER',

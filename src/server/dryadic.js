@@ -1,6 +1,14 @@
 
 import _ from 'underscore';
 import {bootServer, bootLang} from './internals/side-effects';
+import {Promise} from 'bluebird';
+
+
+Promise.onPossiblyUnhandledRejection((error) => {
+  throw error;
+});
+
+
 
 /**
  * Create a context, inheriting from parentContext.
@@ -72,11 +80,9 @@ export function callAndResolveValues(object, context) {
   if (_.isUndefined(context)) {
     throw new Error('Missing context for callAndResolveValues');
   }
-  const promises = _.map(keys, (key, i) => {
+  return Promise.map(keys, (key, i) => {
     return callAndResolve(object[key], context, i);
-  });
-
-  return Promise.all(promises).then((values) => {
+  }).then((values) => {
     var result = {};
     keys.forEach((key, i) => {
       result[key] = values[i];

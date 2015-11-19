@@ -13,7 +13,7 @@ var path = require('path');
 var fs = require('fs');
 var EventEmitter = require('events').EventEmitter;
 import {STATES} from '../internals/sclang-io';
-var Q = require('q');
+
 
 class MockProcess extends EventEmitter {
   constructor() {
@@ -88,7 +88,7 @@ describe('sclang', function() {
       var SPAWNED = 'SPAWNED';
       spyOn(sclang, 'spawnProcess').andReturn(SPAWNED);
       var fail = (err) => this.fail(err);
-      return sclang.boot().then((result) => expect(result).toEqual(SPAWNED)).fail(fail);
+      return sclang.boot().then((result) => expect(result).toEqual(SPAWNED)).error(fail);
     });
   });
 
@@ -96,7 +96,7 @@ describe('sclang', function() {
     pit('should write a yaml file and resolve with a path', function() {
       var sclang = new SCLang();
       return sclang.makeSclangConfig({includePaths: [], excludePaths: []})
-        .then((tmpPath) => expect(tmpPath).toBeTruthy()).fail(this.fail);
+        .then((tmpPath) => expect(tmpPath).toBeTruthy()).error(this.fail);
     });
   });
 

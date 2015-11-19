@@ -5,6 +5,7 @@ var sc = require(path.join(__dirname, '../index'));
 var pkg = require(path.join(__dirname, '../package.json'));
 var program = require('commander');
 var fs = require('fs');
+var Promise = require('bluebird');
 var Q = require('q');
 
 var help = [];
@@ -38,13 +39,13 @@ sc.lang.boot({stdin: false, debug: true}).then(function(sclang) {
   }
 
   function interpretFiles() {
-    return Q.all(sources.map(function(src) {
+    return Promise.map(source, function(src) {
       console.log(src);
-      return sclang.executeFile(src).fail(function(error) {
+      return sclang.executeFile(src).error(function(error) {
         sclang.log.err('Failure while executing file:' + src);
         sclang.log.err(error);
       });
-    }));
+    });
   }
 
   // returns SynthDescs as a JSON-ready dict

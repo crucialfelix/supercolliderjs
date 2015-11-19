@@ -2,6 +2,7 @@
 jest.dontMock('../dryadic');
 var f = require('../dryadic');
 var ext = require('../internals/side-effects');
+import {Promise} from 'bluebird';
 
 describe('callAndResolveValues', function() {
   pit('should pass non-promises through', function() {

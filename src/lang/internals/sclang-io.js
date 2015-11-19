@@ -13,6 +13,7 @@
 
 import {EventEmitter} from 'events';
 import _ from 'underscore';
+import {Promise} from 'bluebird';
 
 var STATES = {
   NULL: null,
@@ -267,7 +268,7 @@ class SclangIO extends EventEmitter {
    * and will post a result or error.
    *
    * @param {string} guid
-   * @param {Promise} promise
+   * @param {Object} promise - a Promise or an object with reject, resolve
    */
   registerCall(guid, promise) {
     this.calls[guid]  = promise;

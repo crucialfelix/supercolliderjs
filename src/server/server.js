@@ -33,6 +33,7 @@ import * as _ from 'underscore';
 import * as dgram from 'dgram';
 import * as osc from 'osc-min';
 import Immutable from 'immutable';
+import {Promise} from 'bluebird';
 
 import * as alloc from './internals/allocators';
 import SendOSC from './internals/send-osc';

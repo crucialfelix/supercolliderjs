@@ -20,7 +20,6 @@ var
   EventEmitter = require('events').EventEmitter,
   spawn = require('child_process').spawn,
   path = require('path'),
-  Q = require('q'),
   uuid = require('node-uuid'),
   join = require('path').join,
   yaml = require('js-yaml'),
@@ -31,6 +30,7 @@ var
 import Logger from '../utils/logger';
 import {SclangIO, STATES} from './internals/sclang-io';
 import resolveOptions from '../utils/resolveOptions';
+import {Promise} from 'bluebird';
 
 
 export default class SCLang extends EventEmitter {
@@ -93,23 +93,23 @@ export default class SCLang extends EventEmitter {
       write options as yaml to a temp file
       and return the path
     **/
-    var deferred = Q.defer();
-    var str = yaml.safeDump(config, {indent: 4});
+    return new Promise((resolve, reject) => {
+      var str = yaml.safeDump(config, {indent: 4});
 
-    temp.open('sclang-config', function(err, info) {
-      if (err) {
-        return deferred.reject(err);
-      }
-      fs.write(info.fd, str);
-      fs.close(info.fd, function(err) {
+      temp.open('sclang-config', function(err, info) {
         if (err) {
-          return deferred.reject(err);
+          return reject(err);
         }
-        deferred.resolve(info.path);
+        fs.write(info.fd, str);
+        fs.close(info.fd, function(err) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(info.path);
+          }
+        });
       });
     });
-
-    return deferred.promise;
   }
 
 
@@ -147,31 +147,40 @@ export default class SCLang extends EventEmitter {
    *     rejects on failure to boot or failure to compile the class library
    */
   spawnProcess(execPath, commandLineOptions) {
-    var deferred = Q.defer();
+    return new Promise((resolve, reject) => {
+      var done = false;
+      this.process = spawn(execPath, this.args(commandLineOptions),
+        {
+          cwd: path.dirname(execPath)
+        });
 
-    this.process = spawn(execPath, this.args(commandLineOptions),
-      {
-        cwd: path.dirname(execPath)
-      });
+      var bootListener = (state) => {
+        if (state === STATES.READY) {
+          done = true;
+          this.removeListener('state', bootListener);
+          resolve();
+        } else if (state === STATES.COMPILE_ERROR) {
+          done = true;
+          reject(this.stateWatcher.compileErrors);
+          this.removeListener('state', bootListener);
+          // probably should remove all listeners
+        }
+      };
 
-    var bootListener = (state) => {
-      if (state === STATES.READY) {
-        deferred.resolve();
-        this.removeListener('state', bootListener);
-      } else if (state === STATES.COMPILE_ERROR) {
-        deferred.reject(this.stateWatcher.compileErrors);
-        this.removeListener('state', bootListener);
-        // probably should remove all listeners
-      }
-    };
+      // temporary listener until booted ready or compileError
+      // that removes itself
+      this.addListener('state', bootListener);
 
-    // temporary listener until booted ready or compileError
-    // that removes itself
-    this.addListener('state', bootListener);
+      setTimeout(() => {
+        if (!done) {
+          this.log.err('Timeout waiting for sclang boot');
+          this.stateWatcher.finalizeCompileErrors();
+        }
+      }, 10000);
 
-    // long term listeners
-    this.installListeners(this.process, Boolean(this.options.stdin));
-    return deferred.promise;
+      // long term listeners
+      this.installListeners(this.process, Boolean(this.options.stdin));
+    });
   }
 
 
@@ -324,25 +333,25 @@ export default class SCLang extends EventEmitter {
    * @returns {Promise}
    */
   interpret(code, nowExecutingPath, asString, postErrors, getBacktrace) {
-    var deferred = Q.defer();
-    var escaped = code
-      .replace(/[\n\r]/g, '__NL__')
-      .replace(/\\/g, '__SLASH__')
-      .replace(/\"/g, '\\"');
-    var guid = uuid.v1();
+    return new Promise((resolve, reject) => {
+      var escaped = code
+        .replace(/[\n\r]/g, '__NL__')
+        .replace(/\\/g, '__SLASH__')
+        .replace(/\"/g, '\\"');
+      var guid = uuid.v1();
 
-    var args = [
-      '"' + guid + '"',
-      '"' + escaped + '"',
-      nowExecutingPath ? '"' + nowExecutingPath + '"' : 'nil',
-      asString ? 'true' : 'false',
-      postErrors ? 'true' : 'false',
-      getBacktrace ? 'true' : 'false'
-    ].join(',');
+      var args = [
+        '"' + guid + '"',
+        '"' + escaped + '"',
+        nowExecutingPath ? '"' + nowExecutingPath + '"' : 'nil',
+        asString ? 'true' : 'false',
+        postErrors ? 'true' : 'false',
+        getBacktrace ? 'true' : 'false'
+      ].join(',');
 
-    this.stateWatcher.registerCall(guid, deferred);
-    this.write('SuperColliderJS.interpret(' + args + ');', null, true);
-    return deferred.promise;
+      this.stateWatcher.registerCall(guid, {resolve: resolve, reject: reject});
+      this.write('SuperColliderJS.interpret(' + args + ');', null, true);
+    });
   }
 
 
@@ -350,11 +359,11 @@ export default class SCLang extends EventEmitter {
    * executeFile
    */
   executeFile(path) {
-    var deferred = Q.defer();
-    var guid = uuid.v1();
-    this.stateWatcher.registerCall(guid, deferred);
-    this.write(`SuperColliderJS.executeFile("${ guid }", "${ path }")`, null, true);
-    return deferred.promise;
+    return new Promise((resolve, reject) => {
+      var guid = uuid.v1();
+      this.stateWatcher.registerCall(guid, {resolve: resolve, reject: reject});
+      this.write(`SuperColliderJS.executeFile("${ guid }", "${ path }")`, null, true);
+    });
   }
 
   /**
@@ -365,28 +374,28 @@ export default class SCLang extends EventEmitter {
   }
 
   quit() {
-    var deferred = Q.defer();
-    var cleanup = () => {
-      this.process = null;
-      this.setState(null);
-      deferred.resolve();
-    };
-    if (this.process) {
-      this.process.once('exit', cleanup);
-      // request a polite shutdown
-      this.process.kill('SIGINT');
-      setTimeout(() => {
-        // 3.6.6 doesn't fully respond to SIGINT
-        // but SIGTERM causes it to crash
-        if (this.process) {
-          this.process.kill('SIGTERM');
-          cleanup();
-        }
-      }, 250);
-    } else {
-      cleanup();
-    }
-    return deferred.promise;
+    return new Promise((resolve, reject) => {
+      var cleanup = () => {
+        this.process = null;
+        this.setState(null);
+        resolve();
+      };
+      if (this.process) {
+        this.process.once('exit', cleanup);
+        // request a polite shutdown
+        this.process.kill('SIGINT');
+        setTimeout(() => {
+          // 3.6.6 doesn't fully respond to SIGINT
+          // but SIGTERM causes it to crash
+          if (this.process) {
+            this.process.kill('SIGTERM');
+            cleanup();
+          }
+        }, 250);
+      } else {
+        cleanup();
+      }
+    });
   }
 }
 
@@ -394,9 +403,6 @@ export default class SCLang extends EventEmitter {
 /**
   * alternate constructor
   * resolves options, boots and loads interpreter
-  *
-  * remember to add a .fail handler to the returned
-  * Promise so that you catch any propagated errors
   *
   * @param {object} options
   * @returns {Promise}
@@ -409,7 +415,7 @@ export function boot(options = {}) {
         return sclang;
       });
     });
-  }).fail(console.error);
+  });
 }
 
 // bwd compat

@@ -15,13 +15,15 @@ var lib = join(__dirname, '../lib/js/');
 var program = require('commander');
 var resolveOptions = require(lib + 'resolveOptions');
 var Server = require(lib + 'scsynth');
-var Q = require('q');
+var Promise = require('bluebird');
 
 function makeDir(dest) {
   if (fs.existsSync(dest)) {
-    return Q();
+    return Promise.resolve();
   }
-  return Q.nfapply(fs.mkdir, [dest]);
+  return Promise.fromCallback((callback) => {
+    fs.mkdir(dest, callback);
+  });
 }
 
 function makeExecScript(source, dest) {
@@ -41,29 +43,27 @@ function makeExecScript(source, dest) {
   ];
 
   if (fs.exists(dest)) {
-    return Q();
+    return Promise.resolve();
   }
-  return Q.nfapply(fs.writeFile, [
-    dest,
-    execScript.join('\n'),
-    {
-      mode: 0755
-    }
-  ]);
+  return Promise.fromCallback((callback) => {
+    fs.writeFile(dest, execScript.join('\n'), {mode: 0755}, callback);
+  });
 }
 
 function exportScsynth(dest) {
   return resolveOptions().then(function(options) {
     if (!fs.existsSync(dest)) {
-      return Q.reject('Destination directory does not exist' + dest);
+      return Promise.reject('Destination directory does not exist' + dest);
     }
     return makeDir(join(dest, 'bin')).then(function() {
       var destScsynth = join(dest, 'bin', 'scsynth');
       var srcPlugins = join(path.dirname(options.scsynth),
         '..', 'Resources', 'plugins');
-      return Q.all([
-        Q.nfcall(ncp, options.scsynth, destScsynth),
-        Q.nfcall(ncp, srcPlugins, join(dest, 'plugins')),
+      var ncpp = Promise.method(ncp);
+
+      return Promise.all([
+        ncpp(options.scsynth, destScsynth),
+        ncpp(srcPlugins, join(dest, 'plugins')),
         makeDir(join(dest, 'synthdefs'))
       ]).then(function() {
         return makeExecScript(destScsynth, join(dest, 'scsynth'));

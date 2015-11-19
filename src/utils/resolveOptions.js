@@ -9,14 +9,16 @@
  *
  */
 
+import {Promise} from 'bluebird';
+
 var path = require('path'),
     join = path.join,
     untildify = require('untildify'),
     os = require('os'),
     yaml = require('js-yaml'),
     fs   = require('fs'),
-    _ = require('underscore'),
-    Q = require('q');
+    _ = require('underscore');
+
 
 function defaultOptions() {
   // should get this from server/default-server-options.json
@@ -78,59 +80,57 @@ function filterUndefs(opts) {
   * @returns {Promise}
   */
 export default function resolveOptions(configPath, commandLineOptions) {
-  var deferred = Q.defer(),
-      promise = deferred.promise;
+  return new Promise((resolve, reject) => {
 
-  function ok(opts, aPath) {
-    var options = _.extend(defaultOptions(),
-      filterUndefs(opts),
-      filterUndefs(commandLineOptions),
-      {configPath: aPath});
+    function ok(opts, aPath) {
+      var options = _.extend(defaultOptions(),
+        filterUndefs(opts),
+        filterUndefs(commandLineOptions),
+        {configPath: aPath});
 
-    options.sclang = path.resolve(untildify(options.sclang));
-    options.scsynth = path.resolve(untildify(options.scsynth));
+      options.sclang = path.resolve(untildify(options.sclang));
+      options.scsynth = path.resolve(untildify(options.scsynth));
 
-    deferred.resolve(options);
-  }
-
-  function checkPath(aPath) {
-    let resolvedPath = path.resolve(untildify(aPath));
-    return fs.existsSync(resolvedPath) ? resolvedPath : null;
-  }
-
-  function loadConfig(aPath) {
-    try {
-      var options = yaml.safeLoad(fs.readFileSync(aPath, 'utf8'));
-      ok(options, aPath);
-    } catch (e) {
-      deferred.reject({configPath: aPath, message: 'Error reading config file', error: e});
+      resolve(options);
     }
-  }
 
-  if (configPath) {
-    // explicit config path supplied
-    let explicitConfigPath = checkPath(configPath);
-    if (!explicitConfigPath) {
-      deferred.reject({message: 'Config file not found', configPath: configPath});
-    } else {
-      loadConfig(explicitConfigPath);
+    function checkPath(aPath) {
+      let resolvedPath = path.resolve(untildify(aPath));
+      return fs.existsSync(resolvedPath) ? resolvedPath : null;
     }
-  } else {
-    // look in cwd
-    let localConfigPath = checkPath('.supercollider.yaml');
-    if (localConfigPath) {
-      loadConfig(localConfigPath);
-    } else {
-      // look in ~
-      let homeDirConfigPath = checkPath(path.join(getUserHome(), '.supercollider.yaml'));
-      if (homeDirConfigPath) {
-        loadConfig(homeDirConfigPath);
-      } else {
-        // use the defaults
-        ok({}, null);
+
+    function loadConfig(aPath) {
+      try {
+        var options = yaml.safeLoad(fs.readFileSync(aPath, 'utf8'));
+        ok(options, aPath);
+      } catch (e) {
+        reject({configPath: aPath, message: 'Error reading config file', error: e});
       }
     }
-  }
 
-  return promise;
+    if (configPath) {
+      // explicit config path supplied
+      let explicitConfigPath = checkPath(configPath);
+      if (!explicitConfigPath) {
+        reject({message: 'Config file not found', configPath: configPath});
+      } else {
+        loadConfig(explicitConfigPath);
+      }
+    } else {
+      // look in cwd
+      let localConfigPath = checkPath('.supercollider.yaml');
+      if (localConfigPath) {
+        loadConfig(localConfigPath);
+      } else {
+        // look in ~
+        let homeDirConfigPath = checkPath(path.join(getUserHome(), '.supercollider.yaml'));
+        if (homeDirConfigPath) {
+          loadConfig(homeDirConfigPath);
+        } else {
+          // use the defaults
+          ok({}, null);
+        }
+      }
+    }
+  });
 }
