@@ -32,7 +32,6 @@ import {spawn} from 'child_process';
 import * as _ from 'underscore';
 import * as dgram from 'dgram';
 import * as osc from 'osc-min';
-import * as Q from 'q';
 import Immutable from 'immutable';
 
 import * as alloc from './internals/allocators';
@@ -96,7 +95,7 @@ export class Server extends EventEmitter {
       }
       this.log.sendosc(out);
     });
-    this.receive.subscribe((o) => this.log.rcvosc(o));
+    this.receive.subscribe((o) => this.log.rcvosc(o), (err) => this.log.err(err));
     this.stdout.subscribe((o) => this.log.stdout(o), (o) => this.log.stderr(o));
     this.processEvents.subscribe((o) => this.log.dbug(o), (o) => this.log.err(o));
   }
@@ -158,76 +157,77 @@ export class Server extends EventEmitter {
   }
 
   /**
-   * boot
+   * Boot the server
    *
-   * start scsynth and establish a pipe connection
-   * to receive stdout and stderr
+   * Start scsynth and establish a pipe connection to receive stdout and stderr.
+   *
+   * Does not connect, so UDP is not yet ready for OSC communication.
    *
    * listen for system events and emit: exit out error
    */
   boot() {
-    var
-      self = this,
-      execPath = this.options.scsynth,
-      args = this.args(),
-      d = Q.defer();
+    return new Promise((resolve, reject) => {
+      var
+        self = this,
+        execPath = this.options.scsynth,
+        args = this.args();
 
-    this.isRunning = false;
+      this.isRunning = false;
 
-    this.processEvents.onNext('Start process: ' + execPath + ' ' + args.join(' '));
-
-    this.process = spawn(execPath, args, {
+      this.processEvents.onNext('Start process: ' + execPath + ' ' + args.join(' '));
+      this.process = spawn(execPath, args, {
         cwd: this.options.cwd
       });
-    this.processEvents.onNext('pid: ' + this.process.pid);
+      this.processEvents.onNext('pid: ' + this.process.pid);
 
-    this.process.on('error', (err) => {
-      this.processEvents.onError(err);
-      this.isRunning = false;
-      // this.disconnect()
-    });
-    this.process.on('close', (code, signal) => {
-      this.processEvents.onError('Server closed. Exit code: ' + code + ' signal: ' + signal);
-      this.isRunning = false;
-      // this.disconnect()
-    });
-    this.process.on('exit', (code, signal) => {
-      this.processEvents.onError('Server exited. Exit code: ' + code + ' signal: ' + signal);
-      this.isRunning = false;
-      // this.disconnect()
-    });
-
-    this._serverObservers.stdout = Observable.fromEvent(this.process.stdout, 'data', (data) => String(data));
-    this._serverObservers.stdout.subscribe((e) => this.stdout.onNext(e));
-    this._serverObservers.stderr = Observable.fromEvent(this.process.stderr, 'data')
-      .subscribe((out) => {
-        // just pipe it into the stdout object's error stream
-        this.stdout.onError(out);
+      // when this parent process dies, kill child process
+      process.on('exit', (code) => {
+        if (this.process) {
+          this.process.kill('SIGTERM');
+        }
       });
 
-    // watch for ready message
-    this._serverObservers.stdout.takeWhile((text) => (text.match(/SuperCollider 3 server ready/) !== null))
-      .subscribe((next) => {},
-        this.log.err,
-        () => { // onComplete
-          this.isRunning = true;
-          d.resolve();
+      this.process.on('error', (err) => {
+        this.processEvents.onError(err);
+        this.isRunning = false;
+        // this.disconnect()
+      });
+      this.process.on('close', (code, signal) => {
+        this.processEvents.onError('Server closed. Exit code: ' + code + ' signal: ' + signal);
+        this.isRunning = false;
+        // this.disconnect()
+      });
+      this.process.on('exit', (code, signal) => {
+        this.processEvents.onError('Server exited. Exit code: ' + code + ' signal: ' + signal);
+        this.isRunning = false;
+        // this.disconnect()
+      });
+
+      this._serverObservers.stdout = Observable.fromEvent(this.process.stdout, 'data', (data) => String(data));
+      this._serverObservers.stdout.subscribe((e) => this.stdout.onNext(e));
+      this._serverObservers.stderr = Observable.fromEvent(this.process.stderr, 'data')
+        .subscribe((out) => {
+          // just pipe it into the stdout object's error stream
+          this.stdout.onError(out);
         });
 
-    setTimeout(() => {
-      if (!this.isRunning) {
-        d.reject();
-      }
-    }, 3000);
+      // watch for ready message
+      this._serverObservers.stdout.takeWhile((text) => {
+        return !(text.match(/SuperCollider 3 server ready/));
+      })
+        .subscribe((next) => {},
+          this.log.err,
+          () => { // onComplete
+            this.isRunning = true;
+            resolve(this);
+          });
 
-    // when this parent process dies, kill child process
-    process.on('exit', (code) => {
-      if (this.process) {
-        this.process.kill('SIGTERM');
-      }
+      setTimeout(() => {
+        if (!this.isRunning) {
+          reject();
+        }
+      }, 3000);
     });
-
-    return d.promise;
   }
 
   /**
@@ -246,24 +246,38 @@ export class Server extends EventEmitter {
 
   /**
    * Establish connection to scsynth via OSC socket
+   *
+   * @returns {Promise} - resolves when udp responds
    */
   connect() {
-    var self = this;
-    this.osc = dgram.createSocket('udp4');
+    return new Promise((resolve, reject) => {
+      const udpListening = 'udp is listening';
 
-    // pipe events to this.receive
-    this._serverObservers.oscMessage = Observable.fromEvent(this.osc, 'message', (msgbuf) => osc.fromBuffer(msgbuf));
-    this._serverObservers.oscMessage.subscribe((e) => this.receive.onNext(parseMessage(e)));
+      this.osc = dgram.createSocket('udp4');
 
-    this._serverObservers.oscError = Observable.fromEvent(this.osc, 'error');
-    this._serverObservers.oscError.subscribe((e) => this.receive.onError(e));
+      this.osc.on('listening', () => {
+        this.processEvents.onNext(udpListening);
+        resolve();
+      });
+      this.osc.on('close', (e) => {
+        this.processEvents.onNext('udp closed: ' + e);
+        this.disconnect();
+      });
 
-    this.osc.on('listening', () => {
-      this.processEvents.onNext('udp is listening');
-    });
-    this.osc.on('close', (e) => {
-      this.processEvents.onNext('udp closed: ' + e);
-      // destroy and unsub
+      // pipe events to this.receive
+      this._serverObservers.oscMessage = Observable.fromEvent(this.osc, 'message', (msgbuf) => osc.fromBuffer(msgbuf));
+      this._serverObservers.oscMessage.subscribe((e) => this.receive.onNext(parseMessage(e)));
+
+      this._serverObservers.oscError = Observable.fromEvent(this.osc, 'error');
+      this._serverObservers.oscError.subscribe((e) => {
+        this.receive.onError(e);
+        reject(e);
+      });
+
+      // this will trigger a response from server
+      // and a udp listening event and the promise will resolve
+      // thus we know for sure that we are connected
+      this.sendMsg('/notify', [1]);
     });
   }
 
@@ -405,16 +419,15 @@ export class Server extends EventEmitter {
   }
 }
 
+
 /**
- * boot a server with options
- * @returns {Promise}
+ * Boot a server with options and connect
+ *
+ * @returns {Promise} - resolves with the Server
  */
 export function boot(options) {
   return resolveOptions(undefined, options).then((opts) => {
     var s = new Server(opts);
-    return s.boot().then(() => {
-      s.connect();
-      return s;
-    });
+    return s.boot().then(() => s.connect()).then(() => s);
   });
 }

@@ -12,7 +12,5 @@
 var sc = require('../index.js');
 
 sc.server.boot().then(function(s) {
-  s.sendMsg('/notify', [1]);
   s.sendMsg('/status', []);
-  s.sendMsg('/dumpOSC', []);
 }, console.error).done();
