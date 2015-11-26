@@ -73,7 +73,7 @@ export function group(children) {
  * @param {String} sourceCode - Supports SynthDef, {}, Instr and anything else that responds to .asSynthDef
  */
 export function compileSynthDef(defName, sourceCode) {
-  return dryadic((context) => {
+  const compiler = dryadic((context) => {
     // Better to use an isolated sclang so any Quarks won't try to mess with this Server
     var fullCode = `{
       var def = (${ sourceCode }).asSynthDef(name: "${ defName }");
@@ -94,14 +94,85 @@ export function compileSynthDef(defName, sourceCode) {
         sourceCode: sourceCode
       });
     });
-
-  }, true, true);
+  });
+  return requireServer(requireInterpreter(compiler));
 }
 
 
 export function putSynthDef(context, defName, synthDesc) {
   context.server.mutateState(StateKeys.SYNTH_DEFS, (state) => {
     return state.set(defName, synthDesc);
+  });
+}
+
+/**
+ * Boots a new supercollider interpreter making it available for all children.
+ *
+ * Ignores any possibly already existing one in context.
+ */
+export function interpreter(children=[], options={}) {
+  const defaultOptions = {
+    stdin: false,
+    echo: true,  // that will make it post OSC send/recv
+    debug: false
+  };
+  return dryadic((context) => {
+    return bootLang(_.defaults(options, defaultOptions))
+      .then((lang) => {
+        return callAndResolveAll(children,
+          _.assign({}, context, {lang: lang}));
+      });
+  });
+}
+
+
+/**
+ * Boots a supercollider interpreter if none is already available
+ * in the context.
+ */
+export function requireInterpreter(child, options={}) {
+  return dryadic((context) => {
+    if (!context.lang) {
+      return interpreter([child], options)(context)
+        .then((resolved) => resolved[0]);
+    }
+    return callAndResolve(child, context);
+  });
+}
+
+
+/**
+ * Boots a new supercollider server making it available for all children.
+ *
+ * Always boots a new one, ignoring any possibly already existing one in context.
+ */
+export function server(children=[], options={}) {
+  const defaultOptions = {
+    stdin: false,
+    echo: true,  // that will make it post OSC send/recv
+    debug: false
+  };
+  return dryadic((context) => {
+    return bootServer(_.defaults(options, defaultOptions))
+      .then((s) => {
+        return callAndResolveAll(children,
+          _.assign({}, context, {server: s, group: 0}));
+      });
+  });
+}
+
+
+/**
+ * Boots a supercollider server if none is already available
+ * in the context.
+ */
+export function requireServer(child, options={}) {
+  return dryadic((context) => {
+    if (!context.server) {
+      return server([child], options)(context)
+        .then((resolved) => resolved[0]);
+    }
+    return callAndResolve(child, context);
   });
 }
 
@@ -114,5 +185,3 @@ export function putSynthDef(context, defName, synthDesc) {
 // exec
 // fork
 // streamFile
-// server  create a new one, scope it below this
-// sclang  create a new interpreter

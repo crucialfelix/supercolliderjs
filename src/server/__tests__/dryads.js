@@ -20,7 +20,9 @@ describe('dryads', function() {
           host: '127.0.0.1',
           port: '57110'
         },
-        mutateState: jest.genMockFunction()
+        mutateState: jest.genMockFunction(),
+        callAndResponse: jest.genMockFunction()
+          .mockReturnValue(Promise.resolve())
       },
       lang: {
         options: {
@@ -92,7 +94,7 @@ describe('dryads', function() {
         bytes: [1, 2, 3]
       };
 
-      ext.interpret.mockReturnValue(Promise.resolve({result: def}));
+      ext.interpret.mockReturnValue(Promise.resolve(def));
 
       return f.compileSynthDef(defName, 'sc source code')().then((resolvedDefName) => {
         expect(resolvedDefName).toBe(defName);
