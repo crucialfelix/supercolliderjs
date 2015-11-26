@@ -5,10 +5,6 @@ import {bootServer, bootLang, sendMsg, nextNodeID, interpret} from './internals/
 import {whenNodeGo, updateNodeState} from './node-watcher';
 import {Promise} from 'bluebird';
 
-Promise.onPossiblyUnhandledRejection((error) => {
-  throw error;
-});
-
 const StateKeys = {
   SYNTH_DEFS: 'SYNTH_DEFS'
 };
@@ -90,9 +86,13 @@ export function compileSynthDef(defName, sourceCode) {
     return interpret(context, fullCode).then((result) => {
       putSynthDef(context, defName, result.synthDesc);
       return context.server.callAndResponse(msg.defRecv(new Buffer(result.bytes)))
-        .then((r) => {
-          return defName;
-        });
+        .then((r) => defName);
+    }, (error) => {
+      return Promise.reject({
+        description: `Failed to compile SynthDef '${defName}'`,
+        error: error.error,
+        sourceCode: sourceCode
+      });
     });
 
   }, true, true);

@@ -4,8 +4,9 @@ import {bootServer, bootLang} from './internals/side-effects';
 import {Promise} from 'bluebird';
 
 
-Promise.onPossiblyUnhandledRejection((error) => {
-  throw error;
+Promise.onPossiblyUnhandledRejection((error, promise) => {
+  console.error(error);
+  throw Error(error);
 });
 
 
