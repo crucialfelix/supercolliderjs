@@ -6,7 +6,6 @@ var pkg = require(path.join(__dirname, '../package.json'));
 var program = require('commander');
 var fs = require('fs');
 var Promise = require('bluebird');
-var Q = require('q');
 
 var help = [];
 
@@ -32,14 +31,14 @@ var sources = program.args.map(function(p) { return path.resolve(p); });
 // Should probably warn and skip
 // and warn and skip synthdefs/ rather than synthdefs/*
 
-sc.lang.boot({stdin: false, debug: true}).then(function(sclang) {
+sc.lang.boot({stdin: false, debug: false}).then(function(sclang) {
 
   function removeAll() {
     return sclang.interpret('SynthDescLib.default.synthDescs.removeAll();');
   }
 
   function interpretFiles() {
-    return Promise.map(source, function(src) {
+    return Promise.map(sources, function(src) {
       console.log(src);
       return sclang.executeFile(src).error(function(error) {
         sclang.log.err('Failure while executing file:' + src);
@@ -62,8 +61,9 @@ sc.lang.boot({stdin: false, debug: true}).then(function(sclang) {
   }
 
   function writeDescs(descs) {
-    console.log(JSON.stringify(descs, null, 2));
-    return Q.nfcall(fs.writeFile, path.join(dest, 'synthDefs.json'), JSON.stringify(descs, null, 2));
+    // console.log(JSON.stringify(descs, null, 2));
+    var writeFile = Promise.promisify(fs.writeFile);
+    return writeFile(path.join(dest, 'synthDefs.json'), JSON.stringify(descs, null, 2));
   }
 
   return removeAll().then(interpretFiles).then(writeDefs).then(writeDescs);
