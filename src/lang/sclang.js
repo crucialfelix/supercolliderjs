@@ -209,7 +209,7 @@ export default class SCLang extends EventEmitter {
         sclang_conf = yaml.safeLoad(fs.readFileSync(untildify(options.sclang_conf), 'utf8'));
       } catch (e) {
         this.log.err(e);
-        throw 'Cannot open or read specified sclang_conf ' + options.sclang_conf;
+        throw new Error('Cannot open or read specified sclang_conf ' + options.sclang_conf);
       }
     }
 
