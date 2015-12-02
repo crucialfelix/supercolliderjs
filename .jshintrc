@@ -18,5 +18,8 @@
     "it": true,
     "pit": true,
     "spyOn": true
-  }
+  },
+  "predef": [
+    "-Promise"
+  ]
 }

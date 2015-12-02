@@ -28,7 +28,8 @@ var
   dgram = require('dgram'),
   osc = require('osc-min'),
   uuid = require('node-uuid'),
-  _ = require('underscore');
+  _ = require('underscore'),
+  Promise = require('bluebird');
 
 import Logger from './utils/logger';
 
@@ -70,7 +71,7 @@ class SCAPI extends events.EventEmitter {
   }
 
   call(requestId, oscpath, args, ok, err) {
-    return new Promise((resolve, reject) => {
+    var promise = new Promise((resolve, reject) => {
       var
         clientId = 0, // no longer needed
         a,
@@ -104,10 +105,6 @@ class SCAPI extends events.EventEmitter {
 
       this.requests[requestId] = {resolve: resolve, reject: reject};
 
-      if (ok) {
-        promise.then(ok, err);
-      }
-
       function isNotOsc(a) {
         // if any arg is an object or array
         // or a large string then pass the args as JSON
@@ -125,6 +122,11 @@ class SCAPI extends events.EventEmitter {
         sender(requestId, args);
       }
     });
+    if (ok) {
+      return promise.then(ok, err);
+    } else {
+      return promise;
+    }
   }
 
   receive(signal, msg) {
