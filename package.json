@@ -89,6 +89,6 @@
     "esnext": true
   },
   "engines": {
-    "node": ">=0.11.0 <5"
+    "node": ">=4 <5"
   }
 }
