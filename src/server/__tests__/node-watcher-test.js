@@ -1,6 +1,6 @@
 /*jshint sub:true*/
 
-jest.dontMock('Rx');
+jest.dontMock('rx');
 jest.dontMock('../node-watcher');
 jest.dontMock('../server');
 var nw = require('../node-watcher');

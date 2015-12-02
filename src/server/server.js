@@ -27,7 +27,7 @@
  */
 
 import {EventEmitter} from 'events';
-import {Observable, Subject} from 'Rx';
+import {Observable, Subject} from 'rx';
 import {spawn} from 'child_process';
 import * as _ from 'underscore';
 import * as dgram from 'dgram';

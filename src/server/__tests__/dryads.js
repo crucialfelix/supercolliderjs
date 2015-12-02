@@ -6,7 +6,7 @@ var f = require('../dryads');
 var ext = require('../internals/side-effects');
 var nodeWatcher = require('../node-watcher');
 import {Promise} from 'bluebird';
-import {Observable, Subject} from 'Rx';
+import {Observable, Subject} from 'rx';
 
 
 // move this into a describe

@@ -1,6 +1,6 @@
 
 import {EventEmitter} from 'events';
-import {Observable} from 'Rx';
+import {Observable} from 'rx';
 
 
 export default class SendOSC extends EventEmitter {
