@@ -28,7 +28,6 @@ var
   dgram = require('dgram'),
   osc = require('osc-min'),
   uuid = require('node-uuid'),
-  Q = require('q'),
   _ = require('underscore');
 
 import Logger from './utils/logger';
@@ -71,64 +70,61 @@ class SCAPI extends events.EventEmitter {
   }
 
   call(requestId, oscpath, args, ok, err) {
-
-    var
-      clientId = 0, // no longer needed
-      a,
-      deferred = Q.defer(),
-      promise = deferred.promise,
-      clumps,
-      self = this;
-
-    requestId = _.isUndefined(requestId) ? uuid() : requestId;
-    args = args ? args : [];
-    if (!_.isString(oscpath)) {
-      self.log.err('Bad oscpath' + oscpath);
-      throw 'Bad oscpath' + oscpath;
-    }
-    a = [clientId, requestId, oscpath];
-
-    function sender(requestId, oscArgs) {
+    return new Promise((resolve, reject) => {
       var
-        buf = osc.toBuffer({
-          address: '/API/call',
-          args: [clientId, requestId, oscpath].concat(oscArgs)
-        });
-      self.udp.send(buf, 0, buf.length, self.scport, self.schost,
-        function(err, bytes) {
-          // this will get DNS errors
-          // but not packet-too-big errors
-          if (err) {
-            self.log.err(err);
+        clientId = 0, // no longer needed
+        a,
+        clumps,
+        self = this;
+
+      requestId = _.isUndefined(requestId) ? uuid() : requestId;
+      args = args ? args : [];
+      if (!_.isString(oscpath)) {
+        self.log.err('Bad oscpath' + oscpath);
+        throw 'Bad oscpath' + oscpath;
+      }
+      a = [clientId, requestId, oscpath];
+
+      function sender(requestId, oscArgs) {
+        var
+          buf = osc.toBuffer({
+            address: '/API/call',
+            args: [clientId, requestId, oscpath].concat(oscArgs)
+          });
+        self.udp.send(buf, 0, buf.length, self.scport, self.schost,
+          function(err, bytes) {
+            // this will get DNS errors
+            // but not packet-too-big errors
+            if (err) {
+              self.log.err(err);
+            }
           }
-        }
-      );
-    }
+        );
+      }
 
-    this.requests[requestId] = deferred;
+      this.requests[requestId] = {resolve: resolve, reject: reject};
 
-    if (ok) {
-      promise.then(ok, err);
-    }
+      if (ok) {
+        promise.then(ok, err);
+      }
 
-    function isNotOsc(a) {
-      // if any arg is an object or array
-      // or a large string then pass the args as JSON
-      // in multiple calls
-      return _.isObject(a) || _.isArray(a) || (_.isString(a) && a.length > 7168);
-    }
+      function isNotOsc(a) {
+        // if any arg is an object or array
+        // or a large string then pass the args as JSON
+        // in multiple calls
+        return _.isObject(a) || _.isArray(a) || (_.isString(a) && a.length > 7168);
+      }
 
-    if (_.some(args, isNotOsc)) {
-      clumps = JSON.stringify(args).match(/.{1,7168}/g);
-      _.each(clumps, function(clump, i) {
-        var rid = '' + (i + 1) + ',' + clumps.length + ':' + requestId;
-        sender(rid, [clump]);
-      });
-    } else {
-      sender(requestId, args);
-    }
-
-    return promise;
+      if (_.some(args, isNotOsc)) {
+        clumps = JSON.stringify(args).match(/.{1,7168}/g);
+        _.each(clumps, function(clump, i) {
+          var rid = '' + (i + 1) + ',' + clumps.length + ':' + requestId;
+          sender(rid, [clump]);
+        });
+      } else {
+        sender(requestId, args);
+      }
+    });
   }
 
   receive(signal, msg) {

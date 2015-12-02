@@ -31,8 +31,7 @@ supercolliderjs.resolveOptions().then(function(options) {
 
   scapi.connect();
 
-  // call returns a Q promise
-  // https://github.com/kriskowal/q
+  // call returns a Promise
   // so you use .then(ok, error)
   scapi.call(0, 'API.apis', [])
     .then(function(response) {
