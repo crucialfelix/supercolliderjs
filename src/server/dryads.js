@@ -76,7 +76,7 @@ export function compileSynthDef(defName, sourceCode) {
   const compiler = dryadic((context) => {
     // Better to use an isolated sclang so any Quarks won't try to mess with this Server
     var fullCode = `{
-      var def = (${ sourceCode }).asSynthDef(name: "${ defName }");
+      var def = SynthDef("${ defName }", ${ sourceCode });
       (
         synthDesc: def.asSynthDesc.asJSON(),
         bytes: def.asBytes()
