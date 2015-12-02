@@ -40,7 +40,7 @@ import SendOSC from './internals/send-osc';
 import {parseMessage} from './osc/utils';
 import {notify} from './osc/msg';
 import {watchNodeNotifications} from './node-watcher';
-import defaultOptions from './default-server-options';
+import defaultOptions from './default-server-options.json';
 import Logger from '../utils/Logger';
 import resolveOptions from '../utils/resolveOptions';
 
