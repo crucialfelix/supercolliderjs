@@ -5,5 +5,6 @@
 	"maximumLineLength": null,
 	"requireSpacesInFunctionExpression": null,
 	"disallowDanglingUnderscores": null,
-	"disallowMultipleLineBreaks": false
+	"disallowMultipleLineBreaks": false,
+	"requireDotNotation": false
 }
