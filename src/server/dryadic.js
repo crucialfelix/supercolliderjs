@@ -16,6 +16,7 @@ export function dryadic(fn, requireSCSynth=false, requireSClang=false) {
   };
 }
 
+
 /**
  * Create a context, inheriting from parentContext.
  *
@@ -27,33 +28,25 @@ export function withContext(parentContext, requireSCSynth=false, requireSClang=f
   var context = _.assign({id: '0'}, parentContext);
 
   var deps = {};
+  const options = {
+    stdin: false,
+    echo: true,  // that will make it post OSC send/recv
+    debug: false  // post debug messages in code, including stdout off lang/synth
+    // langPort
+  };
   if (requireSCSynth && !context.server) {
-    deps.server = bootServer;
+    deps.server = () => bootServer(options);
   }
   if (requireSClang && !context.lang) {
-    deps.lang = () => {
-      const options = {
-        stdin: false,
-        echo: false,
-        debug: false
-        // langPort
-      };
-      return bootLang(options);
-    };
+    deps.lang = () => bootLang(options);
   }
-
-  var promise = callAndResolveValues(deps, context).then((resolvedDeps) => {
+  return callAndResolveValues(deps, context).then((resolvedDeps) => {
     if (resolvedDeps.server) {
       // set root node
       resolvedDeps.group = 0;
     }
     return _.extend(context, resolvedDeps);
   });
-  // Top level call, raise all exceptions
-  if (!parentContext) {
-    return promise.then((ok) => ok, (error) => console.error(error));
-  }
-  return promise;
 }
 
 
