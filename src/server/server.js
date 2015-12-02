@@ -41,7 +41,7 @@ import {parseMessage} from './osc/utils';
 import {notify} from './osc/msg';
 import {watchNodeNotifications} from './node-watcher';
 import defaultOptions from './default-server-options.json';
-import Logger from '../utils/Logger';
+import Logger from '../utils/logger';
 import resolveOptions from '../utils/resolveOptions';
 
 
@@ -333,7 +333,7 @@ export class Server extends EventEmitter {
       // if timeout then reject and dispose
       var tid = setTimeout(() => {
         dispose();
-        reject('Timed out waiting for OSC response: ' + args);
+        reject('Timed out waiting for OSC response: ' + matchArgs);
       }, timeout);
 
       function dispose() {

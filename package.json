@@ -49,8 +49,8 @@
     "compile-synthdefs": "./bin/compile-synthdefs.js"
   },
   "scripts": {
-    "test": "jest && npm run lint && npm run jsstyle",
-    "lint": "jshint src bin examples/*.js",
+    "test": "jest",
+    "lint": "jshint -c .jshintrc src bin examples/*.js",
     "jest": "jest --watch",
     "jsstyle": "jscs src bin examples/*.js",
     "compile": "babel --source-maps --out-dir=./lib src",

@@ -7,7 +7,7 @@ var resolveOptions = require('../resolveOptions');
 describe('resolveOptions', function() {
 
   // `pit` is `it` for promises
-  pit('should get default options with no undefines', () => {
+  pit('should get default options with no undefines', function() {
     return resolveOptions().then(function(opts) {
       for (let key in opts) {
         expect(opts[key]).toBeDefined();
