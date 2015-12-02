@@ -10,13 +10,13 @@ SuperColliderJS {
 		reportError=true,
 		getBacktrace=false;
 
-		var code = escapedCode.replace("__NL__", Char.nl),
+		var code = escapedCode.replace("__NL__", Char.nl.as(String)),
 			compiled,
 			result,
 			error,
 			saveExecutingPath = thisProcess.nowExecutingPath;
 
-		code = code.replace("__SLASH__", $\\);
+		code = code.replace("__SLASH__", ($\\).as(String));
 
 		thisProcess.nowExecutingPath = executingPath;
 
@@ -246,8 +246,6 @@ SuperColliderJS {
 		tab = [$\\,$\\,$t].as(String);
 		nl = [$\\,$\\,$n].as(String);
 
-		"init Class".postln;
-
 		errorEncoders = (
 			Exception: { arg err;
 				(
@@ -327,7 +325,7 @@ SuperColliderJS {
 				// could also use data.storeArgs and get the arg names from *new
 			},
 			String: { arg obj;
-				obj.asCompileString.reject(_.isControl).replace(Char.nl, nl).replace(Char.tab, tab);
+				obj.asCompileString.reject(_.isControl).replace(Char.nl.as(String), nl).replace(Char.tab.as(String), tab);
 			},
 			Symbol: { arg obj;
 				this.stringify(obj.asString);
