@@ -6,6 +6,8 @@ var f = require('../dryads');
 var ext = require('../internals/side-effects');
 var nodeWatcher = require('../node-watcher');
 import {Promise} from 'bluebird';
+import {Observable, Subject} from 'Rx';
+
 
 // move this into a describe
 describe('dryads', function() {
@@ -115,5 +117,14 @@ describe('dryads', function() {
         return Promise.resolve(true);
       });
     });
+  });
+});
+
+
+describe('synthStream', function() {
+  it('should create', function() {
+    var x = new Subject();
+    var ss = f.synthStream(x);
+    expect(ss).toBeTruthy();
   });
 });

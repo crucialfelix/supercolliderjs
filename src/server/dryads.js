@@ -4,6 +4,7 @@ import * as msg from './osc/msg';
 import {bootServer, bootLang, sendMsg, nextNodeID, interpret} from './internals/side-effects';
 import {whenNodeGo, updateNodeState} from './node-watcher';
 import {Promise} from 'bluebird';
+import _ from 'underscore';
 
 const StateKeys = {
   SYNTH_DEFS: 'SYNTH_DEFS'
@@ -104,6 +105,46 @@ export function putSynthDef(context, defName, synthDesc) {
     return state.set(defName, synthDesc);
   });
 }
+
+
+/**
+ * Spawns each item returned by an Rx.Observable stream.
+ *
+ * Each item returned by the stream should be a dryad
+ * like synth, group etc. though it can be simply a function
+ * that will be called.
+ *
+ * @param {Rx.Observeable} - streamable
+ */
+export function stream(streamable) {
+  return dryadic((context) => {
+    var i = 0;
+    var subscription = streamable.subscribe((dryad) => {
+      callAndResolve(dryad, context, String(i));
+      i += 1;
+    }, (error) => {
+      console.error(error);
+    }, () => {
+      // free self
+    });
+    // on getting ended early (by parent being freed)
+    // dispose subscription
+  });
+}
+
+
+/**
+ * Spawns each event in an Rx.Observeable stream
+ *
+ * {defName: "saw", args: {freq: 440}}
+ */
+export function synthStream(streamable, params={}) {
+  return stream(streamable.map((event) => {
+    const args = _.assign({}, params, event.args);
+    return synth(event.defName || params.defName, args);
+  }));
+}
+
 
 /**
  * Boots a new supercollider interpreter making it available for all children.
