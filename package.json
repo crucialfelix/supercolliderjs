@@ -28,7 +28,7 @@
     "babel-jest": "5.3.0",
     "jest-cli": "^0.7.1",
     "jscs": "^2.5.0",
-    "jshint": "^2.8.0"
+    "eslint": "^1.10.3"
   },
   "license": "MIT",
   "keywords": [
@@ -50,7 +50,7 @@
   },
   "scripts": {
     "test": "jest",
-    "lint": "jshint -c .jshintrc src bin examples/*.js",
+    "lint": "eslint -c .eslintrc src bin examples/*.js",
     "jest": "jest --watch",
     "jsstyle": "jscs src bin examples/*.js",
     "compile": "babel --source-maps --out-dir=./lib src",
