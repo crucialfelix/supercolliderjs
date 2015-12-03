@@ -1,5 +1,5 @@
 
-import {withContext, makeChildContext, callAndResolve, callAndResolveValues, callAndResolveAll, dryadic} from './dryadic';
+import {withContext, makeChildContext, callAndResolve, callAndResolveValues, callAndResolveAll, dryadic} from '../dryadic/helpers';
 import * as msg from './osc/msg';
 import {bootServer, bootLang, sendMsg, nextNodeID, interpret} from './internals/side-effects';
 import {whenNodeGo, updateNodeState} from './node-watcher';

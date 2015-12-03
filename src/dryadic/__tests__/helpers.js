@@ -1,7 +1,7 @@
 
-jest.dontMock('../dryadic');
-var f = require('../dryadic');
-var ext = require('../internals/side-effects');
+jest.dontMock('../helpers');
+var f = require('../helpers');
+var ext = require('../../server/internals/side-effects');
 import {Promise} from 'bluebird';
 
 describe('callAndResolve', function() {

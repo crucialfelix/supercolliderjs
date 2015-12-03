@@ -1,8 +1,8 @@
 
 import _ from 'underscore';
-import {bootServer, bootLang} from './internals/side-effects';
+import {bootServer, bootLang} from '../server/internals/side-effects';
 import {Promise} from 'bluebird';
-import Store from '../utils/Store';
+import Store from './Store';
 
 
 Promise.onPossiblyUnhandledRejection((error, promise) => {

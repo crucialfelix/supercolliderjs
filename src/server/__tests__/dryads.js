@@ -1,6 +1,6 @@
 
 jest.dontMock('../dryads');
-jest.dontMock('../dryadic');
+jest.dontMock('../../dryadic/helpers');
 
 var f = require('../dryads');
 var ext = require('../internals/side-effects');
