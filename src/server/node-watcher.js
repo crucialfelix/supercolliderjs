@@ -81,7 +81,7 @@ export function onNodeGo(server, id, nodeID, handler) {
  * @returns {Promise} - resolves with nodeID
  */
 export function whenNodeGo(server, id, nodeID) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     onNodeGo(server, id, nodeID, () => resolve(nodeID));
   });
 }
@@ -101,10 +101,10 @@ export function onNodeEnd(server, id, nodeID, handler) {
   return _registerHandler(keys.ON_NODE_END, server, id, nodeID, handler);
 }
 
-function disposeForId(server, id) {
-  // remove all by matching the context id
-  throw new Error('Not Yet Implemented');
-}
+// function disposeForId(server, id) {
+//   // remove all by matching the context id
+//   throw new Error('Not Yet Implemented');
+// }
 
 /**
  * Update values in the Server's node state registery

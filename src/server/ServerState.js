@@ -8,7 +8,7 @@ import * as alloc from './internals/allocators';
 import {watchNodeNotifications} from './node-watcher';
 
 
-const keys = {
+const StateKeys = {
   SERVERS: 'SERVERS',
   NODE_IDS: 'nodeAllocator',
   CONTROL_BUSSES: 'controlBusAllocator',
@@ -47,10 +47,10 @@ export default class ServerState {
       var bb = alloc.initialBlockState(options.numBuffers);
 
       return Immutable.Map({
-        [keys.NODE_IDS]: options.initialNodeID - 1,
-        [keys.AUDIO_BUSSES]: ab,
-        [keys.CONTROL_BUSSES]: cb,
-        [keys.BUFFERS]: bb
+        [StateKeys.NODE_IDS]: options.initialNodeID - 1,
+        [StateKeys.AUDIO_BUSSES]: ab,
+        [StateKeys.CONTROL_BUSSES]: cb,
+        [StateKeys.BUFFERS]: bb
       });
     });
   }
@@ -82,7 +82,7 @@ export default class ServerState {
    * @returns {int}
    */
   nextNodeID() {
-    return this.store.mutateStateAndReturn(this._keys([keys.NODE_IDS]), alloc.increment);
+    return this.store.mutateStateAndReturn(this._keys([StateKeys.NODE_IDS]), alloc.increment);
   }
 
   /**
@@ -91,7 +91,7 @@ export default class ServerState {
    * @returns {int} numChannels
    */
   allocAudioBus(numChannels=1) {
-    return this._allocBlock(keys.AUDIO_BUSSES, numChannels);
+    return this._allocBlock(StateKeys.AUDIO_BUSSES, numChannels);
   }
 
   /**
@@ -100,7 +100,7 @@ export default class ServerState {
    * @returns {int} numChannels
    */
   allocControlBus(numChannels=1) {
-    return this._allocBlock(keys.CONTROL_BUSSES, numChannels);
+    return this._allocBlock(StateKeys.CONTROL_BUSSES, numChannels);
   }
 
   /**
@@ -113,7 +113,7 @@ export default class ServerState {
    * @param {int} numChannels
    */
   freeAudioBus(index, numChannels) {
-    this._freeBlock(keys.AUDIO_BUSSES, index, numChannels);
+    this._freeBlock(StateKeys.AUDIO_BUSSES, index, numChannels);
   }
 
   /**
@@ -126,7 +126,7 @@ export default class ServerState {
    * @param {int} numChannels
    */
   freeControlBus(index, numChannels) {
-    this._freeBlock(keys.CONTROL_BUSSES, index, numChannels);
+    this._freeBlock(StateKeys.CONTROL_BUSSES, index, numChannels);
   }
 
   /**
@@ -139,7 +139,7 @@ export default class ServerState {
    * @returns {int} - buffer id
    */
   allocBufferID(numConsecutive=1) {
-    return this._allocBlock(keys.BUFFERS, numConsecutive);
+    return this._allocBlock(StateKeys.BUFFERS, numConsecutive);
   }
 
   /**
@@ -151,7 +151,7 @@ export default class ServerState {
    * @param {int} numConsecutive - consecutively numbered buffers are needed by VOsc and VOsc3.
    */
   freeBuffer(index, numConsecutive) {
-    this._freeBlock(keys.BUFFERS, index, numConsecutive);
+    this._freeBlock(StateKeys.BUFFERS, index, numConsecutive);
   }
 
   _allocBlock(key, numChannels) {
@@ -162,6 +162,6 @@ export default class ServerState {
     this.mutate(key, (state) => alloc.freeBlock(state, index, numChannels));
   }
   _keys(more=[]) {
-    return [keys.SERVERS, this.server.address].concat(more);
+    return [StateKeys.SERVERS, this.server.address].concat(more);
   }
 }

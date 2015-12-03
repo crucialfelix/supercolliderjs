@@ -5,8 +5,7 @@ jest.dontMock('../sclang');
 jest.dontMock('../internals/sclang-io');
 
 //  import SCLang from '../sclang';
-var sclang = require('../sclang');
-var SCLang = sclang.default;
+var SCLang = require('../sclang').default;
 
 var _ = require('underscore');
 var path = require('path');
@@ -172,7 +171,7 @@ describe('sclang', function() {
     it('should call this.write', function() {
       var sclang = new SCLang();
       spyOn(sclang, 'write').andReturn(null);
-      var p = sclang.interpret('1 + 1', '/tmp/source.scd');
+      sclang.interpret('1 + 1', '/tmp/source.scd');
       expect(sclang.write).toHaveBeenCalled();
     });
   });
@@ -181,7 +180,7 @@ describe('sclang', function() {
     it('should call this.write', function() {
       var sclang = new SCLang();
       spyOn(sclang, 'write').andReturn(null);
-      var p = sclang.executeFile('/tmp/source.scd', false, true, true);
+      sclang.executeFile('/tmp/source.scd', false, true, true);
       expect(sclang.write).toHaveBeenCalled();
     });
   });

@@ -1,6 +1,5 @@
 
 var chalk = require('chalk');
-var _ = require('underscore');
 
 const c = {
   debug: 'gray',

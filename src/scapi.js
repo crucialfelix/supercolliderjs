@@ -49,7 +49,7 @@ class SCAPI extends events.EventEmitter {
     var self = this;
     this.udp = dgram.createSocket('udp4');
 
-    this.udp.on('message', function(msgbuf, rinfo) {
+    this.udp.on('message', function(msgbuf) {
       var msg = osc.fromBuffer(msgbuf);
       if (msg.address === '/API/reply') {
         return self.receive('reply', msg);
@@ -74,7 +74,6 @@ class SCAPI extends events.EventEmitter {
     var promise = new Promise((resolve, reject) => {
       var
         clientId = 0, // no longer needed
-        a,
         clumps,
         self = this;
 
@@ -84,20 +83,19 @@ class SCAPI extends events.EventEmitter {
         self.log.err('Bad oscpath' + oscpath);
         throw 'Bad oscpath' + oscpath;
       }
-      a = [clientId, requestId, oscpath];
 
-      function sender(requestId, oscArgs) {
+      function sender(rid, oscArgs) {
         var
           buf = osc.toBuffer({
             address: '/API/call',
-            args: [clientId, requestId, oscpath].concat(oscArgs)
+            args: [clientId, rid, oscpath].concat(oscArgs)
           });
         self.udp.send(buf, 0, buf.length, self.scport, self.schost,
-          function(err, bytes) {
+          function(err2) {
             // this will get DNS errors
             // but not packet-too-big errors
-            if (err) {
-              self.log.err(err);
+            if (err2) {
+              self.log.err(err2);
             }
           }
         );
@@ -132,7 +130,7 @@ class SCAPI extends events.EventEmitter {
   receive(signal, msg) {
 
     var
-      clientId = msg.args[0].value,
+      // clientId = msg.args[0].value,
       requestId = msg.args[1].value,
       result = msg.args[2].value,
       request = this.requests[requestId];

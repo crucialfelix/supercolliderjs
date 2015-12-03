@@ -9,7 +9,7 @@ export default class SendOSC extends EventEmitter {
     this.emit('msg', m);
   }
 
-  bundle(b) {
+  bundle(/*b*/) {
     throw new Error('Not yet implemented');
     // not yet implemented
     // this will need a time

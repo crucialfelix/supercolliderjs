@@ -13,7 +13,6 @@
 
 import {EventEmitter} from 'events';
 import _ from 'underscore';
-import {Promise} from 'bluebird';
 
 const STATES = {
   NULL: null,
@@ -113,8 +112,7 @@ class SclangIO extends EventEmitter {
           },
           {
             re: /^ERROR: There is a discrepancy\./m,
-            fn: function(match, text) {
-              // self.parseErrors.push(text);
+            fn: function(/*match*/) {
               self.finalizeCompileErrors();
             }
           },
@@ -321,7 +319,7 @@ class SclangIO extends EventEmitter {
     // the rest are the error blocks
     var rest = text.substr(end),
         // split on ---------------------
-        blocks = rest.split(/^\-+$/m),
+        // blocks = rest.split(/^\-+$/m),
         // message
         // in file 'path' line x char y:
         errRe = /([^\n]+)\n\s+in file '([^']+)'\n\s+line ([0-9]+) char ([0-9]+)/mg,

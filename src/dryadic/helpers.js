@@ -5,7 +5,7 @@ import {Promise} from 'bluebird';
 import Store from './Store';
 
 
-Promise.onPossiblyUnhandledRejection((error, promise) => {
+Promise.onPossiblyUnhandledRejection((error) => {
   console.error(error);
   throw Error(error);
 });

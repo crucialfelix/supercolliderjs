@@ -21,7 +21,6 @@ var
   spawn = require('child_process').spawn,
   path = require('path'),
   uuid = require('node-uuid'),
-  join = require('path').join,
   yaml = require('js-yaml'),
   temp = require('temp'),
   fs   = require('fs'),
@@ -101,9 +100,9 @@ export default class SCLang extends EventEmitter {
           return reject(err);
         }
         fs.write(info.fd, str);
-        fs.close(info.fd, function(err) {
-          if (err) {
-            reject(err);
+        fs.close(info.fd, function(err2) {
+          if (err2) {
+            reject(err2);
           } else {
             resolve(info.path);
           }
@@ -201,8 +200,7 @@ export default class SCLang extends EventEmitter {
       runtimeIncludePaths = [
         path.resolve(__dirname, '../../lib/sc-classes')
       ],
-      sclang_conf = {},
-      config = {};
+      sclang_conf = {};
 
     if (options.sclang_conf) {
       try {
@@ -358,11 +356,11 @@ export default class SCLang extends EventEmitter {
   /**
    * executeFile
    */
-  executeFile(path) {
+  executeFile(filename) {
     return new Promise((resolve, reject) => {
       var guid = uuid.v1();
       this.stateWatcher.registerCall(guid, {resolve: resolve, reject: reject});
-      this.write(`SuperColliderJS.executeFile("${ guid }", "${ path }")`, null, true);
+      this.write(`SuperColliderJS.executeFile("${ guid }", "${ filename }")`, null, true);
     });
   }
 
@@ -374,7 +372,7 @@ export default class SCLang extends EventEmitter {
   }
 
   quit() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       var cleanup = () => {
         this.process = null;
         this.setState(null);
@@ -408,8 +406,8 @@ export default class SCLang extends EventEmitter {
   * @returns {Promise}
   */
 export function boot(options = {}) {
-  return resolveOptions(options.config, options).then((options) => {
-    var sclang = new SCLang(options);
+  return resolveOptions(options.config, options).then((opts) => {
+    var sclang = new SCLang(opts);
     return sclang.boot().then(() => {
       return sclang.storeSclangConf().then(() => {
         return sclang;

@@ -6,7 +6,7 @@
  */
 
 // var supercolliderjs = require('supercolliderjs');
-var sc = require('../index.js');
+var supercolliderjs = require('../index.js');
 var options = {
     // no STDIN, all input will be programmatic
     stdin: false,
@@ -25,7 +25,7 @@ function onError(error) {
   process.exit(1);
 }
 
-sc.lang.boot(options)
+supercolliderjs.lang.boot(options)
   .then(function(sc) {
 
     function resultHandler(result) {

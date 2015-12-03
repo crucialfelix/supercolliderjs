@@ -26,6 +26,7 @@ describe('sclang-io', function() {
   describe('constructor', function() {
     it('should construct', function() {
       var io = new SclangIO();
+      expect(io).toBeTruthy();
     });
   });
 

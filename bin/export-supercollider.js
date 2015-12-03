@@ -14,7 +14,7 @@ var ncp = require('ncp').ncp;
 var lib = join(__dirname, '../lib/js/');
 var program = require('commander');
 var resolveOptions = require(lib + 'resolveOptions');
-var Server = require(lib + 'scsynth');
+// var Server = require(lib + 'scsynth');
 var Promise = require('bluebird');
 
 function makeDir(dest) {
@@ -46,7 +46,7 @@ function makeExecScript(source, dest) {
     return Promise.resolve();
   }
   return Promise.fromCallback((callback) => {
-    fs.writeFile(dest, execScript.join('\n'), {mode: 0755}, callback);
+    fs.writeFile(dest, execScript.join('\n'), {mode: '0755'}, callback);
   });
 }
 

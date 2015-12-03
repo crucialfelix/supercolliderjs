@@ -6,7 +6,7 @@ var f = require('../dryads');
 var ext = require('../internals/side-effects');
 var nodeWatcher = require('../node-watcher');
 import {Promise} from 'bluebird';
-import {Observable, Subject} from 'rx';
+import {Subject} from 'rx';
 
 
 // move this into a describe
@@ -47,14 +47,6 @@ describe('dryads', function() {
 
     return values;
   }
-
-  function fail(error) {
-    console.error(error);
-    // trying to force the test to be a failure
-    expect(error).toBe(null);
-    // throw new Error(error);
-  }
-
 
   describe('synth', function() {
     pit('should resolve with a nodeID', function() {
@@ -113,7 +105,7 @@ describe('dryads', function() {
       return f.compileSynthDef(defName, 'sc source code')().then((resolvedDefName) => {
         expect(true).toBe(false); // should not have resolved
         expect(resolvedDefName).toBe(defName);
-      }, (error) => {
+      }, () => {
         // this is to be expected
         // console.log(error, 'did error');
         return Promise.resolve(true);

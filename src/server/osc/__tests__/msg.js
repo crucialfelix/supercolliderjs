@@ -5,7 +5,7 @@ var _ = require('underscore');
 
 describe('msg', function() {
   it('should evaluate each one without error', function() {
-    _.each(msg, function(value, key) {
+    _.each(msg, function(value) {
       if (_.isFunction(value)) {
         var result = value();
         if (_.isArray(result)) {

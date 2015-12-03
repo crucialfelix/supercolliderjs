@@ -55,12 +55,11 @@ function getUserHome() {
 
 function filterUndefs(opts) {
   var cleaned = {};
-  for (let key in opts) {
-    let val = opts[key];
-    if (!_.isUndefined(val)) {
-      cleaned[key] = val;
+  _.each(opts, (value, key) => {
+    if (!_.isUndefined(value)) {
+      cleaned[key] = value;
     }
-  }
+  });
   return cleaned;
 }
 

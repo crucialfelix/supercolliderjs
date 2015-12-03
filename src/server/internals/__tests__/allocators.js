@@ -1,8 +1,6 @@
 
 jest.autoMockOff();
 
-import Immutable from 'immutable';
-
 jest.dontMock('../allocators');
 jest.dontMock('immutable');
 

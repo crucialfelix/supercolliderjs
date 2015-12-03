@@ -49,7 +49,7 @@
     "compile-synthdefs": "./bin/compile-synthdefs.js"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest && npm run lint && npm run jsstyle",
     "lint": "eslint -c .eslintrc src bin examples/*.js",
     "jest": "jest --watch",
     "jsstyle": "jscs src bin examples/*.js",

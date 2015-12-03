@@ -95,7 +95,7 @@ describe('node-watcher', function() {
     pit('should fire a onNodeGo handler when server receives', function() {
       var s = new Server();
 
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
 
         nw.onNodeGo(s, id, nodeID, (nid) => {
           expect(nid).toBe(nodeID);

@@ -1,5 +1,5 @@
 
-import {withContext, makeChildContext, callAndResolve, callAndResolveValues, callAndResolveAll, dryadic} from '../dryadic/helpers';
+import {withContext, callAndResolve, callAndResolveValues, callAndResolveAll, dryadic} from '../dryadic/helpers';
 import * as msg from './osc/msg';
 import {bootServer, bootLang, sendMsg, nextNodeID, interpret} from './internals/side-effects';
 import {whenNodeGo, updateNodeState} from './node-watcher';
@@ -34,12 +34,12 @@ export function synth(synthDefName, args={}) {
         context.nodeID = nodeID;
 
         // will need to store the children ids
-        return callAndResolveValues(args, context).then((args) => {
-          const oscMessage = msg.synthNew(resolvedDefName, nodeID, msg.AddActions.TAIL, context.group, args);
+        return callAndResolveValues(args, context).then((resolvedArgs) => {
+          const oscMessage = msg.synthNew(resolvedDefName, nodeID, msg.AddActions.TAIL, context.group, resolvedArgs);
           sendMsg(context, oscMessage);
 
           return whenNodeGo(context.server, context.id, nodeID)
-            .then((nodeID) => {
+            .then(() => {
               updateNodeState(context.server, nodeID, {synthDef: resolvedDefName});
               return nodeID;
             });
@@ -87,7 +87,7 @@ export function compileSynthDef(defName, sourceCode) {
     return interpret(context, fullCode).then((result) => {
       putSynthDef(context, defName, result.synthDesc);
       return context.server.callAndResponse(msg.defRecv(new Buffer(result.bytes)))
-        .then((r) => defName);
+        .then(() => defName);
     }, (error) => {
       return Promise.reject({
         description: `Failed to compile SynthDef '${defName}'`,
@@ -123,7 +123,7 @@ export function putSynthDef(context, defName, synthDesc) {
 export function stream(streamable) {
   return dryadic((context) => {
     var i = 0;
-    var subscription = streamable.subscribe((dryad) => {
+    streamable.subscribe((dryad) => {
       callAndResolve(dryad, context, String(i));
       i += 1;
     }, (error) => {

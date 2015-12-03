@@ -163,7 +163,6 @@ export class Server extends EventEmitter {
   boot() {
     return new Promise((resolve, reject) => {
       var
-        self = this,
         execPath = this.options.scsynth,
         args = this.args();
 
@@ -176,7 +175,7 @@ export class Server extends EventEmitter {
       this.processEvents.onNext('pid: ' + this.process.pid);
 
       // when this parent process dies, kill child process
-      process.on('exit', (code) => {
+      process.on('exit', () => {
         if (this.process) {
           this.process.kill('SIGTERM');
         }
@@ -210,7 +209,8 @@ export class Server extends EventEmitter {
       this._serverObservers.stdout.takeWhile((text) => {
         return !(text.match(/SuperCollider 3 server ready/));
       })
-        .subscribe((next) => {},
+        .subscribe(
+          () => {},
           this.log.err,
           () => { // onComplete
             this.isRunning = true;
@@ -285,9 +285,7 @@ export class Server extends EventEmitter {
       this.osc.close();
       delete this.osc;
     }
-    this._serverObservers.forEach((obs, k) => {
-      obs.dispose();
-    });
+    this._serverObservers.forEach((obs) => obs.dispose());
     this._serverObservers = {};
   }
 

@@ -46,9 +46,9 @@ program.parse(process.argv);
   }
 });
 
-resolveOptions(options.config, options).then(function(options) {
+resolveOptions(options.config, options).then(function(opts) {
 
-  var s = new Server(options);
+  var s = new Server(opts);
 
   s.boot();
 

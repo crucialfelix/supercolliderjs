@@ -140,13 +140,13 @@ export function freeBlockList(state) {
  * @returns {Array|Boolean} - [blockAddr, blockSize] or false
  */
 function findEnclosingFreeBlock(state, addr, blockSize) {
-  let end = addr + blockSize;
+  // let end = addr + blockSize;
   var found = false;
   state.forEach((blks, sizeKey) => {
     let freeBlockSize = parseInt(sizeKey, 10);
-    blks.forEach((freeBlock) => {
-      if (blockEncloses(addr, blockSize, freeBlock, freeBlockSize)) {
-        found = [freeBlock, freeBlockSize];
+    blks.forEach((fblock) => {
+      if (blockEncloses(addr, blockSize, fblock, freeBlockSize)) {
+        found = [fblock, freeBlockSize];
         return false;  // break
       }
     });
