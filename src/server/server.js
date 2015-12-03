@@ -64,6 +64,7 @@ export class Server extends EventEmitter {
   constructor(options={}) {
     super();
     this.options = _.defaults(options, defaultOptions);
+    this.address = this.options.host + ':' + this.options.port;
     this.process = null;
     this.isRunning = false;
 
