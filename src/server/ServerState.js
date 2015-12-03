@@ -23,7 +23,7 @@ export default class ServerState {
     this.server = server;
     this.store = store ? store : new Store();
     this.resetState();
-    // watchNodeNotifications(this);
+    watchNodeNotifications(this.server);
   }
 
   resetState() {
@@ -49,6 +49,10 @@ export default class ServerState {
 
   mutate(key, fn) {
     this.store.mutateState(this._keys([key]), fn);
+  }
+
+  getIn(keys, notSetValue) {
+    return this.store.getIn(this._keys(keys), notSetValue);
   }
 
   /**
