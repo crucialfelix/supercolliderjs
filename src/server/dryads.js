@@ -163,7 +163,7 @@ export function interpreter(children=[], options={}) {
     debug: false
   };
   return dryadic((context) => {
-    return bootLang(_.defaults(options, defaultOptions))
+    return bootLang(_.defaults(options, defaultOptions), context.store)
       .then((lang) => {
         return callAndResolveAll(children,
           _.assign({}, context, {lang: lang}));
@@ -199,7 +199,7 @@ export function server(children=[], options={}) {
     debug: false
   };
   return dryadic((context) => {
-    return bootServer(_.defaults(options, defaultOptions))
+    return bootServer(_.defaults(options, defaultOptions), context.store)
       .then((s) => {
         return callAndResolveAll(children,
           _.assign({}, context, {server: s, group: 0}));

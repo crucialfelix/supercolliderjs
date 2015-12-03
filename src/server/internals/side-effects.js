@@ -4,14 +4,14 @@ import {boot as _bootLang} from '../../lang/sclang';
 /**
  * @private
  */
-export function bootServer(options) {
-  return _bootServer(options);
+export function bootServer(options, store) {
+  return _bootServer(options, store);
 }
 /**
  * @private
  */
-export function bootLang(options) {
-  return _bootLang(options);
+export function bootLang(options, store) {
+  return _bootLang(options, store);
 }
 /**
  * @private

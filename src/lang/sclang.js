@@ -407,9 +407,9 @@ export default class SCLang extends EventEmitter {
   * @param {object} options
   * @returns {Promise}
   */
-export function boot(options = {}) {
+export function boot(options = {}, store=null) {
   return resolveOptions(options.config, options).then((options) => {
-    var sclang = new SCLang(options);
+    var sclang = new SCLang(options, store);
     return sclang.boot().then(() => {
       return sclang.storeSclangConf().then(() => {
         return sclang;

@@ -2,6 +2,7 @@
 import _ from 'underscore';
 import {bootServer, bootLang} from './internals/side-effects';
 import {Promise} from 'bluebird';
+import Store from '../utils/Store';
 
 
 Promise.onPossiblyUnhandledRejection((error, promise) => {
@@ -26,6 +27,9 @@ export function dryadic(fn, requireSCSynth=false, requireSClang=false) {
  */
 export function withContext(parentContext, requireSCSynth=false, requireSClang=false) {
   var context = _.assign({id: '0'}, parentContext);
+  if (!context.store) {
+    context.store = new Store();
+  }
 
   var deps = {};
   const options = {
@@ -34,11 +38,12 @@ export function withContext(parentContext, requireSCSynth=false, requireSClang=f
     debug: false  // post debug messages in code, including stdout off lang/synth
     // langPort
   };
+  // deprec, but will replace this whole system soon
   if (requireSCSynth && !context.server) {
-    deps.server = () => bootServer(options);
+    deps.server = () => bootServer(options, context.store);
   }
   if (requireSClang && !context.lang) {
-    deps.lang = () => bootLang(options);
+    deps.lang = () => bootLang(options, context.store);
   }
   return callAndResolveValues(deps, context).then((resolvedDeps) => {
     if (resolvedDeps.server) {

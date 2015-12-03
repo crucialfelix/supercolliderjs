@@ -350,9 +350,9 @@ export class Server extends EventEmitter {
  *
  * @returns {Promise} - resolves with the Server
  */
-export function boot(options) {
+export function boot(options={}, store=null) {
   return resolveOptions(undefined, options).then((opts) => {
-    var s = new Server(opts);
+    var s = new Server(opts, store);
     return s.boot().then(() => s.connect()).then(() => s);
   });
 }
