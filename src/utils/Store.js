@@ -5,12 +5,17 @@ import Immutable from 'immutable';
 /**
  * A store that holds a state tree.
  *
- * Holds an immutable and offers functions to mutate sub-states in that.
+ * Holds an Immutable.Map and offers functions to mutate sub-states in that tree,
+ * and stores the new state.
  */
 export default class Store {
 
   constructor() {
     this.state = Immutable.Map();
+  }
+
+  getIn(keys, notSetValue) {
+    return this.state.getIn(keys, notSetValue);
   }
 
   /**

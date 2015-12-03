@@ -32,55 +32,61 @@ import {spawn} from 'child_process';
 import * as _ from 'underscore';
 import * as dgram from 'dgram';
 import * as osc from 'osc-min';
-import Immutable from 'immutable';
 import {Promise} from 'bluebird';
 
-import * as alloc from './internals/allocators';
 import SendOSC from './internals/send-osc';
 import {parseMessage} from './osc/utils';
 import {notify} from './osc/msg';
-import {watchNodeNotifications} from './node-watcher';
 import defaultOptions from './default-server-options.json';
 import Logger from '../utils/logger';
 import resolveOptions from '../utils/resolveOptions';
-
-
-const keys = {
-  NODE_IDS: 'nodeAllocator',
-  CONTROL_BUSSES: 'controlBusAllocator',
-  AUDIO_BUSSES: 'audioBusAllocator',
-  BUFFERS: 'bufferAllocator'
-};
-
-
-function _noop() {}
+import ServerState from './ServerState';
 
 
 export class Server extends EventEmitter {
 
   /**
    * @param {Object} options - command line options for scsynth
+   * @param {Store} stateStore - optional parent Store for allocators and node watchers
    */
-  constructor(options={}) {
+  constructor(options={}, stateStore=null) {
     super();
     this.options = _.defaults(options, defaultOptions);
     this.address = this.options.host + ':' + this.options.port;
     this.process = null;
     this.isRunning = false;
 
-    // subscribeable streams
+    /**
+     * @member {SendOSC} send - supports server.send.msg() and server.send.bundle()
+     *            You can also subscribe to it and get osc messages and bundles echoed
+     *            to you for debugging purposes.
+     */
     this.send = new SendOSC();
+    /**
+     * @member {Rx.Subject} receive - a subscribeable stream of OSC events received
+     */
     this.receive = new Subject();
+    /**
+     * @member {Rx.Subject} stdout - a subscribeable stream of stdout printed by the scsynth process
+     */
     this.stdout = new Subject();
+    /**
+     * @member {Rx.Subject} processEvents - a subscribeable stream of events related to the scsynth process
+     */
     this.processEvents = new Subject();
 
     this._initLogger();
     this._initEmitter();
     this._initSender();
-    watchNodeNotifications(this);
 
     this._serverObservers = {};
-    this.resetState();
+
+    /**
+     * @member {ServerState} state - Holds the mutable server state including
+     *                            allocators and the node state watcher.
+     *    If a parent stateStore is supplied then it will store within that.
+     */
+    this.state = new ServerState(this, stateStore);
   }
 
   _initLogger() {
@@ -108,7 +114,7 @@ export class Server extends EventEmitter {
     this.receive.subscribe((msg) => {
       this.emit('OSC', msg);
     });
-    this.processEvents.subscribe(_noop, (err) => this.emit('exit', err));
+    this.processEvents.subscribe(() => {}, (err) => this.emit('exit', err));
     this.stdout.subscribe((out) => this.emit('out', out), (out) => this.emit('stderr', out));
   }
   _initSender() {
@@ -121,27 +127,6 @@ export class Server extends EventEmitter {
         this.osc.send(buf, 0, buf.length, this.options.serverPort, this.options.host);
       }
     });
-  }
-
-  resetState() {
-    // mutate
-    var state = Immutable.Map();
-    state = state.set(keys.NODE_IDS, this.options.initialNodeID - 1);
-
-    var numAudioChannels = this.options.numPrivateAudioBusChannels +
-      this.options.numInputBusChannels +
-      this.options.numOutputBusChannels;
-    var ab = alloc.initialBlockState(numAudioChannels);
-    ab = alloc.reserveBlock(ab, 0, this.options.numInputBusChannels + this.options.numOutputBusChannels);
-    state = state.set(keys.AUDIO_BUSSES, ab);
-
-    var cb = alloc.initialBlockState(this.options.numControlBusChannels);
-    state = state.set(keys.CONTROL_BUSSES, cb);
-
-    var bb = alloc.initialBlockState(this.options.numBuffers);
-    state = state.set(keys.BUFFERS, cb);
-
-    this.state = state;
   }
 
   /**
@@ -356,70 +341,6 @@ export class Server extends EventEmitter {
     var promise = this.oscOnce(callAndResponse.response, timeout);
     this.send.msg(callAndResponse.call);
     return promise;
-  }
-
-  /**
-   * @returns {int}
-   */
-  nextNodeID() {
-    return this.mutateStateAndReturn(keys.NODE_IDS, alloc.increment);
-  }
-
-  // temporary raw allocator calls
-  allocAudioBus(numChannels=1) {
-    return this._allocBlock(keys.AUDIO_BUSSES, numChannels);
-  }
-  allocControlBus(numChannels=1) {
-    return this._allocBlock(keys.CONTROL_BUSSES, numChannels);
-  }
-  /**
-   * Allocate a buffer id.
-   *
-   * Note that numChannels is specified when creating the buffer.
-   *
-   * @param {int} numConsecutive - consecutively numbered buffers are needed by VOsc and VOsc3.
-   * @returns {int}
-   */
-  allocBufferID(numConsecutive=1) {
-    return this._allocBlock(keys.BUFFERS, numConsecutive);
-  }
-
-  // these require you to remember the channels and mess it up
-  // if you free it wrong
-  freeAudioBus(index, numChannels) {
-    return this._freeBlock(keys.AUDIO_BUSSES, index, numChannels);
-  }
-  freeControlBus(index, numChannels) {
-    return this._freeBlock(keys.CONTROL_BUSSES, index, numChannels);
-  }
-  freeBuffer(index, numChannels) {
-    return this._freeBlock(keys.BUFFERS, index, numChannels);
-  }
-
-  /**
-   * Fetch one part of the state,
-   * mutate it with the callback,
-   * save state and return the result.
-   *
-   * @returns {any} result
-   */
-  mutateStateAndReturn(key, fn) {
-    var result, state;
-    [result, state] = fn(this.state.get(key));
-    this.state = this.state.set(key, state);
-    return result;
-  }
-  mutateState(key, fn) {
-    this.state = this.state.update(key, Immutable.Map(), fn);
-  }
-
-  _allocBlock(key, numChannels) {
-    return this.mutateStateAndReturn(key,
-      (state) => alloc.allocBlock(state, numChannels));
-  }
-  _freeBlock(key, index, numChannels) {
-    return this.mutateState(key,
-      (state) => alloc.freeBlock(state, index, numChannels));
   }
 }
 

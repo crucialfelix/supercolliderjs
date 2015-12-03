@@ -23,7 +23,7 @@ export function sendMsg(context, msg) {
  * @private
  */
 export function nextNodeID(context) {
-  return context.server.nextNodeID();
+  return context.server.state.nextNodeID();
 }
 /**
  * @private

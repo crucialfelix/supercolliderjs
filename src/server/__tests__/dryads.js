@@ -22,7 +22,9 @@ describe('dryads', function() {
           host: '127.0.0.1',
           port: '57110'
         },
-        mutateState: jest.genMockFunction(),
+        state: {
+          mutate: jest.genMockFunction()
+        },
         callAndResponse: jest.genMockFunction()
           .mockReturnValue(Promise.resolve())
       },

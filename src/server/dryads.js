@@ -100,8 +100,13 @@ export function compileSynthDef(defName, sourceCode) {
 }
 
 
+/**
+ * store synthDefDesc in server state.
+ *
+ * This marks it as having been compiled and sent to server.
+ */
 export function putSynthDef(context, defName, synthDesc) {
-  context.server.mutateState(StateKeys.SYNTH_DEFS, (state) => {
+  context.server.state.mutate(StateKeys.SYNTH_DEFS, (state) => {
     return state.set(defName, synthDesc);
   });
 }
