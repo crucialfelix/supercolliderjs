@@ -3,6 +3,9 @@
 jest.dontMock('rx');
 jest.dontMock('../node-watcher');
 jest.dontMock('../server');
+jest.dontMock('../ServerState');
+jest.dontMock('../../utils/Store');
+
 var nw = require('../node-watcher');
 var Server = require('../server').Server;
 import * as _ from 'underscore';
@@ -16,7 +19,7 @@ describe('node-watcher', function() {
   var id2 = '0.1.3';
 
   function expectEqualState(s, object) {
-    var cs = s.state.get('NODE_WATCHER').toJS();
+    var cs = s.state.getIn(['NODE_WATCHER']).toJS();
     var is = _.isEqual(cs, object);
     if (!is) {
       // as long as callbacks have the same keys list

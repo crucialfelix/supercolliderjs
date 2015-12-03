@@ -46,7 +46,7 @@ export function watchNodeNotifications(server) {
   var stream = server.receive.filter((msg) => msg[0].match(re));
   var dispose = stream.subscribe((msg) => {
     var cmd = msg[0];
-    var r = responders[cmd];
+    var r = _responders[cmd];
     if (r) {
       r(server, msg.slice(1));
     }
@@ -111,7 +111,7 @@ function disposeForId(server, id) {
  */
 export function updateNodeState(server, nodeID, nodeState) {
   // unless its n_end then delete
-  server.mutateState(keys.NODE_WATCHER, (state) => {
+  server.state.mutate(keys.NODE_WATCHER, (state) => {
     return state.mergeIn([keys.NODES, String(nodeID)],
       Immutable.Map(),
       nodeState);
@@ -127,10 +127,7 @@ function _registerHandler(type, server, id, nodeID, handler) {
     _disposeHandler(type, server, id, nodeID);
   };
 
-  server.mutateState(keys.NODE_WATCHER, (state) => {
-    // why would I get undefined ??
-    state = state || Immutable.Map();
-
+  server.state.mutate(keys.NODE_WATCHER, (state) => {
     const handlerId = id + ':' + nodeID;
 
     return state
@@ -145,7 +142,7 @@ function _registerHandler(type, server, id, nodeID, handler) {
         }})
       .updateIn(
         [type, String(nodeID)],
-        Immutable.fromJS([]),
+        Immutable.List(),
         (list) => list.push(handlerId));
   });
 
@@ -156,9 +153,10 @@ function _registerHandler(type, server, id, nodeID, handler) {
  * Delete a handler from state object
  */
 function _disposeHandler(type, server, id, nodeID) {
-  server.mutateState(keys.NODE_WATCHER, (state) => {
+  server.state.mutate(keys.NODE_WATCHER, (state) => {
     // why would I get undefined ??
-    state = state || Immutable.Map();
+    // probably no longer happens with new mutate
+    // state = state || Immutable.Map();
 
     const handlerId = id + ':' + nodeID;
 
@@ -166,13 +164,13 @@ function _disposeHandler(type, server, id, nodeID) {
       .deleteIn([keys.CALLBACKS, handlerId])
       .updateIn(
         [type, String(nodeID)],
-        Immutable.fromJS([]),
+        Immutable.List(),
         (list) => list.filter((hid) => hid !== handlerId));
   });
 }
 
 function _handlersFor(server, type, nodeID) {
-  return server.state.getIn([keys.NODE_WATCHER, type, String(nodeID)], [])
+  return server.state.getIn([keys.NODE_WATCHER, type, String(nodeID)], Immutable.List())
     .map((handlerId) => {
       return server.state.getIn([keys.NODE_WATCHER, keys.CALLBACKS, handlerId]);
     });
@@ -205,7 +203,7 @@ function _callNodeHandlers(server, eventType, nodeID) {
 /**
  * @private
  */
-const responders = {
+const _responders = {
   '/n_go': (server, args) => {
     _saveNodeState(server, {
       isPlaying: true,
@@ -216,7 +214,7 @@ const responders = {
   },
   '/n_end': (server, args) => {
     const nodeID = args[0];
-    server.mutateState(keys.NODE_WATCHER, (state) => {
+    server.state.mutate(keys.NODE_WATCHER, (state) => {
       return state.deleteIn([keys.NODES, String(nodeID)]);
     });
     _callNodeHandlers(server, keys.ON_NODE_END, nodeID);
