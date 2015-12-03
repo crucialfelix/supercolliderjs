@@ -10,8 +10,8 @@ export function bootServer(options, store) {
 /**
  * @private
  */
-export function bootLang(options, store) {
-  return _bootLang(options, store);
+export function bootLang(options) {
+  return _bootLang(options);
 }
 /**
  * @private
