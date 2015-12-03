@@ -5,25 +5,20 @@
  *  SuperCollider comes with an executable called scsynth
  *  which can be communicated with via udp OSC
  *
- *  The primary way to send messages in with sendMsg
- *  eg. server.sendMsg('/s_new', ['defName', 440])
+ *  The primary way to send messages in with
+ *  eg. server.send.msg('/s_new', ['defName', 440])
 
  *  and the responses are emitted as 'OSC'
- *  eg. server.on('OSC', function(msg) {  ...  });
+ *  eg. server.receive.subscribe(function(msg) function(msg) {  ...  });
  *
  * methods:
  *   boot        - boot an scsynth process
  *   quit
  *   connect     - connect via udp OSC
  *   disconnect
- *   sendMsg     - send an OSC message
+ *   send.msg     - send an OSC message
  *
- * emits:
- *    'out'   - stdout text from the server
- *    'error' - stderr text from the server or OSC error messages
- *    'exit'  - when server exits
- *    'close' - when server closes the UDP connection
- *    'OSC'   - OSC responses from the server
+ *
  */
 
 import {EventEmitter} from 'events';
@@ -108,9 +103,19 @@ export class Server extends EventEmitter {
     this.stdout.subscribe((o) => this.log.stdout(o), (o) => this.log.stderr(o));
     this.processEvents.subscribe((o) => this.log.dbug(o), (o) => this.log.err(o));
   }
+
+  /**
+    * emit signals are deprecated and will be removed in 1.0
+    * use instead server.{channel}.subscribe((event) => { })
+    *
+    * Event Emitter emits:
+    *    'out'   - stdout text from the server
+    *    'error' - stderr text from the server or OSC error messages
+    *    'exit'  - when server exits
+    *    'close' - when server closes the UDP connection
+    *    'OSC'   - OSC responses from the server
+   */
   _initEmitter() {
-    // emit signals are deprecated.
-    // use server.{channel}.subscribe((event) => { })
     this.receive.subscribe((msg) => {
       this.emit('OSC', msg);
     });
@@ -152,6 +157,8 @@ export class Server extends EventEmitter {
    * Does not connect, so UDP is not yet ready for OSC communication.
    *
    * listen for system events and emit: exit out error
+   *
+   * @returns {Promise}
    */
   boot() {
     return new Promise((resolve, reject) => {
@@ -270,6 +277,9 @@ export class Server extends EventEmitter {
     });
   }
 
+  /**
+   * @private
+   */
   disconnect() {
     if (this.osc) {
       this.osc.close();
@@ -330,12 +340,16 @@ export class Server extends EventEmitter {
   }
 
   /**
-   * Send an OSC command that expects a reply from the server.
-   * Promise fullfills with anything the server response includes
-   * after the matched response.
+   * Send an OSC command that expects a reply from the server,
+   * and resolves with the response.
    *
-   * @param {Object} callAndResponse - {call: [...], response: [...]}
-   * @param {int} timeout
+   * This is for getting responses async from the server.
+   * The first part of the message matches the expected args,
+   * and the rest of the message contains the response.
+   *
+   * @param {Object} callAndResponse - Object with call: [osc_msg, 1, 2], response: [osc_response, 1, 2, 3]
+   * @param {int} timeout - in milliseconds before rejecting the Promise
+   * @returns {Promise} - resolves with all values the server responsed with after the matched response.
    */
   callAndResponse(callAndResponse, timeout=4000) {
     var promise = this.oscOnce(callAndResponse.response, timeout);
@@ -348,6 +362,8 @@ export class Server extends EventEmitter {
 /**
  * Boot a server with options and connect
  *
+ * @param {Object} options - command line options for server
+ * @param {Store} store - optional Dryadic Store to hold Server state
  * @returns {Promise} - resolves with the Server
  */
 export function boot(options={}, store=null) {

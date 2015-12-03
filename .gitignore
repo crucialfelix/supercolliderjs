@@ -2,3 +2,5 @@
 /docs/_build
 /lib
 coverage
+esdoc
+.node-version

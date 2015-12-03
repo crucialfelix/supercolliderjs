@@ -1,0 +1,7 @@
+{
+  "source": "./src",
+  "destination": "./esdoc",
+  "excludes": [
+    "__test__"
+  ]
+}

@@ -987,9 +987,9 @@ export function controlBusFill(triples) {
 /**
   * Get control bus values
 
-  * Takes a list of buses and replies with the corresponding `c_set` command.
+  * Takes a bus ID and replies with the corresponding `c_set` command.
 
-  * @param {Array.<int>} busIDs - array of bus ids
+  * @param {Number} busID - array of bus ids
   * @return {Array} - OSC message
   */
 export function controlBusGet(busID) {

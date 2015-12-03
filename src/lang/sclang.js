@@ -418,5 +418,5 @@ export function boot(options = {}, store=null) {
   });
 }
 
-// bwd compat
+// deprec. will be removed in 1.0
 SCLang.boot = boot;

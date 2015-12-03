@@ -6,5 +6,8 @@
 	"requireSpacesInFunctionExpression": null,
 	"disallowDanglingUnderscores": null,
 	"disallowMultipleLineBreaks": false,
-	"requireDotNotation": false
+	"requireDotNotation": false,
+	"jsDoc": {
+		"checkAnnotations": "jsdoc3"
+	}
 }

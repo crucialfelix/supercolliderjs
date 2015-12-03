@@ -116,10 +116,9 @@ export function putSynthDef(context, defName, synthDesc) {
  * Spawns each item returned by an Rx.Observable stream.
  *
  * Each item returned by the stream should be a dryad
- * like synth, group etc. though it can be simply a function
- * that will be called.
+ * like synth, group etc. It will be spawned as a child of this `stream` dryad.
  *
- * @param {Rx.Observeable} - streamable
+ * @param {Rx.Observeable} streamable - a stream that pushes dryads to be spawned
  */
 export function stream(streamable) {
   return dryadic((context) => {
@@ -152,7 +151,8 @@ export function synthStream(streamable, params={}) {
 
 
 /**
- * Boots a new supercollider interpreter making it available for all children.
+ * Boots a new supercollider interpreter making it available for all children
+ * as `context.lang`.
  *
  * Ignores any possibly already existing one in context.
  */
@@ -163,7 +163,7 @@ export function interpreter(children=[], options={}) {
     debug: false
   };
   return dryadic((context) => {
-    return bootLang(_.defaults(options, defaultOptions), context.store)
+    return bootLang(_.defaults(options, defaultOptions))
       .then((lang) => {
         return callAndResolveAll(children,
           _.assign({}, context, {lang: lang}));
@@ -174,7 +174,8 @@ export function interpreter(children=[], options={}) {
 
 /**
  * Boots a supercollider interpreter if none is already available
- * in the context.
+ * in the context making it available for all children
+ * as `context.lang`.
  */
 export function requireInterpreter(child, options={}) {
   return dryadic((context) => {
@@ -188,7 +189,8 @@ export function requireInterpreter(child, options={}) {
 
 
 /**
- * Boots a new supercollider server making it available for all children.
+ * Boots a new supercollider server making it available for all children making it available for all children
+ * as `context.server`.
  *
  * Always boots a new one, ignoring any possibly already existing one in context.
  */
@@ -210,7 +212,8 @@ export function server(children=[], options={}) {
 
 /**
  * Boots a supercollider server if none is already available
- * in the context.
+ * in the context making it available for all children
+ * as `context.server`.
  */
 export function requireServer(child, options={}) {
   return dryadic((context) => {

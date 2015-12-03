@@ -16,9 +16,17 @@ const keys = {
   BUFFERS: 'bufferAllocator'
 };
 
-
+/**
+ * Holds state for a Server such as node/bus/buffer allocators, node status and SynthDefs compiled.
+ *
+ * Each server is stored by its unique address, so multiple Servers can store state in the same global Store object.
+ */
 export default class ServerState {
 
+  /**
+   * @param {Server} server
+   * @param {Store} store - optional parent Store to use.
+   */
   constructor(server, store) {
     this.server = server;
     this.store = store ? store : new Store();
@@ -47,51 +55,103 @@ export default class ServerState {
     });
   }
 
+  /**
+   * Mutate a value or object in the server state.
+   *
+   * @param {String} key - top level key eg. nodeAllocator, controlBufAllocator
+   * @param {Function} fn - will receive current state or an empty Map, returns the altered state.
+   */
   mutate(key, fn) {
     this.store.mutateState(this._keys([key]), fn);
   }
 
+  /**
+   * Get current state value for the server using an array of keys.
+   *
+   * @param {String} keys - list of keys eg. ['NODE_WATCHER', 'n_go', 1000]
+   * @param {any} notSetValue - default value to return if empty
+   * @returns {any}
+   */
   getIn(keys, notSetValue) {
     return this.store.getIn(this._keys(keys), notSetValue);
   }
 
   /**
+   * Allocates a node ID to be used for making a synth or group
+   *
    * @returns {int}
    */
   nextNodeID() {
     return this.store.mutateStateAndReturn(this._keys([keys.NODE_IDS]), alloc.increment);
   }
 
-  // temporary raw allocator calls
+  /**
+   * Allocate an audio bus.
+   *
+   * @returns {int} numChannels
+   */
   allocAudioBus(numChannels=1) {
     return this._allocBlock(keys.AUDIO_BUSSES, numChannels);
   }
+
+  /**
+   * Allocate a control bus.
+   *
+   * @returns {int} numChannels
+   */
   allocControlBus(numChannels=1) {
     return this._allocBlock(keys.CONTROL_BUSSES, numChannels);
   }
-  // These require you to remember the channels and it messes it up
-  // if you free it wrong. will change to higher level storage.
+
+  /**
+   * Free a previously allocate audio bus
+   *
+   * These require you to remember the channels and it messes it up
+   * if you free it wrong. will change to higher level storage.
+   *
+   * @param {int} index
+   * @param {int} numChannels
+   */
   freeAudioBus(index, numChannels) {
-    return this._freeBlock(keys.AUDIO_BUSSES, index, numChannels);
+    this._freeBlock(keys.AUDIO_BUSSES, index, numChannels);
   }
+
+  /**
+   * Free a previously allocated control bus
+   *
+   * These require you to remember the channels and it messes it up
+   * if you free it wrong. will change to higher level storage.
+   *
+   * @param {int} index
+   * @param {int} numChannels
+   */
   freeControlBus(index, numChannels) {
-    return this._freeBlock(keys.CONTROL_BUSSES, index, numChannels);
+    this._freeBlock(keys.CONTROL_BUSSES, index, numChannels);
   }
 
   /**
    * Allocate a buffer id.
    *
    * Note that numChannels is specified when creating the buffer.
+   * This allocator makes sure that the neighboring buffers are empty.
    *
    * @param {int} numConsecutive - consecutively numbered buffers are needed by VOsc and VOsc3.
-   * @returns {int}
+   * @returns {int} - buffer id
    */
   allocBufferID(numConsecutive=1) {
     return this._allocBlock(keys.BUFFERS, numConsecutive);
   }
 
-  freeBuffer(index, numChannels) {
-    return this._freeBlock(keys.BUFFERS, index, numChannels);
+  /**
+   * Free a previously allocated buffer id.
+   *
+   * Note that numChannels is specified when creating the buffer.
+   *
+   * @param {int} index
+   * @param {int} numConsecutive - consecutively numbered buffers are needed by VOsc and VOsc3.
+   */
+  freeBuffer(index, numConsecutive) {
+    this._freeBlock(keys.BUFFERS, index, numConsecutive);
   }
 
   _allocBlock(key, numChannels) {
@@ -99,7 +159,7 @@ export default class ServerState {
       (state) => alloc.allocBlock(state, numChannels));
   }
   _freeBlock(key, index, numChannels) {
-    return this.mutate(key, (state) => alloc.freeBlock(state, index, numChannels));
+    this.mutate(key, (state) => alloc.freeBlock(state, index, numChannels));
   }
   _keys(more=[]) {
     return [keys.SERVERS, this.server.address].concat(more);
