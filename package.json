@@ -24,10 +24,11 @@
     "untildify": "^2.1.0"
   },
   "devDependencies": {
-    "babel": "^5.5.29",
-    "babel-jest": "5.3.0",
-    "jest-cli": "^0.7.1",
-    "jscs": "^2.5.0",
+    "babel": "^6.2.4",
+    "babel-cli": "^6.2.0",
+    "babel-jest": "^6.0.1",
+    "jest-cli": "^0.8.0",
+    "jscs": "^2.6.0",
     "eslint": "^1.10.3"
   },
   "license": "MIT",
