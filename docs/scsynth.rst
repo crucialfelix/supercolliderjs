@@ -3,76 +3,57 @@ scsynth
 
 SuperCollider comes with an executable called scsynth which can be communicated with via udp OSC
 
-The primary way to send messages in with sendMsg::
+Example::
 
-  server.sendMsg('/s_new', ['defName', 440]);
+  var sc = require('supercolliderjs');
 
-and the responses are emitted as 'OSC'::
+  sc.server.boot().then(function(server) {
+    // server is booted and connected ...
+  });
+
+
+The primary way to send messages in with send::
+
+    server.send.msg(['/s_new', 'defName', 440]);
+
+OSC responses are available as a subscribeable stream::
+
+    server.receive.subscribe(function(msg) {
+      console.log(msg);
+    });
+
+This is an Rx.Subject (reactive extensions)
+
+They are also emitted with the key 'OSC' (though this will be deprecated and removed in 1.0)::
 
     server.on('OSC', function(msg) {
         // ...
     });
 
 
-Example::
+The server also offers structured call and response for async commands that the server responds to.::
 
-  var supercolliderjs = require('supercolliderjs');
+      server.callAndResponse(sc.msg.status())
+        .then(function(reply) {
+          console.log(reply);
+        });
 
-  supercolliderjs.resolveOptions().then(function(options) {
-
-    var Server = require('supercolliderjs').scsynth;
-    var s = new Server(options);
-    s.boot();
-
-    // wait for it to boot
-    // TODO: return a promise
-    setTimeout(function() {
-      s.connect();
-      s.sendMsg('/notify', [1]);
-      s.sendMsg('/status', []);
-      s.sendMsg('/dumpOSC', []);
-    }, 1000);
-
-    s.on('OSC', function(addr, msg) {
-      // message from the server
-      console.log(addr + msg);
-    });
-
-  });
-
-Methods
--------
-
-constructor
-+++++++++++
-
-boot
-++++
-
-quit
-++++
-
-connect
-+++++++
-OSC connect via UDP
-
-disconnect
-++++++++++
-OSC disconnect
-
-sendMsg
-+++++++
-
-Usage::
-
-    s.connect();
-    s.sendMsg('/notify', [1]);
 
 
 Events
 ------
 
-SCLang inherits from EventEmitter:
+EventEmitter events are deprecated and will be removed in 1.0
+
+Instead subscribe to the streams at::
+
+    server.send.subscribe(function(event) { ... });
+    server.receive.subscribe(function(event) { ... });
+    sever.stdout.subscribe(function(event) { ... });
+    server.processEvents.subscribe(function(event) { ... });
+
+
+Server inherits from EventEmitter:
 
 http://nodejs.org/api/events.html
 
@@ -89,6 +70,4 @@ So there is .on, .addListener, .removeListener, .once etc.
 Planned
 -------
 
-sendBundle is not yet implemented
-
-`--forever` to always restart server if it crashes
+send.bundle will be implemented in 0.10.0

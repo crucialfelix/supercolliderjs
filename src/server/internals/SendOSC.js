@@ -2,7 +2,13 @@
 import {EventEmitter} from 'events';
 import {Observable} from 'rx';
 
-
+/**
+ * Owned by the Server, this is an object that you call .msg or .bundle on
+ * to send OSC.
+ *
+ * The Server subscribes to this and does the actual sending.
+ * You may also subscribe to this for debugging, logging or entertainment purposes.
+ */
 export default class SendOSC extends EventEmitter {
 
   msg(m) {
@@ -17,7 +23,7 @@ export default class SendOSC extends EventEmitter {
   }
 
   /**
-   * Subscribe to monitor messages and bundles sent.
+   * Subscribe to monitor OSC messages and bundles sent.
    *
    * Events are: {type: msg|bundle: payload: Array}
    *

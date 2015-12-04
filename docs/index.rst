@@ -16,16 +16,25 @@ This library provides tools for working with:
 - sclang (supercollider language interpreter)
 - sclang running in SuperCollider application (IDE + sclang).
 
-
 Features
 --------
 
-- Spawn headless SuperCollider language interpreters (sclang)
-- Execute SuperCollider code from node js and get results or errors returned as JSON
-- Spawn SuperCollider synthesis servers (scsynth)
+- Start SuperCollider language interpreters (sclang)
+- Interpret SuperCollider code from node js and get results or errors returned as equivalent JavaScript types
+
+- Start SuperCollider synthesis servers (scsynth)
 - Send and receive OSC messages to scsynth
-- Call API endpoints in SuperCollider from a browser using JavaScript and a websocket/OSC bridge
-- Communicate with sclang running in SuperCollider.app (SC IDE) using OSC
+- Call async commands on scsynth and receive results
+- Comprehensive library for calling all commands the server understands
+- Node-id/Bus/Buffer allocators
+- Server state and synth/group tracking
+
+
+API
+---
+
+https://doc.esdoc.org/github.com/crucialfelix/supercolliderjs/
+
 
 
 Contribute
