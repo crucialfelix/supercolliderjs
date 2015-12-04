@@ -9,7 +9,7 @@ Example::
 
     var supercolliderjs = require('supercolliderjs');
 
-    supercolliderjs.sclang.boot()
+    supercolliderjs.lang.boot()
       .then(function(sclang) {
 
         sclang.interpret('(1..8).pyramid')
@@ -28,52 +28,15 @@ Example::
 Methods
 -------
 
-constructor
-+++++++++++
-
-params: options
-
-boot()
-++++++
-
-returns: promise
-
-Example::
-
-  sclang.boot().then(function() {
-    // ready
-    // ...
-  }, function(error) {
-    // process error (wrong path etc)
-    // compilation error
-    // failure during initClass startup
-    console.log("Failed to boot:" + sclang.state);
-  });
-
-write(code, callback, noEcho)
-+++++++++++++++++++++++++++++
-
-Send a raw string to sclang to be interpreted.
-Callback is called after write is complete but does not contain any response.
-
-If noEcho is true then it will not print the input to log.stdin.
-
-initInterpreter
-+++++++++++++++
-
-Prepare for using .interpret by having sclang execute the file: `lib/sc/interpret.scd` which installs functions used by the interpret method.
-
-This is async
-
-returns: promise
-
+See full API at:
+https://doc.esdoc.org/github.com/crucialfelix/supercolliderjs/
 
 interpret(code, nowExecutingPath, asString)
 +++++++++++++++++++++++++++++++++++++++++++
 
 Evaluates code in sclang and returns a promise.
 
-Resolves promise with result or rejects with error as JSON
+Promise resolves with result or rejects with error as a JavaScript object.
 
 This is a complete two-way bridge from javascript to supercollider.
 
@@ -98,7 +61,7 @@ Usage::
     .then(function(result) {
       //javascript array: [ 1, 1, 2, 1, 2, 3, 1, 2, 3, 4 ]
     }, function(error) {
-
+      console.error(error);
     });
 
 
@@ -120,12 +83,6 @@ Example error object from sclang.interpret('1 + 1.pleaseDontDoThisToMe')
 
 Syntax errors are returned by not yet with all the information. The STDOUT needs to be parsed and converted into line/char and error messages.
 
-quit
-++++
-
-Stop the child process with a SIGINT
-
-returns: promise
 
 Events
 ------

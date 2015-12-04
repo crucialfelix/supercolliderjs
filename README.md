@@ -8,7 +8,7 @@ Node.js tools for working with the SuperCollider language and synthesis server.
 
 SuperCollider is an environment and programming language for real time audio synthesis and algorithmic composition. It provides an interpreted object-oriented language which functions as a network client to a state of the art, realtime sound synthesis server.
 
-This library provides tools for working with:
+This library provides functionality for working with:
 
 - scsynth (the synthesis server)
 - sclang (supercollider language interpreter)
@@ -18,26 +18,29 @@ Documentation
 -------------
 
 http://supercolliderjs.readthedocs.org/en/latest/
-
+https://doc.esdoc.org/github.com/crucialfelix/supercolliderjs/
 
 Features
 --------
 
-- Spawn headless SuperCollider language interpreters (sclang)
-- Execute SuperCollider code from node js and get results or errors returned as JSON
-- Spawn SuperCollider synthesis servers (scsynth)
+- Start SuperCollider language interpreters (sclang)
+- Interpret SuperCollider code from node js and get results or errors returned as equivalent JavaScript types
+
+- Start SuperCollider synthesis servers (scsynth)
 - Send and receive OSC messages to scsynth
-- Call API endpoints in SuperCollider from a browser using JavaScript and a websocket/OSC bridge
-- Communicate with sclang running in SuperCollider.app (SC IDE) using OSC
+- Call async commands on scsynth and receive results
+- Comprehensive library for calling all commands the server understands
+- Node-id/Bus/Buffer allocators
+- Server state and synth/group tracking
 
 
 Example
 -------
 
 ```javascript
-var scjs = require('supercolliderjs');
+var sc = require('supercolliderjs');
 
-scjs.sclang.boot()
+sc.lang.boot()
   .then(function(sclang) {
 
     sclang.interpret('(1..8).pyramid')
@@ -54,12 +57,36 @@ scjs.sclang.boot()
 ```
 
 
+```javascript
+var sc = require('supercolliderjs');
+
+sc.server.boot()
+  .then(function(server) {
+
+    // raw send message
+    server.send.msg(['/g_new', 1, 0, 0]);
+
+    // using sc.msg to format them
+    server.send.msg(sc.msg.groupNew(1));
+
+    // call async messages with callAndResponse
+    // and receive replies with a Promise
+    server.callAndResponse(sc.msg.status())
+      .then(function(reply) {
+        console.log(reply);
+      });
+
+  });
+```
+
+
+
 Compatibility
 -------------
 
-Works on Node 0.10.x, 0.11.x, 0.12.x and iojs 2.3
+Works on Node 4+
 
-Note that the testing framework (jest) does not work on anything except Node 0.10.x, so travis is currently not set to test any other versions.
+Source code is written in ES2015 and transpiled with babel.
 
 
 Contribute

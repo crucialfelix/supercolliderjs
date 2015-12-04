@@ -15,12 +15,12 @@
 // but if you are running this from inside this example folder
 // then let's import from a relative path
 // index.js exports an object containing the supercollider.js modules
-var supercolliderjs = require('../index.js');
+var sc = require('../index.js');
 
 // the SCAPI class is accessibl as .scapi
-var SCAPI = supercolliderjs.scapi;
+var SCAPI = sc.scapi;
 
-supercolliderjs.resolveOptions().then(function(options) {
+sc.resolveOptions().then(function(options) {
 
   var scapi = new SCAPI(options.host, options.langPort);
   // scapi comes with a logger utility
@@ -31,8 +31,7 @@ supercolliderjs.resolveOptions().then(function(options) {
 
   scapi.connect();
 
-  // call returns a Q promise
-  // https://github.com/kriskowal/q
+  // call returns a Promise
   // so you use .then(ok, error)
   scapi.call(0, 'API.apis', [])
     .then(function(response) {
@@ -57,7 +56,7 @@ supercolliderjs.resolveOptions().then(function(options) {
 
   scapi.call(2, 'server.boot')
     .then(function() {
-      scapi.log.dbug("server booted");
+      scapi.log.dbug('server booted');
       return scapi.call(3, 'group.new')
         .then(function(response) {
           scapi.log.debug(response);

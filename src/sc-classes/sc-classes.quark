@@ -1,0 +1,4 @@
+(
+  'summary': "supercollider.js adds this package in order to overide methods of Error.reportError so they post formatted JSON errors to standard out",
+  'version': "0.8.2"
+)

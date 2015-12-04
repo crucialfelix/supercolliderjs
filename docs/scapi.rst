@@ -16,7 +16,7 @@ Results are returned via callbacks or promises.::
   });
   // You can interpret code or execute files.
   scapi.call('interpreter.interpret', ["1 + 1"])
-    // .call returns a Q promise
+    // .call returns a Promise
     .then(function(result) {
         console.log(result);  // integer 2
       }, function(err) {

@@ -1,4 +1,6 @@
 /node_modules
 /docs/_build
-/lib/js
+/lib
 coverage
+esdoc
+.node-version
