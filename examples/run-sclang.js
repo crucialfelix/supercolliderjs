@@ -10,4 +10,4 @@ sc.lang.boot({debug: false}).then(function(sclang) {
     console.log('1 + 1 = ' + answer);
   }, console.error);
 
-}, console.error).done();
+});

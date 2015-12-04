@@ -1,10 +1,3 @@
-/*
-  Boot the local scsynth server,
-  holding it as a spawned child process.
-
-  next step: osc message to the server
-*/
-
 // In your project you will import it like this:
 // var sc = require('supercolliderjs');
 
@@ -12,5 +5,5 @@
 var sc = require('../index.js');
 
 sc.server.boot().then(function(s) {
-  s.sendMsg('/status', []);
-}, console.error).done();
+  s.send.msg(['/status']);
+});

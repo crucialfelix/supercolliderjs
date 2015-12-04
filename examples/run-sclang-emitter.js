@@ -13,7 +13,7 @@
 
 // from within this example folder this is the same thing:
 var supercolliderjs = require('../index.js');
-var SCLang = supercolliderjs.sclang;
+var SCLang = supercolliderjs.lang;
 
 supercolliderjs.resolveOptions(null, {
   // no STDIN, all input will be programmatic

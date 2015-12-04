@@ -1,73 +1,54 @@
 
 /**
- * This shows how to capture output of sclang
- * and do anything you like with it.
- *
- * But default sclang.js echoes everything to the console.
- *
+ * a less verbose way to boot up sclang
+ * and intepret sc code
  */
 
-// npm install supercolliderjs
-// then import like so:
 // var supercolliderjs = require('supercolliderjs');
+var supercolliderjs = require('../index.js');
+var options = {
+    // no STDIN, all input will be programmatic
+    stdin: false,
+    // echo STDOUT to console
+    echo: true,
+    // debug is on so you will see all traffic posted to the console
+    debug: true
+  };
 
-// from within this example folder this is the same thing:
-var sc = require('../index.js');
-var SCLang = sc.lang.SCLang;
+// this catches out of band errors:
+// failures in supercolliderjs, the connection,
+// your computer
+function onError(error) {
+  console.error(error);
+  console.trace();
+  process.exit(1);
+}
 
-sc.resolveOptions(null, {
-  // no STDIN, all input will be programmatic
-  stdin: false,
-  // do not echo to console, that's handled here
-  echo: false,
-  debug: true
-}).then(function(options) {
+supercolliderjs.lang.boot(options)
+  .then(function(sc) {
 
-  var sclang = new SCLang(options);
+    function resultHandler(result) {
+      console.log('Result:');
+      console.log(result);
+    }
 
-  // get output and do what you like with it
-  sclang.on('stdout', function(d) {
-    console.log('STDOUT:' + d);
-  });
+    function errorHandler(error) {
+      console.log('Error:');
+      console.log(error);
+    }
 
-  sclang.on('stderr', function(d) {
-    console.log('STDERR:' + d);
-  });
+    // interpret and return result as promise
+    sc.interpret('(1..8).pyramid')
+      .then(resultHandler, errorHandler);
 
-  sclang.on('state', function(state) {
-    console.log('sclang state changed: ' + state);
-  });
+    // this will cause a syntax error
+    // and call the errorHandler
+    sc.interpret('1 + 1 oh no this is a syntax error')
+      .then(resultHandler, errorHandler);
 
-  sclang.boot()
-    .then(function() {
-      return sclang.initInterpreter();
-    })
-    .then(function() {
-      // interpret and return result in promise
+    // supercollider will throw a DoesNotUnderstand error
+    // and the errorHandler here in javascript will get called
+    sc.interpret('1 + 1.integerDoesntHaveThisMethod')
+      .then(resultHandler, errorHandler);
 
-      function resultHandler(result) {
-        console.log('Result:');
-        console.log(result);
-      }
-
-      function errorHandler(error) {
-        console.log('Error:');
-        console.log(error);
-      }
-
-      // ok success
-      sclang.interpret('1 + 1')
-        .then(resultHandler, errorHandler);
-
-      // syntax error
-      sclang.interpret('1 + 1 oh no this is a syntax error')
-        .then(resultHandler, errorHandler);
-
-      // runtime error
-      sclang.interpret('1 + 1.pleaseDontDoThisToMe')
-        .then(resultHandler, errorHandler);
-
-      // test out of band error
-
-    });
-});
+  }).fail(onError);
