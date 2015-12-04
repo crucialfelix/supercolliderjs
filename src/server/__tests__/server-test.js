@@ -1,8 +1,8 @@
 
 // jest.autoMockOn();
-// jest.mock('../internals/SendOSC');
 jest.dontMock('../server');
 jest.dontMock('../ServerState');
+jest.dontMock('../internals/SendOSC');
 jest.dontMock('rx');
 import * as _ from 'underscore';
 
