@@ -1,6 +1,6 @@
-jest.autoMockOff();
+// jest.autoMockOff();
 
-var Logger = require('../logger');
+var Logger = require('../logger').default;
 
 describe('Logger', function() {
   var l = new Logger(true, false);

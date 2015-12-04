@@ -1,6 +1,8 @@
 
-
+// jest.autoMockOn();
+// jest.mock('../internals/SendOSC');
 jest.dontMock('../server');
+jest.dontMock('../ServerState');
 jest.dontMock('rx');
 import * as _ from 'underscore';
 
@@ -19,12 +21,13 @@ describe('Server', function() {
     pit('should fullfill', function() {
       var s = new Server();
 
+      s.send.msg = jest.genMockFunction();
+
       var p = s.oscOnce(['/done', '/notify']).then((rest) => {
         // p is now fulfilled
         // console.log(rest);
         expect(_.isEqual(rest, [15])).toBe(true);
       });
-      // console.log('sender', s.send.msg);
       expect(s.send.msg.mock.calls.length).toBe(0);
 
       // server responds
@@ -51,6 +54,8 @@ describe('Server', function() {
         call: ['/notify'],
         response: ['/done', '/notify']
       };
+
+      s.send.msg = jest.genMockFunction();
 
       var p = s.callAndResponse(car).then((response) => {
         expect(_.isEqual(response, [15])).toBe(true);

@@ -7,7 +7,7 @@ jest.dontMock('../internals/allocators');
 jest.dontMock('rx');
 
 var Server = require('../server').Server;
-var ServerState = require('../ServerState');
+var ServerState = require('../ServerState').default;
 
 describe('ServerState', function() {
 

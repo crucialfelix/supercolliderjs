@@ -76,6 +76,8 @@
       "json"
     ],
     "unmockedModulePathPatterns": [
+      "utils/logger",
+      "dryadic/Store",
       "node_modules/chalk",
       "node_modules/temp",
       "node_modules/underscore",
