@@ -29,7 +29,7 @@ import * as dgram from 'dgram';
 import * as osc from 'osc-min';
 import {Promise} from 'bluebird';
 
-import SendOSC from './internals/send-osc';
+import SendOSC from './internals/SendOsc';
 import {parseMessage} from './osc/utils';
 import {notify} from './osc/msg';
 import defaultOptions from './default-server-options.json';
