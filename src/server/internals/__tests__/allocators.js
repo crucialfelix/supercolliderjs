@@ -1,5 +1,5 @@
 
-jest.autoMockOff();
+// jest.autoMockOff();
 
 jest.dontMock('../allocators');
 jest.dontMock('immutable');

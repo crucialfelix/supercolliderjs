@@ -1,8 +1,9 @@
 
-jest.autoMockOff();  // not that you are paying any attention to me
+jest.autoMockOff();
 jest.mock('child_process');
 jest.dontMock('../sclang');
 jest.dontMock('../internals/sclang-io');
+jest.dontMock('fs');
 
 //  import SCLang from '../sclang';
 var SCLang = require('../sclang').default;

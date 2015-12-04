@@ -14,12 +14,13 @@ var help = [
 
 var
     join = require('path').join,
-    pkg = require(join(__dirname, '../package.json')),
-    lib = join(__dirname, '../lib/js/'),
-    program = require('commander'),
-    resolveOptions = require(lib + 'resolveOptions'),
-    Server = require(lib + 'scsynth'),
-    options = {};
+    program = require('commander');
+
+var pkg = require(join(__dirname, '../package.json'));
+var sc = require(join(__dirname, '../index'));
+var resolveOptions = sc.resolveOptions;
+var Server = sc.server.Server;
+var options = {};
 
 function truthy(input) {
   return (input + '') !== 'false';

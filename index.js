@@ -2,7 +2,7 @@
 exports.lang = require('./lib/lang/sclang');
 exports.server = require('./lib/server/server');
 exports.scapi = require('./lib/scapi');
-exports.resolveOptions = require('./lib/utils/resolveOptions');
+exports.resolveOptions = require('./lib/utils/resolveOptions').default;
 
 exports.map = require('./lib/map');
 exports.msg = require('./lib/server/osc/msg');

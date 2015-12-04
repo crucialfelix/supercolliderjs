@@ -1,6 +1,6 @@
 {
   "name": "supercolliderjs",
-  "version": "0.9.0-alpha.1",
+  "version": "0.9.0",
   "dependencies": {
     "bluebird": {
       "version": "3.0.5",
@@ -62,38 +62,6 @@
           "version": "1.0.1",
           "from": "graceful-readlink@>=1.0.0",
           "resolved": "https://registry.npmjs.org/graceful-readlink/-/graceful-readlink-1.0.1.tgz"
-        }
-      }
-    },
-    "fs-extra": {
-      "version": "0.26.2",
-      "from": "fs-extra@*",
-      "resolved": "https://registry.npmjs.org/fs-extra/-/fs-extra-0.26.2.tgz",
-      "dependencies": {
-        "graceful-fs": {
-          "version": "4.1.2",
-          "from": "graceful-fs@>=4.1.2 <5.0.0",
-          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.2.tgz"
-        },
-        "jsonfile": {
-          "version": "2.2.3",
-          "from": "jsonfile@>=2.1.0 <3.0.0",
-          "resolved": "https://registry.npmjs.org/jsonfile/-/jsonfile-2.2.3.tgz"
-        },
-        "klaw": {
-          "version": "1.1.2",
-          "from": "klaw@>=1.0.0 <2.0.0",
-          "resolved": "https://registry.npmjs.org/klaw/-/klaw-1.1.2.tgz"
-        },
-        "path-is-absolute": {
-          "version": "1.0.0",
-          "from": "path-is-absolute@>=1.0.0 <2.0.0",
-          "resolved": "https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.0.tgz"
-        },
-        "rimraf": {
-          "version": "2.4.4",
-          "from": "rimraf@>=2.2.8 <3.0.0",
-          "resolved": "https://registry.npmjs.org/rimraf/-/rimraf-2.4.4.tgz"
         }
       }
     },

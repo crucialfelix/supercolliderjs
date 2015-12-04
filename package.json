@@ -53,7 +53,7 @@
   "scripts": {
     "test": "jest && npm run lint && npm run jsstyle",
     "lint": "eslint -c .eslintrc src bin examples/*.js",
-    "jest": "jest --watch",
+    "jest": "npm run build && jest --watch",
     "jsstyle": "jscs src bin examples/*.js",
     "compile": "babel --source-maps --out-dir=./lib src",
     "watch": "babel --watch --source-maps --out-dir=./lib src",
@@ -76,6 +76,8 @@
       "json"
     ],
     "unmockedModulePathPatterns": [
+      "utils/logger",
+      "dryadic/Store",
       "node_modules/chalk",
       "node_modules/temp",
       "node_modules/underscore",

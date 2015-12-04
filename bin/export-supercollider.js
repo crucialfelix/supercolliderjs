@@ -8,14 +8,14 @@ var help = [
 
 var path = require('path');
 var join = path.join;
-var pkg = require(join(__dirname, '../package.json'));
 var fs = require('fs');
 var ncp = require('ncp').ncp;
-var lib = join(__dirname, '../lib/js/');
 var program = require('commander');
-var resolveOptions = require(lib + 'resolveOptions');
-// var Server = require(lib + 'scsynth');
 var Promise = require('bluebird');
+
+var pkg = require(join(__dirname, '../package.json'));
+var sc = require(join(__dirname, '../index'));
+var resolveOptions = sc.resolveOptions;
 
 function makeDir(dest) {
   if (fs.existsSync(dest)) {

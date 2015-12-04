@@ -4,10 +4,11 @@ jest.dontMock('../server');
 jest.dontMock('../ServerState');
 jest.dontMock('../../dryadic/Store');
 jest.dontMock('../internals/allocators');
+jest.dontMock('../internals/SendOSC');
 jest.dontMock('rx');
 
 var Server = require('../server').Server;
-var ServerState = require('../ServerState');
+var ServerState = require('../ServerState').default;
 
 describe('ServerState', function() {
 
