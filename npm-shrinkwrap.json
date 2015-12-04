@@ -1,6 +1,6 @@
 {
   "name": "supercolliderjs",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "dependencies": {
     "bluebird": {
       "version": "3.0.5",
