@@ -19,9 +19,9 @@ var help = [
 var
     path = require('path'),
     pkg = require(path.join(__dirname, '../package.json')),
-    lib = path.join(__dirname, '../lib/js/'),
+    sc = require(path.join(__dirname, '../index')),
     program = require('commander'),
-    SCLang = require(lib + 'sclang'),
+    SCLang = sc.lang,
     options = {};
 
 function truthy(input) {
