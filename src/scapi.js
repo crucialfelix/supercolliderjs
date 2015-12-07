@@ -34,7 +34,7 @@ var
 import Logger from './utils/logger';
 
 
-class SCAPI extends events.EventEmitter {
+export class SCAPI extends events.EventEmitter {
 
   constructor(schost, scport) {
     super();
@@ -166,5 +166,3 @@ class SCAPI extends events.EventEmitter {
     delete this.requests[requestId];
   }
 }
-
-module.exports = SCAPI;

@@ -32,7 +32,7 @@ import resolveOptions from '../utils/resolveOptions';
 import {Promise} from 'bluebird';
 
 
-export default class SCLang extends EventEmitter {
+export class SCLang extends EventEmitter {
 
   /*
    * @param {object} options - sclang command line options
