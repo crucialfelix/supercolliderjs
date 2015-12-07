@@ -6,7 +6,7 @@ jest.dontMock('../internals/sclang-io');
 jest.dontMock('fs');
 
 //  import SCLang from '../sclang';
-var SCLang = require('../sclang').default;
+var SCLang = require('../sclang').SCLang;
 
 var _ = require('underscore');
 var path = require('path');
