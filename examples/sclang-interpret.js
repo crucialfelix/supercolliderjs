@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 
 /**
  * a less verbose way to boot up sclang
@@ -9,10 +10,9 @@ var supercolliderjs = require('../index.js');
 var options = {
     // no STDIN, all input will be programmatic
     stdin: false,
-    // echo STDOUT to console
-    echo: true,
-    // debug is on so you will see all traffic posted to the console
-    debug: true
+    echo: false,
+    // turn debug on if you want to see all stdout posted to the console
+    debug: false
   };
 
 // this catches out of band errors:
@@ -51,4 +51,4 @@ supercolliderjs.lang.boot(options)
     sc.interpret('1 + 1.integerDoesntHaveThisMethod')
       .then(resultHandler, errorHandler);
 
-  }).fail(onError);
+  }, onError);

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /*
 
 This example shows the low-level function server.oscOnce
