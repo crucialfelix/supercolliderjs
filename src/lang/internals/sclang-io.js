@@ -99,7 +99,7 @@ class SclangIO extends EventEmitter {
             fn: function() {
               var parsed = self.parseCompileErrors((self.parseErrors || []).join('\n'));
               self.compiledDirs = parsed.dirs;
-              delete self.parseErrors;
+              self.parseErrors = [];
               self.setState(STATES.COMPILED);
             }
           },
@@ -121,7 +121,7 @@ class SclangIO extends EventEmitter {
             re: /Welcome to SuperCollider ([0-9a-zA-Z\.]+)\. /m,
             fn: function(match) {
               self.version = match[1];
-              var parsed = self.parseCompileErrors((self.parseErrors || []).join('\n'));
+              var parsed = self.parseCompileErrors((self.parseErrors).join('\n'));
               self.compiledDirs = parsed.dirs;
               delete self.parseErrors;
               self.setState(STATES.READY);
