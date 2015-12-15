@@ -145,6 +145,30 @@ describe('sclang-io', function() {
       expect(error.line).toBe(9);
       expect(error.charPos).toBe(47);
     });
+
+    pit('on successful interpret, should still post output to stdout', function() {
+      var io = new SclangIO();
+      io.setState(STATES.READY);
+
+      // stick a blank Promise into register so it will
+      // parse the response
+      io.registerCall('725282d0-a31c-11e5-9a22-59ba9f49924a', {
+        resolve: () => {},
+        reject: () => {}
+      });
+
+      return new Promise((resolve) => {
+        // this is what is really being tested:
+        // does it post to STDOUT
+        io.on('stdout', (out) => {
+          console.log('STDOUT:', out);
+          resolve(true);
+        });
+
+        var text = readFile('forward-stdout.txt');
+        io.parse(text);
+      });
+    });
   });
 
 });

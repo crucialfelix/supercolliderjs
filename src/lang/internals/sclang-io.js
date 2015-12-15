@@ -222,6 +222,13 @@ class SclangIO extends EventEmitter {
 
                 if (guid in self.calls) {
                   if (response.type === 'Result') {
+                    // anything posted during CAPTURE should be forwarded
+                    // to stdout
+                    stdout = self.capturing[guid].join('\n');
+                    delete self.capturing[guid];
+                    if (stdout) {
+                      self.emit('stdout', stdout);
+                    }
                     self.calls[guid].resolve(obj);
                   } else {
                     if (response.type === 'SyntaxError') {
