@@ -1,0 +1,5 @@
+ERROR: Variable 'trig' not defined.
+  in file 'selected text'
+  line 9 char 47:
+
+            Klank.ar(z, Decay.ar(Impulsar.ar(trig), decay, WhiteNoise.ar(noise)), freqScale, 0.0, timeScale

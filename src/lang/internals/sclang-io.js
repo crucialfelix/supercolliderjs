@@ -276,10 +276,11 @@ class SclangIO extends EventEmitter {
   parseSyntaxErrors(text) {
     var
         msgRe = /^ERROR: syntax error, (.+)$/m,
+        msgRe2 = /^ERROR: (.+)$/m,
         fileRe = /in file '(.+)'/m,
         lineRe = /line ([0-9]+) char ([0-9]+):$/m;
 
-    var msg = msgRe.exec(text),
+    var msg = msgRe.exec(text) || msgRe2.exec(text),
         line = lineRe.exec(text),
         file = fileRe.exec(text),
         code = text.split('\n').slice(4, -3).join('\n').trim();

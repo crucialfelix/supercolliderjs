@@ -122,4 +122,21 @@ describe('sclang-io', function() {
     */
   });
 
+  describe('SyntaxErrors', function() {
+
+    it('should parse a SyntaxError from stdout', function() {
+      var io = new SclangIO();
+      io.setState(STATES.READY);
+
+      var text = readFile('trig-not-defined.txt');
+      var error = io.parseSyntaxErrors(text);
+
+      expect(error).toBeTruthy();
+      expect(error.msg).toBe('Variable \'trig\' not defined.');
+      expect(error.file).toBe('selected text');
+      expect(error.line).toBe(9);
+      expect(error.charPos).toBe(47);
+    });
+  });
+
 });
