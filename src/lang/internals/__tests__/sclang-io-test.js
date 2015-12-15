@@ -52,6 +52,14 @@ describe('sclang-io', function() {
     expect(io.state).toEqual(STATES.READY);
   });
 
+  it('should detect succesful compile despite errors in startup', function() {
+    var io = new SclangIO();
+    io.setState(STATES.BOOTING);
+    feedIt('errors-but-did-compile.txt', io);
+    // its COMPILED but didn't go to READY on sc3>
+    expect(io.state).toEqual(STATES.READY);
+  });
+
   it('should detect programmatic compiling', function() {
     var io = new SclangIO();
     io.setState(STATES.READY);

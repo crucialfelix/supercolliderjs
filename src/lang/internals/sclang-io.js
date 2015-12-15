@@ -159,6 +159,12 @@ class SclangIO extends EventEmitter {
               self.version = match[1];
               self.setState(STATES.READY);
             }
+          },
+          {
+            re: /^[\s]*sc3>[\s]*$/m,
+            fn: function(/*match, text*/) {
+              self.setState(STATES.READY);
+            }
           }
         ],
         ready: [

@@ -1,0 +1,118 @@
+init_OSC
+empty
+compiling class library...
+        NumPrimitives = 589
+        compiling dir: '/usr/local/share/SuperCollider/SCClassLibrary'
+        compiling dir: '/usr/local/share/SuperCollider/Extensions'
+        compiling dir: '/home/colin/.local/share/SuperCollider/downloaded-quarks/API'
+        compiling dir: '/home/colin/.local/share/SuperCollider/downloaded-quarks/crucial-library'
+        compiling dir: '/home/colin/.local/share/SuperCollider/downloaded-quarks/ddwCommon'
+        compiling dir: '/home/colin/.local/share/SuperCollider/downloaded-quarks/ddwGUIEnhancements'
+        compiling dir: '/home/colin/.local/share/SuperCollider/downloaded-quarks/ddwMixerChannel'
+        compiling dir: '/home/colin/.local/share/SuperCollider/downloaded-quarks/JITMIDIKtl'
+        compiling dir: '/home/colin/quarks/cs-supercollider-lib'
+        compiling dir: '/home/colin/projects/taw/quarks/taw'
+        pass 1 done
+ERROR: Class extension for nonexistent class 'Document'
+     In file:'/deprecated/3.7/deprecated-3.7.sc'
+ERROR: Class extension for nonexistent class 'Document'
+     In file:'/home/colin/.local/share/SuperCollider/downloaded-quarks/ddwGUIEnhancements/Document-scanFor.sc'
+        numentries = 1624748 / 27374880 = 0.059
+        6955 method selectors, 3936 classes
+        method table size 13771996 bytes, big table size 109499520
+        Number of Symbols 18069
+        Byte Code Size 576045
+        compiled 648 files in 2.33 seconds
+
+Info: 16 methods are currently overwritten by extensions. To see which, execute:
+MethodOverride.printAll
+
+compile done
+ERROR: A primitive was not bound. 0 588
+Instance of Method {    (0x1a95f60, gc=01, fmt=00, flg=11, set=04)
+  instance variables [15]
+    raw1 : Float 0.000000   00000000 0038000C
+    raw2 : Float 0.000000   00000200 02010002
+    code : instance of Int8Array (0x1a96120, size=4, set=3)
+    selectors : nil
+    constants : nil
+    prototypeFrame : instance of Array (0x1a960a0, size=2, set=3)
+    context : nil
+    argNames : instance of SymbolArray (0x1a96020, size=2, set=3)
+    varNames : nil
+    sourceCode : nil
+    ownerClass : class Meta_Font (0x1a923e0)
+    name : Symbol 'prDefaultFamilyForStyle'
+    primitiveName : Symbol '_QFont_DefaultFamilyForStyle'
+    filenameSymbol : Symbol '/usr/local/share/SuperCollider/SCClassLibrary/Common/GUI/Base/QFont.sc'
+    charPos : Integer 1909
+}
+WARNING: Qt font initialisation failed
+LID: event loop started
+Class tree inited in 0.12 seconds
+
+*************************
+startup.scd is running...
+*************************
+
+Cleaning up temp synthdefs...
+ERROR: Message 'highlight' not understood.
+RECEIVER:
+class QtGUI (0x1aeffa0) {
+  instance variables [19]
+    name : Symbol 'QtGUI'
+    nextclass : instance of Meta_QuadC (0x148b5e0, size=19, set=5)
+    superclass : Symbol 'Object'
+    subclasses : nil
+    methods : nil
+    instVarNames : nil
+    classVarNames : instance of SymbolArray (0x1af0060, size=1, set=3)
+    iprototype : nil
+    cprototype : instance of Array (0x1af00e0, size=1, set=3)
+    constNames : nil
+    constValues : nil
+    instanceFormat : Integer 0
+    instanceFlags : Integer 0
+    classIndex : Integer 173
+    classFlags : Integer 0
+    maxSubclassIndex : Integer 173
+    filenameSymbol : Symbol '/usr/local/share/SuperCollider/SCClassLibrary/Common/GUI/Base/QtGUI.sc'
+    charPos : Integer 0
+    classVarIndex : Integer 383
+}
+ARGS:
+CALL STACK:
+        DoesNotUnderstandError:reportError   0xe3fef0
+                arg this = <instance of DoesNotUnderstandError>
+        Nil:handleError   0xdc2450
+                arg this = nil
+                arg error = <instance of DoesNotUnderstandError>
+        Thread:handleError   0xe08450
+                arg this = <instance of Thread>
+                arg error = <instance of DoesNotUnderstandError>
+        Object:throw   0x1e68730
+                arg this = <instance of DoesNotUnderstandError>
+        Object:doesNotUnderstand   0xdf6d50
+                arg this = <instance of Meta_QtGUI>
+                arg selector = 'highlight'
+                arg args = [*0]
+        < closed FunctionDef >  (no arguments or variables)
+        Function:doOnStartUp   0xe76f10
+                arg this = <instance of Function>
+        ArrayedCollection:do   0xe8df70
+                arg this = [*14]
+                arg function = <instance of Function>
+                var i = 11
+        List:do   0xe8dfd0
+                arg this = <instance of List>
+                arg function = <instance of Function>
+        Meta_StartUp:run   0xe3c6b0
+                arg this = <instance of Meta_StartUp>
+        Main:startup   0x1e4be10
+                arg this = <instance of Main>
+                var didWarnOverwrite = false
+^^ The preceding error dump is for ERROR: Message 'highlight' not understood.
+RECEIVER: QtGUI
+
+
+sc3>
