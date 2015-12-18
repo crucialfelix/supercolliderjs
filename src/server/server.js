@@ -205,9 +205,12 @@ export class Server extends EventEmitter {
           this.stdout.onError(out);
         });
 
+      // Keep a local buffer of the stdout text because on Windows it can be split into odd chunks.
+      var stdoutBuffer = '';
       // watch for ready message
       this._serverObservers.stdout.takeWhile((text) => {
-        return !(text.match(/SuperCollider 3 server ready/));
+        stdoutBuffer += text;
+        return !(stdoutBuffer.match(/SuperCollider 3 server ready/));
       })
         .subscribe(
           () => {},
