@@ -185,6 +185,7 @@ export class Server extends EventEmitter {
           () => {},
           this.log.err,
           () => { // onComplete
+            stdoutBuffer = '';
             this.isRunning = true;
             resolve(this);
           });
