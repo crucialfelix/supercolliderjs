@@ -5,6 +5,7 @@ jest.dontMock('../ServerState');
 jest.dontMock('../internals/SendOSC');
 jest.dontMock('rx');
 import * as _ from 'underscore';
+import {EventEmitter} from 'events';
 
 var Server = require('../server').Server;
 
@@ -14,6 +15,31 @@ describe('Server', function() {
     it('should exist', function() {
       var server = new Server();
       expect(server).toBeDefined();
+    });
+  });
+
+  describe('boot sequence', function() {
+    pit('should detect "server ready" even if the output is broken into chunks', function() {
+
+      var one = 'SuperCollider 3 se';
+      var two = 'rver ready.';
+
+      var server = new Server();
+      spyOn(server, '_spawnProcess').andReturn();
+      // make a fake this.process.stdout / stderr
+      server.process = {
+        stdout: new EventEmitter(),
+        stderr: new EventEmitter()
+      };
+
+      return new Promise((resolve) => {
+        // spawn process is mocked
+        // should get triggered by the stdout and then resolve
+        server.boot().then(resolve);
+
+        server.process.stdout.emit('data', one);
+        server.process.stdout.emit('data', two);
+      });
     });
   });
 
