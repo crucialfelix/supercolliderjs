@@ -12,7 +12,7 @@
 		});
 		LanguageConfig.store(this.configPath);
 		LanguageConfig.store(LanguageConfig.currentPath);
-		cache = Dictionary.new;
+		this.clearCache;
 	}
 	*link { |path|
 		path = path.withoutTrailingSlash;

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 
 /**
  * this shows how to capture output of sclang

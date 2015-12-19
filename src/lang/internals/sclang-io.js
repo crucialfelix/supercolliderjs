@@ -99,7 +99,7 @@ class SclangIO extends EventEmitter {
             fn: function() {
               var parsed = self.parseCompileErrors((self.parseErrors || []).join('\n'));
               self.compiledDirs = parsed.dirs;
-              delete self.parseErrors;
+              self.parseErrors = [];
               self.setState(STATES.COMPILED);
             }
           },
@@ -121,7 +121,7 @@ class SclangIO extends EventEmitter {
             re: /Welcome to SuperCollider ([0-9a-zA-Z\.]+)\. /m,
             fn: function(match) {
               self.version = match[1];
-              var parsed = self.parseCompileErrors((self.parseErrors || []).join('\n'));
+              var parsed = self.parseCompileErrors((self.parseErrors).join('\n'));
               self.compiledDirs = parsed.dirs;
               delete self.parseErrors;
               self.setState(STATES.READY);
@@ -157,6 +157,12 @@ class SclangIO extends EventEmitter {
             re: /Welcome to SuperCollider ([0-9a-zA-Z\.]+)\. /m,
             fn: function(match) {
               self.version = match[1];
+              self.setState(STATES.READY);
+            }
+          },
+          {
+            re: /^[\s]*sc3>[\s]*$/m,
+            fn: function(/*match, text*/) {
               self.setState(STATES.READY);
             }
           }
@@ -216,6 +222,13 @@ class SclangIO extends EventEmitter {
 
                 if (guid in self.calls) {
                   if (response.type === 'Result') {
+                    // anything posted during CAPTURE should be forwarded
+                    // to stdout
+                    stdout = self.capturing[guid].join('\n');
+                    delete self.capturing[guid];
+                    if (stdout) {
+                      self.emit('stdout', stdout);
+                    }
                     self.calls[guid].resolve(obj);
                   } else {
                     if (response.type === 'SyntaxError') {
@@ -276,10 +289,11 @@ class SclangIO extends EventEmitter {
   parseSyntaxErrors(text) {
     var
         msgRe = /^ERROR: syntax error, (.+)$/m,
+        msgRe2 = /^ERROR: (.+)$/m,
         fileRe = /in file '(.+)'/m,
         lineRe = /line ([0-9]+) char ([0-9]+):$/m;
 
-    var msg = msgRe.exec(text),
+    var msg = msgRe.exec(text) || msgRe2.exec(text),
         line = lineRe.exec(text),
         file = fileRe.exec(text),
         code = text.split('\n').slice(4, -3).join('\n').trim();

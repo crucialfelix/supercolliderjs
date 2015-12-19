@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /*
   Example usage in a node-js app to call supercollider API functions
 

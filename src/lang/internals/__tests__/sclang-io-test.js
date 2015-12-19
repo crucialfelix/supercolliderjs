@@ -52,6 +52,14 @@ describe('sclang-io', function() {
     expect(io.state).toEqual(STATES.READY);
   });
 
+  it('should detect succesful compile despite errors in startup', function() {
+    var io = new SclangIO();
+    io.setState(STATES.BOOTING);
+    feedIt('errors-but-did-compile.txt', io);
+    // its COMPILED but didn't go to READY on sc3>
+    expect(io.state).toEqual(STATES.READY);
+  });
+
   it('should detect programmatic compiling', function() {
     var io = new SclangIO();
     io.setState(STATES.READY);
@@ -120,6 +128,47 @@ describe('sclang-io', function() {
       expect(errors.extensionErrors[0].file).toEqual('/deprecated/3.7/deprecated-3.7.sc');
     });
     */
+  });
+
+  describe('SyntaxErrors', function() {
+
+    it('should parse a SyntaxError from stdout', function() {
+      var io = new SclangIO();
+      io.setState(STATES.READY);
+
+      var text = readFile('trig-not-defined.txt');
+      var error = io.parseSyntaxErrors(text);
+
+      expect(error).toBeTruthy();
+      expect(error.msg).toBe('Variable \'trig\' not defined.');
+      expect(error.file).toBe('selected text');
+      expect(error.line).toBe(9);
+      expect(error.charPos).toBe(47);
+    });
+
+    pit('on successful interpret, should still post output to stdout', function() {
+      var io = new SclangIO();
+      io.setState(STATES.READY);
+
+      // stick a blank Promise into register so it will
+      // parse the response
+      io.registerCall('725282d0-a31c-11e5-9a22-59ba9f49924a', {
+        resolve: () => {},
+        reject: () => {}
+      });
+
+      return new Promise((resolve) => {
+        // this is what is really being tested:
+        // does it post to STDOUT
+        io.on('stdout', (out) => {
+          console.log('STDOUT:', out);
+          resolve(true);
+        });
+
+        var text = readFile('forward-stdout.txt');
+        io.parse(text);
+      });
+    });
   });
 
 });

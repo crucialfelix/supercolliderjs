@@ -25,6 +25,10 @@ export const AddActions = {
 };
 
 
+function flattenPairs(pairs) {
+  return _.flatten(_.isObject(pairs) ? _.pairs(pairs) : pairs);
+}
+
 /**
   * Tell server to exit
   *
@@ -233,11 +237,11 @@ export function nodeRun(nodeID, on=1) {
   nodeSet(id, [[0, 440], ...])
 
   * @param {int} nodeID
-  * @param {Array} pairs - [[key, value], ...]
+  * @param {Object|Array} pairs - [[key, value], ...] or Object(key: value, ...)
   * @return {Array} - OSC message
   */
 export function nodeSet(nodeID, pairs) {
-  return ['/n_set', nodeID].concat(_.flatten(pairs));
+  return ['/n_set', nodeID].concat(flattenPairs(pairs));
 }
 
 
@@ -248,11 +252,11 @@ export function nodeSet(nodeID, pairs) {
   * Set contiguous ranges of control indices to sets of values. For each range, the starting control index is given followed by the number of controls to change, followed by the values. If the node is a group, then it sets the controls of every node in the group.
 
   * @param {int} nodeID -
-  * @param {Array} pairs - [[controlName|index, value], ...]
+  * @param {Array} valueSets - [[controlName|index, numValues, value1, ... valueN], ...]
   * @return {Array} - OSC message
   */
-export function nodeSetn(nodeID, pairs) {
-  return ['/n_setn', nodeID].concat(_.flatten(pairs));
+export function nodeSetn(nodeID, valueSets) {
+  return ['/n_setn', nodeID].concat(_.flatten(valueSets));
 }
 
 
@@ -275,13 +279,13 @@ export function nodeFill(nodeID, triples) {
   * Map a node's controls to read from a bus.
   *
   * @param {int} nodeID -
-  * @param {Array} pairs - [[controlName, busID], ...]
+  * @param {Array|Object} pairs - [[controlName, busID], ...]
   * @return {Array} - OSC message
 
   * Takes a list of pairs of control names or indices and bus indices and causes those controls to be read continuously from a global control bus. If the node is a group, then it maps the controls of every node in the group. If the control bus index is -1 then any current mapping is undone. Any n_set, n_setn and n_fill command will also unmap the control.
   */
 export function nodeMap(nodeID, pairs) {
-  return ['/n_map', nodeID].concat(_.flatten(pairs));
+  return ['/n_map', nodeID].concat(flattenPairs(pairs));
 }
 
 
@@ -310,7 +314,7 @@ export function nodeMapn(nodeID, triples) {
   * @return {Array} - OSC message
   */
 export function nodeMapAudio(nodeID, pairs) {
-  return ['/n_mapa', nodeID].concat(_.flatten(pairs));
+  return ['/n_mapa', nodeID].concat(flattenPairs(pairs));
 }
 
 
@@ -423,7 +427,7 @@ export function nodeOrder(addAction, targetID, nodeIDs) {
   * @return {Array} - OSC message
   */
 export function synthNew(defName, nodeID, addAction=AddActions.HEAD, targetID=0, args=[]) {
-  return ['/s_new', defName, nodeID, addAction, targetID].concat(_.flatten(_.pairs(args)));
+  return ['/s_new', defName, nodeID, addAction, targetID].concat(flattenPairs(args));
 }
 
 

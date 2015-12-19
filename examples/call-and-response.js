@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // In your project you will import it like this:
 // var sc = require('supercolliderjs');
 

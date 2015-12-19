@@ -162,40 +162,9 @@ export class Server extends EventEmitter {
    */
   boot() {
     return new Promise((resolve, reject) => {
-      var
-        execPath = this.options.scsynth,
-        args = this.args();
-
       this.isRunning = false;
 
-      this.processEvents.onNext('Start process: ' + execPath + ' ' + args.join(' '));
-      this.process = spawn(execPath, args, {
-        cwd: this.options.cwd
-      });
-      this.processEvents.onNext('pid: ' + this.process.pid);
-
-      // when this parent process dies, kill child process
-      process.on('exit', () => {
-        if (this.process) {
-          this.process.kill('SIGTERM');
-        }
-      });
-
-      this.process.on('error', (err) => {
-        this.processEvents.onError(err);
-        this.isRunning = false;
-        // this.disconnect()
-      });
-      this.process.on('close', (code, signal) => {
-        this.processEvents.onError('Server closed. Exit code: ' + code + ' signal: ' + signal);
-        this.isRunning = false;
-        // this.disconnect()
-      });
-      this.process.on('exit', (code, signal) => {
-        this.processEvents.onError('Server exited. Exit code: ' + code + ' signal: ' + signal);
-        this.isRunning = false;
-        // this.disconnect()
-      });
+      this._spawnProcess();
 
       this._serverObservers.stdout = Observable.fromEvent(this.process.stdout, 'data', (data) => String(data));
       this._serverObservers.stdout.subscribe((e) => this.stdout.onNext(e));
@@ -205,14 +174,18 @@ export class Server extends EventEmitter {
           this.stdout.onError(out);
         });
 
+      // Keep a local buffer of the stdout text because on Windows it can be split into odd chunks.
+      var stdoutBuffer = '';
       // watch for ready message
       this._serverObservers.stdout.takeWhile((text) => {
-        return !(text.match(/SuperCollider 3 server ready/));
+        stdoutBuffer += text;
+        return !(stdoutBuffer.match(/SuperCollider 3 server ready/));
       })
         .subscribe(
           () => {},
           this.log.err,
           () => { // onComplete
+            stdoutBuffer = '';
             this.isRunning = true;
             resolve(this);
           });
@@ -222,6 +195,41 @@ export class Server extends EventEmitter {
           reject();
         }
       }, 3000);
+    });
+  }
+
+  _spawnProcess() {
+    var
+      execPath = this.options.scsynth,
+      args = this.args();
+
+    this.processEvents.onNext('Start process: ' + execPath + ' ' + args.join(' '));
+    this.process = spawn(execPath, args, {
+      cwd: this.options.cwd
+    });
+    this.processEvents.onNext('pid: ' + this.process.pid);
+
+    // when this parent process dies, kill child process
+    process.on('exit', () => {
+      if (this.process) {
+        this.process.kill('SIGTERM');
+      }
+    });
+
+    this.process.on('error', (err) => {
+      this.processEvents.onError(err);
+      this.isRunning = false;
+      // this.disconnect()
+    });
+    this.process.on('close', (code, signal) => {
+      this.processEvents.onError('Server closed. Exit code: ' + code + ' signal: ' + signal);
+      this.isRunning = false;
+      // this.disconnect()
+    });
+    this.process.on('exit', (code, signal) => {
+      this.processEvents.onError('Server exited. Exit code: ' + code + ' signal: ' + signal);
+      this.isRunning = false;
+      // this.disconnect()
     });
   }
 
