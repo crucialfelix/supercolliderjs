@@ -1,6 +1,7 @@
 
 import {EventEmitter} from 'events';
 import {Observable} from 'rx';
+import {makeBundle, makeMessage, deltaTimeTag} from '../osc/utils';
 
 /**
  * Owned by the Server, this is an object that you call .msg or .bundle on
@@ -11,15 +12,47 @@ import {Observable} from 'rx';
  */
 export default class SendOSC extends EventEmitter {
 
-  msg(m) {
-    this.emit('msg', m);
+  msg(message) {
+    this.emit('msg', makeMessage(message));
   }
 
-  bundle(/*b*/) {
-    throw new Error('Not yet implemented');
-    // not yet implemented
-    // this will need a time
-    // this.emit('bundle', b);
+  /**
+  * bundle
+  *
+  * Note that in SuperCollider language a number is interpreted
+  * as relative seconds from 'now'; here is is interpreted as a
+  * unix timestamp. See deltaTimeTag
+  *
+  * @param {null|Number|Array|Date} time -
+  *         null: now, immediately
+  *         Number: if less than 10000 then it is interpreted
+  *          as number of seconds from now.
+  *          It it is larger then it is interpreted as a unix timestamp in seconds
+  *         Array: [secondsSince1900Jan1, fractionalSeconds]
+  *         Date
+  * @param {Array} packets - osc messages as [address, arg1, ...argN]
+  *                        or bundles as Objects: .timeTag .packets
+  */
+  bundle(time, packets) {
+    if ((typeof time === 'number') && (time < 10000)) {
+      time = deltaTimeTag(time);
+    }
+    this.emit('bundle', makeBundle(time, packets));
+  }
+
+  /**
+   * deltaTimeTag(secondsFromNow, [now])
+   *
+   * Make NTP timetag array relative to the current time.
+   *
+   * Usage:
+   * server.send.bundle(server.send.deltaTimetag(1.0), [ ... msgs ]);
+   *
+   * @param {Number} secondsFromNow
+   * @param {Date} now - optional, default new Date
+   */
+  deltaTimeTag(delta, now) {
+    return deltaTimeTag(delta, now);
   }
 
   /**
@@ -33,8 +66,11 @@ export default class SendOSC extends EventEmitter {
     var msgs = Observable.fromEvent(this, 'msg', (msg) => {
       return {type: 'msg', payload: msg};
     });
-    var bundles = Observable.fromEvent(this, 'bundle', (msg) => {
-      return {type: 'bundle', payload: msg};
+    var bundles = Observable.fromEvent(this, 'bundle', (bundle) => {
+      return {
+        type: 'bundle',
+        payload: bundle
+      };
     });
     var combo = msgs.merge(bundles);
     return combo.subscribe(onNext, onError, onComplete);
