@@ -148,10 +148,7 @@ export class SCLang extends EventEmitter {
   spawnProcess(execPath, commandLineOptions) {
     return new Promise((resolve, reject) => {
       var done = false;
-      this.process = spawn(execPath, this.args(commandLineOptions),
-        {
-          cwd: path.dirname(execPath)
-        });
+      this.process = this._spawnProcess(execPath, this.args(commandLineOptions));
 
       var bootListener = (state) => {
         if (state === STATES.READY) {
@@ -182,6 +179,12 @@ export class SCLang extends EventEmitter {
     });
   }
 
+  _spawnProcess(execPath, commandLineOptions) {
+    return spawn(execPath, commandLineOptions,
+      {
+        cwd: path.dirname(execPath)
+      });
+  }
 
   /**
    * sclangConfigOptions

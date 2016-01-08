@@ -1,6 +1,6 @@
 
 jest.autoMockOff();
-jest.mock('child_process');
+// jest.mock('child_process');
 jest.dontMock('../sclang');
 jest.dontMock('../internals/sclang-io');
 jest.dontMock('fs');
@@ -162,6 +162,7 @@ describe('sclang', function() {
     // mock spawn to return an event emitter
     it('should spawnProcess', function() {
       var sclang = new SCLang();
+      spyOn(sclang, '_spawnProcess');
       spyOn(sclang, 'installListeners');
       var promise = sclang.spawnProcess('/tmp/fake/path', {});
       expect(promise).toBeTruthy();
