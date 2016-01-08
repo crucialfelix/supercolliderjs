@@ -493,7 +493,7 @@ export function synthNoid(synthIDs) {
   * @return {Array} - OSC message
   */
 export function groupNew(nodeID, addAction, targetID) {
-  return ['/g_new', nodeID, addAction, targetID];
+  return ['/g_new', nodeID, _.isUndefined(addAction) ? AddActions.HEAD : addAction, targetID || 0];
 }
 
 
