@@ -175,9 +175,9 @@
       "resolved": "https://registry.npmjs.org/node-uuid/-/node-uuid-1.4.3.tgz"
     },
     "osc-min": {
-      "version": "1.0.0",
-      "from": "osc-min@1.0.0",
-      "resolved": "https://registry.npmjs.org/osc-min/-/osc-min-1.0.0.tgz",
+      "version": "1.1.1",
+      "from": "osc-min@1.1.1",
+      "resolved": "https://registry.npmjs.org/osc-min/-/osc-min-1.1.1.tgz",
       "dependencies": {
         "binpack": {
           "version": "0.1.0",

@@ -106,27 +106,6 @@ export const dateToTimetag = osc.dateToTimetag;
  * @param {Date} now - optional
  */
 export function deltaTimeTag(seconds, now) {
-  const d = (now || new Date()) / 1000 + seconds;
-  return timestampToTimetag(d);
-}
-
-
-// Temporary reimplementation of osc-min functions
-// until that is re-instated in that library
-const UNIX_EPOCH = 2208988800;
-const TWO_POW_32 = 4294967296;
-
-// Convert a unix timestamp (seconds since jan 1 1970 UTC)
-// to NTP timestamp array
-function timestampToTimetag(secs) {
-  const wholeSecs = Math.floor(secs);
-  const fracSeconds = secs - wholeSecs;
-  return makeTimetag(wholeSecs, fracSeconds);
-}
-
-function makeTimetag(unixseconds, fracSeconds) {
-  // NTP epoch is 1900, JavaScript Date is unix 1970
-  const ntpSecs = unixseconds + UNIX_EPOCH;
-  const ntpFracs = Math.round(TWO_POW_32 * fracSeconds);
-  return [ntpSecs, ntpFracs];
+  const d = (now || new Date()) / 1000 + (seconds || 0);
+  return osc.timestampToTimetag(d);
 }
