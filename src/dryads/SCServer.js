@@ -4,11 +4,11 @@ import {boot} from '../server/server';
 
 
 /**
- * Boots a new supercollider server (scsynth) making it available for all children.
+ * Boots a new SuperCollider server (scsynth) making it available for all children.
  *
  * Always boots a new one, ignoring any possibly already existing one in context.
  */
-export default class SCSynth extends Dryad {
+export default class SCServer extends Dryad {
 
   constructor(options={debug: false}, children=[]) {
     super({options}, children);
@@ -16,7 +16,7 @@ export default class SCSynth extends Dryad {
 
   prepareForAdd() {
     return {
-      scsynth: () => boot(this.properties.options),
+      scserver: () => boot(this.properties.options),
       group: 0
     };
   }
@@ -24,7 +24,7 @@ export default class SCSynth extends Dryad {
   remove() {
     return {
       run: (context) => {
-        return context.scsynth.quit();
+        return context.scserver.quit();
       }
     };
   }

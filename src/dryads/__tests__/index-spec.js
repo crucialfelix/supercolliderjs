@@ -1,23 +1,23 @@
 
 jest.dontMock('../index');
-jest.dontMock('../SCSynth');
+jest.dontMock('../SCServer');
 jest.dontMock('../Group');
 
 var dryads = require('../index');
 
 
-describe('SCSynth', function() {
+describe('SCServer', function() {
 
-  it('should load SCSynth', function() {
-    expect(dryads.SCSynth).toBeTruthy();
+  it('should load SCServer', function() {
+    expect(dryads.SCServer).toBeTruthy();
   });
 
-  it('should set default options of SCSynth', function() {
-    let s = new dryads.SCSynth();
+  it('should set default options of SCServer', function() {
+    let s = new dryads.SCServer();
     expect(s.properties).toEqual({options: {debug: false}});
   });
 
-  // it('should pass context.scsynth to child Group', function() {
+  // it('should pass context.scserver to child Group', function() {
   //   // mock import {boot} from '../server/server';
   //
   //   let g = new dryads.Group();

@@ -11,12 +11,12 @@ export default class Group extends Dryad {
   }
 
   requireParent() {
-    return 'SCSynth';
+    return 'SCServer';
   }
 
   prepareForAdd() {
     return (context) => {
-      let nodeID = context.scsynth.state.nextNodeID();
+      let nodeID = context.scserver.state.nextNodeID();
       return {
         nodeID: nodeID,
         parentGroup: context.group || 0,
@@ -27,23 +27,23 @@ export default class Group extends Dryad {
 
   add() {
     return {
-      scsynth: {
+      scserver: {
         msg: (context) => groupNew(context.nodeID, AddActions.TAIL, context.parentGroup)
       },
-      run: (context) => whenNodeGo(context.scsynth, context.id, context.nodeID)
+      run: (context) => whenNodeGo(context.scserver, context.id, context.nodeID)
     };
   }
 
   remove() {
     return {
-      scsynth: {
+      scserver: {
         // children do not have to free their nodes
         // as they get freed by freeing this parent
         // so remove for children needs to communicate that somehow
         // but buffers and busses do need to free
         msg: (context) => nodeFree(context.nodeID)
       },
-      run: (context) => whenNodeEnd(context.scsynth, context.id, context.nodeID)
+      run: (context) => whenNodeEnd(context.scserver, context.id, context.nodeID)
     };
   }
 }

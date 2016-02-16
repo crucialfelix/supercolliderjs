@@ -11,7 +11,7 @@ export default class SynthControl extends Dryad {
   }
 
   requireParent() {
-    return 'SCSynth';
+    return 'SCServer';
   }
 
   add() {
@@ -23,7 +23,7 @@ export default class SynthControl extends Dryad {
               // assumes bacon style event
               // should validate that event.value is object
               let msg = nodeSet(context.nodeID, event.value());
-              context.scsynth.send.bundle(0.03, [msg]);
+              context.scserver.send.bundle(0.03, [msg]);
             });
         }
       }

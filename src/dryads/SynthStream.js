@@ -19,7 +19,7 @@ export default class SynthStream extends Dryad {
           const args = _.assign({}, this.properties.defaultParams.args, ev.args);
           const defName = ev.defName || this.properties.defaultParams.defName;
           const synth = synthNew(defName, -1, AddActions.TAIL, context.group, args);
-          context.scsynth.send.bundle(0.03, [synth]);
+          context.scserver.send.bundle(0.03, [synth]);
         });
       }
     };

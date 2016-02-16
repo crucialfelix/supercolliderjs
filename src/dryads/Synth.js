@@ -20,7 +20,7 @@ export default class Synth extends Dryad {
   }
 
   requireParent() {
-    return 'SCSynth';
+    return 'SCServer';
   }
 
   subgraph() {
@@ -50,7 +50,7 @@ export default class Synth extends Dryad {
 
   prepareForAdd() {
     return {
-      nodeID: (context) => context.scsynth.state.nextNodeID(),
+      nodeID: (context) => context.scserver.state.nextNodeID(),
       synthDefName: (context) => {
         return this.synthDefName(context);
       }
@@ -67,7 +67,7 @@ export default class Synth extends Dryad {
 
   add() {
     return {
-      scsynth: {
+      scserver: {
         msg: (context) => {
           let args = _.mapObject(this.properties.args, (v, k) => {
             // Use the cloned one in context.subgraph, not the original supplied as an arg
@@ -77,9 +77,9 @@ export default class Synth extends Dryad {
         }
       },
       run: (context) => {
-        return whenNodeGo(context.scsynth, context.id, context.nodeID)
+        return whenNodeGo(context.scserver, context.id, context.nodeID)
           .then((nodeID) => {
-            updateNodeState(context.scsynth, context.nodeID, {synthDef: context.synthDefName});
+            updateNodeState(context.scserver, context.nodeID, {synthDef: context.synthDefName});
             return nodeID;
           });
       }
@@ -88,10 +88,10 @@ export default class Synth extends Dryad {
 
   remove() {
     return {
-      scsynth: {
+      scserver: {
         msg: (context) => nodeFree(context.nodeID)
       },
-      run: (context) => whenNodeEnd(context.scsynth, context.id, context.nodeID)
+      run: (context) => whenNodeEnd(context.scserver, context.id, context.nodeID)
     };
   }
 }

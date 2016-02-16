@@ -51,7 +51,7 @@ export default class SCSynthDef extends Dryad {
           let result = {
             name: path.basename(lf, path.extname(lf))
           };
-          return context.scsynth
+          return context.scserver
             .callAndResponse(defLoad(path.resolve(lf)))
               .then(() => result);
         }
@@ -66,7 +66,7 @@ export default class SCSynthDef extends Dryad {
     this.putSynthDef(context, result.name, result.synthDesc);
     context.synthDefName = result.name;
     let buffer = new Buffer(result.bytes);
-    return context.scsynth.callAndResponse(defRecv(buffer)).then(() => result);
+    return context.scserver.callAndResponse(defRecv(buffer)).then(() => result);
   }
 
   /**
@@ -110,8 +110,8 @@ export default class SCSynthDef extends Dryad {
 
   remove() {
     return {
-      scsynth: {
-        // no need to do this if scsynth has gone away
+      scserver: {
+        // no need to do this if server has gone away
         msg: (context) => {
           if (context.synthDefName) {
             return defFree(context.synthDefName);
@@ -122,7 +122,7 @@ export default class SCSynthDef extends Dryad {
   }
 
   putSynthDef(context, synthDefName, synthDesc) {
-    context.scsynth.state.mutate(StateKeys.SYNTH_DEFS, (state) => {
+    context.scserver.state.mutate(StateKeys.SYNTH_DEFS, (state) => {
       return state.set(synthDefName, synthDesc);
     });
   }
