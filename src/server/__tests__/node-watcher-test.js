@@ -4,7 +4,6 @@ jest.dontMock('rx');
 jest.dontMock('../node-watcher');
 jest.dontMock('../server');
 jest.dontMock('../ServerState');
-jest.dontMock('../../dryadic/Store');
 jest.dontMock('../internals/SendOSC');
 
 var nw = require('../node-watcher');

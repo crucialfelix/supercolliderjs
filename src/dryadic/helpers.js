@@ -2,7 +2,8 @@
 import _ from 'underscore';
 import {bootServer, bootLang} from '../server/internals/side-effects';
 import {Promise} from 'bluebird';
-import Store from './Store';
+import {Store} from 'dryadic';
+
 
 Promise.onPossiblyUnhandledRejection((error) => {
   console.error(error);

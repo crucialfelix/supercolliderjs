@@ -2,7 +2,6 @@
 
 jest.dontMock('../server');
 jest.dontMock('../ServerState');
-jest.dontMock('../../dryadic/Store');
 jest.dontMock('../internals/allocators');
 jest.dontMock('../internals/SendOSC');
 jest.dontMock('rx');
