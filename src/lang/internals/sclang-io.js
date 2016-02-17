@@ -118,7 +118,7 @@ class SclangIO extends EventEmitter {
           },
           {
             // it may go directly into initClasses without posting compile done
-            re: /Welcome to SuperCollider ([0-9a-zA-Z\.]+)\. /m,
+            re: /Welcome to SuperCollider ([0-9a-zA-Z\-\.]+)\. /m,
             fn: function(match) {
               self.version = match[1];
               var parsed = self.parseCompileErrors((self.parseErrors).join('\n'));
@@ -154,7 +154,7 @@ class SclangIO extends EventEmitter {
         compileError: [],
         compiled: [
           {
-            re: /Welcome to SuperCollider ([0-9a-zA-Z\.]+)\. /m,
+            re: /Welcome to SuperCollider ([0-9a-zA-Z\-\.]+)\. /m,
             fn: function(match) {
               self.version = match[1];
               self.setState(STATES.READY);
