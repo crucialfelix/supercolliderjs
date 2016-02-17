@@ -426,7 +426,7 @@ export function nodeOrder(addAction, targetID, nodeIDs) {
       A symbol argument consisting of the letter 'c' or 'a' (for control or audio) followed by the bus's index.
   * @return {Array} - OSC message
   */
-export function synthNew(defName, nodeID, addAction=AddActions.HEAD, targetID=0, args=[]) {
+export function synthNew(defName, nodeID, addAction=AddActions.TAIL, targetID=0, args=[]) {
   return ['/s_new', defName, nodeID, addAction, targetID].concat(flattenPairs(args));
 }
 
