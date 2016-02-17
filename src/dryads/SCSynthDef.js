@@ -11,10 +11,23 @@ const StateKeys = {
 
 /**
  * Compile a SynthDef from sclang source code
+ *
+ * synthDef {Object} is set in context for children Dryads to access:
+ * 	.name
+ * 	.bytes
+ * 	.synthDesc object with descriptive meta data
+ *
+ * synthDefName is set in context for children Dryads
+ *
+ * options:
+ *  source      - sclang source code to compile
+ *  compileFrom - path of .scd file to compile
+ *  saveToDir   - path to save compiled .scsyndef to after compiling
+ *  loadFrom    - path of .scsyndef file to load to server
  */
 export default class SCSynthDef extends Dryad {
 
-  // saveTo, watch=false,
+  // saveToDir, watch=false,
   // constructor(source, compileFrom, loadFrom, children=[]) {
   //   super({source, compileFrom, loadFrom}, children);
   // }
@@ -29,7 +42,7 @@ export default class SCSynthDef extends Dryad {
         synthDef: (context) => {
           return this.compileSource(context, this.properties.source)
             .then((result) => {
-              return this.sendSynthDef(context, result);
+              return this._sendSynthDef(context, result);
             });
         }
       };
@@ -39,7 +52,7 @@ export default class SCSynthDef extends Dryad {
         synthDef: (context) => {
           return this.compileFrom(context, this.properties.compileFrom)
             .then((result) => {
-              return this.sendSynthDef(context, result);
+              return this._sendSynthDef(context, result);
             });
         }
       };
@@ -60,13 +73,32 @@ export default class SCSynthDef extends Dryad {
     return {};
   }
 
-  sendSynthDef(context, result) {
+  _sendSynthDef(context, result) {
     // name bytes
     // synthDefName should be set for child context
     this.putSynthDef(context, result.name, result.synthDesc);
     context.synthDefName = result.name;
     let buffer = new Buffer(result.bytes);
-    return context.scserver.callAndResponse(defRecv(buffer)).then(() => result);
+    let promises = [
+      context.scserver.callAndResponse(defRecv(buffer))
+    ];
+    if (this.properties.saveToDir) {
+      promises.push(this._writeSynthDef(result.name, buffer, this.properties.saveToDir));
+    }
+    return Promise.all(promises).then(() => result);
+  }
+
+  _writeSynthDef(name, buffer, saveToDir) {
+    return new Promise((resolve, reject) => {
+      let pathname = path.join(path.resolve(saveToDir), name + '.scsyndef');
+      fs.writeFile(pathname, buffer, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
   }
 
   /**
