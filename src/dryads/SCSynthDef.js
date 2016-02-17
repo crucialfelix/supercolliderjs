@@ -22,6 +22,7 @@ const StateKeys = {
  * options:
  *  source      - sclang source code to compile
  *  compileFrom - path of .scd file to compile
+ *  watch       - watch compileFrom file and recompile on changes
  *  saveToDir   - path to save compiled .scsyndef to after compiling
  *  loadFrom    - path of .scsyndef file to load to server
  */
@@ -41,9 +42,7 @@ export default class SCSynthDef extends Dryad {
       return {
         synthDef: (context) => {
           return this.compileSource(context, this.properties.source)
-            .then((result) => {
-              return this._sendSynthDef(context, result);
-            });
+            .then((result) => this._sendSynthDef(context, result));
         }
       };
     }
@@ -51,9 +50,7 @@ export default class SCSynthDef extends Dryad {
       return {
         synthDef: (context) => {
           return this.compileFrom(context, this.properties.compileFrom)
-            .then((result) => {
-              return this._sendSynthDef(context, result);
-            });
+            .then((result) => this._sendSynthDef(context, result));
         }
       };
     }
@@ -140,6 +137,20 @@ export default class SCSynthDef extends Dryad {
     });
   }
 
+  add() {
+    if (this.properties.compileFrom && this.properties.watch) {
+      return {
+        run: (context) => {
+          context._watcher = fs.watch(path.resolve(this.properties.compileFrom), () => {
+            this.compileFrom(context, this.properties.compileFrom)
+              .then((result) => this._sendSynthDef(context, result));
+          });
+        }
+      };
+    }
+    return {};
+  }
+
   remove() {
     return {
       scserver: {
@@ -148,6 +159,12 @@ export default class SCSynthDef extends Dryad {
           if (context.synthDefName) {
             return defFree(context.synthDefName);
           }
+        }
+      },
+      run: (context) => {
+        if (context._watcher) {
+          context._watcher.close();
+          delete context._watcher;
         }
       }
     };
