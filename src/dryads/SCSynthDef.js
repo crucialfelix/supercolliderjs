@@ -12,19 +12,20 @@ const StateKeys = {
 /**
  * Compile a SynthDef from sclang source code
  *
- * synthDef {Object} is set in context for children Dryads to access:
- * 	.name
- * 	.bytes
- * 	.synthDesc object with descriptive meta data
+ * `synthDef` is set in the context for children Dryads to access.
+ * It is an object:
+ * - .name
+ * - .bytes
+ * - .synthDesc object with descriptive meta data
  *
- * synthDefName is set in context for children Dryads
+ * `synthDefName` is set in context for children Dryads
  *
  * options:
- *  source      - sclang source code to compile
- *  compileFrom - path of .scd file to compile
- *  watch       - watch compileFrom file and recompile on changes
- *  saveToDir   - path to save compiled .scsyndef to after compiling
- *  loadFrom    - path of .scsyndef file to load to server
+ *  - source      - sclang source code to compile
+ *  - compileFrom - path of .scd file to compile
+ *  - watch       - watch compileFrom file and recompile on changes
+ *  - saveToDir   - path to save compiled .scsyndef to after compiling
+ *  - loadFrom    - path of .scsyndef file to load to server
  */
 export default class SCSynthDef extends Dryad {
 
@@ -33,6 +34,10 @@ export default class SCSynthDef extends Dryad {
   //   super({source, compileFrom, loadFrom}, children);
   // }
 
+  /**
+   * If there is no SCLang in the parent context,
+   * then this will wrap itself in an SCLang (language interpreter).
+   */
   requireParent() {
     return 'SCLang';
   }

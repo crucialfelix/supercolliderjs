@@ -48,7 +48,7 @@ export default class SendOSC extends EventEmitter {
    * Usage:
    * server.send.bundle(server.send.deltaTimetag(1.0), [ ... msgs ]);
    *
-   * @param {Number} secondsFromNow
+   * @param {Number} delta
    * @param {Date} now - optional, default new Date
    */
   deltaTimeTag(delta, now) {

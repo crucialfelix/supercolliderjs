@@ -5,8 +5,27 @@ import {synthNew, AddActions} from '../server/osc/msg.js';
 import * as _  from 'underscore';
 
 
+/**
+ * Given a Bacon.js stream that returns objects, this spawns a series of Synths.
+ *
+ * The event values should be simple JavaScript objects:
+ *
+ * {
+ *   defName: 'synthDefName',
+ *   args: {
+ *     out: 0,
+ *     freq: 440
+ *   }
+ * }
+ *
+ * defaultParams is a fixed object into which the event value is merged.
+ */
 export default class SynthStream extends Dryad {
 
+  /**
+   * @param {Bacon.EventStream} stream
+   * @param {Object} defaultParams
+   */
   constructor(stream, defaultParams={}) {
     super({stream, defaultParams}, []);
   }

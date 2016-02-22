@@ -5,6 +5,10 @@ import {whenNodeGo, whenNodeEnd, updateNodeState} from '../server/node-watcher';
 import * as _  from 'underscore';
 
 
+/**
+ * Creates a synth on the server.
+ *
+ */
 export default class Synth extends Dryad {
 
    /**
@@ -19,6 +23,10 @@ export default class Synth extends Dryad {
     }, children);
   }
 
+  /**
+   * If there is no SCServer in the parent context,
+   * then this will wrap itself in an SCServer
+   */
   requireParent() {
     return 'SCServer';
   }
