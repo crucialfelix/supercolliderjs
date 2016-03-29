@@ -21,8 +21,10 @@ const defaultOptions = {
  */
 export default class SCLang extends Dryad {
 
-  constructor(options=defaultOptions, children=[]) {
-    super({options}, children);
+  defaultProperties() {
+    return {
+      options: defaultOptions
+    };
   }
 
   prepareForAdd() {

@@ -10,10 +10,6 @@ import {whenNodeGo, whenNodeEnd} from '../server/node-watcher';
  */
 export default class Group extends Dryad {
 
-  constructor(children=[]) {
-    super({}, children);
-  }
-
   /**
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer

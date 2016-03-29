@@ -2,6 +2,9 @@
 import {Dryad} from 'dryadic';
 import {boot} from '../server/server';
 
+const defaultOptions = {
+  debug: false
+};
 
 /**
  * Boots a new SuperCollider server (scsynth) making it available for all children as `context.scserver`
@@ -13,8 +16,10 @@ import {boot} from '../server/server';
  */
 export default class SCServer extends Dryad {
 
-  constructor(options={debug: false}, children=[]) {
-    super({options}, children);
+  defaultProperties() {
+    return {
+      options: defaultOptions
+    };
   }
 
   prepareForAdd() {

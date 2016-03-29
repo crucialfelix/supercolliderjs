@@ -15,10 +15,6 @@ import * as _  from 'underscore';
  */
 export default class SynthControl extends Dryad {
 
-  constructor(stream, initial={}, children=[]) {
-    super({stream, initial}, children);
-  }
-
   /**
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer

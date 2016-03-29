@@ -11,18 +11,6 @@ import * as _  from 'underscore';
  */
 export default class Synth extends Dryad {
 
-   /**
-   * @param {String|SynthDef|CompileSynthDef} def - the name of the synthDef
-   *     or a Dryad that will respond to defName()
-   * @param {Object} args - Arguments may be int|float|string|Dryad
-   */
-  constructor(def, args={}, children=[]) {
-    super({
-      def: def,
-      args: args
-    }, children);
-  }
-
   /**
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer

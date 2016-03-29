@@ -8,6 +8,10 @@ import * as _  from 'underscore';
 /**
  * Given a Bacon.js stream that returns objects, this spawns a series of Synths.
  *
+ * Properties:
+ *  {Bacon.EventStream} stream
+ *  {Object} defaultParams
+ *
  * The event values should be simple JavaScript objects:
  *
  * {
@@ -21,14 +25,6 @@ import * as _  from 'underscore';
  * defaultParams is a fixed object into which the event value is merged.
  */
 export default class SynthStream extends Dryad {
-
-  /**
-   * @param {Bacon.EventStream} stream
-   * @param {Object} defaultParams
-   */
-  constructor(stream, defaultParams={}) {
-    super({stream, defaultParams}, []);
-  }
 
   add() {
     return {
@@ -51,6 +47,6 @@ export default class SynthStream extends Dryad {
   }
 
   subgraph() {
-    return new Group([this]);
+    return new Group({}, [this]);
   }
 }
