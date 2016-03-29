@@ -41,7 +41,7 @@ export default class Synth extends Dryad {
       return d;
     }
 
-    return sg;
+    return new Dryad({}, sg);
   }
 
   prepareForAdd() {
