@@ -7,23 +7,15 @@ exports.resolveOptions = require('./lib/utils/resolveOptions').default;
 exports.map = require('./lib/map');
 exports.msg = require('./lib/server/osc/msg');
 
+var dryadic = require('dryadic');
+exports.Dryad = dryadic.Dryad;
+
 var scdryads = require('./lib/dryads');
 exports.dryads = scdryads;
 
-var dryadic = require('dryadic');
-
-/**
- * Exports a dryadic() application creator function that automatically
- * includes the supercollider.js Dryads without needing to explicitly
- * load them with app.use()
- *
- * usage:
- *   `var app = require('supercolliderjs').dryadic()`
- */
-exports.dryadic = function(root) {
-  return dryadic.dryadic(root).use(scdryads.layer);
-};
-exports.Dryad = dryadic.Dryad;
+exports.dryadic = scdryads.dryadic;
+exports.play = scdryads.play;
+exports.h = scdryads.h;
 
 /**
  * @deprecated These were renamed,
