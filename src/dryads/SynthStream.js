@@ -34,7 +34,14 @@ export default class SynthStream extends Dryad {
           const args = _.assign({}, this.properties.defaultParams.args, ev.args);
           const defName = ev.defName || this.properties.defaultParams.defName;
           const synth = synthNew(defName, -1, AddActions.TAIL, context.group, args);
-          context.scserver.send.bundle(0.03, [synth]);
+          context.callCommand(context.id, {
+            scserver: {
+              bundle: {
+                time: 0.03,
+                packets: [synth]
+              }
+            }
+          });
         });
       }
     };
