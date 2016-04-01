@@ -85,19 +85,23 @@ export default class SCSynthDef extends Dryad {
       context.scserver.callAndResponse(defRecv(buffer))
     ];
     if (this.properties.saveToDir) {
-      promises.push(this._writeSynthDef(result.name, buffer, this.properties.saveToDir));
+      promises.push(this._writeSynthDef(result.name, buffer, result.synthDesc, this.properties.saveToDir));
     }
     return Promise.all(promises).then(() => result);
   }
 
-  _writeSynthDef(name, buffer, saveToDir) {
+  _writeSynthDef(name, buffer, synthDesc, saveToDir) {
     return new Promise((resolve, reject) => {
-      let pathname = path.join(path.resolve(saveToDir), name + '.scsyndef');
+      let dir = path.resolve(saveToDir);
+      let pathname = path.join(dir, name + '.scsyndef');
       fs.writeFile(pathname, buffer, (err) => {
         if (err) {
           reject(err);
         } else {
-          resolve();
+          let descpath = path.join(dir, name + '.json');
+          fs.writeFile(descpath, JSON.stringify(synthDesc, null, 2), (err2) => {
+            err2 ? reject(err2) : resolve();
+          });
         }
       });
     });
