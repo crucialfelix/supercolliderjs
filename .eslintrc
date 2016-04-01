@@ -78,7 +78,6 @@
       0,
       "never"
     ],
-    "strict": 2,
     "valid-typeof": 2,
     "wrap-iife": [
       2,
