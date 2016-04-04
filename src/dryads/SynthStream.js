@@ -26,15 +26,20 @@ import * as _  from 'underscore';
  */
 export default class SynthStream extends Dryad {
 
-  add() {
+  add(player) {
     return {
       run: (context) => {
-        context.subscription = this.properties.stream.subscribe((event) => {
+        let subscription = this.properties.stream.subscribe((event) => {
+          // This assumes a Bacon event.
+          // Should validate that event.value is object
           let ev = event.value();
-          const args = _.assign({}, this.properties.defaultParams.args, ev.args);
+          let defaultParams = this.properties.defaultParams || {};
+          // should update 'out' with the bus if there is an out
+          // arg on the def
+          const args = _.assign({}, defaultParams.args, ev.args);
           const defName = ev.defName || this.properties.defaultParams.defName;
           const synth = synthNew(defName, -1, AddActions.TAIL, context.group, args);
-          context.callCommand(context.id, {
+          player.callCommand(context.id, {
             scserver: {
               bundle: {
                 time: 0.03,
@@ -43,13 +48,24 @@ export default class SynthStream extends Dryad {
             }
           });
         });
+        player.updateContext(context, {subscription});
       }
     };
   }
 
   remove() {
     return {
-      run: (context) => context.subscription()
+      run: (context) => {
+        if (context.subscription) {
+          if (_.isFunction(context.subscription)) {
+            // baconjs style
+            context.subscription();
+          } else {
+            // Rx style
+            context.subscription.dispose();
+          }
+        }
+      }
     };
   }
 

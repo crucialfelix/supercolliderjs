@@ -1,3 +1,4 @@
+import * as _  from 'underscore';
 
 /**
  * Send OSC to the SuperCollider server (scsynth)
@@ -12,6 +13,11 @@
  * }
  *
  * callAndResponse: {call: response: }
+ *
+ * Alternatively you may supply a function that is called with context
+ * and returns one of these three forms.
+ *
+ * Bundle time format
  */
 export default function scserver(commands) {
   let promises = [];
@@ -21,19 +27,28 @@ export default function scserver(commands) {
 
     if (command.scserver) {
       if (command.scserver.msg) {
-        let m = command.scserver.msg(context);
-        // context.scserver.send.msg(m);
+        let m = callIfFn(command.scserver.msg, context);
         context.scserver.send.bundle(0.03, [m]);
       }
       if (command.scserver.bundle) {
-        let b = command.scserver.bundle(context);
+        let b = callIfFn(command.scserver.bundle, context);
         context.scserver.send.bundle(b.time, b.packets);
       }
       if (command.scserver.callAndResponse) {
-        let c = command.scserver.callAndResponse(context);
+        let c = callIfFn(command.scserver.callAndResponse, context);
         promises.push(context.scserver.callAndResponse(c));
       }
     }
   });
   return Promise.all(promises);
 };
+
+/**
+ * If its a Function then call it with context
+ */
+function callIfFn(thing, context) {
+  if (_.isFunction(thing)) {
+    return thing(context);
+  }
+  return thing;
+}

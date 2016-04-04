@@ -23,17 +23,25 @@ export default class SynthControl extends Dryad {
     return 'SCServer';
   }
 
-  add() {
+  add(player) {
     return {
       run: (context) => {
         if (this.properties.stream) {
-          context.subscription = this.properties.stream
+          let subscription = this.properties.stream
             .subscribe((event) => {
-              // assumes bacon style event
-              // should validate that event.value is object
+              // This assumes a Bacon event.
+              // Should validate that event.value is object
               let msg = nodeSet(context.nodeID, event.value());
-              context.scserver.send.bundle(0.03, [msg]);
+              player.callCommand(context, {
+                scserver: {
+                  bundle: {
+                    time: 0.03,
+                    packets: [msg]
+                  }
+                }
+              });
             });
+          player.updateContext(context, {subscription});
         }
       }
     };
@@ -50,7 +58,6 @@ export default class SynthControl extends Dryad {
             // Rx style
             context.subscription.dispose();
           }
-          delete context.subscription;
         }
       }
     };
