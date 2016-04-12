@@ -1,4 +1,5 @@
 {
+  "extends": "eslint:recommended",
   "env": {
     "jasmine": true,
     "node": true,
@@ -7,8 +8,8 @@
     "builtin": true,
     "es6": true
   },
-  "ecmaFeatures": {
-    "modules": true
+  "parserOptions": {
+    "sourceType": "module"
   },
   "globals": {
     "jest": true,
