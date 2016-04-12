@@ -49,3 +49,44 @@ export function ampToDb(amp) {
 export function dbToAmp(db) {
   return Math.pow(10.0, db * 0.05);
 }
+
+/**
+ * Returns a linear mapping function
+ */
+export function linear(spec) {
+  let range = spec.maxval - spec.minval;
+  return function(value) {
+    return value * range + spec.minval;
+  };
+}
+
+/**
+ * Returns an exponential mapping function
+ */
+export function exp(spec) {
+  let ratio = spec.maxval / spec.minval;
+  return function(value) {
+    return Math.pow(ratio, value) * spec.minval;
+  };
+}
+
+/**
+ * Returns dB mapping function (DbFaderWarp)
+ */
+export function dB(spec) {
+  let minval = dbToAmp(spec.minval);
+  let range = dbToAmp(spec.maxval) - minval;
+  return function(value) {
+    return ampToDb(Math.pow(value, 2) * range - minval);
+  };
+}
+
+/**
+ * Returns amp mapping function (FaderWarp)
+ */
+export function fader(spec) {
+  let range = spec.maxval - spec.minval;
+  return function(value) {
+    return Math.pow(value, 2) * range - spec.minval;
+  };
+}
