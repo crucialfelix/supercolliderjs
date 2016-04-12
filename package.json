@@ -78,6 +78,8 @@
     ],
     "unmockedModulePathPatterns": [
       "utils/logger",
+      "server/osc/utils",
+      "server/osc/msg",
       "dryadic/Store",
       "node_modules/chalk",
       "node_modules/temp",
@@ -85,6 +87,7 @@
       "node_modules/immutable",
       "node_modules/dryadic",
       "node_modules/node-uuid",
+      "node_modules/osc-min",
       "node_modules/bluebird",
       "node_modules/rx"
     ],

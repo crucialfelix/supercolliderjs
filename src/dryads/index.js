@@ -8,6 +8,7 @@ import AudioBus from './AudioBus';
 import SCSynthDef from './SCSynthDef';
 import SynthControl from './SynthControl';
 import SynthStream from './SynthStream';
+import SynthEventList from './SynthEventList';
 
 import {dryadic as makeDryadPlayer} from 'dryadic';
 
@@ -20,7 +21,8 @@ export {
   AudioBus,
   SCSynthDef,
   SynthControl,
-  SynthStream
+  SynthStream,
+  SynthEventList
 };
 
 // export the layer for app = dryadic().use(layer)
@@ -36,7 +38,8 @@ export const layer = {
     AudioBus,
     SCSynthDef,
     SynthControl,
-    SynthStream
+    SynthStream,
+    SynthEventList
   ]
 };
 
@@ -66,7 +69,7 @@ export const layer = {
  */
 export function dryadic(rootDryad, moreLayers=[]) {
   return makeDryadPlayer(rootDryad, [layer].concat(moreLayers));
-};
+}
 
 /**
  * Play a Dryad or hyperscript document.

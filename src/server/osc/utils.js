@@ -106,6 +106,6 @@ export const dateToTimetag = osc.dateToTimetag;
  * @param {Date} now - optional
  */
 export function deltaTimeTag(seconds, now) {
-  const d = (now || new Date()) / 1000 + (seconds || 0);
+  const d = (now || _.now()) / 1000 + (seconds || 0);
   return osc.timestampToTimetag(d);
 }
