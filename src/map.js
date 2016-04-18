@@ -90,3 +90,78 @@ export function fader(spec) {
     return Math.pow(value, 2) * range - spec.minval;
   };
 }
+
+/**
+ * Returns inverse of linear mapping function
+ */
+export function unmapLinear(spec) {
+  let range = spec.maxval - spec.minval;
+  return function(value) {
+    return (value - spec.minval) / range;
+  };
+}
+
+/**
+ * Returns inverse of exponential mapping function
+ */
+export function unmapExp(spec) {
+  let ratio = Math.log(spec.maxval / spec.minval);
+  return function(value) {
+    return Math.log(value / spec.minval) / ratio;
+  };
+}
+
+/**
+ * Returns inverse of dB mapping function (DbFaderWarp)
+ */
+export function unmapDb(spec) {
+  let minval = dbToAmp(spec.minval);
+  let range = dbToAmp(spec.maxval) - minval;
+  return function(value) {
+    return (dbToAmp(value) - minval) / Math.sqrt(range);
+  };
+}
+
+/**
+ * Returns inverse of amp mapping function (FaderWarp)
+ */
+export function unmapFader(spec) {
+  let range = spec.maxval - spec.minval;
+  return function(value) {
+    return Math.sqrt((value - spec.minval) / range);
+  };
+}
+
+export function unmapWithSpec(value, spec) {
+  switch (spec.warp) {
+    case 'linear':
+    case 'lin':
+      return unmapLinear(spec)(value);
+    case 'exp':
+    case 'exponential':
+      return unmapExp(spec)(value);
+    case 'amp':
+      return unmapFader(spec)(value);
+    case 'db':
+      return unmapDb(spec)(value);
+    default:
+      throw new Error('Warp unknown or not yet implemented' + spec.warp);
+  }
+}
+
+export function mapWithSpec(value, spec) {
+  switch (spec.warp) {
+    case 'linear':
+    case 'lin':
+      return linear(spec)(value);
+    case 'exp':
+    case 'exponential':
+      return exp(spec)(value);
+    case 'amp':
+      return fader(spec)(value);
+    case 'db':
+      return dB(spec)(value);
+    default:
+      throw new Error('Warp unknown or not yet implemented' + spec.warp);
+  }
+}
