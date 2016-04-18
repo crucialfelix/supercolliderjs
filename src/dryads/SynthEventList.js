@@ -69,7 +69,7 @@ export default class SynthEventList extends Dryad {
           // TODO: cancel previous
           player.callCommand(context.id, {
             scserver: {
-              sched: this._schedEvents(ee.events, context, ee.epoch)
+              sched: () => this._schedEvents(ee.events, context, ee.epoch)
             }
           });
         });
