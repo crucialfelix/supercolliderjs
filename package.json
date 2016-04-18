@@ -99,6 +99,6 @@
     "esnext": true
   },
   "engines": {
-    "node": ">=4 <5"
+    "node": ">=0.10 <5"
   }
 }
