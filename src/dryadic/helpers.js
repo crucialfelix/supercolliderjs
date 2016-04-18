@@ -1,4 +1,6 @@
 
+// deprecated
+
 import _ from 'underscore';
 import {bootServer, bootLang} from '../server/internals/side-effects';
 import {Promise} from 'bluebird';
