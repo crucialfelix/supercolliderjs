@@ -1,4 +1,4 @@
-
+/* eslint no-console: 0 */
 /** DEPRECATED **/
 import {withContext, callAndResolve, callAndResolveValues, callAndResolveAll, dryadic} from '../dryadic/helpers';
 import * as msg from './osc/msg';

@@ -149,7 +149,7 @@ class SclangIO extends EventEmitter {
             fn: function(match, text) {
               self.parseErrors.push(text);
             }
-          },
+          }
         ],
         compileError: [],
         compiled: [
@@ -325,7 +325,7 @@ class SclangIO extends EventEmitter {
         match,
         end = 0;
 
-    while (Boolean(match = dirsRe.exec(text))) {
+    while ((match = dirsRe.exec(text))) {
       errors.dirs.push(match[1]);
       end = match.index + match[0].length;
     }
@@ -341,7 +341,7 @@ class SclangIO extends EventEmitter {
         duplicateRe = /^ERROR: duplicate Class found: '([A-Za-z0-9\_]+)'\n([^\n]+)\n([^\n]+)\n/mg,
         commonPath = /^\/Common/;
 
-    while (Boolean(match = errRe.exec(rest))) {
+    while ((match = errRe.exec(rest))) {
       var file = match[2];
       // errors in Common library are posted as '/Common/...'
       if (commonPath.exec(file)) {
@@ -355,7 +355,7 @@ class SclangIO extends EventEmitter {
       });
     }
 
-    while (Boolean(match = nonExistentRe.exec(text))) {
+    while ((match = nonExistentRe.exec(text))) {
       errors.extensionErrors.push({
         forClass: match[1],
         file: match[2]

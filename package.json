@@ -54,7 +54,7 @@
   },
   "scripts": {
     "test": "jest && npm run lint && npm run jsstyle",
-    "lint": "eslint -c .eslintrc src bin examples/*.js",
+    "lint": "eslint -c .eslintrc src bin",
     "jest": "npm run build && jest --watch",
     "jsstyle": "jscs src bin examples/*.js",
     "compile": "babel --source-maps --out-dir=./lib src",

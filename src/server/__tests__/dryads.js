@@ -66,7 +66,7 @@ describe('dryads', function() {
 
     var g = f.group([
       f.synth('saw', {freq: 440, sustain: 1.2}),
-      f.synth('saw', {freq: 445, sustain: 1.2}),
+      f.synth('saw', {freq: 445, sustain: 1.2})
     ]);
 
     pit('should spawn children', function() {

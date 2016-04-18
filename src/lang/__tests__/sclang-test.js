@@ -66,7 +66,7 @@ describe('sclang', function() {
         ],
         excludePaths: [
           '/custom/two'
-        ],
+        ]
       });
       expect(opts.includePaths.length).toEqual(3 + 1);
       expect(opts.excludePaths.length).toEqual(2);

@@ -160,8 +160,8 @@ describe('sclang-io', function() {
       return new Promise((resolve) => {
         // this is what is really being tested:
         // does it post to STDOUT
-        io.on('stdout', (out) => {
-          console.log('STDOUT:', out);
+        io.on('stdout', (/*out*/) => {
+          // console.log('STDOUT:', out);
           resolve(true);
         });
 

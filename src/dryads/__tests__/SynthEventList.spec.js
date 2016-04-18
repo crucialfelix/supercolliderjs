@@ -16,12 +16,8 @@ describe('SynthEventList', function() {
   };
 
   let player = {
-    updateContext: function(context, update) {
-
-    },
-    callCommand: function(id, command) {
-
-    }
+    updateContext: function(/*ctx, update*/) {},
+    callCommand: function(/*id, command*/) {}
   };
 
   describe('_schedEvents', function() {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+/* eslint no-console: 0 */
 var path = require('path');
 var sc = require(path.join(__dirname, '../index'));
 var pkg = require(path.join(__dirname, '../package.json'));

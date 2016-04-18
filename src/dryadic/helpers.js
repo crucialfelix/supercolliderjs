@@ -1,4 +1,4 @@
-
+/* eslint no-console: 0 */
 // deprecated
 
 import _ from 'underscore';

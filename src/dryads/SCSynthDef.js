@@ -124,7 +124,7 @@ export default class SCSynthDef extends Dryad {
         return result;
       }, (error) => {
         return Promise.reject({
-          description: `Failed to compile SynthDef`,
+          description: 'Failed to compile SynthDef',
           error: error.error,
           sourceCode: sourceCode
         });
