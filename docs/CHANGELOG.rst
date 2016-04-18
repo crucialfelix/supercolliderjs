@@ -1,6 +1,54 @@
 CHANGELOG
 =========
 
+
+0.10.0
+++++++
+
+Documentation of Dryadic will come later. This is still in alpha.
+
+- add dryadic library
+- export top level functions: dryadic() play() and h()
+  These automatically include the supercollider layer (Synth Group etc)
+- add Dryad classes and scsynth command middleware layer
+- Synth
+- Group
+- SCServer
+- SCLang
+- SCSynthDef compiles, watches files, writes .json file with synthDesc as well as the .scsyndef
+- SCSynthDef watch - watch a source file and recompile def on changes
+- SCSynthDef saveToDir - save compiled synth def
+- AudioBus
+- SynthStream
+- SynthControl
+- SynthEventList
+
+- add map function: linear, exp, dB, fader
+- add reverse mapping functions: linear, exp, dB, fader
+
+
+- change: default synthNew to add to TAIL not HEAD
+- rename SCSynth -> SCServer
+
+- support for OSC bundles and timetags
+- upgrade to orc-min 1.1.1
+- send-bundle example
+- add send-bundle example to examples/boot-server.js
+
+- osc groupNew: default add action add to tail
+
+- fix(sclang-io): match beta releases in version parsing
+
+- testing: factor out server._spawnProcess and mock that rather than the whole child_process module
+
+- deprecate older dryadic helper functions
+
+- update dependencies
+
+- Relax node engine requirement to 0.10.0 because atom apm is refusing to install
+  even though it uses node 4, because apm itself is stuck on 0.10.0
+
+
 0.9.0
 -----
 

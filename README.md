@@ -33,6 +33,7 @@ Features
 - Node-id/Bus/Buffer allocators
 - Server state and synth/group tracking
 
+- Dryadic: declarative DSL for managing component trees. Documentation coming in 0.11.0
 
 Example
 -------
