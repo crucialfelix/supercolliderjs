@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+/* eslint no-console: 0 */
 var help = [
   'Export a copy of scsynth for use as a standalone.'
 ];

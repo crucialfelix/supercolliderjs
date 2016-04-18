@@ -88,12 +88,7 @@ export class Server extends EventEmitter {
     this.log = new Logger(this.options.debug, this.options.echo);
     this.send.subscribe((event) => {
       // will be a type:msg or type:bundle
-      var out;
-      if (event.type === 'msg') {
-        out = event.payload.join(' ');
-      } else {
-        out = String(event.payload);
-      }
+      var out = JSON.stringify(event.payload || event, null, 2);
       if (!this.osc) {
         out = '[NOT CONNECTED] ' + out;
       }
@@ -125,10 +120,13 @@ export class Server extends EventEmitter {
   _initSender() {
     this.send.on('msg', (msg) => {
       if (this.osc) {
-        var buf = osc.toBuffer({
-          address: msg[0],
-          args: msg.slice(1)
-        });
+        var buf = osc.toBuffer(msg);
+        this.osc.send(buf, 0, buf.length, this.options.serverPort, this.options.host);
+      }
+    });
+    this.send.on('bundle', (bundle) => {
+      if (this.osc) {
+        var buf = osc.toBuffer(bundle);
         this.osc.send(buf, 0, buf.length, this.options.serverPort, this.options.host);
       }
     });

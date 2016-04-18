@@ -101,6 +101,18 @@ export function onNodeEnd(server, id, nodeID, handler) {
   return _registerHandler(keys.ON_NODE_END, server, id, nodeID, handler);
 }
 
+
+/**
+ * Returns a Promise that resolves when the server sends an /n_end message
+ * The id is usually a context id but could be a random guid
+ */
+export function whenNodeEnd(server, id, nodeID) {
+  return new Promise((resolve) => {
+    onNodeEnd(server, id, nodeID, () => resolve(nodeID));
+  });
+}
+
+
 // function disposeForId(server, id) {
 //   // remove all by matching the context id
 //   throw new Error('Not Yet Implemented');

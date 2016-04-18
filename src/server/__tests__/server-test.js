@@ -25,7 +25,7 @@ describe('Server', function() {
       var two = 'rver ready.';
 
       var server = new Server();
-      spyOn(server, '_spawnProcess').andReturn();
+      spyOn(server, '_spawnProcess').and.returnValue();
       // make a fake this.process.stdout / stderr
       server.process = {
         stdout: new EventEmitter(),

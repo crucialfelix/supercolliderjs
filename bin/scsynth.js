@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-//
+/* eslint no-console: 0 */
 var help = [
   'Run scsynth (the supercollider synthesis server) using the configuration defined in the nearest .supercollider.yaml searching up from the current working directory.',
   '',

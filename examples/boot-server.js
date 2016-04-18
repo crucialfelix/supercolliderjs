@@ -7,5 +7,14 @@
 var sc = require('../index.js');
 
 sc.server.boot().then(function(s) {
-  s.send.msg(['/status']);
+  s.send.msg(sc.msg.dumpOSC(1));
+
+  function spawnGroup() {
+    s.send.bundle(0.03, [
+      sc.msg.groupNew(s.state.nextNodeID())
+    ]);
+  }
+
+  setInterval(spawnGroup, 2000);
+
 });
