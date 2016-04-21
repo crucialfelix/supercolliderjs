@@ -31,52 +31,45 @@ import * as _  from 'underscore';
  *
  * Bundle time format
  */
-export default function scserver(commands) {
-  let promises = [];
-  commands.forEach((commandContext) => {
-    let command = commandContext.command;
-    let context = commandContext.context;
-
-    if (command.scserver) {
-      if (command.scserver.msg) {
-        let m = callIfFn(command.scserver.msg, context);
-        context.scserver.send.bundle(0.03, [m]);
-      }
-      if (command.scserver.bundle) {
-        let b = callIfFn(command.scserver.bundle, context);
+export default function scserver(command, context) {
+  if (command.scserver) {
+    if (command.scserver.msg) {
+      let m = callIfFn(command.scserver.msg, context);
+      context.scserver.send.bundle(0.03, [m]);
+    }
+    if (command.scserver.bundle) {
+      let b = callIfFn(command.scserver.bundle, context);
+      context.scserver.send.bundle(b.time, b.packets);
+    }
+    if (command.scserver.sched) {
+      // {time: packets}
+      // or
+      // [{time: packets}, ]
+      let b = callIfFn(command.scserver.sched, context);
+      if (_.isArray(b)) {
+        b.forEach((bb) => context.scserver.send.bundle(bb.time, bb.packets));
+        // tried to send them all in a single osc bundle
+        // but it seems to silently choke
+        // let bundle = {
+        //   timeTag: 0.03,
+        //   packets: []
+        // };
+        // b.forEach((subBundle) => {
+        //   bundle.packets.push({
+        //     timeTag: subBundle.time,
+        //     packets: subBundle.packets
+        //   });
+        // });
+        // context.scserver.send.bundle(bundle.timeTag, bundle.packets);
+      } else {
         context.scserver.send.bundle(b.time, b.packets);
       }
       if (command.scserver.callAndResponse) {
         let c = callIfFn(command.scserver.callAndResponse, context);
-        promises.push(context.scserver.callAndResponse(c));
-      }
-      if (command.scserver.sched) {
-        // {time: packets}
-        // or
-        // [{time: packets}, ]
-        let b = callIfFn(command.scserver.sched, context);
-        if (_.isArray(b)) {
-          b.forEach((bb) => context.scserver.send.bundle(bb.time, bb.packets));
-          // tried to send them all in a single osc bundle
-          // but it seems to silently choke
-          // let bundle = {
-          //   timeTag: 0.03,
-          //   packets: []
-          // };
-          // b.forEach((subBundle) => {
-          //   bundle.packets.push({
-          //     timeTag: subBundle.time,
-          //     packets: subBundle.packets
-          //   });
-          // });
-          // context.scserver.send.bundle(bundle.timeTag, bundle.packets);
-        } else {
-          context.scserver.send.bundle(b.time, b.packets);
-        }
+        return context.scserver.callAndResponse(c);
       }
     }
-  });
-  return Promise.all(promises);
+  }
 }
 
 /**
