@@ -101,7 +101,16 @@ export class Server extends EventEmitter {
         this.log.err(o);
       }
     }, (err) => this.log.err(err));
-    this.stdout.subscribe((o) => this.log.stdout(o), (o) => this.log.stderr(o));
+    this.stdout.subscribe((o) => {
+      // scsynth doesn't send ERROR messages to stderr
+      // if ERROR or FAILURE in output then redirect as though it did
+      // so it shows up in logs
+      if (o.match(/ERROR|FAILURE/)) {
+        this.log.stderr(o);
+      } else {
+        this.log.stdout(o);
+      }
+    }, (o) => this.log.stderr(o));
     this.processEvents.subscribe((o) => this.log.dbug(o), (o) => this.log.err(o));
   }
 
