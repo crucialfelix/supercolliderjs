@@ -85,7 +85,7 @@ export class Server extends EventEmitter {
   }
 
   _initLogger() {
-    this.log = new Logger(this.options.debug, this.options.echo);
+    this.log = new Logger(this.options.debug, this.options.echo, this.options.log);
     this.send.subscribe((event) => {
       // will be a type:msg or type:bundle
       var out = JSON.stringify(event.payload || event, null, 2);

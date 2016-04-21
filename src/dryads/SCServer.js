@@ -1,6 +1,7 @@
 
 import {Dryad} from 'dryadic';
 import {boot} from '../server/server';
+import * as _ from 'underscore';
 
 const defaultOptions = {
   debug: false
@@ -24,7 +25,7 @@ export default class SCServer extends Dryad {
 
   prepareForAdd() {
     return {
-      scserver: () => boot(this.properties.options),
+      scserver: (context) => boot(_.defaults(this.properties.options, {log: context.log})),
       group: 0
     };
   }
