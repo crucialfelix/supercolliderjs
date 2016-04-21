@@ -94,7 +94,13 @@ export class Server extends EventEmitter {
       }
       this.log.sendosc(out);
     });
-    this.receive.subscribe((o) => this.log.rcvosc(o), (err) => this.log.err(err));
+    this.receive.subscribe((o) => {
+      this.log.rcvosc(o);
+      // log all /fail responses as error
+      if (o[0] === '/fail') {
+        this.log.err(o);
+      }
+    }, (err) => this.log.err(err));
     this.stdout.subscribe((o) => this.log.stdout(o), (o) => this.log.stderr(o));
     this.processEvents.subscribe((o) => this.log.dbug(o), (o) => this.log.err(o));
   }
