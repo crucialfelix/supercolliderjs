@@ -351,7 +351,7 @@ export class Server extends EventEmitter {
       // if timeout then reject and dispose
       var tid = setTimeout(() => {
         dispose();
-        reject('Timed out waiting for OSC response: ' + matchArgs);
+        reject(new Error('Timed out waiting for OSC response: ' + matchArgs));
       }, timeout);
 
       function dispose() {
