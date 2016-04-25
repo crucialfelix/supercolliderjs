@@ -34,9 +34,7 @@ export default class SynthStream extends Dryad {
           // Should validate that event.value is object
           let ev = event.value();
           let defaultParams = this.properties.defaultParams || {};
-          // should update 'out' with the bus if there is an out
-          // arg on the def
-          const args = _.assign({}, defaultParams.args, ev.args);
+          const args = _.assign({out: context.out || 0}, defaultParams.args, ev.args);
           const defName = ev.defName || this.properties.defaultParams.defName;
           const synth = synthNew(defName, -1, AddActions.TAIL, context.group, args);
           player.callCommand(context.id, {

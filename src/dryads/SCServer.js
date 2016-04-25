@@ -23,10 +23,16 @@ export default class SCServer extends Dryad {
     };
   }
 
+  initialContext() {
+    return {
+      out: 0,
+      group: 0
+    };
+  }
+
   prepareForAdd() {
     return {
-      scserver: (context) => boot(_.defaults(this.properties.options, {log: context.log})),
-      group: 0
+      scserver: (context) => boot(_.defaults(this.properties.options, {log: context.log}))
     };
   }
 
