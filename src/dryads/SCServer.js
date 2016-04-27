@@ -39,7 +39,9 @@ export default class SCServer extends Dryad {
   remove() {
     return {
       run: (context) => {
-        return context.scserver.quit();
+        if (context.scserver) {
+          return context.scserver.quit();
+        }
       }
     };
   }
