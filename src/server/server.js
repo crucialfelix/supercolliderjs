@@ -394,7 +394,7 @@ export class Server extends EventEmitter {
  * Boot a server with options and connect
  *
  * @param {Object} options - command line options for server
- * @param {Store} store - optional Dryadic Store to hold Server state
+ * @param {Store} store - optional external Store to hold Server state
  * @returns {Promise} - resolves with the Server
  */
 export function boot(options={}, store=null) {
