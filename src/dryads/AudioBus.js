@@ -2,7 +2,8 @@
 import {Dryad} from 'dryadic';
 
 /**
-  * Allocates an audio bus, making it available in the children's context as .bus (integer)
+  * Allocates an audio bus, making it available in the children's context as .out (integer)
+  * and .numChannels (integer)
   */
 export default class AudioBus extends Dryad {
 
@@ -22,14 +23,14 @@ export default class AudioBus extends Dryad {
 
   prepareForAdd() {
     return {
-      bus: (context) => context.scserver.state.allocAudioBus(this.properties.numChannels),
+      out: (context) => context.scserver.state.allocAudioBus(this.properties.numChannels),
       numChannels: this.properties.numChannels
     };
   }
 
   remove() {
     return {
-      run: (context) => context.scserver.state.freeAudioBus(context.bus, this.properties.numChannels)
+      run: (context) => context.scserver.state.freeAudioBus(context.out, this.properties.numChannels)
     };
   }
 }

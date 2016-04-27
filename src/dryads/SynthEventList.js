@@ -84,8 +84,7 @@ export default class SynthEventList extends Dryad {
     const defaultParams = this.properties.defaultParams || {};
     return events.map((event) => {
       const defName = event.defName || defaultParams.defName;
-      const args = _.assign({}, defaultParams.args, event.args);
-      args.out = context.out || 0;
+      const args = _.assign({out: context.out || 0}, defaultParams.args, event.args);
       const msg = synthNew(defName, -1, AddActions.TAIL, context.group, args);
       // epoch: takes a Date or date.getTime()
       // find first defined

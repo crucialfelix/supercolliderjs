@@ -39,7 +39,9 @@ export default class SCSynthDef extends Dryad {
    * then this will wrap itself in an SCLang (language interpreter).
    */
   requireParent() {
-    return 'SCLang';
+    if (this.properties.source || this.properties.compileFrom) {
+      return 'SCLang';
+    }
   }
 
   prepareForAdd() {

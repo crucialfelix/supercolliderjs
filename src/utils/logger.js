@@ -2,7 +2,7 @@
 
 var chalk = require('chalk');
 
-const c = {
+const colors = {
   debug: 'gray',
   error: 'yellow',
   stdout: 'green',
@@ -28,49 +28,54 @@ const c = {
 
 export default class Logger {
 
-  constructor(debug, echo) {
+  /**
+   * @param {winston.Logger|undefined} log - optional external winston Logger or compatible API
+   */
+  constructor(debug, echo, log) {
     this.debug = debug;
     this.echo = echo;
+    this.colorize = typeof log === 'undefined';
+    this.log = log || console;
     this.browser = typeof window !== 'undefined';
   }
 
   dbug(text) {
     if (this.debug) {
-      this.print('debug  ', text, c.debug);
+      this.print('debug  ', text, colors.debug);
     }
   }
 
   err(text) {
-    this.print('error  ', text, c.error);
+    this.print('error  ', text, colors.error);
   }
 
   stdin(text) {
     if (this.echo) {
-      this.print('stdin  ', text, c.stdin);
+      this.print('stdin  ', text, colors.stdin);
     }
   }
 
   stdout(text) {
     if (this.echo) {
-      this.print('stdout ', text, c.stdout);
+      this.print('stdout ', text, colors.stdout);
     }
   }
 
   stderr(text) {
     if (this.echo) {
-      this.print('stderr ', text, c.stderr);
+      this.print('stderr ', text, colors.stderr);
     }
   }
 
   sendosc(text) {
     if (this.echo) {
-      this.print('sendosc', text, c.sendosc);
+      this.print('sendosc', text, colors.sendosc);
     }
   }
 
   rcvosc(text) {
     if (this.echo) {
-      this.print('rcvosc ', text, c.rcvosc);
+      this.print('rcvosc ', text, colors.rcvosc);
     }
   }
 
@@ -85,14 +90,28 @@ export default class Logger {
       var
         lines = text.split('\n'),
         clean = [label + ': ' + lines[0]],
-        rest = lines.slice(1),
-        colorFn = chalk[color];
-      rest = rest.filter(function(s) { return s.length > 0; });
-      rest = rest.map(function(s) {
-        return '           ' + s;
-      });
-      clean = clean.concat(rest);
-      console.log(colorFn(clean.join('\n')));
+        rest = lines.slice(1)
+          .filter((s) => s.length > 0)
+          .map((s) => '           ' + s);
+      clean = clean.concat(rest).join('\n');
+      if (this.colorize) {
+        clean = chalk[color](clean);
+      }
+
+      switch (label.trim()) {
+        case 'debug':
+        case 'stdin':
+        case 'sendosc':
+        case 'rcvosc':
+          this.log.debug(clean);
+          break;
+        case 'stderr':
+        case 'error':
+          this.log.error(clean);
+          break;
+        default:
+          this.log.info(clean);
+      }
     }
   }
 }

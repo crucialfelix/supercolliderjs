@@ -67,8 +67,8 @@ export const layer = {
  *   ...
  *   player.stop();
  */
-export function dryadic(rootDryad, moreLayers=[]) {
-  return makeDryadPlayer(rootDryad, [layer].concat(moreLayers));
+export function dryadic(rootDryad, moreLayers=[], rootContext={}) {
+  return makeDryadPlayer(rootDryad, [layer].concat(moreLayers), rootContext);
 }
 
 /**

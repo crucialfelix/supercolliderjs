@@ -4,7 +4,7 @@
 import _ from 'underscore';
 import {bootServer, bootLang} from '../server/internals/side-effects';
 import {Promise} from 'bluebird';
-import {Store} from 'dryadic';
+import Store from '../server/internals/Store';
 
 
 Promise.onPossiblyUnhandledRejection((error) => {

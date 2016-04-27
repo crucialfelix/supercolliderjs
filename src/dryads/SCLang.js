@@ -1,6 +1,7 @@
 
 import {Dryad} from 'dryadic';
 import {boot} from '../lang/sclang';
+import * as _ from 'underscore';
 
 const defaultOptions = {
   debug: true,
@@ -29,7 +30,7 @@ export default class SCLang extends Dryad {
 
   prepareForAdd() {
     return {
-      sclang: () => boot(this.properties.options)
+      sclang: (context) => boot(_.defaults(this.properties.options, {log: context.log}))
     };
   }
 

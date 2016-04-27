@@ -3,7 +3,7 @@
  */
 
 import Immutable from 'immutable';
-import {Store} from 'dryadic';
+import Store from './internals/Store';
 import * as alloc from './internals/allocators';
 import {watchNodeNotifications} from './node-watcher';
 

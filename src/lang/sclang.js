@@ -41,7 +41,7 @@ export class SCLang extends EventEmitter {
     super();
     this.options = options || {};
     this.process = null;
-    this.log = new Logger(this.options.debug, this.options.echo);
+    this.log = new Logger(this.options.debug, this.options.echo, this.options.log);
     this.log.dbug(this.options);
     this.stateWatcher = this.makeStateWatcher();
   }

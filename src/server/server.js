@@ -85,7 +85,7 @@ export class Server extends EventEmitter {
   }
 
   _initLogger() {
-    this.log = new Logger(this.options.debug, this.options.echo);
+    this.log = new Logger(this.options.debug, this.options.echo, this.options.log);
     this.send.subscribe((event) => {
       // will be a type:msg or type:bundle
       var out = JSON.stringify(event.payload || event, null, 2);
@@ -94,8 +94,23 @@ export class Server extends EventEmitter {
       }
       this.log.sendosc(out);
     });
-    this.receive.subscribe((o) => this.log.rcvosc(o), (err) => this.log.err(err));
-    this.stdout.subscribe((o) => this.log.stdout(o), (o) => this.log.stderr(o));
+    this.receive.subscribe((o) => {
+      this.log.rcvosc(o);
+      // log all /fail responses as error
+      if (o[0] === '/fail') {
+        this.log.err(o);
+      }
+    }, (err) => this.log.err(err));
+    this.stdout.subscribe((o) => {
+      // scsynth doesn't send ERROR messages to stderr
+      // if ERROR or FAILURE in output then redirect as though it did
+      // so it shows up in logs
+      if (o.match(/ERROR|FAILURE/)) {
+        this.log.stderr(o);
+      } else {
+        this.log.stdout(o);
+      }
+    }, (o) => this.log.stderr(o));
     this.processEvents.subscribe((o) => this.log.dbug(o), (o) => this.log.err(o));
   }
 
@@ -203,16 +218,22 @@ export class Server extends EventEmitter {
 
     this.processEvents.onNext('Start process: ' + execPath + ' ' + args.join(' '));
     this.process = spawn(execPath, args, {
-      cwd: this.options.cwd
+      cwd: this.options.cwd,
+      options: {
+        detached: false
+      }
     });
     this.processEvents.onNext('pid: ' + this.process.pid);
 
     // when this parent process dies, kill child process
-    process.on('exit', () => {
+    let killChild = () => {
       if (this.process) {
         this.process.kill('SIGTERM');
+        this.process = null;
       }
-    });
+    };
+
+    process.on('exit', killChild);
 
     this.process.on('error', (err) => {
       this.processEvents.onError(err);
@@ -291,7 +312,13 @@ export class Server extends EventEmitter {
       this.osc.close();
       delete this.osc;
     }
-    this._serverObservers.forEach((obs) => obs.dispose());
+
+    // TODO: its the subscriptions that need to be disposed, these are the Observables
+    // this._serverObservers.forEach((obs) => obs.dispose());
+    // for (var key in this._serverObservers) {
+    //   console.log(key, this._serverObservers[key], this._serverObservers[key].dispose);
+    //   this._serverObservers[key].dispose();
+    // }
     this._serverObservers = {};
   }
 
@@ -333,7 +360,7 @@ export class Server extends EventEmitter {
       // if timeout then reject and dispose
       var tid = setTimeout(() => {
         dispose();
-        reject('Timed out waiting for OSC response: ' + matchArgs);
+        reject(new Error('Timed out waiting for OSC response: ' + matchArgs));
       }, timeout);
 
       function dispose() {
@@ -367,7 +394,7 @@ export class Server extends EventEmitter {
  * Boot a server with options and connect
  *
  * @param {Object} options - command line options for server
- * @param {Store} store - optional Dryadic Store to hold Server state
+ * @param {Store} store - optional external Store to hold Server state
  * @returns {Promise} - resolves with the Server
  */
 export function boot(options={}, store=null) {

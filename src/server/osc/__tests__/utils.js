@@ -105,9 +105,9 @@ describe('timeTag', function() {
   });
 
   it('should return ntp tag for UTC 1970', function() {
-    var epoch = new Date(1970, 1, 1, 0, 0, 0, 0);
+    var epoch = new Date(Date.UTC(1970, 1, 1, 0, 0, 0));
     var ntp = utils.dateToTimetag(epoch);
-    expect(ntp).toEqual([2211663600, 0]);
+    expect(ntp).toEqual([2211667200, 0]);
   });
 
 });
