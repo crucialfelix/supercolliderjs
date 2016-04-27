@@ -66,8 +66,18 @@ export default class Synth extends Dryad {
       scserver: {
         msg: (context) => {
           let args = _.mapObject(this.properties.args, (v, k) => {
-            // Use the cloned one in context.subgraph, not the original supplied as an arg
-            return v.isDryad ? context.subgraph[k].dryad.synthArg(context.subgraph[k].context) : v;
+            if (v.isDryad) {
+              // Each Dryad in args appears as a clone stored in context.subgraph
+              // and has its own context there
+              return this._checkOscType(context.subgraph[k].dryad.synthArg(context.subgraph[k].context));
+            }
+
+            // a simple function, is supplied context, should return a synthArg
+            if (_.isFunction(v)) {
+              return this._checkOscType(v(context));
+            }
+
+            return this._checkOscType(v);
           });
           return synthNew(context.synthDefName, context.nodeID, AddActions.TAIL, context.group, args);
         }
@@ -89,5 +99,14 @@ export default class Synth extends Dryad {
       },
       run: (context) => whenNodeEnd(context.scserver, context.id, context.nodeID)
     };
+  }
+
+  _checkOscType(v) {
+    switch (typeof v) {
+      case 'number':
+        return v;
+      default:
+        throw new Error('Invalid type supplied to synthArgs: ' + (typeof v) + ' ' + v + ' ' + this);
+    }
   }
 }
