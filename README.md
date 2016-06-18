@@ -1,8 +1,7 @@
 supercollider.js
 ================
 
-[![npm version](https://badge.fury.io/js/supercolliderjs.svg)](http://badge.fury.io/js/supercolliderjs) [![Build Status](https://travis-ci.org/crucialfelix/supercolliderjs.svg?branch=master)](https://travis-ci.org/crucialfelix/supercolliderjs) [![Dependency Status](https://david-dm.org/crucialfelix/supercolliderjs.svg)](https://david-dm.org/crucialfelix/supercolliderjs) [![devDependency Status](https://david-dm.org/crucialfelix/supercolliderjs/dev-status.svg)](https://david-dm.org/crucialfelix/supercolliderjs#info=devDependencies)
-
+[![Build Status][travis-image]][travis-url] [![NPM downloads][npm-downloads-image]][npm-url] [![MIT License][license-image]][license-url] [![Dependency Status](https://david-dm.org/crucialfelix/supercolliderjs.svg)](https://david-dm.org/crucialfelix/supercolliderjs) [![devDependency Status](https://david-dm.org/crucialfelix/supercolliderjs/dev-status.svg)](https://david-dm.org/crucialfelix/supercolliderjs#info=devDependencies)
 
 Node.js tools for working with the SuperCollider language and synthesis server.
 
@@ -28,9 +27,9 @@ Features
 
 - Start SuperCollider synthesis servers (scsynth)
 - Send and receive OSC messages to scsynth
-- Call async commands on scsynth and receive results
+- Call async commands on scsynth and receive results as Promises
 - Comprehensive library for calling all commands the server understands
-- Node-id/Bus/Buffer allocators
+- Node-id/Bus/Buffer allocators with clean immutable state implementation
 - Server state and synth/group tracking
 
 - Dryadic: declarative DSL for managing component trees. Documentation coming in 0.11.0
@@ -101,3 +100,13 @@ License
 -------
 
 The project is licensed under the MIT license.
+
+[license-image]: http://img.shields.io/badge/license-MIT-blue.svg?style=flat
+[license-url]: LICENSE
+
+[npm-url]: https://npmjs.org/package/supercolliderjs
+[npm-version-image]: http://img.shields.io/npm/v/supercolliderjs.svg?style=flat
+[npm-downloads-image]: http://img.shields.io/npm/dm/supercolliderjs.svg?style=flat
+
+[travis-url]: http://travis-ci.org/crucialfelix/supercolliderjs
+[travis-image]: https://travis-ci.org/crucialfelix/supercolliderjs.svg?branch=master
