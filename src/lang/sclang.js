@@ -93,7 +93,7 @@ export class SCLang extends EventEmitter {
       and return the path
     **/
     return new Promise((resolve, reject) => {
-      var str = yaml.safeDump(config, {indent: 4});
+      let str = yaml.safeDump(config, {indent: 4});
 
       temp.open('sclang-config', function(err, info) {
         if (err) {
@@ -123,7 +123,12 @@ export class SCLang extends EventEmitter {
     this.setState(STATES.BOOTING);
 
     // merge supercollider.js options with any sclang_conf
-    var config = this.sclangConfigOptions(this.options);
+    let config;
+    try {
+      config = this.sclangConfigOptions(this.options);
+    } catch(e) {
+      return Promise.reject(e);
+    }
 
     return this.makeSclangConfig(config)
       .then((configPath) => {
@@ -209,8 +214,17 @@ export class SCLang extends EventEmitter {
       try {
         sclang_conf = yaml.safeLoad(fs.readFileSync(untildify(options.sclang_conf), 'utf8'));
       } catch (e) {
-        this.log.err(e);
-        throw new Error('Cannot open or read specified sclang_conf ' + options.sclang_conf);
+        // By default allow a missing sclang_conf file
+        // so that the language can create it on demand if you use Quarks or LanguageConfig.
+        if (!options.failIfSclangConfIsMissing) {
+          this.log.err(e);
+          sclang_conf = {
+            includePaths: [],
+            excludePaths: []
+          };
+        } else {
+          throw new Error('Cannot open or read specified sclang_conf ' + options.sclang_conf);
+        }
       }
     }
 
