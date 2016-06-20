@@ -1,15 +1,15 @@
 
 /**
- * This parses the stdout of sclang
- * and detects changes of the interpreter state
- * and converts compilation errors into js objects.
- *
- * Also detects runtime errors and
- * results posted when sc code is evaluated from supercollider.js
- *
- * Convert errors and responses into JavaScript objects
- * Emit events when state changes
- */
+  * This parses the stdout of sclang
+  * and detects changes of the interpreter state
+  * and converts compilation errors into js objects.
+  *
+  * Also detects runtime errors and
+  * results posted when sc code is evaluated from supercollider.js
+  *
+  * Convert errors and responses into JavaScript objects
+  * Emit events when state changes
+  */
 
 import {EventEmitter} from 'events';
 import _ from 'underscore';
@@ -28,17 +28,19 @@ class SclangIO extends EventEmitter {
 
   constructor() {
     super();
+    this.states = this.makeStates();
+    this.reset();
+  }
+
+  reset() {
     this.responseCollectors = {};
     this.capturing = {};
     this.calls = {};
     this.state = null;
-    this.states = this.makeStates();
-
     // these are stored on the object
-    // should be sent with a compile error event
-    this.compileErrors = [];
-    this.parseErrors = [];
-    this.compileDirs = [];
+    // and are sent with compile error/success event
+    this.output = [];
+    this.result = {};
   }
 
   /**
@@ -64,9 +66,11 @@ class SclangIO extends EventEmitter {
         }
       }
     });
+
     if (echo) {
       this.emit('stdout', input);
     }
+
     // state has changed and there is still text to parse
     if (last < input.length && (startState !== this.state)) {
       // parse remainder with new state
@@ -82,199 +86,192 @@ class SclangIO extends EventEmitter {
   }
 
   makeStates() {
-    var self = this,
-      states = {
-        booting: [
-          {
-            re: /^compiling class library/m,
-            fn: function(match, text) {
-              self.setState(STATES.COMPILING);
-              self.parseErrors = [text];
-            }
+    return {
+      booting: [
+        {
+          re: /^compiling class library/m,
+          fn: (match, text) => {
+            this.reset();
+            this.setState(STATES.COMPILING);
+            this.pushOutputText(text);
           }
-        ],
-        compiling: [
-          {
-            re: /^compile done/m,
-            fn: function() {
-              var parsed = self.parseCompileErrors((self.parseErrors || []).join('\n'));
-              self.compiledDirs = parsed.dirs;
-              self.parseErrors = [];
-              self.setState(STATES.COMPILED);
-            }
-          },
-          {
-            re: /^Library has not been compiled successfully/m,
-            fn: function(match, text) {
-              self.parseErrors.push(text);
-              self.finalizeCompileErrors();
-            }
-          },
-          {
-            re: /^ERROR: There is a discrepancy\./m,
-            fn: function(/*match*/) {
-              self.finalizeCompileErrors();
-            }
-          },
-          {
-            // it may go directly into initClasses without posting compile done
-            re: /Welcome to SuperCollider ([0-9a-zA-Z\-\.]+)\. /m,
-            fn: function(match) {
-              self.version = match[1];
-              var parsed = self.parseCompileErrors((self.parseErrors).join('\n'));
-              self.compiledDirs = parsed.dirs;
-              delete self.parseErrors;
-              self.setState(STATES.READY);
-            }
-          },
-          {
-            // it sometimes posts this sc3> even when compile failed
-            re: /^[\s]*sc3>[\s]*$/m,
-            fn: function(match, text) {
-              self.parseErrors.push(text);
-              self.finalizeCompileErrors();
-            }
-          },
-          {
-            // another case of just trailing off
-            re: /^error parsing/m,
-            fn: function(match, text) {
-              self.parseErrors.push(text);
-              self.finalizeCompileErrors();
-            }
-          },
-          {
-            // collect all output
-            re: /(.+)/m,
-            fn: function(match, text) {
-              self.parseErrors.push(text);
-            }
+        }
+      ],
+      compiling: [
+        {
+          re: /^compile done/m,
+          fn: () => {
+            this.processOutput();
+            this.setState(STATES.COMPILED);
           }
-        ],
-        compileError: [],
-        compiled: [
-          {
-            re: /Welcome to SuperCollider ([0-9a-zA-Z\-\.]+)\. /m,
-            fn: function(match) {
-              self.version = match[1];
-              self.setState(STATES.READY);
-            }
-          },
-          {
-            re: /^[\s]*sc3>[\s]*$/m,
-            fn: function(/*match, text*/) {
-              self.setState(STATES.READY);
-            }
+        },
+        {
+          re: /^Library has not been compiled successfully/m,
+          fn: (match, text) => {
+            this.pushOutputText(text);
+            this.processOutput();
+            this.finalizeCompileErrors(STATES.COMPILE_ERROR);
           }
-        ],
-        ready: [
-          {
-            re: /^SUPERCOLLIDERJS\:([0-9a-f\-]+)\:([A-Za-z]+)\:(.*)$/mg,
-            fn: function(match, text) {
-              var
-                guid = match[1],
-                type = match[2],
-                body = match[3],
-                response,
-                stdout,
-                obj,
-                lines,
-                started = false,
-                stopped = false;
+        },
+        {
+          re: /^ERROR: There is a discrepancy\./m,
+          fn: (/*match*/) => {
+            this.processOutput();
+            this.setState(STATES.COMPILE_ERROR);
+          }
+        },
+        {
+          // it may go directly into initClasses without posting compile done
+          re: /Welcome to SuperCollider ([0-9a-zA-Z\-\.]+)\. /m,
+          fn: (match) => {
+            this.result.version = match[1];
+            this.processOutput();
+            this.setState(STATES.READY);
+          }
+        },
+        {
+          // it sometimes posts this sc3> even when compile failed
+          re: /^[\s]*sc3>[\s]*$/m,
+          fn: (match, text) => {
+            this.pushOutputText(text);
+            this.processOutput();
+            this.setState(STATES.COMPILE_ERROR);
+          }
+        },
+        {
+          // another case of just trailing off
+          re: /^error parsing/m,
+          fn: (match, text) => {
+            this.pushOutputText(text);
+            this.processOutput();
+            this.setState(STATES.COMPILE_ERROR);
+          }
+        },
+        {
+          // collect all output
+          re: /(.+)/m,
+          fn: (match, text) => {
+            this.pushOutputText(text);
+          }
+        }
+      ],
+      compileError: [],
+      compiled: [
+        {
+          re: /Welcome to SuperCollider ([0-9a-zA-Z\-\.]+)\. /m,
+          fn: (match) => {
+            this.result.version = match[1];
+            this.setState(STATES.READY);
+          }
+        },
+        {
+          re: /^[\s]*sc3>[\s]*$/m,
+          fn: (/*match, text*/) => {
+            this.setState(STATES.READY);
+          }
+        }
+      ],
+      // REPL is now active
+      ready: [
+        {
+          re: /^SUPERCOLLIDERJS\:([0-9a-f\-]+)\:([A-Za-z]+)\:(.*)$/mg,
+          fn: (match, text) => {
+            var
+              guid = match[1],
+              type = match[2],
+              body = match[3],
+              response,
+              stdout,
+              obj,
+              lines,
+              started = false,
+              stopped = false;
 
-              if (type === 'CAPTURE') {
-                if (body === 'START') {
-                  self.capturing[guid] = [];
-                }
-                if (body === 'START') {
-                  lines = [];
-                  // yuck
-                  _.each(text.split('\n'), function(l) {
-                    if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:START/)) {
-                      started = true;
-                    } else if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:END/)) {
-                      stopped = true;
-                    } else {
-                      if (started && (!stopped)) {
-                        lines.push(l);
-                      }
-                    }
-                  });
-                  self.capturing[guid].push(lines.join('\n'));
-                }
-                return true;
+            if (type === 'CAPTURE') {
+              if (body === 'START') {
+                this.capturing[guid] = [];
               }
-              if (type === 'START') {
-                self.responseCollectors[guid] = {
-                  type: body,
-                  chunks: []
-                };
-                return true;
-              }
-              if (type === 'CHUNK') {
-                self.responseCollectors[guid].chunks.push(body);
-                return true;
-              }
-              if (type === 'END') {
-                response = self.responseCollectors[guid];
-                stdout = response.chunks.join('');
-                obj = JSON.parse(stdout);
-
-                if (guid in self.calls) {
-                  if (response.type === 'Result') {
-                    // anything posted during CAPTURE should be forwarded
-                    // to stdout
-                    stdout = self.capturing[guid].join('\n');
-                    delete self.capturing[guid];
-                    if (stdout) {
-                      self.emit('stdout', stdout);
-                    }
-                    self.calls[guid].resolve(obj);
+              if (body === 'START') {
+                lines = [];
+                // yuck
+                _.each(text.split('\n'), (l) => {
+                  if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:START/)) {
+                    started = true;
+                  } else if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:END/)) {
+                    stopped = true;
                   } else {
-                    if (response.type === 'SyntaxError') {
-                      stdout = self.capturing[guid].join('\n');
-                      obj = self.parseSyntaxErrors(stdout);
-                      delete self.capturing[guid];
+                    if (started && (!stopped)) {
+                      lines.push(l);
                     }
-                    self.calls[guid].reject({type: response.type, error: obj});
                   }
-                  delete self.calls[guid];
-                } else {
-                  // I hope sc doesn't post multiple streams at the same time
-                  if (guid === '0') {
-                    // out of band error
-                    self.emit('error', {type: response.type, error: obj});
-                  }
-                }
-                delete self.responseCollectors[guid];
-                return true;
+                });
+                this.capturing[guid].push(lines.join('\n'));
               }
+              return true;
             }
-          },
-          {
-            // user compiled programmatically eg. with Quarks.gui button
-            re: /^compiling class library/m,
-            fn: function(match, text) {
-              self.setState(STATES.COMPILING);
-              self.parseErrors = [text];
-              // reject all open calls and clear state
+            if (type === 'START') {
+              this.responseCollectors[guid] = {
+                type: body,
+                chunks: []
+              };
+              return true;
+            }
+            if (type === 'CHUNK') {
+              this.responseCollectors[guid].chunks.push(body);
+              return true;
+            }
+            if (type === 'END') {
+              response = this.responseCollectors[guid];
+              stdout = response.chunks.join('');
+              obj = JSON.parse(stdout);
+
+              if (guid in this.calls) {
+                if (response.type === 'Result') {
+                  // anything posted during CAPTURE should be forwarded
+                  // to stdout
+                  stdout = this.capturing[guid].join('\n');
+                  delete this.capturing[guid];
+                  if (stdout) {
+                    this.emit('stdout', stdout);
+                  }
+                  this.calls[guid].resolve(obj);
+                } else {
+                  if (response.type === 'SyntaxError') {
+                    stdout = this.capturing[guid].join('\n');
+                    obj = this.parseSyntaxErrors(stdout);
+                    delete this.capturing[guid];
+                  }
+                  this.calls[guid].reject({type: response.type, error: obj});
+                }
+                delete this.calls[guid];
+              } else {
+                // I hope sc doesn't post multiple streams at the same time
+                if (guid === '0') {
+                  // out of band error
+                  this.emit('error', {type: response.type, error: obj});
+                }
+              }
+              delete this.responseCollectors[guid];
+              return true;
             }
           }
-        ]
-      };
-    return states;
-  }
-
-  finalizeCompileErrors() {
-    this.compileErrors = this.parseCompileErrors(this.parseErrors.join('\n'));
-    this.parseErrors = [];
-    this.compileDirs = this.compileErrors.dirs;
-    this.setState(STATES.COMPILE_ERROR);
+        },
+        {
+          // user compiled programmatically eg. with Quarks.gui button
+          re: /^compiling class library/m,
+          fn: (match, text) => {
+            this.reset();
+            this.setState(STATES.COMPILING);
+            this.pushOutputText(text);
+          }
+        }
+      ]
+    };
   }
 
   /**
-   * Register for code that is sent to be interpreted
-   * and will post a result or error.
+   * Register a Promise for a block of code that is being sent
+   * to sclang to be interpreted.
    *
    * @param {string} guid
    * @param {Object} promise - a Promise or an object with reject, resolve
@@ -284,7 +281,10 @@ class SclangIO extends EventEmitter {
   }
 
   /**
-    * parse syntax error from STDOUT runtime errors
+    * Parse syntax error from STDOUT runtime errors.
+    *
+    * @param {String} text
+    * @returns {Object}
     */
   parseSyntaxErrors(text) {
     var
@@ -307,10 +307,44 @@ class SclangIO extends EventEmitter {
   }
 
   /**
-    * parse library compile errors error from STDOUT
+   * Push text posted by sclang during library compilation
+   * to the .output stack for later procesing
+   *
+   * @param {String} text
+   */
+  pushOutputText(text) {
+    this.output.push(text);
+  }
+
+  /**
+   * Consume the compilation output stack, merging any results
+   * into this.result and resetting the stack.
+   */
+  processOutput() {
+    let parsed = this.parseCompileOutput((this.output || []).join('\n'));
+
+    // merge with any previously processed
+    _.each(parsed, (value, key) => {
+      if (_.isArray(value)) {
+        this.result[key] = (this.result[key] || []).concat(value);
+      }
+      if (_.isString(value)) {
+        this.result[key] = (this.result[key] || '') + value;
+      }
+    });
+
+    this.output = [];
+  }
+
+  /**
+    * Parse library compile errors and information
+    * collected from sclang STDOUT.
+    *
+    * @param {String} text
+    * @returns {Object}
     */
-  parseCompileErrors(text) {
-    var errors = {
+  parseCompileOutput(text) {
+    let errors = {
       stdout: text,
       errors: [],
       extensionErrors: [],
@@ -321,9 +355,9 @@ class SclangIO extends EventEmitter {
     // NumPrimitives = 688
     // multiple:
     // compiling dir: ''
-    var dirsRe = /^[\s]+compiling dir\:[\s]+'(.+)'$/mg,
-        match,
-        end = 0;
+    let dirsRe = /^[\s]+compiling dir\:[\s]+'(.+)'$/mg;
+    let match;
+    let end = 0;
 
     while ((match = dirsRe.exec(text))) {
       errors.dirs.push(match[1]);

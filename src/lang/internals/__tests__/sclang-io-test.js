@@ -72,18 +72,18 @@ describe('sclang-io', function() {
     io.setState(STATES.BOOTING);
     feedIt('io-duplicate-class.txt', io);
     expect(io.state).toEqual(STATES.COMPILE_ERROR);
-    expect(io.compileErrors).toBeDefined();
-    expect(io.compileErrors.duplicateClasses).toBeDefined();
-    expect(io.compileErrors.duplicateClasses.length).toEqual(1);
-    expect(io.compileErrors.duplicateClasses[0].forClass).toEqual('Crucial');
-    expect(io.compileErrors.duplicateClasses[0].files[0]).toEqual('/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc');
+    expect(io.result).toBeDefined();
+    expect(io.result.duplicateClasses).toBeDefined();
+    expect(io.result.duplicateClasses.length).toEqual(1);
+    expect(io.result.duplicateClasses[0].forClass).toEqual('Crucial');
+    expect(io.result.duplicateClasses[0].files[0]).toEqual('/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc');
   });
 
   describe('parseCompleErrors', () => {
     it('should parse Duplicate class errors', function() {
       var io = new SclangIO();
       io.setState(STATES.BOOTING);
-      var errors = io.parseCompileErrors(readFile('io-duplicate-class.txt'));
+      var errors = io.parseCompileOutput(readFile('io-duplicate-class.txt'));
 
       expect(errors).toBeDefined();
       expect(errors.duplicateClasses).toBeDefined();
@@ -95,7 +95,7 @@ describe('sclang-io', function() {
     it('should parse extension for non-existent class', function() {
       var io = new SclangIO();
       io.setState(STATES.BOOTING);
-      var errors = io.parseCompileErrors(readFile('io-extension-for-non-existent-class.txt'));
+      var errors = io.parseCompileOutput(readFile('io-extension-for-non-existent-class.txt'));
 
       expect(errors).toBeDefined();
       expect(errors.extensionErrors).toBeDefined();
@@ -109,7 +109,7 @@ describe('sclang-io', function() {
     it('should parse class syntax error', function() {
       var io = new SclangIO();
       io.setState(STATES.BOOTING);
-      var errors = io.parseCompileErrors(readFile('io-class-syntax-error.txt'));
+      var errors = io.parseCompileOutput(readFile('io-class-syntax-error.txt'));
       console.log(errors);
       expect(errors).toBeDefined;
       expect(errors.extensionErrors).toBeDefined;
@@ -120,7 +120,7 @@ describe('sclang-io', function() {
     it('should parse double class syntax error', function() {
       var io = new SclangIO();
       io.setState(STATES.BOOTING);
-      var errors = io.parseCompileErrors(readFile('io-class-syntax-error-2.txt'));
+      var errors = io.parseCompileOutput(readFile('io-class-syntax-error-2.txt'));
       console.log(errors);
       expect(errors).toBeDefined;
       expect(errors.extensionErrors).toBeDefined;

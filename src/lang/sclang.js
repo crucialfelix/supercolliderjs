@@ -117,6 +117,9 @@ export class SCLang extends EventEmitter {
    *
    * start sclang as a subprocess
    *
+   * Resolves with {dirs: [compiled, directories]}
+   * or rejects: {dirs: [], compileErrors: [], parseErrors: [], duplicateClasses: [], errors[], extensionErrors: [], stdout: 'compiling class library...'}
+   *
    * @returns {Promise}
    */
   boot() {
@@ -126,13 +129,14 @@ export class SCLang extends EventEmitter {
     let config;
     try {
       config = this.sclangConfigOptions(this.options);
-    } catch(e) {
+    } catch (e) {
       return Promise.reject(e);
     }
 
     return this.makeSclangConfig(config)
       .then((configPath) => {
-        return this.spawnProcess(this.options.sclang, _.extend({}, this.options, {config: configPath}));
+        return this.spawnProcess(this.options.sclang,
+          _.extend({}, this.options, {config: configPath}));
       });
   }
 
@@ -159,10 +163,10 @@ export class SCLang extends EventEmitter {
         if (state === STATES.READY) {
           done = true;
           this.removeListener('state', bootListener);
-          resolve();
+          resolve(this.stateWatcher.result);
         } else if (state === STATES.COMPILE_ERROR) {
           done = true;
-          reject(this.stateWatcher.compileErrors);
+          reject(this.stateWatcher.result);
           this.removeListener('state', bootListener);
           // probably should remove all listeners
         }
@@ -174,8 +178,12 @@ export class SCLang extends EventEmitter {
 
       setTimeout(() => {
         if (!done) {
-          this.log.err('Timeout waiting for sclang boot');
-          this.stateWatcher.finalizeCompileErrors();
+          this.log.err('Timeout waiting for sclang to boot');
+          // force it to finalize
+          this.stateWatcher.processOutput();
+          // bootListener above will reject the promise
+          this.stateWatcher.setState(STATES.COMPILE_ERROR);
+          this.removeListener('state', bootListener);
         }
       }, 10000);
 
@@ -238,7 +246,7 @@ export class SCLang extends EventEmitter {
   }
 
   makeStateWatcher() {
-    var stateWatcher = new SclangIO(this);
+    let stateWatcher = new SclangIO(this);
     for (let name of ['interpreterLoaded', 'error', 'stdout', 'state']) {
       stateWatcher.on(name, (...args) => {
         this.emit(name, ...args);
@@ -386,6 +394,10 @@ export class SCLang extends EventEmitter {
    */
   setState(state) {
     this.stateWatcher.setState(state);
+  }
+
+  compilePaths() {
+    return this.stateWatcher.result.dirs;
   }
 
   quit() {
