@@ -3,7 +3,7 @@ empty
 compiling class library...
 	NumPrimitives = 710
 	compiling dir: '/Users/crucial/code/supercollider/build/Install/SuperCollider/SuperCollider.app/Contents/Resources/SCClassLibrary'
-	compiling dir: '/Users/crucial/github/atom-supercollider/node_modules/supercolliderjs/lib/sc-classes'
+	compiling dir: '/Users/crucial/github/atom-supercollider/node_modules/supercolliderjs/lib/supercollider-js'
 	compiling dir: '/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/Steno'
 	pass 1 done
 	numentries = 819694 / 11593660 = 0.071

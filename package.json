@@ -59,7 +59,7 @@
     "jsstyle": "jscs src bin examples/*.js",
     "compile": "babel --source-maps --out-dir=./lib src",
     "watch": "babel --watch --source-maps --out-dir=./lib src",
-    "copy": "cp src/server/*.json lib/server/ && cp -R src/sc-classes lib/",
+    "copy": "cp src/server/*.json lib/server/ && cp -R src/supercollider-js lib/",
     "docs": "esdoc -c esdoc.json",
     "build": "npm run compile && npm run copy",
     "prepublish": "npm run build",

@@ -35,13 +35,13 @@ describe('sclang', function() {
 
   describe('sclangConfigOptions', function() {
 
-    it('should include sc-classes', function() {
+    it('should include supercollider-js', function() {
       var sclang = new SCLang();
       var opts = sclang.sclangConfigOptions();
       expect(opts.includePaths.length).toEqual(1);
       var isIn = _.some(opts.includePaths, function(p) {
         // and that directory should really exist
-        return p.match(/sc\-classes/) && fs.existsSync(p);
+        return p.match(/supercollider\-js/) && fs.existsSync(p);
       });
       expect(isIn).toBeTruthy();
     });
@@ -51,7 +51,7 @@ describe('sclang', function() {
       var opts = sclang.sclangConfigOptions({
         sclang_conf: path.join(__dirname, 'fixtures', 'sclang_test_conf.yaml')
       });
-      // as well as sc-classes
+      // as well as supercollider-js
       expect(opts.includePaths.length).toEqual(2 + 1);
       expect(opts.excludePaths.length).toEqual(1);
     });
@@ -104,11 +104,11 @@ describe('sclang', function() {
   });
 
   describe('sclangConfigOptions', function() {
-    it('should include sc-classes', function() {
+    it('should include supercollider-js', function() {
       var sclang = new SCLang();
       var config = sclang.sclangConfigOptions();
       expect(config.includePaths.length).toEqual(1);
-      expect(config.includePaths[0].match(/sc-classes/)).toBeTruthy();
+      expect(config.includePaths[0].match(/supercollider-js/)).toBeTruthy();
     });
 
     it('postInlineWarning should not be undefined', function() {

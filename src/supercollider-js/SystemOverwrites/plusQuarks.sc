@@ -43,7 +43,7 @@
 
 	*prSaveConfig {
 		var scjs = LanguageConfig.includePaths.detect({ arg p;
-			p.contains("supercolliderjs/lib/sc-classes");
+			p.contains("supercolliderjs/lib/supercollider-js");
 		});
 
 		if (scjs.notNil, {

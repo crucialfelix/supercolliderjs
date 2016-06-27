@@ -218,7 +218,7 @@ export class SCLang extends EventEmitter {
   sclangConfigOptions(options={}) {
     var
       runtimeIncludePaths = [
-        path.resolve(__dirname, '../../lib/sc-classes')
+        path.resolve(__dirname, '../../lib/supercollider-js')
       ],
       sclang_conf = {};
 
