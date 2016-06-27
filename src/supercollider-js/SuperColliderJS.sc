@@ -242,6 +242,10 @@ SuperColliderJS {
 		^out
 	}
 
+	*isInitialized {
+		^errorEncoders.notNil
+	}
+
 	*initClass {
 		tab = [$\\,$\\,$t].as(String);
 		nl = [$\\,$\\,$n].as(String);
