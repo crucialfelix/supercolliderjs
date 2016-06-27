@@ -157,7 +157,11 @@ export class SCLang extends EventEmitter {
   spawnProcess(execPath, commandLineOptions) {
     return new Promise((resolve, reject) => {
       var done = false;
+
       this.process = this._spawnProcess(execPath, this.args(commandLineOptions));
+      if (!this.process.pid) {
+        reject(new Error(`Failed to spawn process ${execPath}`));
+      }
 
       var bootListener = (state) => {
         if (state === STATES.READY) {

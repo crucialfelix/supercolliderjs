@@ -165,7 +165,9 @@ describe('sclang', function() {
     // mock spawn to return an event emitter
     it('should spawnProcess', function() {
       var sclang = new SCLang();
-      spyOn(sclang, '_spawnProcess');
+      spyOn(sclang, '_spawnProcess').and.returnValue({
+        pid: 1
+      });
       spyOn(sclang, 'installListeners');
       var promise = sclang.spawnProcess('/tmp/fake/path', {});
       expect(promise).toBeTruthy();
