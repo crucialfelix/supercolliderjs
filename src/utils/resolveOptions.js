@@ -22,30 +22,38 @@ var path = require('path'),
 
 function defaultOptions() {
   // should get this from server/default-server-options.json
-  var opts = {
-      'debug': false,
-      'echo': true,
-      'stdin': true,
-      'langPort': 57120,
-      'serverPort': 57110,
-      'host': '127.0.0.1',
-      'protocol': 'udp',
-      'websocketPort': 4040
-    },
-    defaultRoot,
-    platform = os.platform();
+  let opts = {
+    debug: false,
+    echo: true,
+    stdin: true,
+    langPort: 57120,
+    serverPort: 57110,
+    host: '127.0.0.1',
+    protocol: 'udp',
+    websocketPort: 4040
+  };
 
-  if (platform === 'darwin') {
-    defaultRoot = '/Applications/SuperCollider/SuperCollider.app/Contents/MacOS';
-  } else if (platform === 'win32') {
-    defaultRoot = 'C:\\Program Files (x86)\\SuperCollider';
-  } else {
-    defaultRoot = '/usr/local/bin';
+  let defaultRoot;
+  switch (os.platform()) {
+    case 'win32':
+      defaultRoot = 'C:\\Program Files (x86)\\SuperCollider';
+      opts.sclang = join(defaultRoot, 'sclang.exe');
+      opts.scsynth = join(defaultRoot, 'scsynth.exe');
+      opts.sclang_conf = join(defaultRoot, 'sclang_conf.yaml');
+      break;
+    case 'darwin':
+      defaultRoot = '/Applications/SuperCollider/SuperCollider.app/Contents/MacOS';
+      opts.sclang = join(defaultRoot, 'sclang');
+      opts.scsynth = join(defaultRoot, 'scsynth');
+      opts.sclang_conf = `${getUserHome()}/Library/Application Support/SuperCollider/sclang_conf.yaml`;
+      break;
+    default:
+      defaultRoot = '/usr/local/bin';
+      opts.sclang = join(defaultRoot, 'sclang');
+      opts.scsynth = join(defaultRoot, 'scsynth');
+      opts.sclang_conf = '/usr/local/share/SuperCollider/sclang_conf.yaml';
   }
 
-  // incorrect for windows
-  opts.sclang = join(defaultRoot, 'sclang');
-  opts.scsynth = join(defaultRoot, 'scsynth');
   return opts;
 }
 

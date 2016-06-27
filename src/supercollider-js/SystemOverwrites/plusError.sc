@@ -20,6 +20,13 @@
 
 + Exception {
   reportError {
+    if (SuperColliderJS.isInitialized.not, {
+        "Class Library failed to initialize".error;
+        this.errorString.postln;
+        if(protectedBacktrace.notNil, { this.postProtectedBacktrace });
+        this.dumpBackTrace;
+        this.halt;
+    });
     {
       var error = SuperColliderJS.encodeError(this, true, nil);
       SuperColliderJS.return("0", "Error", error);

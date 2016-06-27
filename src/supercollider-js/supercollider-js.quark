@@ -1,0 +1,4 @@
+(
+  'summary': "supercollider.js adds this quark to support two-way communication between supercollider and the node.js host. It also overides methods of the Error classes so that they print errors as JSON data.",
+  'version': "0.11.1"
+)

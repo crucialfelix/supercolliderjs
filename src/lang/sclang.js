@@ -93,7 +93,7 @@ export class SCLang extends EventEmitter {
       and return the path
     **/
     return new Promise((resolve, reject) => {
-      var str = yaml.safeDump(config, {indent: 4});
+      let str = yaml.safeDump(config, {indent: 4});
 
       temp.open('sclang-config', function(err, info) {
         if (err) {
@@ -117,17 +117,26 @@ export class SCLang extends EventEmitter {
    *
    * start sclang as a subprocess
    *
+   * Resolves with {dirs: [compiled, directories]}
+   * or rejects: {dirs: [], compileErrors: [], parseErrors: [], duplicateClasses: [], errors[], extensionErrors: [], stdout: 'compiling class library...'}
+   *
    * @returns {Promise}
    */
   boot() {
     this.setState(STATES.BOOTING);
 
     // merge supercollider.js options with any sclang_conf
-    var config = this.sclangConfigOptions(this.options);
+    let config;
+    try {
+      config = this.sclangConfigOptions(this.options);
+    } catch (e) {
+      return Promise.reject(e);
+    }
 
     return this.makeSclangConfig(config)
       .then((configPath) => {
-        return this.spawnProcess(this.options.sclang, _.extend({}, this.options, {config: configPath}));
+        return this.spawnProcess(this.options.sclang,
+          _.extend({}, this.options, {config: configPath}));
       });
   }
 
@@ -148,16 +157,20 @@ export class SCLang extends EventEmitter {
   spawnProcess(execPath, commandLineOptions) {
     return new Promise((resolve, reject) => {
       var done = false;
+
       this.process = this._spawnProcess(execPath, this.args(commandLineOptions));
+      if (!this.process.pid) {
+        reject(new Error(`Failed to spawn process ${execPath}`));
+      }
 
       var bootListener = (state) => {
         if (state === STATES.READY) {
           done = true;
           this.removeListener('state', bootListener);
-          resolve();
+          resolve(this.stateWatcher.result);
         } else if (state === STATES.COMPILE_ERROR) {
           done = true;
-          reject(this.stateWatcher.compileErrors);
+          reject(this.stateWatcher.result);
           this.removeListener('state', bootListener);
           // probably should remove all listeners
         }
@@ -169,8 +182,12 @@ export class SCLang extends EventEmitter {
 
       setTimeout(() => {
         if (!done) {
-          this.log.err('Timeout waiting for sclang boot');
-          this.stateWatcher.finalizeCompileErrors();
+          this.log.err('Timeout waiting for sclang to boot');
+          // force it to finalize
+          this.stateWatcher.processOutput();
+          // bootListener above will reject the promise
+          this.stateWatcher.setState(STATES.COMPILE_ERROR);
+          this.removeListener('state', bootListener);
         }
       }, 10000);
 
@@ -201,7 +218,7 @@ export class SCLang extends EventEmitter {
   sclangConfigOptions(options={}) {
     var
       runtimeIncludePaths = [
-        path.resolve(__dirname, '../../lib/sc-classes')
+        path.resolve(__dirname, '../../lib/supercollider-js')
       ],
       sclang_conf = {};
 
@@ -209,8 +226,17 @@ export class SCLang extends EventEmitter {
       try {
         sclang_conf = yaml.safeLoad(fs.readFileSync(untildify(options.sclang_conf), 'utf8'));
       } catch (e) {
-        this.log.err(e);
-        throw new Error('Cannot open or read specified sclang_conf ' + options.sclang_conf);
+        // By default allow a missing sclang_conf file
+        // so that the language can create it on demand if you use Quarks or LanguageConfig.
+        if (!options.failIfSclangConfIsMissing) {
+          this.log.err(e);
+          sclang_conf = {
+            includePaths: [],
+            excludePaths: []
+          };
+        } else {
+          throw new Error('Cannot open or read specified sclang_conf ' + options.sclang_conf);
+        }
       }
     }
 
@@ -224,7 +250,7 @@ export class SCLang extends EventEmitter {
   }
 
   makeStateWatcher() {
-    var stateWatcher = new SclangIO(this);
+    let stateWatcher = new SclangIO(this);
     for (let name of ['interpreterLoaded', 'error', 'stdout', 'state']) {
       stateWatcher.on(name, (...args) => {
         this.emit(name, ...args);
@@ -372,6 +398,10 @@ export class SCLang extends EventEmitter {
    */
   setState(state) {
     this.stateWatcher.setState(state);
+  }
+
+  compilePaths() {
+    return this.stateWatcher.result.dirs;
   }
 
   quit() {

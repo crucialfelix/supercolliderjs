@@ -177,7 +177,11 @@ export class Server extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.isRunning = false;
 
-      this._spawnProcess();
+      try {
+        this._spawnProcess();
+      } catch (e) {
+        reject(e);
+      }
 
       this._serverObservers.stdout = Observable.fromEvent(this.process.stdout, 'data', (data) => String(data));
       this._serverObservers.stdout.subscribe((e) => this.stdout.onNext(e));
@@ -223,6 +227,13 @@ export class Server extends EventEmitter {
         detached: false
       }
     });
+
+    if (!this.process.pid) {
+      let error = `Failed to boot ${execPath}`;
+      this.processEvents.onError(error);
+      throw new Error(error);
+    }
+
     this.processEvents.onNext('pid: ' + this.process.pid);
 
     // when this parent process dies, kill child process
