@@ -1,6 +1,44 @@
 CHANGELOG
 =========
 
+0.11.2
+++++++
+
+sc-classes was renamed to supercollider-js but it was published to npm with both versions.
+This release only removes the old sc-classes folder.
+
+0.11.1
+++++++
+
+bb7f7be classlib: If error thrown during initClassTree then post normal raw error
+47ebe05 move sc-classes -> supercollider-js for increased obviousness
+fd826a5 Reject promise on failure of spawn process (sclang/scsynth)
+3747f47 Cleaner compile state handling
+713e8cf Optionally allow sclang to boot if the supplied sclang_conf does not yet exist. Catch error and reject Promise if options.failIfSclangConfIsMissing.
+db11408 fix: when saving sclang_config remove supercollider js classes and then reinsert them and save to the temp runtime config file.
+a51d2bd Update README with badges, minor text updates
+4203e03 dependencies updates
+6c9421f resolveOptions: add default path for sclang_conf.yaml
+
+0.11.0
+++++++
+
+dc2dd2b fix timezone in osc time tag test
+994752f update dev dependencies
+f84481f In case server failed to start, do not throw error on remove.
+4ae0cd4 change: Synth arguments now support simple functions
+7048f31 update to dryadic 0.2.0 - moved Store back into supercollider.js
+8e051c0 fix .out in SynthStream SynthEventList and AudioBus
+0009107 log scsynth stdout messages with ERROR|FAILURE as errors to stderr
+1a1fa28 reject Promise with Error - bluebird requires this
+4e1b868 update scserver command middleware to new dryadic api
+b44a995 SCSynthDef: only require SCLang if compiling options were specified. If just loading from scsyndef file then an interpreter not needed.
+82bfdcc log all /fail messages as errors
+1696372 Accept an optional external logger, pass this to SCLang and SCServer. Support dryadic's rootContext
+60627cb scserver: explicitly kill child process
+f96ab62 npmignore docs etc.
+aa811de remove npm-shrinkwrap as it ludicrously forces all devDependencies to be installed for endusers.
+
 
 0.10.0
 ++++++
