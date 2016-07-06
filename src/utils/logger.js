@@ -103,7 +103,7 @@ export default class Logger {
         case 'stdin':
         case 'sendosc':
         case 'rcvosc':
-          this.log.debug(clean);
+          this.log.info(clean);
           break;
         case 'stderr':
         case 'error':
