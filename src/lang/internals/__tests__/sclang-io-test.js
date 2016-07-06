@@ -171,4 +171,18 @@ describe('sclang-io', function() {
     });
   });
 
+  describe('capture', function() {
+    it('should capture any immediate postln from end of CAPTURE', function() {
+      var io = new SclangIO();
+      io.setState(STATES.READY);
+      let output = [];
+      io.on('stdout', (o) => output.push(o));
+
+      feedIt('routine-postln.txt', io);
+      // should have emited stdout with 'hi'
+      expect(output.length > 0).toBeTruthy();
+      expect(output[0].match(/hi/)).toBeTruthy();
+    });
+  });
+
 });
