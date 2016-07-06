@@ -4,7 +4,7 @@ jest.dontMock('../SCServer');
 jest.dontMock('../Group');
 
 var dryads = require('../index');
-
+var SCServer = require('../SCServer').default;
 
 describe('SCServer', function() {
 
@@ -13,7 +13,7 @@ describe('SCServer', function() {
   });
 
   it('should set default options of SCServer', function() {
-    let s = new dryads.SCServer();
+    let s = new SCServer();
     expect(s.properties).toEqual({options: {debug: false}});
   });
 

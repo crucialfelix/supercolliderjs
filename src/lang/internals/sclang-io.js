@@ -59,6 +59,7 @@ class SclangIO extends EventEmitter {
           if (stf.fn(match, input) === true) {
             echo = false;
           }
+
           // break if its not a /g regex with multiple results
           if (!stf.re.global) {
             break;
@@ -70,6 +71,15 @@ class SclangIO extends EventEmitter {
     if (echo) {
       this.emit('stdout', input);
     }
+
+    // anything left over should be emitted to stdout ?
+    // This might result in some content being emitted twice.
+    // Currently if there is anything after SUPERCOLLIDERJS.interpret
+    // it is emitted.
+    // if (last < input.length  && (startState === this.state)) {
+    //   console.log('leftovers:', input.substr(last));
+    //   // this.parse(input.substr(last));
+    // }
 
     // state has changed and there is still text to parse
     if (last < input.length && (startState !== this.state)) {
@@ -174,6 +184,10 @@ class SclangIO extends EventEmitter {
       // REPL is now active
       ready: [
         {
+          // There may be multiple SUPERCOLLIDERJS matches in a block of text.
+          // ie. this is a multi-line global regex
+          // This fn is called for each of them with a different match each time
+          // but the same text body.
           re: /^SUPERCOLLIDERJS\:([0-9a-f\-]+)\:([A-Za-z]+)\:(.*)$/mg,
           fn: (match, text) => {
             var
@@ -187,73 +201,84 @@ class SclangIO extends EventEmitter {
               started = false,
               stopped = false;
 
-            if (type === 'CAPTURE') {
-              if (body === 'START') {
-                this.capturing[guid] = [];
-              }
-              if (body === 'START') {
-                lines = [];
-                // yuck
-                _.each(text.split('\n'), (l) => {
-                  if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:START/)) {
-                    started = true;
-                  } else if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:END/)) {
-                    stopped = true;
-                  } else {
-                    if (started && (!stopped)) {
-                      lines.push(l);
+            switch (type) {
+              case 'CAPTURE':
+                if (body === 'START') {
+                  this.capturing[guid] = [];
+                  lines = [];
+                  // yuck
+                  _.each(text.split('\n'), (l) => {
+                    if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:START/)) {
+                      started = true;
+                    } else if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:END/)) {
+                      stopped = true;
+                    } else {
+                      if (started && (!stopped)) {
+                        lines.push(l);
+                      }
                     }
-                  }
-                });
-                this.capturing[guid].push(lines.join('\n'));
-              }
-              return true;
-            }
-            if (type === 'START') {
-              this.responseCollectors[guid] = {
-                type: body,
-                chunks: []
-              };
-              return true;
-            }
-            if (type === 'CHUNK') {
-              this.responseCollectors[guid].chunks.push(body);
-              return true;
-            }
-            if (type === 'END') {
-              response = this.responseCollectors[guid];
-              stdout = response.chunks.join('');
-              obj = JSON.parse(stdout);
+                  });
+                  this.capturing[guid].push(lines.join('\n'));
+                }
+                return true;
 
-              if (guid in this.calls) {
-                if (response.type === 'Result') {
-                  // anything posted during CAPTURE should be forwarded
-                  // to stdout
-                  stdout = this.capturing[guid].join('\n');
-                  delete this.capturing[guid];
-                  if (stdout) {
-                    this.emit('stdout', stdout);
-                  }
-                  this.calls[guid].resolve(obj);
-                } else {
-                  if (response.type === 'SyntaxError') {
+              case 'START':
+                this.responseCollectors[guid] = {
+                  type: body,
+                  chunks: []
+                };
+                return true;
+
+              case 'CHUNK':
+                this.responseCollectors[guid].chunks.push(body);
+                return true;
+
+              case 'END':
+                response = this.responseCollectors[guid];
+                stdout = response.chunks.join('');
+                obj = JSON.parse(stdout);
+
+                if (guid in this.calls) {
+                  if (response.type === 'Result') {
+                    // anything posted during CAPTURE should be forwarded
+                    // to stdout
                     stdout = this.capturing[guid].join('\n');
-                    obj = this.parseSyntaxErrors(stdout);
                     delete this.capturing[guid];
+                    if (stdout) {
+                      this.emit('stdout', stdout);
+                    }
+                    this.calls[guid].resolve(obj);
+                  } else {
+                    if (response.type === 'SyntaxError') {
+                      stdout = this.capturing[guid].join('\n');
+                      obj = this.parseSyntaxErrors(stdout);
+                      delete this.capturing[guid];
+                    }
+                    this.calls[guid].reject({type: response.type, error: obj});
                   }
-                  this.calls[guid].reject({type: response.type, error: obj});
+                  delete this.calls[guid];
+                } else {
+                  // I hope sc doesn't post multiple streams at the same time
+                  if (guid === '0') {
+                    // out of band error
+                    this.emit('error', {type: response.type, error: obj});
+                  }
                 }
-                delete this.calls[guid];
-              } else {
-                // I hope sc doesn't post multiple streams at the same time
-                if (guid === '0') {
-                  // out of band error
-                  this.emit('error', {type: response.type, error: obj});
-                }
-              }
-              delete this.responseCollectors[guid];
-              return true;
+                delete this.responseCollectors[guid];
+                return true;
+
+              default:
             }
+          }
+        },
+        {
+          re: /^SUPERCOLLIDERJS.interpreted$/mg,
+          fn: (match, text) => {
+            let rest = text.substr(match.index + 28);
+            // remove the prompt ->
+            rest = rest.replace(/-> \r?\n?/, '');
+            this.emit('stdout', rest);
+            return true;
           }
         },
         {

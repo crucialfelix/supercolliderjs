@@ -42,9 +42,8 @@ function defaultOptions() {
       opts.sclang_conf = join(defaultRoot, 'sclang_conf.yaml');
       break;
     case 'darwin':
-      defaultRoot = '/Applications/SuperCollider/SuperCollider.app/Contents/MacOS';
-      opts.sclang = join(defaultRoot, 'sclang');
-      opts.scsynth = join(defaultRoot, 'scsynth');
+      opts.sclang = '/Applications/SuperCollider/SuperCollider.app/Contents/MacOS/sclang';
+      opts.scsynth = '/Applications/SuperCollider/SuperCollider.app/Contents/Resources/scsynth';
       opts.sclang_conf = `${getUserHome()}/Library/Application Support/SuperCollider/sclang_conf.yaml`;
       break;
     default:

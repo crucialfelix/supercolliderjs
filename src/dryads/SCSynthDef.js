@@ -11,6 +11,17 @@ const StateKeys = {
 
 /**
  * Compile a SynthDef from sclang source code
+ * or load a precompiled .scsyndef
+ *
+ * If compilation is required then it will insert SCLang as a parent if necessary.
+ *
+ * properties:
+ *  - source      - sclang source code to compile
+ *  - compileFrom - path of .scd file to compile
+ *  - watch  (Boolean)     - watch compileFrom file and recompile on changes
+ *  - saveToDir   - path to save compiled .scsyndef to after compiling
+ *  - loadFrom    - path of previously compiled .scsyndef file to load to server
+ *  							This can be used to load SynthDefs without needing sclang running at all.
  *
  * `synthDef` is set in the context for children Dryads to access.
  * It is an object:
@@ -18,21 +29,12 @@ const StateKeys = {
  * - .bytes
  * - .synthDesc object with descriptive meta data
  *
- * `synthDefName` is set in context for children Dryads
+ * `synthDefName` is also set in context for children Dryads
  *
- * options:
- *  - source      - sclang source code to compile
- *  - compileFrom - path of .scd file to compile
- *  - watch       - watch compileFrom file and recompile on changes
- *  - saveToDir   - path to save compiled .scsyndef to after compiling
- *  - loadFrom    - path of .scsyndef file to load to server
+ * The synthDefName is not known until after the source code is compiled.
+ *
  */
 export default class SCSynthDef extends Dryad {
-
-  // saveToDir, watch=false,
-  // constructor(source, compileFrom, loadFrom, children=[]) {
-  //   super({source, compileFrom, loadFrom}, children);
-  // }
 
   /**
    * If there is no SCLang in the parent context,
@@ -78,6 +80,7 @@ export default class SCSynthDef extends Dryad {
   }
 
   _sendSynthDef(context, result) {
+    // ! alters context
     // name bytes
     // synthDefName should be set for child context
     this.putSynthDef(context, result.name, result.synthDesc);

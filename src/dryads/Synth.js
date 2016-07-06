@@ -8,6 +8,9 @@ import * as _  from 'underscore';
 /**
  * Creates a synth on the server.
  *
+ * Properties:
+ * - def
+ * - args
  */
 export default class Synth extends Dryad {
 
@@ -20,6 +23,16 @@ export default class Synth extends Dryad {
   }
 
   subgraph() {
+    let def = this.properties.def;
+    if (def.isDryad) {
+      // wrap self as a child of SCSynthDef
+      let d = def.clone();
+      let m = this.clone();
+      m.properties.def = null; // will get synthDefName from context
+      d.children = [m];
+      return d;
+    }
+
     var sg = [];
     // clone and tag each one so they can be looked up during .add
     _.each(this.properties.args, (v, k) => {
@@ -31,15 +44,6 @@ export default class Synth extends Dryad {
     });
 
     sg.push(this);
-
-    // wrap self in SynthDef
-    let def = this.properties.def;
-    if (def.isDryad) {
-      let d = def.clone();
-      d.tag = 'def';
-      d.children = d.children.concat(sg);
-      return d;
-    }
 
     return new Dryad({}, sg);
   }
@@ -54,6 +58,7 @@ export default class Synth extends Dryad {
   }
 
   synthDefName(context) {
+    // The parent SCSynthDef publishes both .synthDef (object) and .synthDefName to context
     let name = _.isString(this.properties.def) ? this.properties.def : context.synthDef.name;
     if (!name) {
       throw new Error('No synthDefName supplied to Synth', context);
