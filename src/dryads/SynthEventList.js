@@ -6,7 +6,6 @@ import {
   AddActions
 } from '../server/osc/msg';
 import * as _  from 'underscore';
-import { deltaTimeTag } from '../server/osc/utils';
 
 
 /**
@@ -38,8 +37,7 @@ import { deltaTimeTag } from '../server/osc/utils';
  *   	.events Array
  *   	.epoch  number|Date
  *
- *   	Pushing a new event list cancels previous events (not yet implemented)
- *   	and schedules new events.
+ *   	Pushing a new event list cancels previous events and schedules new events.
  *
  *   	Note that by default the epoch will be unchanged: relative times
  *   	are still relative to when the Dryad tree started playing or when any parent
@@ -66,13 +64,20 @@ export default class SynthEventList extends Dryad {
       commands.run = (context) => {
         let subscription = this.properties.updateStream.subscribe((streamEvent) => {
           let ee = streamEvent.value();
-          // TODO: cancel previous
+          let cmds = {
+            sched: () => this._schedEvents(ee.events, context)
+          };
+
+          // streamEvent may set a new epoch eg. if it wants to play starting from 'now'
+          if (ee.epoch) {
+            cmds.setEpoch = ee.epoch;
+          }
+
           player.callCommand(context.id, {
-            scserver: {
-              sched: () => this._schedEvents(ee.events, context, ee.epoch)
-            }
+            scserver: cmds
           });
         });
+
         player.updateContext(context, {subscription});
       };
     }
@@ -80,18 +85,14 @@ export default class SynthEventList extends Dryad {
     return commands;
   }
 
-  _schedEvents(events, context, epoch) {
+  _schedEvents(events, context) {
     const defaultParams = this.properties.defaultParams || {};
-    return events.map((event) => {
+    return events.sort((a, b) => a.time - b.time).map((event) => {
       const defName = event.defName || defaultParams.defName;
       const args = _.assign({out: context.out || 0}, defaultParams.args, event.args);
       const msg = synthNew(defName, -1, AddActions.TAIL, context.group, args);
-      // epoch: takes a Date or date.getTime()
-      // find first defined
-      const ep = _.find([epoch, this.properties.epoch, context.epoch, _.now()], (d) => !_.isUndefined(d));
-      const time = deltaTimeTag(event.time, ep);
       return {
-        time,
+        time: event.time,
         packets: [msg]
       };
     });
