@@ -24,7 +24,7 @@ export default class Synth extends Dryad {
 
   subgraph() {
     let def = this.properties.def;
-    if (def.isDryad) {
+    if (def && def.isDryad) {
       // wrap self as a child of SCSynthDef
       let d = def.clone();
       let m = this.clone();
