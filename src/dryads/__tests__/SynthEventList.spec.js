@@ -1,9 +1,8 @@
 
 jest.dontMock('../SynthEventList');
-var SynthEventList = require('../SynthEventList').default;
-var _ = require('underscore');
-var timetagToDate = require('../../server/osc/utils').timetagToDate;
-var Bacon = require('baconjs').Bacon;
+const SynthEventList = require('../SynthEventList').default;
+const _ = require('underscore');
+const Bacon = require('baconjs').Bacon;
 
 describe('SynthEventList', function() {
   let events = [
@@ -29,16 +28,6 @@ describe('SynthEventList', function() {
 
     it('should have events in the packet', function() {
       expect(scheded.length).toEqual(1);
-    });
-    it('should have a time array', function() {
-      expect(_.isArray(first.time)).toBe(true);
-    });
-    it('should have time 1 second past the supplied epoch of "now"', function() {
-      let date = timetagToDate(first.time).getTime();
-      let diff = date - now;
-      // within 1 millisecond of 1000
-      let close = Math.abs(diff - 1000);
-      expect(close < 2).toBe(true);
     });
 
     it('should have a packets array', function() {
