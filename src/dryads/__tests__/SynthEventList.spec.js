@@ -19,20 +19,19 @@ describe('SynthEventList', function() {
     callCommand: function(/*id, command*/) {}
   };
 
-  describe('_schedEvents', function() {
+  describe('_makeMsgs', function() {
     // context group epoch
     let sel = new SynthEventList();
-    let now = _.now();
-    let scheded = sel._schedEvents(events, context, now);
+    let scheded = sel._makeMsgs(events, context);
     let first = scheded[0];
 
     it('should have events in the packet', function() {
       expect(scheded.length).toEqual(1);
     });
 
-    it('should have a packets array', function() {
-      expect(_.isArray(first.packets)).toBe(true);
-      expect(_.isArray(first.packets[0])).toBe(true);
+    it('should have a msgs array', function() {
+      expect(_.isArray(first.msgs)).toBe(true);
+      expect(_.isArray(first.msgs[0])).toBe(true);
     });
   });
 
@@ -40,10 +39,10 @@ describe('SynthEventList', function() {
     let sel = new SynthEventList({events: events});
     let commands = sel.add(player);
     it('should contain a function', function() {
-      expect(typeof commands.scserver.sched).toBe('function');
+      expect(typeof commands.scserver.schedLoop).toBe('function');
     });
     it('should schedule 1 event', function() {
-      let scheded = commands.scserver.sched(context);
+      let scheded = commands.scserver.schedLoop(context);
       expect(scheded.length).toEqual(1);
     });
   });
