@@ -93,8 +93,8 @@ export default function scserver(command, context) {
         const schedFn = (time, packets) => context.scserver.send.bundle(time, packets);
         context.oscSched = new OSCSched(schedFn);
       }
-
-      context.oscSched.schedLoop(command.scserver.schedLoop, context.epoch);
+      // schedLoop is a function that returns the actual schedLoop function
+      context.oscSched.schedLoop(command.scserver.schedLoop(context), context.epoch);
     }
 
     // Preparation commands that get an OSC callback from the server.
