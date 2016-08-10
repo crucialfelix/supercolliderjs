@@ -14,8 +14,9 @@ describe('SynthEventList', function() {
     epoch: 1460987712857
   };
 
+  // bad to mock this, it's fragile
   let player = {
-    updateContext: function(/*ctx, update*/) {},
+    updateContext: (ctx, update) => _.assign({}, ctx, update),
     callCommand: function(/*id, command*/) {}
   };
 
@@ -35,6 +36,122 @@ describe('SynthEventList', function() {
     });
   });
 
+  describe('_makeSchedLoop', function() {
+
+    let sel = new SynthEventList();
+    let epoch = 1460987712857;
+    let msg = ['/s_new', 'blip', -1, 1, 0, 'out', 0, 'freq', 440];
+
+    describe('with no loopTime', function() {
+      let loopTime = null;
+      it('should return first event with time 1.0', function() {
+        let fn = sel._makeSchedLoop(events, loopTime, epoch, context);
+        let e = fn(0);
+        expect(e).toEqual({
+          time: 1,
+          msgs: [msg],
+          memo: {i: 1}
+        });
+      });
+
+      it('should return undefined event with time 10.0', function() {
+        let fn = sel._makeSchedLoop(events, loopTime, epoch, context);
+        let e = fn(10);
+        expect(e).toEqual(undefined);
+      });
+    });
+
+    describe('with loopTime', function() {
+      let loopTime = 2;
+      it('should return first event with time 1.0', function() {
+        let fn = sel._makeSchedLoop(events, loopTime, epoch, context);
+        let e = fn(0);
+        expect(e).toEqual({
+          time: 1,
+          msgs: [msg],
+          memo: {i: 1}
+        });
+      });
+
+      it('should return first event again with time 10.0', function() {
+        let fn = sel._makeSchedLoop(events, loopTime, epoch, context);
+        let e = fn(10);
+        let should = {time: 11, msgs: [msg], memo: {i: 1}};
+        expect(e).toEqual(should);
+      });
+
+      it('should wrap memo iterator around and find first event', function() {
+        let fn = sel._makeSchedLoop(events, loopTime, epoch, context);
+        let e = fn(4, {i: 1});
+        expect(e).toEqual({
+          time: 5.0,
+          msgs: [msg],
+          memo: {i: 1}
+        });
+      });
+
+      it('should return undefined if the list is empty', function() {
+        let fn = sel._makeSchedLoop([], loopTime, epoch, context);
+        let e = fn(4, {i: 1});
+        expect(e).toEqual(undefined);
+      });
+
+      it('should return next event even if epoch is in the future', function() {
+        let fn = sel._makeSchedLoop(events, 4, epoch, context);
+        // now is -0.5 secs before start
+        // next event should still be time 1
+        // and the scheduler will handle it
+        let e = fn(-0.5, {i: 1});
+        expect(e).toEqual({
+          time: 1.0,
+          msgs: [msg],
+          memo: {i: 1}
+        });
+      });
+
+    });
+
+    describe('with event list in properties', function() {
+      let sel2 = new SynthEventList({
+        events: [
+          {
+            time: 1,
+            defName: 'blip',
+            args: {
+              freq: 440
+            }
+          }
+        ],
+        loopTime: 16.0
+      });
+
+      let ctx = {};
+      let cmd = sel2.add(ctx);
+      let getNextFn = cmd.scserver.schedLoop(ctx);
+
+      it('should return first event', function() {
+        let e = getNextFn(0);
+        expect(e.time).toEqual(1);
+        expect(e.msgs[0]).toEqual(msg);
+      });
+    });
+
+    describe('with no event list in properties', function() {
+      let sel2 = new SynthEventList({
+        loopTime: 16.0
+      });
+
+      let ctx = {};
+      let cmd = sel2.add(ctx);
+      let getNextFn = cmd.scserver.schedLoop(ctx);
+
+      it('should return undefined', function() {
+        let e = getNextFn(0);
+        expect(e).toBe(undefined);
+      });
+    });
+  });
+
   describe('spawn events in supplied list on .add', function() {
     let sel = new SynthEventList({events: events});
     let commands = sel.add(player);
@@ -42,8 +159,9 @@ describe('SynthEventList', function() {
       expect(typeof commands.scserver.schedLoop).toBe('function');
     });
     it('should schedule 1 event', function() {
-      let scheded = commands.scserver.schedLoop(context);
-      expect(scheded.length).toEqual(1);
+      let fn = commands.scserver.schedLoop(context);
+      let e = fn(0);
+      expect(e.time).toEqual(1);
     });
   });
 

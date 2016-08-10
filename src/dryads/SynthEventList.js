@@ -58,9 +58,10 @@ import * as _  from 'underscore';
  * slightly in the future. If you pass "now" then any events at `0.0` will be too late to play.
  *
  * __defaultParams:__ a fixed object into which the event value is merged.
+ *
+ * __loopTime:__ Play the events continuously in a loop.
  */
 export default class SynthEventList extends Dryad {
-
 
   /**
    * @param  {DryadPlayer} player
@@ -70,7 +71,13 @@ export default class SynthEventList extends Dryad {
     let commands = {
       scserver: {
         schedLoop: (context) => {
-          return this._makeSchedLoop(this.properties.events || [], context.epoch, context);
+          if (context.epoch) {
+            context = player.updateContext(context, {
+              epoch: _.now() + 200  // temporary: this needs to know the target play time
+            });
+          }
+
+          return this._makeSchedLoop(this.properties.events || [], this.properties.loopTime, context.epoch, context);
         }
       }
     };
@@ -79,9 +86,19 @@ export default class SynthEventList extends Dryad {
       commands.run = (context) => {
         let subscription = this.properties.updateStream.subscribe((streamEvent) => {
           let ee = streamEvent.value();
+          const loopTime = _.isUndefined(ee.loopTime) ? this.properties.loopTime : ee.loopTime;
+
+          let epoch = ee.epoch || context.epoch;
+          if (epoch !== context.epoch) {
+            context = player.updateContext(context, {
+              epoch
+            });
+          }
+
           player.callCommand(context.id, {
             scserver: {
-              schedLoop: this._makeSchedLoop(ee.events, ee.epoch, context)
+              // need to set epoch as well because OSCSched uses that for relative times
+              schedLoop: (ctx) => this._makeSchedLoop(ee.events || [], loopTime, epoch, ctx)
             }
           });
         });
@@ -93,15 +110,33 @@ export default class SynthEventList extends Dryad {
     return commands;
   }
 
-  _makeSchedLoop(events, epoch, context) {
+  _makeSchedLoop(events, loopTime, epoch, context) {
     const sorted = this._makeMsgs(events, context);
     return (now, memo={i: 0}) => {
-      for (let i = memo.i; i < sorted.length; i += 1) {
+      let timeBase;
+
+      if (loopTime) {
+        loopTime = parseFloat(loopTime);
+        let numIterations = now / loopTime;
+        if (numIterations <= 0) {
+          timeBase = 0;
+        } else {
+          timeBase = Math.floor(numIterations) * loopTime;
+        }
+      } else {
+        timeBase = 0;
+      }
+
+      const startAtIndex = memo.i >= sorted.length ? 0 : memo.i;
+
+      for (let i = startAtIndex; i < sorted.length; i += 1) {
         let e = sorted[i];
-        let delta = e.time - now;
+        let time = timeBase + e.time;
+        let delta = time - now;
+
         if (delta >= 0) {
           return {
-            time: e.time,
+            time: timeBase + e.time,
             msgs: e.msgs,
             memo: {i: i + 1}
           };
