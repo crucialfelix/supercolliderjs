@@ -28,9 +28,9 @@ export default class OSCSched {
     this.setTimeout = setTimeoutFn;
     this.clearTimeout = clearTimeoutFn;
 
-    this.getNextFn = null;
-    this.epoch = null;
-    this.timerId = null;
+    this.getNextFn = undefined;
+    this.epoch = undefined;
+    this.timerId = undefined;
   }
 
   /**
@@ -56,14 +56,21 @@ export default class OSCSched {
    */
   schedLoop(getNextFn, epoch) {
     this.getNextFn = getNextFn;
-    this.epoch = epoch;
+    if (epoch) {
+      this.epoch = epoch;
+    }
+
+    if (!this.epoch) {
+      throw new Error(`Epoch not set: ${this.epoch}`);
+    }
+
     this._schedNext();
   }
 
   _schedNext(memo) {
     if (this.timerId) {
       this.clearTimeout(this.timerId);
-      this.timerId = null;
+      this.timerId = undefined;
     }
 
     const now = (_.now() - this.epoch) / 1000;
@@ -93,15 +100,15 @@ export default class OSCSched {
       this.timerId = null;
       this._send(event);
       this._schedNext(event.memo);
-    }, delta * 1000);
+    }, (delta - this.latency) * 1000);
   }
 
   /**
    * _send - send the OSC bundle
    *
-   * @param  {Object} event description
+   * @param  {Object} event
    */
   _send(event) {
-    this.sendFn(deltaTimeTag(event.time * 1000, this.epoch), event.msgs);
+    this.sendFn(deltaTimeTag(event.time, this.epoch), event.msgs);
   }
 }
