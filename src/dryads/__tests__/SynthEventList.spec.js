@@ -93,7 +93,7 @@ describe('SynthEventList', function() {
       it('should return undefined if the list is empty', function() {
         let fn = sel._makeSchedLoop([], loopTime, epoch, context);
         let e = fn(4, {i: 1});
-        expect(e).toEqual(undefined);
+        expect(e).toBeUndefined();
       });
 
       it('should return next event even if epoch is in the future', function() {
@@ -109,6 +109,52 @@ describe('SynthEventList', function() {
         });
       });
 
+      describe('looping through the list', function() {
+        let events2 = [
+          {defName: 'blip', args: {freq: 440}, time: 0.0},
+          {defName: 'blip', args: {freq: 880}, time: 2.0}
+        ];
+        let fn = sel._makeSchedLoop(events2, 4, epoch, context);
+
+        it('should return first event when epoch is in the future', function() {
+          // epoch is in the future
+          let e1 = fn(-0.5, {i: 0});
+          expect(e1).toBeDefined();
+          expect(e1.time).toEqual(0.0);
+        });
+
+        it('should return 2nd event given a correct memo', function() {
+          let e2 = fn(0.5, {i: 1});
+          expect(e2).toBeDefined();
+          expect(e2.time).toEqual(2.0);
+        });
+
+        it('should return wrapped first event', function() {
+          // 2.5 is after the second event, it should now search
+          // back to the start of the list and return that one.
+          // it walks once through the list but the times are in the past
+          // because i said 0
+          let e3 = fn(2.5, {i: 0});
+          expect(e3).toBeDefined();
+          expect(e3.time).toEqual(4.0);
+        });
+
+        it('should return wrapped second event', function() {
+          let e4 = fn(4.5, {i: 1});
+          expect(e4).toBeDefined();
+          expect(e4.time).toEqual(6.0);
+        });
+
+        it('should return correct event even with incorrect memo', function() {
+          // should not matter what the memo is,
+          // it should wrap itself. memo is a hint
+          let e5 = fn(4.5, {i: 10});
+          expect(e5).toBeDefined();
+          expect(e5.time).toEqual(6.0);
+        });
+
+
+      });
     });
 
     describe('with event list in properties', function() {
@@ -126,7 +172,7 @@ describe('SynthEventList', function() {
       });
 
       let ctx = {};
-      let cmd = sel2.add(ctx);
+      let cmd = sel2.add(player);
       let getNextFn = cmd.scserver.schedLoop(ctx);
 
       it('should return first event', function() {
@@ -142,7 +188,7 @@ describe('SynthEventList', function() {
       });
 
       let ctx = {};
-      let cmd = sel2.add(ctx);
+      let cmd = sel2.add(player);
       let getNextFn = cmd.scserver.schedLoop(ctx);
 
       it('should return undefined', function() {

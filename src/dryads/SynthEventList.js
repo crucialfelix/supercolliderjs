@@ -112,12 +112,18 @@ export default class SynthEventList extends Dryad {
 
   _makeSchedLoop(events, loopTime, epoch, context) {
     const sorted = this._makeMsgs(events, context);
+    const length = sorted.length;
+
     return (now, memo={i: 0}) => {
       let timeBase;
 
+      if (length === 0) {
+        return;
+      }
+
       if (loopTime) {
         loopTime = parseFloat(loopTime);
-        let numIterations = now / loopTime;
+        let numIterations = Math.floor(now / loopTime);
         if (numIterations <= 0) {
           timeBase = 0;
         } else {
@@ -127,18 +133,32 @@ export default class SynthEventList extends Dryad {
         timeBase = 0;
       }
 
-      const startAtIndex = memo.i >= sorted.length ? 0 : memo.i;
+      const startAtIndex = memo.i >= length ? 0 : memo.i;
 
-      for (let i = startAtIndex; i < sorted.length; i += 1) {
-        let e = sorted[i];
-        let time = timeBase + e.time;
+      // search for one loop length
+      const stopAt = loopTime ? startAtIndex + length + 1 : length;
+
+      // The next event may be at the same time
+      // but you cannot play the exact same event again.
+      for (let i = startAtIndex; i < stopAt; i += 1) {
+        // if searching across the loop end then wrap around
+        // and add one loopTime to timeBase
+        let index = i;
+        let tb = timeBase;
+        if (loopTime && (i >= length)) {
+          index = i - length;
+          tb = timeBase + loopTime;
+        }
+
+        let e = sorted[index];
+        let time = tb + e.time;
         let delta = time - now;
 
         if (delta >= 0) {
           return {
-            time: timeBase + e.time,
+            time: tb + e.time,
             msgs: e.msgs,
-            memo: {i: i + 1}
+            memo: {i: index + 1}
           };
         }
       }
