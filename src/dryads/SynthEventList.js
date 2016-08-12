@@ -71,13 +71,13 @@ export default class SynthEventList extends Dryad {
     let commands = {
       scserver: {
         schedLoop: (context) => {
-          if (context.epoch) {
-            context = player.updateContext(context, {
-              epoch: _.now() + 200  // temporary: this needs to know the target play time
-            });
+          // temporary: we need to know the play time of the whole document
+          const epoch = context.epoch || (_.now() + 200);
+          if (epoch !== context.epoch) {
+            context = player.updateContext(context, {epoch});
           }
 
-          return this._makeSchedLoop(this.properties.events || [], this.properties.loopTime, context.epoch, context);
+          return this._makeSchedLoop(this.properties.events || [], this.properties.loopTime, epoch, context);
         }
       }
     };
@@ -88,7 +88,7 @@ export default class SynthEventList extends Dryad {
           let ee = streamEvent.value();
           const loopTime = _.isUndefined(ee.loopTime) ? this.properties.loopTime : ee.loopTime;
 
-          let epoch = ee.epoch || context.epoch;
+          let epoch = ee.epoch || context.epoch || (_.now() + 200);
           if (epoch !== context.epoch) {
             context = player.updateContext(context, {
               epoch
