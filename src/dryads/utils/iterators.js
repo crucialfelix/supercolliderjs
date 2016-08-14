@@ -71,7 +71,7 @@ export function eventListIterator(events) {
  *   greater than or equal to 'now'
  *   and if memo *is* supplied then it iterates over the sorted event list.
  *
- *   returns {Object} event - Which has .event (the original event) and .memo which is
+ *   returns {Object} item - Which has .event (the original event) and .memo which is
  *                              used by OSCSched the next time this function is called.
  */
 export function loopedEventListIterator(events, loopTime) {
@@ -97,7 +97,8 @@ export function loopedEventListIterator(events, loopTime) {
       }
     } else {
       // search for first positive delta
-      let iteration = Math.floor(now / loopTime);
+      let iteration = Math.max(Math.floor(now / loopTime), 0);
+
       let timeBase = iteration * loopTime;
       let lastEventTime = sorted[length - 1].time;
       if ((now > (timeBase + lastEventTime)) && (now < (timeBase + loopTime))) {

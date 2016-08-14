@@ -100,6 +100,13 @@ describe('iterators', function() {
         expect(e.event.defName).toEqual('zero');
       });
 
+      it('should find first event with time -1.9', function() {
+        let e = fn(-1.9);
+        expect(e).toBeDefined();
+        expect(e.event.time).toEqual(0);
+        expect(e.event.defName).toEqual('zero');
+      });
+
     });
 
     describe('with memo', function() {
