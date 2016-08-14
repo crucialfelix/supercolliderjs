@@ -67,21 +67,26 @@ export default class OSCSched {
     this._schedNext();
   }
 
-  _schedNext(memo) {
+  _schedNext(memo, logicalNow) {
     if (this.timerId) {
       this.clearTimeout(this.timerId);
       this.timerId = undefined;
     }
 
     const now = (_.now() - this.epoch) / 1000;
-    const event = memo ? this.getNextFn(now, memo) : this.getNextFn(now);
-    if (event) {
-      const delta = event.time - now;
+    if (!logicalNow) {
+      logicalNow = now;
+    }
+
+    const next = memo ? this.getNextFn(logicalNow, memo) : this.getNextFn(logicalNow);
+    if (next) {
+      const delta = next.event.time - now;
       if (delta <= this.latency) {
-        this._send(event);
-        this._schedNext(event.memo);
+        this._send(next.event);
+        // this steps by logical time
+        this._schedNext(next.memo, next.event.time);
       } else {
-        this._jitSend(delta, event);
+        this._jitSend(now, delta, next);
       }
     }
   }
@@ -95,11 +100,11 @@ export default class OSCSched {
    * @param  {Object} event With .msgs .time and optional .memo
    *                        to be passed to the next call to getNextFn
    */
-  _jitSend(delta, event) {
+  _jitSend(now, delta, next) {
     this.timerId = this.setTimeout(() => {
       this.timerId = null;
-      this._send(event);
-      this._schedNext(event.memo);
+      this._send(next.event);
+      this._schedNext(next.memo, next.event.time);
     }, (delta - this.latency) * 1000);
   }
 

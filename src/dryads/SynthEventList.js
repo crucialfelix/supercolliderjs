@@ -1,3 +1,4 @@
+import * as _  from 'underscore';
 
 import {Dryad} from 'dryadic';
 import Group from './Group';
@@ -5,7 +6,10 @@ import {
   synthNew,
   AddActions
 } from '../server/osc/msg';
-import * as _  from 'underscore';
+import {
+  loopedEventListIterator,
+  eventListIterator
+} from './utils/iterators';
 
 
 /**
@@ -111,63 +115,14 @@ export default class SynthEventList extends Dryad {
   }
 
   _makeSchedLoop(events, loopTime, epoch, context) {
-    const sorted = this._makeMsgs(events, context);
-    const length = sorted.length;
-
-    return (now, memo={i: 0}) => {
-      let timeBase;
-
-      if (length === 0) {
-        return;
-      }
-
-      if (loopTime) {
-        loopTime = parseFloat(loopTime);
-        let numIterations = Math.floor(now / loopTime);
-        if (numIterations <= 0) {
-          timeBase = 0;
-        } else {
-          timeBase = Math.floor(numIterations) * loopTime;
-        }
-      } else {
-        timeBase = 0;
-      }
-
-      const startAtIndex = memo.i >= length ? 0 : memo.i;
-
-      // search for one loop length
-      const stopAt = loopTime ? startAtIndex + length + 1 : length;
-
-      // The next event may be at the same time
-      // but you cannot play the exact same event again.
-      for (let i = startAtIndex; i < stopAt; i += 1) {
-        // if searching across the loop end then wrap around
-        // and add one loopTime to timeBase
-        let index = i;
-        let tb = timeBase;
-        if (loopTime && (i >= length)) {
-          index = i - length;
-          tb = timeBase + loopTime;
-        }
-
-        let e = sorted[index];
-        let time = tb + e.time;
-        let delta = time - now;
-
-        if (delta >= 0) {
-          return {
-            time: tb + e.time,
-            msgs: e.msgs,
-            memo: {i: index + 1}
-          };
-        }
-      }
-    }
+    const synthEvents = this._makeMsgs(events, context);
+    return loopTime ? loopedEventListIterator(synthEvents, loopTime) : eventListIterator(synthEvents);
   }
 
   _makeMsgs(events, context) {
     const defaultParams = this.properties.defaultParams || {};
-    return events.sort((a, b) => a.time - b.time).map((event) => {
+    return events.map((event) => {
+      // TODO: do this a jit time in the schedLoop
       const defName = event.defName || defaultParams.defName;
       const args = _.assign({out: context.out || 0}, defaultParams.args, event.args);
       const msg = synthNew(defName, -1, AddActions.TAIL, context.group, args);

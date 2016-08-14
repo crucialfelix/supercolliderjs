@@ -35,8 +35,10 @@ describe('OSCSched', function() {
     sched.schedLoop((now, memo={i: 0}) => {
       if (memo.i === 0) {
         return {
-          time: time,
-          msgs: [],
+          event: {
+            time,
+            msgs: []
+          },
           memo: {i: memo.i + 1}
         };
       }
