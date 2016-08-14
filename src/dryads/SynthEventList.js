@@ -91,7 +91,6 @@ export default class SynthEventList extends Dryad {
         let subscription = this.properties.updateStream.subscribe((streamEvent) => {
           let ee = streamEvent.value();
           const loopTime = _.isUndefined(ee.loopTime) ? this.properties.loopTime : ee.loopTime;
-
           let epoch = ee.epoch || context.epoch || (_.now() + 200);
           if (epoch !== context.epoch) {
             context = player.updateContext(context, {
@@ -102,7 +101,7 @@ export default class SynthEventList extends Dryad {
           player.callCommand(context.id, {
             scserver: {
               // need to set epoch as well because OSCSched uses that for relative times
-              schedLoop: (ctx) => this._makeSchedLoop(ee.events || [], loopTime, epoch, ctx)
+              schedLoop: (ctx) => this._makeSchedLoop(ee.events || [], loopTime, ctx)
             }
           });
         });
@@ -114,7 +113,7 @@ export default class SynthEventList extends Dryad {
     return commands;
   }
 
-  _makeSchedLoop(events, loopTime, epoch, context) {
+  _makeSchedLoop(events, loopTime, context) {
     const synthEvents = this._makeMsgs(events, context);
     return loopTime ? loopedEventListIterator(synthEvents, loopTime) : eventListIterator(synthEvents);
   }
