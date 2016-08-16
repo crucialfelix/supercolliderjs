@@ -90,6 +90,10 @@ export function loopedEventListIterator(events, loopTime) {
       let timeBase = iteration * loopTime;
 
       if (event) {
+        // if (now > timeBase + event.time) {
+        //   throw new Error('loopedEventListIterator and event is in the past');
+        // }
+
         return {
           event: _.assign({}, event, {time: timeBase + event.time}),
           memo: {i: memo.i + 1}
@@ -115,7 +119,7 @@ export function loopedEventListIterator(events, loopTime) {
         if (delta >= 0) {
           return {
             event: _.assign({}, event, { time }),
-            memo: {i: i + 1}
+            memo: {i: (iteration * length) + i + 1}
           };
         }
       }

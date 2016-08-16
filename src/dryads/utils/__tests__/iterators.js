@@ -77,6 +77,7 @@ describe('iterators', function() {
         let e = fn(0);
         expect(e).toBeDefined();
         expect(e.event.time).toEqual(0);
+        expect(e.memo).toEqual({i: 1});
       });
 
       it('should find second event at time 1', function() {
@@ -84,13 +85,15 @@ describe('iterators', function() {
         expect(e).toBeDefined();
         expect(e.event.time).toEqual(1);
         expect(e.event.defName).toEqual('one');
+        expect(e.memo).toEqual({i: 2});
       });
 
-      it('should return first event, 2nd iteration at time 2', function() {
+      it('should return first event, 1st iteration at time 2', function() {
         let e = fn(2);
         expect(e).toBeDefined();
         expect(e.event.time).toEqual(4);
         expect(e.event.defName).toEqual('zero');
+        expect(e.memo).toEqual({i: 1});
       });
 
       it('should return first event, 4th iteration at time 15', function() {
@@ -98,6 +101,7 @@ describe('iterators', function() {
         expect(e).toBeDefined();
         expect(e.event.time).toEqual(16);
         expect(e.event.defName).toEqual('zero');
+        expect(e.memo).toEqual({i: 10});
       });
 
       it('should find first event with time -1.9', function() {
@@ -105,8 +109,8 @@ describe('iterators', function() {
         expect(e).toBeDefined();
         expect(e.event.time).toEqual(0);
         expect(e.event.defName).toEqual('zero');
+        expect(e.memo).toEqual({i: 1});
       });
-
     });
 
     describe('with memo', function() {

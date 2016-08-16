@@ -82,7 +82,13 @@ export default class OSCSched {
     if (next) {
       const delta = next.event.time - now;
       if (delta <= this.latency) {
-        this._send(next.event);
+        if (delta > 0) {
+          this._send(next.event);
+        } else {
+          /* eslint no-console: 0 */
+          console.warn('Event is past due. Skipping.', JSON.stringify({delta, now, event: next.event}));
+        }
+
         // this steps by logical time
         this._schedNext(next.memo, next.event.time);
       } else {
