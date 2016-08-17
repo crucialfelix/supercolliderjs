@@ -1,0 +1,13 @@
+[include]
+./src/
+
+[ignore]
+.*/__tests__/.*
+.*/test/.*
+./node_modules/jsonlint/.*
+; .*\.json
+
+[libs]
+./declarations/
+
+[options]

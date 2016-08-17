@@ -1,10 +1,11 @@
+/* @flow */
 import * as _  from 'underscore';
 
-export function sortEvents(events) {
+export function sortEvents(events: Array<Object>) {
   return events.sort((a, b) => a.time - b.time);
 }
 
-export function clipTime(events, start, end) {
+export function clipTime(events: Array<Object>, start: number, end: number) {
   return events.filter((e) => (e.time >= start) && (e.time <= end));
 }
 
@@ -22,11 +23,11 @@ export function clipTime(events, start, end) {
  *                         returns {Object} event - Which has .event (the original event) and .memo which is
  *                              used by OSCSched the next time this function is called.
  */
-export function eventListIterator(events) {
+export function eventListIterator(events: Array<Object>) {
   const sorted = sortEvents(events);
   const length = sorted.length;
 
-  return (now, memo) => {
+  return (now: number, memo: ?Object) => {
 
     if (length === 0) {
       return;
@@ -74,12 +75,12 @@ export function eventListIterator(events) {
  *   returns {Object} item - Which has .event (the original event) and .memo which is
  *                              used by OSCSched the next time this function is called.
  */
-export function loopedEventListIterator(events, loopTime) {
+export function loopedEventListIterator(events: Array<Object>, loopTime: number) {
 
   const sorted = clipTime(sortEvents(events), 0, loopTime);
   const length = sorted.length;
 
-  return (now, memo) => {
+  return (now: number, memo: ?Object) => {
     if (length === 0) {
       return;
     }
