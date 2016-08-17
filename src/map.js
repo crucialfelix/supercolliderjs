@@ -1,14 +1,15 @@
+/* @flow */
 
-export function midiToFreq(midiNote) {
+export function midiToFreq(midiNote: number) : number {
   return 440.0 * Math.pow(2, (midiNote - 69.0) / 12.0);
 }
 
-export function freqToMidi(freq) {
+export function freqToMidi(freq: number) : number {
   let mult = Math.log(freq / 400.0) / Math.log(2);
   return Math.round(12.0 * mult + 69);
 }
 
-export function linToLin(inMin, inMax, outMin, outMax, value) {
+export function linToLin(inMin: number, inMax: number, outMin: number, outMax: number, value: number) : number {
   if (value <= inMin) {
     return outMin;
   }
@@ -18,7 +19,7 @@ export function linToLin(inMin, inMax, outMin, outMax, value) {
   return (value - inMin) / (inMax - inMin) * (outMax - outMin) + outMin;
 }
 
-export function linToExp(inMin, inMax, outMin, outMax, value) {
+export function linToExp(inMin: number, inMax: number, outMin: number, outMax: number, value: number) : number {
   if (value <= inMin) {
     return outMin;
   }
@@ -28,7 +29,7 @@ export function linToExp(inMin, inMax, outMin, outMax, value) {
   return Math.pow(outMax / outMin, (value - inMin) / (inMax - inMin)) * outMin;
 }
 
-export function expToLin(inMin, inMax, outMin, outMax, value) {
+export function expToLin(inMin: number, inMax: number, outMin: number, outMax: number, value: number) : number {
   if (value <= inMin) {
     return outMin;
   }
@@ -42,18 +43,18 @@ export function expToLin(inMin, inMax, outMin, outMax, value) {
   ) * outMin;
 }
 
-export function ampToDb(amp) {
+export function ampToDb(amp: number) : number {
   return Math.log10(amp) * 20.0;
 }
 
-export function dbToAmp(db) {
+export function dbToAmp(db: number) : number {
   return Math.pow(10.0, db * 0.05);
 }
 
 /**
  * Returns a linear mapping function
  */
-export function linear(spec) {
+export function linear(spec: Object) : Function {
   let range = spec.maxval - spec.minval;
   return function(value) {
     return value * range + spec.minval;
@@ -63,7 +64,7 @@ export function linear(spec) {
 /**
  * Returns an exponential mapping function
  */
-export function exp(spec) {
+export function exp(spec: Object) : Function {
   let ratio = spec.maxval / spec.minval;
   return function(value) {
     return Math.pow(ratio, value) * spec.minval;
@@ -73,7 +74,7 @@ export function exp(spec) {
 /**
  * Returns dB mapping function (DbFaderWarp)
  */
-export function dB(spec) {
+export function dB(spec: Object) : Function {
   let minval = dbToAmp(spec.minval);
   let range = dbToAmp(spec.maxval) - minval;
   return function(value) {
@@ -84,7 +85,7 @@ export function dB(spec) {
 /**
  * Returns amp mapping function (FaderWarp)
  */
-export function fader(spec) {
+export function fader(spec: Object) : Function {
   let range = spec.maxval - spec.minval;
   return function(value) {
     return Math.pow(value, 2) * range - spec.minval;
@@ -94,7 +95,7 @@ export function fader(spec) {
 /**
  * Returns inverse of linear mapping function
  */
-export function unmapLinear(spec) {
+export function unmapLinear(spec: Object) : Function {
   let range = spec.maxval - spec.minval;
   return function(value) {
     return (value - spec.minval) / range;
@@ -104,7 +105,7 @@ export function unmapLinear(spec) {
 /**
  * Returns inverse of exponential mapping function
  */
-export function unmapExp(spec) {
+export function unmapExp(spec: Object) : Function {
   let ratio = Math.log(spec.maxval / spec.minval);
   return function(value) {
     return Math.log(value / spec.minval) / ratio;
@@ -114,7 +115,7 @@ export function unmapExp(spec) {
 /**
  * Returns inverse of dB mapping function (DbFaderWarp)
  */
-export function unmapDb(spec) {
+export function unmapDb(spec: Object) : Function {
   let minval = dbToAmp(spec.minval);
   let range = dbToAmp(spec.maxval) - minval;
   return function(value) {
@@ -125,14 +126,14 @@ export function unmapDb(spec) {
 /**
  * Returns inverse of amp mapping function (FaderWarp)
  */
-export function unmapFader(spec) {
+export function unmapFader(spec: Object) : Function {
   let range = spec.maxval - spec.minval;
   return function(value) {
     return Math.sqrt((value - spec.minval) / range);
   };
 }
 
-export function unmapWithSpec(value, spec) {
+export function unmapWithSpec(value: number, spec: Object) : number {
   switch (spec.warp) {
     case 'linear':
     case 'lin':
@@ -149,7 +150,7 @@ export function unmapWithSpec(value, spec) {
   }
 }
 
-export function mapWithSpec(value, spec) {
+export function mapWithSpec(value: number, spec: Object) : number {
   switch (spec.warp) {
     case 'linear':
     case 'lin':

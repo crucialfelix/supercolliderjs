@@ -1,4 +1,5 @@
 /**
+ * @flow
  *
  * Server - boots the SuperCollider synthesis server
  *
@@ -17,8 +18,6 @@
  *   connect     - connect via udp OSC
  *   disconnect
  *   send.msg     - send an OSC message
- *
- *
  */
 
 import {EventEmitter} from 'events';
@@ -40,11 +39,24 @@ import ServerState from './ServerState';
 
 export class Server extends EventEmitter {
 
+  options: Object;
+  address: string;
+  process: any;  // what node spawn() returns
+  isRunning: boolean;
+  send: SendOSC;
+  receive: Subject;
+  stdout: Subject;
+  processEvents: Subject;
+  _serverObservers: Object;
+  state: ServerState;
+  log: Logger;
+  osc: Socket;  // node Socket. see /declarations
+
   /**
    * @param {Object} options - command line options for scsynth
    * @param {Store} stateStore - optional parent Store for allocators and node watchers
    */
-  constructor(options={}, stateStore=null) {
+  constructor(options: Object={}, stateStore: any=null) {
     super();
     this.options = _.defaults(options, defaultOptions);
     this.address = this.options.host + ':' + this.options.port;
@@ -132,6 +144,7 @@ export class Server extends EventEmitter {
     this.processEvents.subscribe(() => {}, (err) => this.emit('exit', err));
     this.stdout.subscribe((out) => this.emit('out', out), (out) => this.emit('stderr', out));
   }
+
   _initSender() {
     this.send.on('msg', (msg) => {
       if (this.osc) {
@@ -340,7 +353,7 @@ export class Server extends EventEmitter {
    * @param {String} address - OSC command, referred to as address
    * @param {Array} args
    */
-  sendMsg(address, args) {
+  sendMsg(address:string, args:Array<string|number>) {
     this.send.msg([address].concat(args));
   }
 
@@ -357,7 +370,7 @@ export class Server extends EventEmitter {
    * @param {int} timeout - in milliseconds before the Promise is rejected
    * @returns {Promise}
    */
-  oscOnce(matchArgs, timeout=4000) {
+  oscOnce(matchArgs:Array<string|number>, timeout:number=4000): Promise {
     return new Promise((resolve, reject) => {
       var subscription = this.receive.subscribe((msg) => {
         var command = msg.slice(0, matchArgs.length);
@@ -371,7 +384,7 @@ export class Server extends EventEmitter {
       // if timeout then reject and dispose
       var tid = setTimeout(() => {
         dispose();
-        reject(new Error('Timed out waiting for OSC response: ' + matchArgs));
+        reject(new Error(`Timed out waiting for OSC response: ${JSON.stringify(matchArgs)}`));
       }, timeout);
 
       function dispose() {
@@ -393,7 +406,7 @@ export class Server extends EventEmitter {
    * @param {int} timeout - in milliseconds before rejecting the Promise
    * @returns {Promise} - resolves with all values the server responsed with after the matched response.
    */
-  callAndResponse(callAndResponse, timeout=4000) {
+  callAndResponse(callAndResponse:Object, timeout:number=4000) {
     var promise = this.oscOnce(callAndResponse.response, timeout);
     this.send.msg(callAndResponse.call);
     return promise;
@@ -408,7 +421,7 @@ export class Server extends EventEmitter {
  * @param {Store} store - optional external Store to hold Server state
  * @returns {Promise} - resolves with the Server
  */
-export function boot(options={}, store=null) {
+export function boot(options:Object={}, store:any=null) {
   return resolveOptions(undefined, options).then((opts) => {
     var s = new Server(opts, store);
     return s.boot().then(() => s.connect()).then(() => s);

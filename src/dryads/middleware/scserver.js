@@ -1,3 +1,4 @@
+/* @flow */
 import * as _  from 'underscore';
 import OSCSched from './OSCSched';
 
@@ -73,7 +74,7 @@ import OSCSched from './OSCSched';
  * @param {Object} context
  * @return {undefined|Promise}         Promise is only returned when using .callAndResponse
  */
-export default function scserver(command, context) {
+export default function scserver(command: Object, context: Object) {
   if (command.scserver) {
     // send a single OSC message
     if (command.scserver.msg) {

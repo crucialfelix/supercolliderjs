@@ -8,5 +8,6 @@
 ; .*\.json
 
 [libs]
+./declarations/
 
 [options]

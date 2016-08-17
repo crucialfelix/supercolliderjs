@@ -1,11 +1,14 @@
+/* @flow */
 import * as _  from 'underscore';
 
-import {Dryad} from 'dryadic';
+import { Dryad } from 'dryadic';
 import Group from './Group';
+
 import {
   synthNew,
   AddActions
 } from '../server/osc/msg';
+
 import {
   loopedEventListIterator,
   eventListIterator
@@ -71,7 +74,7 @@ export default class SynthEventList extends Dryad {
    * @param  {DryadPlayer} player
    * @return {Object}      Command object
    */
-  add(player) {
+  add(player: DryadPlayer): Object {
     let commands = {
       scserver: {
         schedLoop: (context) => {
@@ -87,38 +90,40 @@ export default class SynthEventList extends Dryad {
     };
 
     if (this.properties.updateStream) {
-      commands.run = (context) => {
-        let subscription = this.properties.updateStream.subscribe((streamEvent) => {
-          let ee = streamEvent.value();
-          const loopTime = _.isUndefined(ee.loopTime) ? this.properties.loopTime : ee.loopTime;
-          let epoch = ee.epoch || context.epoch || (_.now() + 200);
-          if (epoch !== context.epoch) {
-            context = player.updateContext(context, {
-              epoch
-            });
-          }
-
-          player.callCommand(context.id, {
-            scserver: {
-              // need to set epoch as well because OSCSched uses that for relative times
-              schedLoop: (ctx) => this._makeSchedLoop(ee.events || [], loopTime, ctx)
+      commands = _.assign(commands, {
+        run: (context) => {
+          let subscription = this.properties.updateStream.subscribe((streamEvent) => {
+            let ee = streamEvent.value();
+            const loopTime = _.isUndefined(ee.loopTime) ? this.properties.loopTime : ee.loopTime;
+            let epoch = ee.epoch || context.epoch || (_.now() + 200);
+            if (epoch !== context.epoch) {
+              context = player.updateContext(context, {
+                epoch
+              });
             }
-          });
-        });
 
-        player.updateContext(context, {subscription});
-      };
+            player.callCommand(context.id, {
+              scserver: {
+                // need to set epoch as well because OSCSched uses that for relative times
+                schedLoop: (ctx) => this._makeSchedLoop(ee.events || [], loopTime, ctx)
+              }
+            });
+          });
+
+          player.updateContext(context, {subscription});
+        }
+      });
     }
 
     return commands;
   }
 
-  _makeSchedLoop(events, loopTime, context) {
+  _makeSchedLoop(events: Array<Object>, loopTime: ?number, context: Object) {
     const synthEvents = this._makeMsgs(events, context);
     return loopTime ? loopedEventListIterator(synthEvents, loopTime) : eventListIterator(synthEvents);
   }
 
-  _makeMsgs(events, context) {
+  _makeMsgs(events: Array<Object>, context: Object) {
     const defaultParams = this.properties.defaultParams || {};
     return events.map((event) => {
       // TODO: do this a jit time in the schedLoop
@@ -138,7 +143,7 @@ export default class SynthEventList extends Dryad {
    */
   remove() {
     return {
-      run: (context) => {
+      run: (context: Object) => {
         if (context.subscription) {
           if (_.isFunction(context.subscription)) {
             // baconjs style
@@ -150,7 +155,7 @@ export default class SynthEventList extends Dryad {
         }
       },
       scserver: {
-        sched: (context) => {
+        sched: (context: Object) => {
           // unschedAll
           return this._makeSchedLoop([], context.epoch, context);
         }
