@@ -18,7 +18,6 @@ describe('OSCSched', function() {
       (...args) => {
         sent = args;
       },
-      _.now(),
       0.05,
       (fn/*, delta*/) => {
         fn();
@@ -32,40 +31,46 @@ describe('OSCSched', function() {
 
   });
 
+  const schedOne = (time) => {
+    sched.schedLoop((now, memo={i: 0}) => {
+      if (memo.i === 0) {
+        return {
+          event: {
+            time,
+            msgs: []
+          },
+          memo: {i: memo.i + 1}
+        };
+      }
+    }, _.now());
+  }
+
   describe('empty sched', function() {
     it('should not have sent nothing', function() {
-      sched.sched([]);
+      sched.schedLoop(() => {
+        return;
+      }, _.now());
       expect(sent).toBe(null);
     });
 
     it('should not have set timeout', function() {
-      sched.sched([]);
+      sched.schedLoop(() => {
+        return;
+      }, _.now());
       expect(didSetTimeout).toBe(false);
     });
   });
 
   describe('sched at 1', function() {
     it('should have set timeout', function() {
-      sched.sched([
-        {
-          time: 1,
-          packets: []
-        }
-      ]);
-
+      schedOne(1);
       expect(didSetTimeout).toBe(true);
     });
   });
 
   describe('sched less than latency', function() {
     it('should have called send right away', function() {
-      sched.sched([
-        {
-          time: 0.01,
-          packets: []
-        }
-      ]);
-
+      schedOne(0.01);
       expect(didSetTimeout).toBe(false);
       expect(sent).toBeTruthy();
     });
@@ -74,23 +79,8 @@ describe('OSCSched', function() {
   describe('sched twice', function() {
 
     it('should have cleared timeout', function() {
-      sched.sched([
-        {
-          time: 1,
-          packets: []
-        }
-      ]);
-
-      sched.sched([
-        {
-          time: 0.5,
-          packets: []
-        },
-        {
-          time: 1,
-          packets: []
-        }
-      ]);
+      schedOne(1);
+      schedOne(0.5);
 
       expect(didClearTimeout).toBe(timeoutId);
     });
