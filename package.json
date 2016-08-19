@@ -1,7 +1,7 @@
 {
   "name": "supercolliderjs",
-  "description": "Tools for working with the SuperCollider music language environment",
-  "version": "0.11.3",
+  "description": "JavaScript library for the SuperCollider music language and synthesis server",
+  "version": "0.12.0",
   "author": "Chris Sattinger <crucialfelix@gmail.com>",
   "contributors": [
     {
@@ -43,7 +43,9 @@
     "supercollider",
     "synthesis",
     "music",
-    "sound"
+    "sound",
+    "creative-coding",
+    "creative",
   ],
   "repository": {
     "type": "git",
