@@ -1,6 +1,56 @@
 CHANGELOG
 =========
 
+0.12.0
+++++++
+
+These changes are for Dryadic only and probably don't affect anybody using the main supercollider.js or Server classes.
+
+Dryadic scserver: sched command now uses just-in-time scheduler with a getNextEvent loop function.
+
+This allows many types of iterating, looping, spawning, tempo etc functions to be implemented.
+On the fly cancellation and rescheduling.
+
+This will now unschedule any previous events for the context.
+Previously it would have sent them all immediately to scsynth.
+
+OSCSched - just in time scheduler for OSC bundles
+
+SynthEventList: support looping, use relative times in seconds, not OSC time tags.
+
+Add simple SynthEventList example
+
+Flow type-checking.
+This adds type annotations to javascript which enables type aware error checking, autocomplete etc.
+Babel removes the annotations at compile time. Your IDE may show them as syntax errors unless you add a plugin for flow. On Atom use language-babel which replaces all language-es6/javascript/react-jsx etc.
+
+Stop doing jscs checking in test. jscs is merging with eslint anyway,
+and eslint can check flowtype annotations. Will remove jscs later.
+
+FIX: Synth .def will be undefined when SynthDef is the parent of the Synth
+(which happens when .def is a dryad and subgraph flips SynthDef to be parent of Synth)
+
+SCSynthDef: should return Promise on add
+
+Update dev dependencies
+
+
+0.11.3
+++++++
+
+sclang: Fix failure to capture trailing output after interpret that is outside of capture.
+
+resolveOptions: correct default path for scsynth in SC 3.7
+
+fix: default node logger does not have .debug, use .info instead
+
+fix: https://github.com/crucialfelix/atom-supercollider/issues/70
+
+Synth: if synthDef is a Dryad then invert parent-child in the subgraph
+Previously it did this in one step, now there will be 2 inversions in the subgraph.
+
+update dependencies
+
 0.11.2
 ++++++
 
