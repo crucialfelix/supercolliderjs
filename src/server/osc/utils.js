@@ -102,10 +102,11 @@ export const dateToTimetag = osc.dateToTimetag;
  *
  * Make NTP timetag array relative to the current time.
  *
- * @param {Number} seconds
- * @param {Date} now - optional
+ * @param {Number} seconds  - relative to now
+ * @param {Number} now      - JavaScript timestamp in milliseconds
+ * @return {Array<number>}  - [ntpSecs, ntpFracs]
  */
-export function deltaTimeTag(seconds, now) {
+export function deltaTimeTag(seconds: number, now: ?number) : Array<number> {
   const d = (now || _.now()) / 1000 + (seconds || 0);
   return osc.timestampToTimetag(d);
 }

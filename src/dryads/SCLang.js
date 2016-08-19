@@ -1,4 +1,4 @@
-
+/* @flow */
 import {Dryad} from 'dryadic';
 import {boot} from '../lang/sclang';
 import * as _ from 'underscore';
@@ -30,13 +30,13 @@ export default class SCLang extends Dryad {
 
   prepareForAdd() {
     return {
-      sclang: (context) => boot(_.defaults(this.properties.options, {log: context.log}))
+      sclang: (context: Object) => boot(_.defaults(this.properties.options, {log: context.log}))
     };
   }
 
   remove() {
     return {
-      run: (context) => {
+      run: (context: Object) => {
         return context.sclang.quit();
       }
     };

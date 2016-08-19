@@ -1,9 +1,9 @@
 
 jest.dontMock('../SynthEventList');
-var SynthEventList = require('../SynthEventList').default;
-var _ = require('underscore');
-var timetagToDate = require('../../server/osc/utils').timetagToDate;
-var Bacon = require('baconjs').Bacon;
+jest.dontMock('../utils/iterators');
+const SynthEventList = require('../SynthEventList').default;
+const _ = require('underscore');
+const Bacon = require('baconjs').Bacon;
 
 describe('SynthEventList', function() {
   let events = [
@@ -15,35 +15,25 @@ describe('SynthEventList', function() {
     epoch: 1460987712857
   };
 
+  // bad to mock this, it's fragile
   let player = {
-    updateContext: function(/*ctx, update*/) {},
+    updateContext: (ctx, update) => _.assign({}, ctx, update),
     callCommand: function(/*id, command*/) {}
   };
 
-  describe('_schedEvents', function() {
+  describe('_makeMsgs', function() {
     // context group epoch
     let sel = new SynthEventList();
-    let now = _.now();
-    let scheded = sel._schedEvents(events, context, now);
+    let scheded = sel._makeMsgs(events, context);
     let first = scheded[0];
 
     it('should have events in the packet', function() {
       expect(scheded.length).toEqual(1);
     });
-    it('should have a time array', function() {
-      expect(_.isArray(first.time)).toBe(true);
-    });
-    it('should have time 1 second past the supplied epoch of "now"', function() {
-      let date = timetagToDate(first.time).getTime();
-      let diff = date - now;
-      // within 1 millisecond of 1000
-      let close = Math.abs(diff - 1000);
-      expect(close < 2).toBe(true);
-    });
 
-    it('should have a packets array', function() {
-      expect(_.isArray(first.packets)).toBe(true);
-      expect(_.isArray(first.packets[0])).toBe(true);
+    it('should have a msgs array', function() {
+      expect(_.isArray(first.msgs)).toBe(true);
+      expect(_.isArray(first.msgs[0])).toBe(true);
     });
   });
 
@@ -51,11 +41,12 @@ describe('SynthEventList', function() {
     let sel = new SynthEventList({events: events});
     let commands = sel.add(player);
     it('should contain a function', function() {
-      expect(typeof commands.scserver.sched).toBe('function');
+      expect(typeof commands.scserver.schedLoop).toBe('function');
     });
     it('should schedule 1 event', function() {
-      let scheded = commands.scserver.sched(context);
-      expect(scheded.length).toEqual(1);
+      let fn = commands.scserver.schedLoop(context);
+      let e = fn(0);
+      expect(e.event.time).toEqual(1);
     });
   });
 

@@ -156,7 +156,7 @@ export default class SCSynthDef extends Dryad {
       return {
         run: (context) => {
           context._watcher = fs.watch(path.resolve(this.properties.compileFrom), () => {
-            this.compileFrom(context, this.properties.compileFrom)
+            return this.compileFrom(context, this.properties.compileFrom)
               .then((result) => this._sendSynthDef(context, result));
           });
         }

@@ -1,20 +1,22 @@
-
-import Immutable from 'immutable';
+/* @flow */
+import { Map } from 'immutable';
 
 /**
  * A store that holds the state tree.
  *
- * Holds an Immutable.Map and offers functions to mutate sub-states in that tree,
+ * Holds an Immutable Map and offers functions to mutate sub-states in that tree,
  * and stores the new state.
  *
  */
 export default class Store {
 
+  state: Map<string, any>;
+
   constructor() {
-    this.state = Immutable.Map();
+    this.state = Map();
   }
 
-  getIn(keys, notSetValue) {
+  getIn(keys: Array<string>, notSetValue: any): any {
     return this.state.getIn(keys, notSetValue);
   }
 
@@ -22,8 +24,8 @@ export default class Store {
    * Fetch the object at keys
    * pass it to the function which mutates it and returns new sub state.
    */
-  mutateState(keys, fn) {
-    this.state = this.state.updateIn(keys, Immutable.Map(), fn);
+  mutateState(keys: Array<string>, fn: Function) {
+    this.state = this.state.updateIn(keys, Map(), fn);
   }
 
   /**
@@ -34,9 +36,9 @@ export default class Store {
    *
    * @returns {any} result
    */
-  mutateStateAndReturn(keys, fn) {
+  mutateStateAndReturn(keys: Array<string>, fn: Function) : any {
     var result, subState;
-    [result, subState] = fn(this.state.getIn(keys, Immutable.Map()));
+    [result, subState] = fn(this.state.getIn(keys, Map()));
     this.state = this.state.setIn(keys, subState);
     return result;
   }
