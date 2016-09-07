@@ -11,8 +11,9 @@
   * Emit events when state changes
   */
 
-import {EventEmitter} from 'events';
 import _ from 'underscore';
+import {EventEmitter} from 'events';
+import SCError from '../../utils/Errors';
 
 const STATES = {
   NULL: null,
@@ -254,7 +255,9 @@ class SclangIO extends EventEmitter {
                       obj = this.parseSyntaxErrors(stdout);
                       delete this.capturing[guid];
                     }
-                    this.calls[guid].reject({type: response.type, error: obj});
+                    this.calls[guid].reject(
+                      new SCError('sclang error', {type: response.type, error: obj})
+                    );
                   }
                   delete this.calls[guid];
                 } else {

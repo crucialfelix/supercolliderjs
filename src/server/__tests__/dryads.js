@@ -5,6 +5,7 @@ jest.dontMock('../../dryadic/helpers');
 var f = require('../dryads');
 var ext = require('../internals/side-effects');
 var nodeWatcher = require('../node-watcher');
+import SCError from '../../utils/Errors';
 import {Promise} from 'bluebird';
 import {Subject} from 'rx';
 
@@ -100,7 +101,9 @@ describe('dryads', function() {
     pit('should propagate a compile or runtime error in sc source code', function() {
       var defName = 'defName';
 
-      ext.interpret.mockReturnValue(Promise.reject({error: 'some reason'}));
+      ext.interpret.mockReturnValue(
+        Promise.reject(new SCError('runtime error', {error: 'some reason'})
+      ));
 
       return f.compileSynthDef(defName, 'sc source code')().then((resolvedDefName) => {
         expect(true).toBe(false); // should not have resolved

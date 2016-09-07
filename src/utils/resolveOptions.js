@@ -18,7 +18,7 @@ var path = require('path'),
     yaml = require('js-yaml'),
     fs   = require('fs'),
     _ = require('underscore');
-
+import SCError from './Errors';
 
 function defaultOptions() {
   // should get this from server/default-server-options.json
@@ -109,8 +109,8 @@ export default function resolveOptions(configPath, commandLineOptions) {
       try {
         var options = yaml.safeLoad(fs.readFileSync(aPath, 'utf8'));
         ok(options, aPath);
-      } catch (e) {
-        reject({configPath: aPath, message: 'Error reading config file', error: e});
+      } catch (error) {
+        reject(new SCError('Error reading config file', {configPath: aPath, error}));
       }
     }
 
@@ -118,7 +118,7 @@ export default function resolveOptions(configPath, commandLineOptions) {
       // explicit config path supplied
       let explicitConfigPath = checkPath(configPath);
       if (!explicitConfigPath) {
-        reject({message: 'Config file not found', configPath: configPath});
+        reject(new SCError('Config file not found', {configPath}));
       } else {
         loadConfig(explicitConfigPath);
       }

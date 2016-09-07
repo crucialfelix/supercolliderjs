@@ -31,6 +31,7 @@ var
   _ = require('underscore'),
   Promise = require('bluebird');
 
+import SCError from './utils/Errors';
 import Logger from './utils/logger';
 
 
@@ -161,7 +162,7 @@ export class SCAPI extends events.EventEmitter {
     if (signal === 'reply') {
       request.resolve(response);
     } else {
-      request.reject(response);
+      request.reject(new SCError('API Error response', response));
     }
     delete this.requests[requestId];
   }

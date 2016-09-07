@@ -22,7 +22,7 @@ describe('resolveOptions', function() {
       this.fail('should not have resolved');
     }, function(err) {
       expect(err.message).toBeTruthy();
-      expect(err.configPath).toEqual(badPath);
+      expect(err.data.configPath).toEqual(badPath);
     });
   });
 

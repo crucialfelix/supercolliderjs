@@ -222,7 +222,7 @@ export class Server extends EventEmitter {
 
       setTimeout(() => {
         if (!this.isRunning) {
-          reject();
+          reject(new Error('Server failed to start in 3000ms'));
         }
       }, 3000);
     });

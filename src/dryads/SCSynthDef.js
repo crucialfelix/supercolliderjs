@@ -3,6 +3,7 @@ import {Dryad} from 'dryadic';
 import {defRecv, defFree, defLoad} from '../server/osc/msg.js';
 import path from 'path';
 import fs from 'fs';
+import SCError from '../utils/Errors';
 
 const StateKeys = {
   SYNTH_DEFS: 'SYNTH_DEFS'
@@ -115,8 +116,8 @@ export default class SCSynthDef extends Dryad {
   /**
    * Returns a Promise for a SynthDef result object: name, bytes, synthDesc
    */
-  compileSource(context, sourceCode) {
-    var wrappedCode = `{
+  compileSource(context:Object, sourceCode:string) {
+    const wrappedCode = `{
       var def = { ${ sourceCode } }.value.asSynthDef;
       (
         name: def.name,
@@ -125,14 +126,18 @@ export default class SCSynthDef extends Dryad {
       )
     }.value;`;
     return context.sclang.interpret(wrappedCode, undefined, false, false, true)
-      .then((result) => {
+      .then((result:Object) => {
         return result;
       }, (error) => {
-        return Promise.reject({
-          description: 'Failed to compile SynthDef',
-          error: error.error,
-          sourceCode: sourceCode
-        });
+        const compiledFrom = this.properties.compileFrom;
+        return Promise.reject(
+          new SCError(`Failed to compile SynthDef ${compiledFrom}`, {
+            error: error.data.error,
+            properties: this.properties,
+            compiledFrom,
+            sourceCode
+          })
+        );
       });
   }
 

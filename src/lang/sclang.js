@@ -29,6 +29,7 @@ var
 import Logger from '../utils/logger';
 import {SclangIO, STATES} from './internals/sclang-io';
 import resolveOptions from '../utils/resolveOptions';
+import SCError from '../utils/Errors';
 import {Promise} from 'bluebird';
 
 
@@ -160,7 +161,7 @@ export class SCLang extends EventEmitter {
 
       this.process = this._spawnProcess(execPath, this.args(commandLineOptions));
       if (!this.process.pid) {
-        reject(new Error(`Failed to spawn process ${execPath}`));
+        reject(new Error(`Failed to spawn process: ${execPath}`));
       }
 
       var bootListener = (state) => {
@@ -170,7 +171,7 @@ export class SCLang extends EventEmitter {
           resolve(this.stateWatcher.result);
         } else if (state === STATES.COMPILE_ERROR) {
           done = true;
-          reject(this.stateWatcher.result);
+          reject(new SCError('Compile Error', this.stateWatcher.result));
           this.removeListener('state', bootListener);
           // probably should remove all listeners
         }
@@ -376,7 +377,7 @@ export class SCLang extends EventEmitter {
         getBacktrace ? 'true' : 'false'
       ].join(',');
 
-      this.stateWatcher.registerCall(guid, {resolve: resolve, reject: reject});
+      this.stateWatcher.registerCall(guid, {resolve, reject});
       this.write('SuperColliderJS.interpret(' + args + ');', null, true);
     });
   }
@@ -388,7 +389,7 @@ export class SCLang extends EventEmitter {
   executeFile(filename) {
     return new Promise((resolve, reject) => {
       var guid = uuid.v1();
-      this.stateWatcher.registerCall(guid, {resolve: resolve, reject: reject});
+      this.stateWatcher.registerCall(guid, {resolve, reject});
       this.write(`SuperColliderJS.executeFile("${ guid }", "${ filename }")`, null, true);
     });
   }

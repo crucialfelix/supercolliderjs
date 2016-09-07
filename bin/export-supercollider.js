@@ -53,7 +53,7 @@ function makeExecScript(source, dest) {
 function exportScsynth(dest) {
   return resolveOptions().then(function(options) {
     if (!fs.existsSync(dest)) {
-      return Promise.reject('Destination directory does not exist' + dest);
+      return Promise.reject( new Error('Destination directory does not exist:' + dest));
     }
     return makeDir(join(dest, 'bin')).then(function() {
       var destScsynth = join(dest, 'bin', 'scsynth');
@@ -80,7 +80,7 @@ program
       .then(function() {
         console.log('Finished');
       }, function(err) {
-        throw Error(err);
+        throw new Error(err);
       }).done();
   });
 
