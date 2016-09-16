@@ -1,12 +1,5 @@
 /*jshint sub:true*/
 
-jest.dontMock('rx');
-jest.dontMock('../node-watcher');
-jest.dontMock('../server');
-jest.dontMock('../ServerState');
-jest.dontMock('../internals/Store');
-jest.dontMock('../internals/SendOSC');
-
 var nw = require('../node-watcher');
 var Server = require('../server').Server;
 import * as _ from 'underscore';

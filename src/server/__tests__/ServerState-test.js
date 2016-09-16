@@ -1,12 +1,4 @@
 
-
-jest.dontMock('../server');
-jest.dontMock('../ServerState');
-jest.dontMock('../internals/allocators');
-jest.dontMock('../internals/SendOSC');
-jest.dontMock('../internals/Store');
-jest.dontMock('rx');
-
 var Server = require('../server').Server;
 var ServerState = require('../ServerState').default;
 

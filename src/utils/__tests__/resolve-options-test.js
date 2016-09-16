@@ -1,7 +1,4 @@
 
-
-jest.autoMockOff();
-jest.dontMock('../resolveOptions');
 var resolveOptions = require('../resolveOptions').default;
 var _ = require('underscore');
 

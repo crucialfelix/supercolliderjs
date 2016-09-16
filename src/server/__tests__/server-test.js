@@ -1,9 +1,4 @@
 
-// jest.autoMockOn();
-jest.dontMock('../server');
-jest.dontMock('../ServerState');
-jest.dontMock('../internals/SendOSC');
-jest.dontMock('rx');
 import * as _ from 'underscore';
 import {EventEmitter} from 'events';
 

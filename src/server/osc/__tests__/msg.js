@@ -1,5 +1,4 @@
 
-jest.dontMock('../msg');
 var msg = require('../msg');
 var _ = require('underscore');
 

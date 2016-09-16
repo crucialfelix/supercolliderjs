@@ -1,6 +1,5 @@
 import * as _  from 'underscore';
 
-jest.dontMock('../middleware/OSCSched');
 var OSCSched = require('../middleware/OSCSched').default;
 
 

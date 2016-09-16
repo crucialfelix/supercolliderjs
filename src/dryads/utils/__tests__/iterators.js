@@ -1,5 +1,4 @@
 
-jest.dontMock('../iterators');
 const iterators = require('../iterators');
 
 describe('iterators', function() {

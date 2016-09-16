@@ -1,6 +1,4 @@
 
-jest.dontMock('../SynthEventList');
-jest.dontMock('../utils/iterators');
 const SynthEventList = require('../SynthEventList').default;
 const _ = require('underscore');
 const Bacon = require('baconjs').Bacon;

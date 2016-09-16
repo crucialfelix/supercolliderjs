@@ -1,6 +1,4 @@
 
-jest.dontMock('../utils');
-jest.dontMock('osc-min');
 var utils = require('../utils');
 var _ = require('underscore');
 

@@ -1,9 +1,4 @@
 
-// jest.autoMockOff();
-
-jest.dontMock('../allocators');
-jest.dontMock('immutable');
-
 var alloc = require('../allocators');
 // doesnt work for jest:
 // import * as alloc from '../allocators';

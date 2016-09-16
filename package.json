@@ -26,16 +26,16 @@
   },
   "devDependencies": {
     "babel": "^6.2.4",
-    "babel-cli": "^6.11.4",
+    "babel-cli": "^6.14.0",
     "babel-eslint": "^6.1.2",
-    "babel-jest": "^14.1.0",
+    "babel-jest": "^15.0.0",
     "babel-plugin-transform-class-properties": "^6.11.5",
-    "babel-plugin-transform-flow-strip-types": "^6.8.0",
-    "babel-preset-es2015": "^6.13.2",
+    "babel-plugin-transform-flow-strip-types": "^6.14.0",
+    "babel-preset-es2015": "^6.14.0",
     "baconjs": "^0.7.85",
-    "eslint": "^3.3.1",
-    "eslint-plugin-flowtype": "^2.7.1",
-    "jest-cli": "^14.1.0",
+    "eslint": "^3.5.0",
+    "eslint-plugin-flowtype": "^2.18.1",
+    "jest-cli": "^15.1.1",
     "jscs": "^3.0.7"
   },
   "license": "MIT",
@@ -73,9 +73,6 @@
   },
   "jest": {
     "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
-    "testFileExtensions": [
-      "js"
-    ],
     "testPathDirs": [
       "src"
     ],
@@ -83,24 +80,7 @@
       "js",
       "json"
     ],
-    "unmockedModulePathPatterns": [
-      "utils/logger",
-      "server/osc/utils",
-      "server/osc/msg",
-      "dryadic/Store",
-      "node_modules/chalk",
-      "node_modules/temp",
-      "node_modules/underscore",
-      "node_modules/immutable",
-      "node_modules/dryadic",
-      "node_modules/node-uuid",
-      "node_modules/osc-min",
-      "node_modules/bluebird",
-      "node_modules/rx",
-      "node_modules/baconjs"
-    ],
-    "collectCoverage": true,
-    "automock": true
+    "collectCoverage": true
   },
   "jshintConfig": {
     "esnext": true
