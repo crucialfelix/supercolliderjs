@@ -27,7 +27,7 @@ var
   events = require('events'),
   dgram = require('dgram'),
   osc = require('osc-min'),
-  uuid = require('node-uuid'),
+  cuid = require('cuid'),
   _ = require('underscore'),
   Promise = require('bluebird');
 
@@ -78,7 +78,7 @@ export class SCAPI extends events.EventEmitter {
         clumps,
         self = this;
 
-      requestId = _.isUndefined(requestId) ? uuid() : requestId;
+      requestId = _.isUndefined(requestId) ? cuid() : requestId;
       args = args ? args : [];
       if (!_.isString(oscpath)) {
         self.log.err('Bad oscpath' + oscpath);

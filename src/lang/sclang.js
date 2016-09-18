@@ -20,7 +20,7 @@ var
   EventEmitter = require('events').EventEmitter,
   spawn = require('child_process').spawn,
   path = require('path'),
-  uuid = require('node-uuid'),
+  cuid = require('cuid'),
   yaml = require('js-yaml'),
   temp = require('temp'),
   fs   = require('fs'),
@@ -366,7 +366,7 @@ export class SCLang extends EventEmitter {
         .replace(/[\n\r]/g, '__NL__')
         .replace(/\\/g, '__SLASH__')
         .replace(/\"/g, '\\"');
-      var guid = uuid.v1();
+      var guid = cuid();
 
       var args = [
         '"' + guid + '"',
@@ -388,7 +388,7 @@ export class SCLang extends EventEmitter {
    */
   executeFile(filename) {
     return new Promise((resolve, reject) => {
-      var guid = uuid.v1();
+      var guid = cuid();
       this.stateWatcher.registerCall(guid, {resolve, reject});
       this.write(`SuperColliderJS.executeFile("${ guid }", "${ filename }")`, null, true);
     });
