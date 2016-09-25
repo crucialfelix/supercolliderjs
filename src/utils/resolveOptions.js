@@ -17,7 +17,7 @@ var path = require('path'),
     os = require('os'),
     yaml = require('js-yaml'),
     fs   = require('fs'),
-    _ = require('underscore');
+    _ = require('lodash');
 import SCError from './Errors';
 
 function defaultOptions() {

@@ -11,7 +11,7 @@
   * Emit events when state changes
   */
 
-import _ from 'underscore';
+import _ from 'lodash';
 import {EventEmitter} from 'events';
 import SCError from '../../utils/Errors';
 

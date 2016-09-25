@@ -23,7 +23,7 @@
 import {EventEmitter} from 'events';
 import {Observable, Subject} from 'rx';
 import {spawn} from 'child_process';
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 import * as dgram from 'dgram';
 import * as osc from 'osc-min';
 import {Promise} from 'bluebird';

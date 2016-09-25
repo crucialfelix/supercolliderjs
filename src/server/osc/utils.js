@@ -1,5 +1,5 @@
 
-import _ from 'underscore';
+import _ from 'lodash';
 import * as osc from 'osc-min';
 
 /**
@@ -20,9 +20,10 @@ import * as osc from 'osc-min';
  */
 export function parseMessage(msg) {
   if (msg.oscType === 'bundle') {
-    return [timetagToDate(msg.timetag)].concat(_.map(msg.elements, parseMessage));
+    return [timetagToDate(msg.timetag)].concat(msg.elements.map(parseMessage));
   }
-  return [msg.address].concat(_.pluck(msg.args, 'value'));
+  // for each msg.arg pluck just value
+  return [msg.address].concat(msg.args.map((a) => a.value));
 }
 
 

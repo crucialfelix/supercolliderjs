@@ -2,7 +2,7 @@
 import {Dryad} from 'dryadic';
 import Group from './Group';
 import {synthNew, nodeFree, AddActions} from '../server/osc/msg.js';
-import * as _  from 'underscore';
+import * as _  from 'lodash';
 
 const LATENCY = 0.03;
 

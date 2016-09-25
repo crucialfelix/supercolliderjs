@@ -4,7 +4,7 @@
   * the function returns a {call: response: } object
   * to make it easy to map directly to a calling function.
   */
-import _ from 'underscore';
+import _ from 'lodash';
 
 
 /**

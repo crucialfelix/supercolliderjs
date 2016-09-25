@@ -1,6 +1,6 @@
 
 import Immutable from 'immutable';
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 import {Promise} from 'bluebird';
 
 const keys = {

@@ -1,6 +1,6 @@
 
 var msg = require('../msg');
-var _ = require('underscore');
+var _ = require('lodash');
 
 describe('msg', function() {
   it('should evaluate each one without error', function() {

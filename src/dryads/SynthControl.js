@@ -1,7 +1,7 @@
 
 import {Dryad} from 'dryadic';
 import {nodeSet} from '../server/osc/msg';
-import * as _  from 'underscore';
+import * as _  from 'lodash';
 
 
 /**

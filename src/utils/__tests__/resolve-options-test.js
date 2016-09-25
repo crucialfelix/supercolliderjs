@@ -1,6 +1,6 @@
 
 var resolveOptions = require('../resolveOptions').default;
-var _ = require('underscore');
+var _ = require('lodash');
 
 describe('resolveOptions', function() {
 

@@ -1,7 +1,7 @@
 
 import {Dryad} from 'dryadic';
 import {boot} from '../server/server';
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 
 const defaultOptions = {
   debug: false

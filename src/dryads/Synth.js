@@ -2,7 +2,7 @@
 import {Dryad} from 'dryadic';
 import {synthNew, nodeFree, AddActions} from '../server/osc/msg';
 import {whenNodeGo, whenNodeEnd, updateNodeState} from '../server/node-watcher';
-import * as _  from 'underscore';
+import * as _  from 'lodash';
 
 
 /**

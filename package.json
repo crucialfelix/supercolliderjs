@@ -17,11 +17,11 @@
     "dryadic": "^0.2.1",
     "immutable": "^3.8.1",
     "js-yaml": "^3.6.1",
+    "lodash": "^4.16.1",
     "ncp": "^2.0.0",
     "osc-min": "^1.1.1",
     "rx": "^4.1.0",
     "temp": "~0.8.3",
-    "underscore": "^1.8.3",
     "untildify": "^3.0.2"
   },
   "devDependencies": {

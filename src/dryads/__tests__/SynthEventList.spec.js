@@ -1,6 +1,6 @@
 
 const SynthEventList = require('../SynthEventList').default;
-const _ = require('underscore');
+const _ = require('lodash');
 const Bacon = require('baconjs').Bacon;
 
 describe('SynthEventList', function() {

@@ -1,5 +1,5 @@
 /* @flow */
-import * as _  from 'underscore';
+import * as _  from 'lodash';
 
 import { Dryad } from 'dryadic';
 import Group from './Group';

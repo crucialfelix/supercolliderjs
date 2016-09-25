@@ -28,7 +28,7 @@ var
   dgram = require('dgram'),
   osc = require('osc-min'),
   cuid = require('cuid'),
-  _ = require('underscore'),
+  _ = require('lodash'),
   Promise = require('bluebird');
 
 import SCError from './utils/Errors';

@@ -1,7 +1,6 @@
 
-import _ from 'underscore';
+import _ from 'lodash';
 const SynthStream = require('../SynthStream').default;
-// const _ = require('underscore');
 
 describe('SynthStream', function() {
 

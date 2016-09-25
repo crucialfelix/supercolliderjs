@@ -1,6 +1,6 @@
 
 var utils = require('../utils');
-var _ = require('underscore');
+var _ = require('lodash');
 
 describe('parseMessage', function() {
   it('should parse a message', function() {

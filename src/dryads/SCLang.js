@@ -1,7 +1,7 @@
 /* @flow */
 import {Dryad} from 'dryadic';
 import {boot} from '../lang/sclang';
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 
 const defaultOptions = {
   debug: true,
