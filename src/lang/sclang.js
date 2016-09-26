@@ -1,6 +1,4 @@
-
 /**
- *
  * sclang - boots a supercollider language interpreter process
  *  and enables stdin/out and system level event responders
  *
@@ -13,32 +11,38 @@
  *   write - write to stdin of the sclang process
  *   quit
  *
+ * @ -- flow  -- not quite ready
  */
 
-var
-  _ = require('lodash'),
-  EventEmitter = require('events').EventEmitter,
-  spawn = require('child_process').spawn,
-  path = require('path'),
-  cuid = require('cuid'),
-  yaml = require('js-yaml'),
-  temp = require('temp'),
-  fs   = require('fs'),
-  untildify = require('untildify');
+import * as _ from 'lodash';
+import cuid from 'cuid';
+import fs from 'fs';
+import temp from 'temp';
+import untildify from 'untildify';
+import yaml from 'js-yaml';
+import path from 'path';
+import { EventEmitter } from 'events';
+import { spawn } from 'child_process';
+import { Promise } from 'bluebird';
 
 import Logger from '../utils/logger';
-import {SclangIO, STATES} from './internals/sclang-io';
+import { SclangIO, STATES } from './internals/sclang-io';
 import resolveOptions from '../utils/resolveOptions';
 import SCError from '../utils/Errors';
-import {Promise} from 'bluebird';
 
+type ChildProcessType = child_process$ChildProcess;
 
 export class SCLang extends EventEmitter {
+
+  options: Object;
+  process: ?ChildProcessType;
+  log: Logger;
+  stateWatcher: SclangIO;
 
   /*
    * @param {object} options - sclang command line options
    */
-  constructor(options={}) {
+  constructor(options:Object={}) {
     super();
     this.options = options || {};
     this.process = null;
@@ -62,7 +66,7 @@ export class SCLang extends EventEmitter {
    *   -i <ide-name>                  Specify IDE name (for enabling IDE-specific class code, default "none")
    *   -a                             Standalone mode
    */
-  args(options) {
+  args(options:Object) : Array<string> {
     var o = [];
     o.push('-i', 'supercolliderjs');
     if (options.executeFile) {
@@ -88,24 +92,30 @@ export class SCLang extends EventEmitter {
    * @param {object} config - options to write to file
    * @returns {Promise} resolving with the path of the temp config file
    */
-  makeSclangConfig(config) {
+  makeSclangConfig(config:Object) : Promise<string> {
     /**
       write options as yaml to a temp file
       and return the path
     **/
+    let str = yaml.safeDump(config, {indent: 4});
     return new Promise((resolve, reject) => {
-      let str = yaml.safeDump(config, {indent: 4});
 
       temp.open('sclang-config', function(err, info) {
         if (err) {
           return reject(err);
         }
-        fs.write(info.fd, str);
-        fs.close(info.fd, function(err2) {
+
+        fs.write(info.fd, str, (err2) => {
           if (err2) {
-            reject(err2);
+            reject(err2)
           } else {
-            resolve(info.path);
+            fs.close(info.fd, (err3) => {
+              if (err3) {
+                reject(err3);
+              } else {
+                resolve(info.path);
+              }
+            });
           }
         });
       });
@@ -123,7 +133,7 @@ export class SCLang extends EventEmitter {
    *
    * @returns {Promise}
    */
-  boot() {
+  boot() : Promise<*> {
     this.setState(STATES.BOOTING);
 
     // merge supercollider.js options with any sclang_conf
@@ -155,13 +165,14 @@ export class SCLang extends EventEmitter {
    *     resolves null on successful boot and compile
    *     rejects on failure to boot or failure to compile the class library
    */
-  spawnProcess(execPath, commandLineOptions) {
+  spawnProcess(execPath:string, commandLineOptions:Object) : Promise<*> {
     return new Promise((resolve, reject) => {
       var done = false;
 
       this.process = this._spawnProcess(execPath, this.args(commandLineOptions));
-      if (!this.process.pid) {
+      if (!(this.process && this.process.pid)) {
         reject(new Error(`Failed to spawn process: ${execPath}`));
+        return;
       }
 
       var bootListener = (state) => {
@@ -193,11 +204,13 @@ export class SCLang extends EventEmitter {
       }, 10000);
 
       // long term listeners
-      this.installListeners(this.process, Boolean(this.options.stdin));
+      if (this.process) {
+        this.installListeners(this.process, Boolean(this.options.stdin));
+      }
     });
   }
 
-  _spawnProcess(execPath, commandLineOptions) {
+  _spawnProcess(execPath:string, commandLineOptions:Array<string>) : ChildProcessType {
     return spawn(execPath, commandLineOptions,
       {
         cwd: path.dirname(execPath)
@@ -216,12 +229,16 @@ export class SCLang extends EventEmitter {
    * @param {object} options - supercolliderJs options
    * @returns {object} - sclang_config variables
    */
-  sclangConfigOptions(options={}) {
-    var
-      runtimeIncludePaths = [
-        path.resolve(__dirname, '../../lib/supercollider-js')
-      ],
-      sclang_conf = {};
+  sclangConfigOptions(options:Object={}) {
+    let runtimeIncludePaths = [
+      path.resolve(__dirname, '../../lib/supercollider-js')
+    ];
+    let defaultConf = {
+        postInlineWarnings: false,
+        includePaths: [],
+        excludePaths: []
+      };
+    let sclang_conf = defaultConf;
 
     if (options.sclang_conf) {
       try {
@@ -231,10 +248,7 @@ export class SCLang extends EventEmitter {
         // so that the language can create it on demand if you use Quarks or LanguageConfig.
         if (!options.failIfSclangConfIsMissing) {
           this.log.err(e);
-          sclang_conf = {
-            includePaths: [],
-            excludePaths: []
-          };
+          sclang_conf = defaultConf;
         } else {
           throw new Error('Cannot open or read specified sclang_conf ' + options.sclang_conf);
         }
@@ -250,7 +264,7 @@ export class SCLang extends EventEmitter {
     };
   }
 
-  makeStateWatcher() {
+  makeStateWatcher() : SclangIO {
     let stateWatcher = new SclangIO(this);
     for (let name of ['interpreterLoaded', 'error', 'stdout', 'state']) {
       stateWatcher.on(name, (...args) => {
@@ -263,7 +277,7 @@ export class SCLang extends EventEmitter {
   /**
     * listen to events from process and pipe stdio to the stateWatcher
     */
-  installListeners(subprocess, listenToStdin) {
+  installListeners(subprocess:ChildProcessType, listenToStdin:boolean) {
     if (listenToStdin) {
       // stdin of the global top level nodejs process
       process.stdin.setEncoding('utf8');
@@ -307,26 +321,28 @@ export class SCLang extends EventEmitter {
   /**
    * write
    *
-   * send a raw string to sclang to be interpreted
-   * callback is called after write is complete
+   * Send a raw string to sclang to be interpreted
+   * callback is called after write is complete.
    */
-  write(chunk, callback, noEcho) {
+  write(chunk, callback:Function, noEcho:boolean) {
     if (!noEcho) {
       this.log.stdin(chunk);
     }
     this.log.dbug(chunk);
     this.process.stdin.write(chunk, 'UTF-8');
-    // escape character means execute the currently accumulated command line as SC code
+    // Send the escape character which is interpreted by sclang as:
+    // "evaluate the currently accumulated command line as SC code"
     this.process.stdin.write('\x0c', null, callback);
   }
 
   /**
     * storeSclangConf
+    *
+    * Store the original configuration path
+    * so that it can be accessed by the modified Quarks methods
+    * to store into the correct conf file.
     */
-  storeSclangConf() {
-    // store the original configuration path
-    // so that it can be accessed by the modified Quarks methods
-    // to store into the correct conf file
+  storeSclangConf() : Promise<SCLang> {
     if (this.options.sclang_conf) {
       var configPath = path.resolve(untildify(this.options.sclang_conf));
       var setConfigPath = 'SuperColliderJS.sclangConf = "' + configPath + '";\n\n';
@@ -337,12 +353,7 @@ export class SCLang extends EventEmitter {
   }
 
   /**
-   * interpret
-   *
-   * evaluates code in sclang
-   * and returns a promise
-   *
-   * resolves promise with result or rejects with error as JSON
+   * Interprets code in sclang and returns a Promise.
    *
    * @param {String} code
    *        source code to evaluate
@@ -358,9 +369,9 @@ export class SCLang extends EventEmitter {
    *        which posts call stack, receiver, args, etc
    * @param {Boolean} getBacktrace
    *        return full backtrace
-   * @returns {Promise}
+   * @returns {Promise} results - which resolves with results or rejects with errors, both as JSON.
    */
-  interpret(code, nowExecutingPath, asString, postErrors, getBacktrace) {
+  interpret(code:string, nowExecutingPath:string, asString:boolean, postErrors:boolean, getBacktrace:boolean) : Promise<any> {
     return new Promise((resolve, reject) => {
       var escaped = code
         .replace(/[\n\r]/g, '__NL__')
@@ -386,7 +397,7 @@ export class SCLang extends EventEmitter {
   /**
    * executeFile
    */
-  executeFile(filename) {
+  executeFile(filename:string) {
     return new Promise((resolve, reject) => {
       var guid = cuid();
       this.stateWatcher.registerCall(guid, {resolve, reject});
@@ -397,20 +408,20 @@ export class SCLang extends EventEmitter {
   /**
    * @private
    */
-  setState(state) {
+  setState(state:string) {
     this.stateWatcher.setState(state);
   }
 
-  compilePaths() {
+  compilePaths() : [string] {
     return this.stateWatcher.result.dirs;
   }
 
-  quit() {
+  quit() : Promise<SCLang> {
     return new Promise((resolve) => {
       var cleanup = () => {
         this.process = null;
         this.setState(null);
-        resolve();
+        resolve(this);
       };
       if (this.process) {
         this.process.once('exit', cleanup);
@@ -433,13 +444,13 @@ export class SCLang extends EventEmitter {
 
 
 /**
-  * alternate constructor
+  * Alternate constructor
   * resolves options, boots and loads interpreter
   *
   * @param {object} options
   * @returns {Promise}
   */
-export function boot(options={}) {
+export function boot(options:Object={}) : Promise<SCLang> {
   return resolveOptions(options.config, options).then((opts) => {
     var sclang = new SCLang(opts);
     return sclang.boot().then(() => {

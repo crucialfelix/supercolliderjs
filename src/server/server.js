@@ -36,6 +36,8 @@ import Logger from '../utils/logger';
 import resolveOptions from '../utils/resolveOptions';
 import ServerState from './ServerState';
 
+import type {CallresponseType, MsgType} from './osc/msg';
+
 
 export class Server extends EventEmitter {
 
@@ -118,7 +120,7 @@ export class Server extends EventEmitter {
       if (o[0] === '/fail') {
         this.log.err(o);
       }
-    }, (err) => this.log.err(err));
+    }, (err:Error) => this.log.err(err));
     this.stdout.subscribe((o) => {
       // scsynth doesn't send ERROR messages to stderr
       // if ERROR or FAILURE in output then redirect as though it did
@@ -128,8 +130,8 @@ export class Server extends EventEmitter {
       } else {
         this.log.stdout(o);
       }
-    }, (o) => this.log.stderr(o));
-    this.processEvents.subscribe((o) => this.log.dbug(o), (o) => this.log.err(o));
+    }, (err:Error) => this.log.stderr(err));
+    this.processEvents.subscribe((o) => this.log.dbug(o), (err:Error) => this.log.err(err));
   }
 
   /**
@@ -412,7 +414,7 @@ export class Server extends EventEmitter {
    * @param {int} timeout - in milliseconds before rejecting the Promise
    * @returns {Promise} - resolves with all values the server responsed with after the matched response.
    */
-  callAndResponse(callAndResponse:Object, timeout:number=4000) {
+  callAndResponse(callAndResponse:CallresponseType, timeout:number=4000) : Promise<MsgType> {
     var promise = this.oscOnce(callAndResponse.response, timeout);
     this.send.msg(callAndResponse.call);
     return promise;
