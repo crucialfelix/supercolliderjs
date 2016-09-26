@@ -100,7 +100,13 @@ export class Server extends EventEmitter {
     this.log = new Logger(this.options.debug, this.options.echo, this.options.log);
     this.send.subscribe((event) => {
       // will be a type:msg or type:bundle
-      var out = JSON.stringify(event.payload || event, null, 2);
+      // if args has a type: Buffer in it then compress that
+      var out = JSON.stringify(event.payload || event, (k:string, v:any):any => {
+        if (k === 'data' && _.isArray(v)) {
+          return _.reduce(v, (memo:string, n:number):string => memo + (n).toString(16), '');
+        }
+        return v;
+      }, 2);
       if (!this.osc) {
         out = '[NOT CONNECTED] ' + out;
       }
