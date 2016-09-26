@@ -150,9 +150,9 @@ describe('sclang-io', function() {
       var io = new SclangIO();
       io.setState(STATES.READY);
 
-      // stick a blank Promise into register so it will
-      // parse the response
-      io.registerCall('725282d0-a31c-11e5-9a22-59ba9f49924a', {
+      // Stick a blank Promise into register so it will
+      // parse the response. Must be the same id as in the fixture.
+      io.registerCall('citjy45o00002xpxp9dapi2tt', {
         resolve: () => {},
         reject: () => {}
       });

@@ -200,7 +200,7 @@ export class SclangIO extends EventEmitter {
           // ie. this is a multi-line global regex
           // This fn is called for each of them with a different match each time
           // but the same text body.
-          re: /^SUPERCOLLIDERJS\:([0-9a-f\-]+)\:([A-Za-z]+)\:(.*)$/mg,
+          re: /^SUPERCOLLIDERJS\:([0-9a-z\-]+)\:([A-Za-z]+)\:(.*)$/mg,
           fn: (match:RegExMatchType, text:string) => {
             var
               guid = match[1],
