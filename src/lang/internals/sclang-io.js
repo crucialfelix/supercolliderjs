@@ -9,13 +9,16 @@
   *
   * Convert errors and responses into JavaScript objects
   * Emit events when state changes
+  *
+  * @flow
   */
 
 import _ from 'lodash';
 import {EventEmitter} from 'events';
 import SCError from '../../utils/Errors';
+type RegExMatchType = Object;  // Array<string|number>;
 
-const STATES = {
+export const STATES = {
   NULL: null,
   BOOTING: 'booting',
   COMPILED: 'compiled',
@@ -25,7 +28,15 @@ const STATES = {
 };
 
 
-class SclangIO extends EventEmitter {
+export class SclangIO extends EventEmitter {
+
+  states:Object;
+  responseCollectors:Object;
+  capturing:Object;
+  calls:Object;
+  state:?string;
+  output:[string];
+  result:Object;
 
   constructor() {
     super();
@@ -47,7 +58,7 @@ class SclangIO extends EventEmitter {
   /**
   * @param {string} input - parse the stdout of supercollider
   */
-  parse(input) {
+  parse(input:string) {
     var echo = true,
         startState = this.state,
         last = 0;
@@ -89,19 +100,19 @@ class SclangIO extends EventEmitter {
     }
   }
 
-  setState(newState) {
+  setState(newState:?string) {
     if (newState !== this.state) {
       this.state = newState;
       this.emit('state', this.state);
     }
   }
 
-  makeStates() {
+  makeStates() : Object {
     return {
       booting: [
         {
           re: /^compiling class library/m,
-          fn: (match, text) => {
+          fn: (match:RegExMatchType, text:string) => {
             this.reset();
             this.setState(STATES.COMPILING);
             this.pushOutputText(text);
@@ -118,10 +129,10 @@ class SclangIO extends EventEmitter {
         },
         {
           re: /^Library has not been compiled successfully/m,
-          fn: (match, text) => {
+          fn: (match:RegExMatchType, text:string) => {
             this.pushOutputText(text);
             this.processOutput();
-            this.finalizeCompileErrors(STATES.COMPILE_ERROR);
+            this.setState(STATES.COMPILE_ERROR);
           }
         },
         {
@@ -134,7 +145,7 @@ class SclangIO extends EventEmitter {
         {
           // it may go directly into initClasses without posting compile done
           re: /Welcome to SuperCollider ([0-9a-zA-Z\-\.]+)\. /m,
-          fn: (match) => {
+          fn: (match:RegExMatchType) => {
             this.result.version = match[1];
             this.processOutput();
             this.setState(STATES.READY);
@@ -143,7 +154,7 @@ class SclangIO extends EventEmitter {
         {
           // it sometimes posts this sc3> even when compile failed
           re: /^[\s]*sc3>[\s]*$/m,
-          fn: (match, text) => {
+          fn: (match:RegExMatchType, text:string) => {
             this.pushOutputText(text);
             this.processOutput();
             this.setState(STATES.COMPILE_ERROR);
@@ -152,7 +163,7 @@ class SclangIO extends EventEmitter {
         {
           // another case of just trailing off
           re: /^error parsing/m,
-          fn: (match, text) => {
+          fn: (match:RegExMatchType, text:string) => {
             this.pushOutputText(text);
             this.processOutput();
             this.setState(STATES.COMPILE_ERROR);
@@ -161,7 +172,7 @@ class SclangIO extends EventEmitter {
         {
           // collect all output
           re: /(.+)/m,
-          fn: (match, text) => {
+          fn: (match:RegExMatchType, text:string) => {
             this.pushOutputText(text);
           }
         }
@@ -170,14 +181,14 @@ class SclangIO extends EventEmitter {
       compiled: [
         {
           re: /Welcome to SuperCollider ([0-9a-zA-Z\-\.]+)\. /m,
-          fn: (match) => {
+          fn: (match:RegExMatchType) => {
             this.result.version = match[1];
             this.setState(STATES.READY);
           }
         },
         {
           re: /^[\s]*sc3>[\s]*$/m,
-          fn: (/*match, text*/) => {
+          fn: (/*match:RegExMatchType, text*/) => {
             this.setState(STATES.READY);
           }
         }
@@ -190,7 +201,7 @@ class SclangIO extends EventEmitter {
           // This fn is called for each of them with a different match each time
           // but the same text body.
           re: /^SUPERCOLLIDERJS\:([0-9a-f\-]+)\:([A-Za-z]+)\:(.*)$/mg,
-          fn: (match, text) => {
+          fn: (match:RegExMatchType, text:string) => {
             var
               guid = match[1],
               type = match[2],
@@ -276,7 +287,7 @@ class SclangIO extends EventEmitter {
         },
         {
           re: /^SUPERCOLLIDERJS.interpreted$/mg,
-          fn: (match, text) => {
+          fn: (match:RegExMatchType, text:string) => {
             let rest = text.substr(match.index + 28);
             // remove the prompt ->
             rest = rest.replace(/-> \r?\n?/, '');
@@ -287,7 +298,7 @@ class SclangIO extends EventEmitter {
         {
           // user compiled programmatically eg. with Quarks.gui button
           re: /^compiling class library/m,
-          fn: (match, text) => {
+          fn: (match:RegExMatchType, text:string) => {
             this.reset();
             this.setState(STATES.COMPILING);
             this.pushOutputText(text);
@@ -304,7 +315,7 @@ class SclangIO extends EventEmitter {
    * @param {string} guid
    * @param {Object} promise - a Promise or an object with reject, resolve
    */
-  registerCall(guid, promise) {
+  registerCall(guid:string, promise:Promise<*>|Object) {
     this.calls[guid]  = promise;
   }
 
@@ -314,7 +325,7 @@ class SclangIO extends EventEmitter {
     * @param {String} text
     * @returns {Object}
     */
-  parseSyntaxErrors(text) {
+  parseSyntaxErrors(text:string) : Object {
     var
         msgRe = /^ERROR: syntax error, (.+)$/m,
         msgRe2 = /^ERROR: (.+)$/m,
@@ -340,7 +351,7 @@ class SclangIO extends EventEmitter {
    *
    * @param {String} text
    */
-  pushOutputText(text) {
+  pushOutputText(text:string) {
     this.output.push(text);
   }
 
@@ -371,7 +382,7 @@ class SclangIO extends EventEmitter {
     * @param {String} text
     * @returns {Object}
     */
-  parseCompileOutput(text) {
+  parseCompileOutput(text:string) : Object {
     let errors = {
       stdout: text,
       errors: [],
@@ -437,6 +448,3 @@ class SclangIO extends EventEmitter {
     return errors;
   }
 }
-
-
-export { STATES, SclangIO };
