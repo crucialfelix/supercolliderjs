@@ -1,6 +1,8 @@
+/* @flow */
+import * as Immutable from 'immutable';
 
-import Immutable from 'immutable';
-
+// immutable list of numbers
+type BlockMapType = Immutable.Map<string, *>;
 
 /**
  * A simple incrementing allocator used for nodeIds.
@@ -12,7 +14,7 @@ import Immutable from 'immutable';
  * @param {int} initial
  * @returns {Array} [next {int}, state {int}]
  */
-export function increment(state, initial=0) {
+export function increment(state:number, initial:number=0) : [number] {
   let next = (state || initial) + 1;
   return [next, next];
 }
@@ -24,7 +26,7 @@ export function increment(state, initial=0) {
  * @param {int} initialSize - eg. total numChannels
  * @returns {Immutable.Map} state
  */
-export function initialBlockState(initialSize) {
+export function initialBlockState(initialSize:number) : BlockMapType {
   return freeBlock(Immutable.fromJS({}), 0, initialSize);
 }
 
@@ -36,7 +38,7 @@ export function initialBlockState(initialSize) {
  * @param {int} blockSize       - number of numbers eg. numChannels
  * @returns {Array}             - [start number {int}, mutated state {Immutable.Map}]
  */
-export function allocBlock(state, blockSize) {
+export function allocBlock(state:BlockMapType, blockSize:number) : [number,BlockMapType] {
   let keys = state.keySeq().sortBy((a, b) => parseInt(a, 10) > parseInt(b, 10));
   var ret;
   keys.forEach(sizeKey => {
@@ -81,7 +83,7 @@ export function allocBlock(state, blockSize) {
  * @param {int} blockSize
  * @returns {Immutable.Map} state
  */
-export function freeBlock(state, addr, blockSize) {
+export function freeBlock(state:BlockMapType, addr:number, blockSize:number) {
   state = pushFreeBlock(state, addr, blockSize);
   return mergeNeighbors(state, addr, blockSize);
 }
@@ -96,7 +98,7 @@ export function freeBlock(state, addr, blockSize) {
  * @returns {Immutable.Map} state
  * @throws - Block is already allocated
  */
-export function reserveBlock(state, addr, blockSize) {
+export function reserveBlock(state:BlockMapType, addr:number, blockSize:number) : BlockMapType {
   // check if exact match is on free list
   var removed = state.update(String(blockSize), blks => blks ? blks.filter(x => x !== addr) : blks);
   if (removed !== state) {
@@ -104,7 +106,7 @@ export function reserveBlock(state, addr, blockSize) {
   }
 
   var enc = findEnclosingFreeBlock(state, addr, blockSize);
-  if (enc === false) {
+  if (enc === NOT_FOUND) {
     throw Error('Block is already allocated', addr, blockSize, state);
   }
 
@@ -118,7 +120,7 @@ export function reserveBlock(state, addr, blockSize) {
  * @param {Immutable.Map} state
  * @returns {Array} - [[addr, size], ...]
  */
-export function freeBlockList(state) {
+export function freeBlockList(state:BlockMapType) : Array<[number]> {
   var list = [];
   state.forEach((blks, sizeKey) => {
     blks.forEach((addr) => {
@@ -133,15 +135,17 @@ export function freeBlockList(state) {
 
 /************ private *****************************************/
 
+const NOT_FOUND = [-1, -1];
+
 /**
  * @param {Immutable.Map} state
  * @param {int} addr
  * @param {int} blockSize
- * @returns {Array|Boolean} - [blockAddr, blockSize] or false
+ * @returns {Array} - [blockAddr, blockSize] or NOT_FOUND
  */
-function findEnclosingFreeBlock(state, addr, blockSize) {
+function findEnclosingFreeBlock(state:BlockMapType, addr:number, blockSize:number) : [number, number] {
   // let end = addr + blockSize;
-  var found = false;
+  var found = NOT_FOUND;
   state.forEach((blks, sizeKey) => {
     let freeBlockSize = parseInt(sizeKey, 10);
     blks.forEach((fblock) => {
@@ -150,7 +154,7 @@ function findEnclosingFreeBlock(state, addr, blockSize) {
         return false;  // break
       }
     });
-    if (found !== false) {
+    if (found !== NOT_FOUND) {
       return false;  // break
     }
   });
@@ -166,7 +170,7 @@ function findEnclosingFreeBlock(state, addr, blockSize) {
  * @param {int} encSize  - size of the potentially enclosing block being tested
  * @returns {Boolean}
  */
-function blockEncloses(addr, size, encBlock, encSize) {
+function blockEncloses(addr:number, size:number, encBlock:number, encSize:number) : boolean {
   return addr >= encBlock && ((addr + size) <= (encBlock + encSize));
 }
 
@@ -176,7 +180,7 @@ function blockEncloses(addr, size, encBlock, encSize) {
  * @param {int} blockSize
  * @returns {Immutable.Map} state
  */
-function popFreeBlock(state, addr, blockSize) {
+function popFreeBlock(state:BlockMapType, addr:number, blockSize:number) : BlockMapType {
   return state.update(String(blockSize), blks => blks ? blks.filter(x => x !== addr) : blks);
 }
 
@@ -186,7 +190,7 @@ function popFreeBlock(state, addr, blockSize) {
  * @param {int} blockSize
  * @returns {Immutable.Map} state
  */
-function pushFreeBlock(state, addr, blockSize) {
+function pushFreeBlock(state:BlockMapType, addr:number, blockSize:number) : BlockMapType {
   return state.update(String(blockSize), blks => (blks || Immutable.List()).push(addr));
 }
 
@@ -207,7 +211,7 @@ function pushFreeBlock(state, addr, blockSize) {
  * @param {int} splitSize
  * @returns {Immutable.Map} state
  */
-function splitFreeBlock(state, addr, blockSize, splitAddr, splitSize) {
+function splitFreeBlock(state:BlockMapType, addr:number, blockSize:number, splitAddr:number, splitSize:number) : BlockMapType {
   var bottomGap = splitAddr - addr;
   var topGap = endAddr(addr, blockSize) - endAddr(splitAddr, splitSize);
   if (bottomGap > 0 && topGap === 0) {
@@ -225,17 +229,17 @@ function splitFreeBlock(state, addr, blockSize, splitAddr, splitSize) {
   return state;
 }
 
-function resizeFreeBlock(state, addr, blockSize, newAddr, newSize) {
+function resizeFreeBlock(state:BlockMapType, addr:number, blockSize:number, newAddr:number, newSize:number) : BlockMapType {
   state = popFreeBlock(state, addr, blockSize);
   state = pushFreeBlock(state, newAddr, newSize);
   return state;
 }
 
-function endAddr(addr, blockSize) {
+function endAddr(addr:number, blockSize:number) : number {
   return addr + blockSize;
 }
 
-function mergeNeighbors(state, addr, blockSize) {
+function mergeNeighbors(state:BlockMapType, addr:number, blockSize:number) : BlockMapType {
   var blockEnd = endAddr(addr, blockSize);
   freeBlockList(state).forEach((fb) => {
     if (endAddr(fb[0], fb[1]) === addr) {  // lower neighbor

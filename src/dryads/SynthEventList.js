@@ -74,7 +74,7 @@ export default class SynthEventList extends Dryad {
    * @param  {DryadPlayer} player
    * @return {Object}      Command object
    */
-  add(player: DryadPlayer): Object {
+  add(player:DryadPlayer): Object {
     let commands = {
       scserver: {
         schedLoop: (context) => {
@@ -118,12 +118,12 @@ export default class SynthEventList extends Dryad {
     return commands;
   }
 
-  _makeSchedLoop(events: Array<Object>, loopTime: ?number, context: Object) {
+  _makeSchedLoop(events: Array<Object>, loopTime: ?number, context: Object) : Function {
     const synthEvents = this._makeMsgs(events, context);
     return loopTime ? loopedEventListIterator(synthEvents, loopTime) : eventListIterator(synthEvents);
   }
 
-  _makeMsgs(events: Array<Object>, context: Object) {
+  _makeMsgs(events: Array<Object>, context: Object) : [Object] {
     const defaultParams = this.properties.defaultParams || {};
     return events.map((event) => {
       // TODO: do this a jit time in the schedLoop
@@ -141,7 +141,7 @@ export default class SynthEventList extends Dryad {
   /**
    * @return {Object}  command object
    */
-  remove() {
+  remove() : Object {
     return {
       run: (context: Object) => {
         if (context.subscription) {
@@ -167,7 +167,7 @@ export default class SynthEventList extends Dryad {
   /**
    * @return {Dryad}  Wraps itself in a Group so all child Synth events will be removed on removal of the Group.
    */
-  subgraph() {
+  subgraph() : Dryad {
     return new Group({}, [this]);
   }
 }

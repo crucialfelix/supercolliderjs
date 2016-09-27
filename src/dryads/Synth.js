@@ -1,4 +1,4 @@
-
+/* @flow */
 import {Dryad} from 'dryadic';
 import {synthNew, nodeFree, AddActions} from '../server/osc/msg';
 import {whenNodeGo, whenNodeEnd, updateNodeState} from '../server/node-watcher';
@@ -18,7 +18,7 @@ export default class Synth extends Dryad {
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer
    */
-  requireParent() {
+  requireParent() : string {
     return 'SCServer';
   }
 
@@ -97,7 +97,7 @@ export default class Synth extends Dryad {
     };
   }
 
-  remove() {
+  remove() : Object {
     return {
       scserver: {
         msg: (context) => nodeFree(context.nodeID)
@@ -106,7 +106,7 @@ export default class Synth extends Dryad {
     };
   }
 
-  _checkOscType(v) {
+  _checkOscType(v:any) : any {
     switch (typeof v) {
       case 'number':
         return v;

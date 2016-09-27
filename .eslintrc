@@ -107,7 +107,7 @@
     ],
     "flowtype/type-id-match": [
         1,
-        "^([A-Z][a-z0-9]+)+Type$"
+        "^([A-Z][A-Za-z0-9]+)+Type$"
     ],
     "flowtype/use-flow-type": 1,
     "flowtype/valid-syntax": 1

@@ -1,4 +1,4 @@
-
+/* @flow */
 import {Dryad} from 'dryadic';
 import {boot} from '../server/server';
 import * as _ from 'lodash';
@@ -17,26 +17,26 @@ const defaultOptions = {
  */
 export default class SCServer extends Dryad {
 
-  defaultProperties() {
+  defaultProperties() : Object {
     return {
       options: defaultOptions
     };
   }
 
-  initialContext() {
+  initialContext() : Object {
     return {
       out: 0,
       group: 0
     };
   }
 
-  prepareForAdd() {
+  prepareForAdd() : Object {
     return {
       scserver: (context) => boot(_.defaults(this.properties.options, {log: context.log}))
     };
   }
 
-  remove() {
+  remove() : Object {
     return {
       run: (context) => {
         if (context.scserver) {

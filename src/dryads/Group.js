@@ -1,4 +1,4 @@
-
+/* @flow */
 import {Dryad} from 'dryadic';
 import {nodeFree, groupNew, AddActions} from '../server/osc/msg.js';
 import {whenNodeGo, whenNodeEnd} from '../server/node-watcher';
@@ -14,12 +14,12 @@ export default class Group extends Dryad {
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer
    */
-  requireParent() {
+  requireParent() : string {
     return 'SCServer';
   }
 
-  prepareForAdd() {
-    return (context) => {
+  prepareForAdd() : Function {  // ? can you do that ?
+    return (context:Object) => {
       let nodeID = context.scserver.state.nextNodeID();
       return {
         nodeID: nodeID,
@@ -29,25 +29,25 @@ export default class Group extends Dryad {
     };
   }
 
-  add() {
+  add() : Object {
     return {
       scserver: {
-        msg: (context) => groupNew(context.nodeID, AddActions.TAIL, context.parentGroup)
+        msg: (context:Object) => groupNew(context.nodeID, AddActions.TAIL, context.parentGroup)
       },
-      run: (context) => whenNodeGo(context.scserver, context.id, context.nodeID)
+      run: (context:Object) => whenNodeGo(context.scserver, context.id, context.nodeID)
     };
   }
 
-  remove() {
+  remove() : Object {
     return {
       scserver: {
         // children do not have to free their nodes
         // as they get freed by freeing this parent
         // so remove for children needs to communicate that somehow
         // but buffers and busses do need to free
-        msg: (context) => nodeFree(context.nodeID)
+        msg: (context:Object) => nodeFree(context.nodeID)
       },
-      run: (context) => whenNodeEnd(context.scserver, context.id, context.nodeID)
+      run: (context:Object) => whenNodeEnd(context.scserver, context.id, context.nodeID)
     };
   }
 }

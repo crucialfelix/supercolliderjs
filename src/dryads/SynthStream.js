@@ -1,5 +1,6 @@
-
+/* @flow */
 import {Dryad} from 'dryadic';
+import type { DryadPlayer } from 'dryadic';
 import Group from './Group';
 import {synthNew, nodeFree, AddActions} from '../server/osc/msg.js';
 import * as _  from 'lodash';
@@ -27,7 +28,7 @@ const LATENCY = 0.03;
  */
 export default class SynthStream extends Dryad {
 
-  add(player: DryadicPlayer) {
+  add(player:DryadPlayer) {
     return {
       run: (context) => {
         let subscription = this.properties.stream.subscribe((event) => {
@@ -51,7 +52,7 @@ export default class SynthStream extends Dryad {
       case 'noteOff': {
         // if no key then there is no way to shut off notes
         // other than sending to the group
-        let nodeID:int = nodeIDs[key];
+        let nodeID:number = nodeIDs[key];
         if (nodeID) {
           msgs.push(nodeFree(nodeID));
           // TODO: if synthDef hasGate else just free it
@@ -61,7 +62,7 @@ export default class SynthStream extends Dryad {
             nodeIDs: _.omit(nodeIDs, [key])
           };
         } else {
-          throw new Error(`NodeID was not registered for event key ${key}`);
+          throw new Error(`NodeID was not registered for event key ${key || 'undefined'}`);
         }
         break;
       }
@@ -99,11 +100,11 @@ export default class SynthStream extends Dryad {
     };
   }
 
-  handleEvent(event: Object, context: Object, player: DryadicPlayer) {
-    player.callCommand(context.id, this.commandsForEvent(event, context));
+  handleEvent(event:Object, context:Object, properties:Object, player:DryadPlayer) {
+    player.callCommand(context.id, this.commandsForEvent(event, context, properties));
   }
 
-  remove() {
+  remove() : Object {
     return {
       run: (context:Object) => {
         if (context.subscription) {

@@ -28,13 +28,13 @@ export default class SCLang extends Dryad {
     };
   }
 
-  prepareForAdd() {
+  prepareForAdd() : Object {
     return {
       sclang: (context: Object) => boot(_.defaults(this.properties.options, {log: context.log}))
     };
   }
 
-  remove() {
+  remove() : Object {
     return {
       run: (context: Object) => {
         return context.sclang.quit();

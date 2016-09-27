@@ -20,7 +20,7 @@
  *   send.msg     - send an OSC message
  */
 
-import {EventEmitter} from 'events';
+import EventEmitter from 'events';
 import {Observable, Subject} from 'rx';
 import {spawn} from 'child_process';
 import * as _ from 'lodash';
@@ -36,7 +36,7 @@ import Logger from '../utils/logger';
 import resolveOptions from '../utils/resolveOptions';
 import ServerState from './ServerState';
 
-import type {CallresponseType, MsgType} from './osc/msg';
+import type {CallAndResponseType, MsgType} from '../Types';
 
 
 export class Server extends EventEmitter {
@@ -414,7 +414,7 @@ export class Server extends EventEmitter {
    * @param {int} timeout - in milliseconds before rejecting the Promise
    * @returns {Promise} - resolves with all values the server responsed with after the matched response.
    */
-  callAndResponse(callAndResponse:CallresponseType, timeout:number=4000) : Promise<MsgType> {
+  callAndResponse(callAndResponse:CallAndResponseType, timeout:number=4000) : Promise<MsgType> {
     var promise = this.oscOnce(callAndResponse.response, timeout);
     this.send.msg(callAndResponse.call);
     return promise;
@@ -429,7 +429,7 @@ export class Server extends EventEmitter {
  * @param {Store} store - optional external Store to hold Server state
  * @returns {Promise} - resolves with the Server
  */
-export function boot(options:Object={}, store:any=null) {
+export function boot(options:Object={}, store:any=null) : Promise<Server> {
   return resolveOptions(undefined, options).then((opts) => {
     var s = new Server(opts, store);
     return s.boot().then(() => s.connect()).then(() => s);

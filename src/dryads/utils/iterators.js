@@ -23,11 +23,11 @@ export function clipTime(events: Array<Object>, start: number, end: number) {
  *                         returns {Object} event - Which has .event (the original event) and .memo which is
  *                              used by OSCSched the next time this function is called.
  */
-export function eventListIterator(events: Array<Object>) {
+export function eventListIterator(events: Array<Object>) : Function {
   const sorted = sortEvents(events);
   const length = sorted.length;
 
-  return (now: number, memo: ?Object) => {
+  return (now: number, memo: ?Object) : ?Object => {
 
     if (length === 0) {
       return;
@@ -75,12 +75,12 @@ export function eventListIterator(events: Array<Object>) {
  *   returns {Object} item - Which has .event (the original event) and .memo which is
  *                              used by OSCSched the next time this function is called.
  */
-export function loopedEventListIterator(events: Array<Object>, loopTime: number) {
+export function loopedEventListIterator(events: Array<Object>, loopTime: number) : Function {
 
   const sorted = clipTime(sortEvents(events), 0, loopTime);
   const length = sorted.length;
 
-  return (now: number, memo: ?Object) => {
+  return (now: number, memo: ?Object) : ?Object => {
     if (length === 0) {
       return;
     }

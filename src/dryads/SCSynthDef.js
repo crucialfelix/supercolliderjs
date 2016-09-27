@@ -1,9 +1,10 @@
-
+/* @flow */
 import {Dryad} from 'dryadic';
 import {defRecv, defFree, defLoad} from '../server/osc/msg.js';
 import path from 'path';
 import fs from 'fs';
 import SCError from '../utils/Errors';
+import { SclangResultType } from '../Types';
 
 const StateKeys = {
   SYNTH_DEFS: 'SYNTH_DEFS'
@@ -41,18 +42,18 @@ export default class SCSynthDef extends Dryad {
    * If there is no SCLang in the parent context,
    * then this will wrap itself in an SCLang (language interpreter).
    */
-  requireParent() {
+  requireParent() : ?string {
     if (this.properties.source || this.properties.compileFrom) {
       return 'SCLang';
     }
   }
 
-  prepareForAdd() {
+  prepareForAdd() : Object {
     if (this.properties.source) {
       return {
         synthDef: (context) => {
           return this.compileSource(context, this.properties.source)
-            .then((result) => this._sendSynthDef(context, result));
+            .then((result:SclangResultType) => this._sendSynthDef(context, result));
         }
       };
     }
@@ -60,7 +61,7 @@ export default class SCSynthDef extends Dryad {
       return {
         synthDef: (context) => {
           return this.compileFrom(context, this.properties.compileFrom)
-            .then((result) => this._sendSynthDef(context, result));
+            .then((result:SclangResultType) => this._sendSynthDef(context, result));
         }
       };
     }
@@ -80,7 +81,7 @@ export default class SCSynthDef extends Dryad {
     return {};
   }
 
-  _sendSynthDef(context, result) {
+  _sendSynthDef(context:Object, result:SclangResultType) : Promise<SclangResultType> {
     // ! alters context
     // name bytes
     // synthDefName should be set for child context
@@ -96,7 +97,7 @@ export default class SCSynthDef extends Dryad {
     return Promise.all(promises).then(() => result);
   }
 
-  _writeSynthDef(name, buffer, synthDesc, saveToDir) {
+  _writeSynthDef(name:string, buffer:Buffer, synthDesc:Object, saveToDir:string) : Promise<*> {
     return new Promise((resolve, reject) => {
       let dir = path.resolve(saveToDir);
       let pathname = path.join(dir, name + '.scsyndef');
@@ -144,7 +145,7 @@ export default class SCSynthDef extends Dryad {
   /**
    * Returns a Promise for a SynthDef result object: name, bytes, synthDesc
    */
-  compileFrom(context, sourcePath) {
+  compileFrom(context:Object, sourcePath:string) : Promise<string> {
     return new Promise((resolve, reject) => {
       fs.readFile(path.resolve(sourcePath), (err, fileBuf) => {
         if (err) {
@@ -170,7 +171,7 @@ export default class SCSynthDef extends Dryad {
     return {};
   }
 
-  remove() {
+  remove() : Object {
     return {
       scserver: {
         // no need to do this if server has gone away
@@ -189,7 +190,7 @@ export default class SCSynthDef extends Dryad {
     };
   }
 
-  putSynthDef(context, synthDefName, synthDesc) {
+  putSynthDef(context:Object, synthDefName:string, synthDesc:Object) {
     context.scserver.state.mutate(StateKeys.SYNTH_DEFS, (state) => {
       return state.set(synthDefName, synthDesc);
     });

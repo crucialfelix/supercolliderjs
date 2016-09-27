@@ -1,4 +1,4 @@
-
+/* @flow */
 import {Dryad} from 'dryadic';
 
 /**
@@ -7,7 +7,7 @@ import {Dryad} from 'dryadic';
   */
 export default class AudioBus extends Dryad {
 
-  defaultProperties() {
+  defaultProperties() : Object {
     return {
       numChannels: 1
     };
@@ -17,18 +17,18 @@ export default class AudioBus extends Dryad {
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer
    */
-  requireParent() {
+  requireParent() : string {
     return 'SCServer';
   }
 
-  prepareForAdd() {
+  prepareForAdd() : Object {
     return {
       out: (context) => context.scserver.state.allocAudioBus(this.properties.numChannels),
       numChannels: this.properties.numChannels
     };
   }
 
-  remove() {
+  remove() : Object {
     return {
       run: (context) => context.scserver.state.freeAudioBus(context.out, this.properties.numChannels)
     };

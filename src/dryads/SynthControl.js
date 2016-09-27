@@ -1,5 +1,6 @@
-
+/* @flow */
 import {Dryad} from 'dryadic';
+import type { DryadPlayer } from 'dryadic';
 import {nodeSet} from '../server/osc/msg';
 import * as _  from 'lodash';
 
@@ -19,11 +20,11 @@ export default class SynthControl extends Dryad {
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer
    */
-  requireParent() {
+  requireParent() : string {
     return 'SCServer';
   }
 
-  add(player) {
+  add(player:DryadPlayer) : Object {
     return {
       run: (context) => {
         if (this.properties.stream) {
@@ -47,7 +48,7 @@ export default class SynthControl extends Dryad {
     };
   }
 
-  remove() {
+  remove() : Object {
     return {
       run: (context) => {
         if (context.subscription) {

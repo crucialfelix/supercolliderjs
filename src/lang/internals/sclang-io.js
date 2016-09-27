@@ -14,9 +14,10 @@
   */
 
 import _ from 'lodash';
-import {EventEmitter} from 'events';
+import EventEmitter from 'events';
 import SCError from '../../utils/Errors';
 type RegExMatchType = Object;  // Array<string|number>;
+// import { SclangResultType } from '../../Types';
 
 export const STATES = {
   NULL: null,
@@ -35,7 +36,7 @@ export class SclangIO extends EventEmitter {
   capturing:Object;
   calls:Object;
   state:?string;
-  output:[string];
+  output:Array<string>;
   result:Object;
 
   constructor() {

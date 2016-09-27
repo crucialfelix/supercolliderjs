@@ -30,6 +30,7 @@ import { SclangIO, STATES } from './internals/sclang-io';
 import resolveOptions from '../utils/resolveOptions';
 import SCError from '../utils/Errors';
 
+import { SclangResultType } from '../Types';
 type ChildProcessType = child_process$ChildProcess;
 
 export class SCLang extends EventEmitter {
@@ -324,7 +325,7 @@ export class SCLang extends EventEmitter {
    * Send a raw string to sclang to be interpreted
    * callback is called after write is complete.
    */
-  write(chunk, callback:Function, noEcho:boolean) {
+  write(chunk:string, callback:?Function, noEcho:boolean) {
     if (!noEcho) {
       this.log.stdin(chunk);
     }
@@ -371,7 +372,7 @@ export class SCLang extends EventEmitter {
    *        return full backtrace
    * @returns {Promise} results - which resolves with results or rejects with errors, both as JSON.
    */
-  interpret(code:string, nowExecutingPath:string, asString:boolean, postErrors:boolean, getBacktrace:boolean) : Promise<any> {
+  interpret(code:string, nowExecutingPath:?string, asString:boolean, postErrors:boolean, getBacktrace:boolean) : Promise<SclangResultType> {
     return new Promise((resolve, reject) => {
       var escaped = code
         .replace(/[\n\r]/g, '__NL__')
@@ -408,7 +409,7 @@ export class SCLang extends EventEmitter {
   /**
    * @private
    */
-  setState(state:string) {
+  setState(state:?string) {
     this.stateWatcher.setState(state);
   }
 
