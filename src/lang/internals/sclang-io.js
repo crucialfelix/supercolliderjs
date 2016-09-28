@@ -145,7 +145,7 @@ export class SclangIO extends EventEmitter {
         },
         {
           // it may go directly into initClasses without posting compile done
-          re: /Welcome to SuperCollider ([0-9a-zA-Z\-\.]+)\. /m,
+          re: /Welcome to SuperCollider ([0-9A-Za-z\-\.]+)\. /m,
           fn: (match:RegExMatchType) => {
             this.result.version = match[1];
             this.processOutput();
@@ -181,7 +181,7 @@ export class SclangIO extends EventEmitter {
       compileError: [],
       compiled: [
         {
-          re: /Welcome to SuperCollider ([0-9a-zA-Z\-\.]+)\. /m,
+          re: /Welcome to SuperCollider ([0-9A-Za-z\-\.]+)\. /m,
           fn: (match:RegExMatchType) => {
             this.result.version = match[1];
             this.setState(STATES.READY);
@@ -201,7 +201,7 @@ export class SclangIO extends EventEmitter {
           // ie. this is a multi-line global regex
           // This fn is called for each of them with a different match each time
           // but the same text body.
-          re: /^SUPERCOLLIDERJS\:([0-9a-z\-]+)\:([A-Za-z]+)\:(.*)$/mg,
+          re: /^SUPERCOLLIDERJS\:([0-9A-Za-z\-]+)\:([A-Za-z]+)\:(.*)$/mg,
           fn: (match:RegExMatchType, text:string) => {
             var
               guid = match[1],
@@ -220,10 +220,10 @@ export class SclangIO extends EventEmitter {
                   this.capturing[guid] = [];
                   lines = [];
                   // yuck
-                  _.each(text.split('\n'), (l) => {
-                    if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:START/)) {
+                  _.each(text.split('\n'), (l:string) => {
+                    if (l.match(/SUPERCOLLIDERJS\:([0-9A-Za-z\-]+)\:CAPTURE:START/)) {
                       started = true;
-                    } else if (l.match(/SUPERCOLLIDERJS\:([0-9a-f\-]+)\:CAPTURE:END/)) {
+                    } else if (l.match(/SUPERCOLLIDERJS\:([0-9A-Za-z\-]+)\:CAPTURE:END/)) {
                       stopped = true;
                     } else {
                       if (started && (!stopped)) {

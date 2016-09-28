@@ -159,14 +159,14 @@ describe('sclang-io', function() {
 
       return new Promise((resolve) => {
         // this is what is really being tested:
-        // does it post to STDOUT
-        io.on('stdout', (/*out*/) => {
-          // console.log('STDOUT:', out);
+        // does it post the stuff inside CAPTURE
+        // ERROR: Quarks-install: path does not exist /Users/crucial/wrong
+        // to STDOUT ?
+        io.on('stdout', (out) => {
           resolve(true);
         });
 
-        var text = readFile('forward-stdout.txt');
-        io.parse(text);
+        io.parse(readFile('forward-stdout.txt'));
       });
     });
   });
