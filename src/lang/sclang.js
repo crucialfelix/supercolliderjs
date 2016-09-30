@@ -28,9 +28,9 @@ import { Promise } from 'bluebird';
 import Logger from '../utils/logger';
 import { SclangIO, STATES } from './internals/sclang-io';
 import resolveOptions from '../utils/resolveOptions';
-import SCError from '../utils/Errors';
-
+import SCError from '../Errors';
 import { SclangResultType } from '../Types';
+
 type ChildProcessType = child_process$ChildProcess;
 
 export class SCLang extends EventEmitter {
@@ -183,7 +183,7 @@ export class SCLang extends EventEmitter {
           resolve(this.stateWatcher.result);
         } else if (state === STATES.COMPILE_ERROR) {
           done = true;
-          reject(new SCError('Compile Error', this.stateWatcher.result));
+          reject(new SCError('CompileError', this.stateWatcher.result));
           this.removeListener('state', bootListener);
           // probably should remove all listeners
         }
@@ -347,7 +347,7 @@ export class SCLang extends EventEmitter {
     if (this.options.sclang_conf) {
       var configPath = path.resolve(untildify(this.options.sclang_conf));
       var setConfigPath = 'SuperColliderJS.sclangConf = "' + configPath + '";\n\n';
-      return this.interpret(setConfigPath, null, true, true, true);
+      return this.interpret(setConfigPath, null, true, true, true).then(() => this);
     } else {
       return Promise.resolve(this);
     }
@@ -370,7 +370,7 @@ export class SCLang extends EventEmitter {
    *        which posts call stack, receiver, args, etc
    * @param {Boolean} getBacktrace
    *        return full backtrace
-   * @returns {Promise} results - which resolves with results or rejects with errors, both as JSON.
+   * @returns {Promise} results - which resolves with result as JSON or rejects with SCLangError.
    */
   interpret(code:string, nowExecutingPath:?string, asString:boolean, postErrors:boolean, getBacktrace:boolean) : Promise<SclangResultType> {
     return new Promise((resolve, reject) => {

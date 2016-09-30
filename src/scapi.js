@@ -31,7 +31,7 @@ var
   _ = require('lodash'),
   Promise = require('bluebird');
 
-import SCError from './utils/Errors';
+import SCError from './Errors';
 import Logger from './utils/logger';
 
 

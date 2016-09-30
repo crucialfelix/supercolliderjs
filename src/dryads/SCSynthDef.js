@@ -129,16 +129,13 @@ export default class SCSynthDef extends Dryad {
     return context.sclang.interpret(wrappedCode, undefined, false, false, true)
       .then((result:Object) => {
         return result;
-      }, (error) => {
+      }, (error:SCLangError) => {
         const compiledFrom = this.properties.compileFrom;
-        return Promise.reject(
-          new SCError(`Failed to compile SynthDef ${compiledFrom}`, {
-            error: error.data.error,
-            properties: this.properties,
-            compiledFrom,
-            sourceCode
-          })
-        );
+        error.annotate(`Failed to compile SynthDef  ${error.message} ${compiledFrom}`, {
+          properties: this.properties,
+          sourceCode
+        });
+        return Promise.reject(error);
       });
   }
 

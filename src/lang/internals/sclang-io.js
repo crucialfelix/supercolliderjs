@@ -15,7 +15,8 @@
 
 import _ from 'lodash';
 import EventEmitter from 'events';
-import SCError from '../../utils/Errors';
+import { SCLangError } from '../../Errors';
+
 type RegExMatchType = Object;  // Array<string|number>;
 // import { SclangResultType } from '../../Types';
 
@@ -268,7 +269,7 @@ export class SclangIO extends EventEmitter {
                       delete this.capturing[guid];
                     }
                     this.calls[guid].reject(
-                      new SCError('sclang error', {type: response.type, error: obj})
+                      new SCLangError(`Interpret error: ${obj.errorString}`, response.type, obj)
                     );
                   }
                   delete this.calls[guid];

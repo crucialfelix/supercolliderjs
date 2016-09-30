@@ -110,7 +110,7 @@ export default function resolveOptions(configPath, commandLineOptions) {
         var options = yaml.safeLoad(fs.readFileSync(aPath, 'utf8'));
         ok(options, aPath);
       } catch (error) {
-        reject(new SCError('Error reading config file', {configPath: aPath, error}));
+        reject(new SCError(`Error reading config file ${aPath}: ${error.mesage}`, {error, configPath: aPath}));
       }
     }
 
@@ -118,7 +118,7 @@ export default function resolveOptions(configPath, commandLineOptions) {
       // explicit config path supplied
       let explicitConfigPath = checkPath(configPath);
       if (!explicitConfigPath) {
-        reject(new SCError('Config file not found', {configPath}));
+        reject(new Error(`Config file not found: ${configPath}`));
       } else {
         loadConfig(explicitConfigPath);
       }
