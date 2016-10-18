@@ -1,9 +1,9 @@
 /* @flow */
-import {Dryad} from 'dryadic';
+import * as _  from 'lodash';
+import { Dryad } from 'dryadic';
 import type { DryadPlayer } from 'dryadic';
 import Group from './Group';
-import {synthNew, nodeFree, AddActions} from '../server/osc/msg.js';
-import * as _  from 'lodash';
+import { synthNew, nodeFree, AddActions } from '../server/osc/msg.js';
 
 const LATENCY = 0.03;
 
@@ -28,20 +28,26 @@ const LATENCY = 0.03;
  */
 export default class SynthStream extends Dryad {
 
-  add(player:DryadPlayer) {
+  add(player:DryadPlayer) : Object {
     return {
-      run: (context) => {
-        let subscription = this.properties.stream.subscribe((event) => {
+      run: (context:Object, properties:Object) => {
+        let subscription = properties.stream.subscribe((event) => {
           // This assumes a Bacon event.
           // Should validate that event.value is object
-          this.handleEvent(event.value(), context, player);
+          // assumes context has not been updated and is the same event
+          // use player.getContext()
+          this.handleEvent(event.value(), context, properties, player);
         });
         player.updateContext(context, {subscription});
       }
+      // initial event
+      // scserver: {
+      //   bundle: ()
+      // }
     };
   }
 
-  commandsForEvent(event: Object, context: Object) {
+  commandsForEvent(event:Object, context:Object, properties:Object) : Object {
     const msgs = [];
     let updateContext;
     let nodeIDs = context.nodeIDs || {};
@@ -69,9 +75,9 @@ export default class SynthStream extends Dryad {
 
       default: {
         // noteOn
-        let defaultParams = this.properties.defaultParams || {};
+        let defaultParams = properties.defaultParams || {};
         const args = _.assign({out: context.out || 0}, defaultParams.args, event.args);
-        const defName = event.defName || this.properties.defaultParams.defName;
+        const defName = event.defName || properties.defaultParams.defName;
         // if ev.id then create a nodeID and store it
         // otherwise it is anonymous
         let nodeID = -1;
@@ -120,7 +126,7 @@ export default class SynthStream extends Dryad {
     };
   }
 
-  subgraph() {
+  subgraph() : Dryad {
     return new Group({}, [this]);
   }
 }

@@ -4,7 +4,8 @@ const SynthStream = require('../SynthStream').default;
 
 describe('SynthStream', function() {
 
-  let ss = new SynthStream();
+  let properties = {};
+  let ss = new SynthStream(properties);
 
   it('should construct', function() {
     expect(ss).toBeTruthy();
@@ -18,7 +19,7 @@ describe('SynthStream', function() {
         defName: 'sin'
       };
 
-      let cmds = ss.commandsForEvent(event, {});
+      let cmds = ss.commandsForEvent(event, {}, properties);
       expect(cmds.scserver.bundle.packets.length).toBe(1);
     });
 
@@ -36,7 +37,7 @@ describe('SynthStream', function() {
         }
       };
 
-      let cmds = ss.commandsForEvent(event, context);
+      let cmds = ss.commandsForEvent(event, context, properties);
       expect(cmds.updateContext).toBeTruthy();
       expect(cmds.scserver.bundle.packets).toEqual([['/s_new', 'sin', 1001, 1, 0, 'out', 0]]);
     });
@@ -62,11 +63,11 @@ describe('SynthStream', function() {
       };
 
       // call noteOn and update the context
-      let cmds = ss.commandsForEvent(noteOn, context);
+      let cmds = ss.commandsForEvent(noteOn, context, properties);
       _.assign(context, cmds.updateContext);
 
       // now call noteOff
-      let cmds2 = ss.commandsForEvent(noteOff, context);
+      let cmds2 = ss.commandsForEvent(noteOff, context, properties);
       expect(cmds2.updateContext).toBeTruthy();
       expect(cmds2.scserver.bundle.packets).toEqual([['/n_free', 1001]]);
     });

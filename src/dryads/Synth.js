@@ -22,75 +22,37 @@ export default class Synth extends Dryad {
     return 'SCServer';
   }
 
-  subgraph() {
-    let def = this.properties.def;
-    if (def && def.isDryad) {
-      // wrap self as a child of SCSynthDef
-      let d = def.clone();
-      let m = this.clone();
-      m.properties.def = null; // will get synthDefName from context
-      d.children = [m];
-      return d;
-    }
-
-    var sg = [];
-    // clone and tag each one so they can be looked up during .add
-    _.each(this.properties.args, (v, k) => {
-      if (v.isDryad) {
-        let nv = v.clone();
-        nv.tag = k;
-        sg.push(nv);
-      }
-    });
-
-    sg.push(this);
-
-    return new Dryad({}, sg);
-  }
-
-  prepareForAdd() {
+  prepareForAdd() : Object {
     return {
-      nodeID: (context) => context.scserver.state.nextNodeID(),
-      synthDefName: (context) => {
-        return this.synthDefName(context);
-      }
+      updateContext: (context) => ({
+        nodeID: context.scserver.state.nextNodeID()
+      })
     };
   }
 
-  synthDefName(context) {
-    // The parent SCSynthDef publishes both .synthDef (object) and .synthDefName to context
-    let name = _.isString(this.properties.def) ? this.properties.def : context.synthDef.name;
-    if (!name) {
-      throw new Error('No synthDefName supplied to Synth', context);
-    }
-    return name;
-  }
+  // synthDefName(context:Object) : string {
+  //   // The parent SCSynthDef publishes both .synthDef (object) and .synthDefName to context
+  //   let name = _.isString(this.properties.def) ? this.properties.def : (context.synthDef && context.synthDef.name);
+  //   if (!name) {
+  //     throw new Error('No synthDefName supplied to Synth', context);
+  //   }
+  //   return name;
+  // }
 
-  add() {
+  add() : Object {
     return {
       scserver: {
-        msg: (context) => {
-          let args = _.mapObject(this.properties.args, (v, k) => {
-            if (v.isDryad) {
-              // Each Dryad in args appears as a clone stored in context.subgraph
-              // and has its own context there
-              return this._checkOscType(context.subgraph[k].dryad.synthArg(context.subgraph[k].context));
-            }
-
-            // a simple function, is supplied context, should return a synthArg
-            if (_.isFunction(v)) {
-              return this._checkOscType(v(context));
-            }
-
-            return this._checkOscType(v);
-          });
-          return synthNew(context.synthDefName, context.nodeID, AddActions.TAIL, context.group, args);
+        msg: (context, properties) => {
+          let args = _.mapValues(properties.args, (value, key) => this._checkOscType(value, key, context.id));
+          let defName = this._checkOscType(properties.def, 'synthDefName', context.id);
+          return synthNew(defName, context.nodeID, AddActions.TAIL, context.group, args);
         }
       },
-      run: (context) => {
+      run: (context, properties) => {
         return whenNodeGo(context.scserver, context.id, context.nodeID)
           .then((nodeID) => {
-            updateNodeState(context.scserver, context.nodeID, {synthDef: context.synthDefName});
+            // TODO: call a method instead so its testable
+            updateNodeState(context.scserver, context.nodeID, {synthDef: properties.def});
             return nodeID;
           });
       }
@@ -106,12 +68,14 @@ export default class Synth extends Dryad {
     };
   }
 
-  _checkOscType(v:any) : any {
+  _checkOscType(v:any, key:string, id:string) : any {
     switch (typeof v) {
       case 'number':
+      case 'string':
+      // case 'Buffer':
         return v;
       default:
-        throw new Error('Invalid type supplied to synthArgs: ' + (typeof v) + ' ' + v + ' ' + this);
+        throw new Error(`Invalid OSC type for Synth ${key}: [${typeof v}: ${v}] @ ${id}`);
     }
   }
 }

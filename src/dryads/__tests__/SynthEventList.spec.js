@@ -36,24 +36,25 @@ describe('SynthEventList', function() {
   });
 
   describe('spawn events in supplied list on .add', function() {
-    let sel = new SynthEventList({events: events});
+    let props = {events};
+    let sel = new SynthEventList(props);
     let commands = sel.add(player);
     it('should contain a function', function() {
       expect(typeof commands.scserver.schedLoop).toBe('function');
     });
     it('should schedule 1 event', function() {
-      let fn = commands.scserver.schedLoop(context);
+      let fn = commands.scserver.schedLoop(context, props);
       let e = fn(0);
       expect(e.event.time).toEqual(1);
     });
   });
 
   describe('pass in updateStream', function() {
-    var bus, sel, dp, updated, called;
-
+    var bus, sel, dp, updated, called, properties;
     beforeEach(function() {
       bus = new Bacon.Bus();
-      sel = new SynthEventList({updateStream: bus});
+      properties = {updateStream: bus};
+      sel = new SynthEventList(properties);
 
       dp = {
         updateContext: function(ctx, update) {
@@ -73,14 +74,14 @@ describe('SynthEventList', function() {
       spyOn(player, 'updateContext');
 
       let commands = sel.add(dp);
-      commands.run(context);
+      commands.run(context, properties);
       expect(updated).toBeTruthy();  // {subscription: bacon subscription}
     });
 
     it('should get a new event when pushed to bus', function() {
       spyOn(player, 'callCommand');
       let commands = sel.add(dp);
-      commands.run(context);
+      commands.run(context, properties);
       bus.push({
         events: [
           {defName: 'nuevo-blip', args: {freq: 441}, time: 2.0}

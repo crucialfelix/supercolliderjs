@@ -26,9 +26,9 @@ export default class SynthControl extends Dryad {
 
   add(player:DryadPlayer) : Object {
     return {
-      run: (context) => {
-        if (this.properties.stream) {
-          let subscription = this.properties.stream
+      run: (context, properties) => {
+        if (properties.stream) {
+          let subscription = properties.stream
             .subscribe((event) => {
               // This assumes a Bacon event.
               // Should validate that event.value is object

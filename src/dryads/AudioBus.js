@@ -23,14 +23,16 @@ export default class AudioBus extends Dryad {
 
   prepareForAdd() : Object {
     return {
-      out: (context) => context.scserver.state.allocAudioBus(this.properties.numChannels),
-      numChannels: this.properties.numChannels
+      updateContext: (context, properties) => ({
+        out: context.scserver.state.allocAudioBus(properties.numChannels),
+        numChannels: properties.numChannels
+      })
     };
   }
 
   remove() : Object {
     return {
-      run: (context) => context.scserver.state.freeAudioBus(context.out, this.properties.numChannels)
+      run: (context, properties) => context.scserver.state.freeAudioBus(context.out, properties.numChannels)
     };
   }
 }

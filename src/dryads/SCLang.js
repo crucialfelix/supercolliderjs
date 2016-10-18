@@ -30,7 +30,10 @@ export default class SCLang extends Dryad {
 
   prepareForAdd() : Object {
     return {
-      sclang: (context: Object) => boot(_.defaults(this.properties.options, {log: context.log}))
+      callOrder: 'SELF_THEN_CHILDREN',
+      updateContext: (context, properties) => ({
+        sclang: boot(_.defaults(properties.options, {log: context.log}))
+      })
     };
   }
 

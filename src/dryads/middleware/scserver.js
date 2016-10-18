@@ -1,6 +1,7 @@
 /* @flow */
 import * as _  from 'lodash';
 import OSCSched from './OSCSched';
+import type { MsgType } from '../../Types';
 
 /**
  * Command middlware that sends OSC to the SuperCollider server (scsynth).
@@ -69,52 +70,63 @@ import OSCSched from './OSCSched';
  * and makes it easy to implement transport controls and looping.
  *
  *
- *
- *
  * @param {Object} context
- * @return {undefined|Promise}         Promise is only returned when using .callAndResponse
+ * @param {Object} properties
+ * @return Promise is only returned when using .callAndResponse
  */
-export default function scserver(command: Object, context: Object) {
+export default function scserver(command:Object, context:Object, properties:Object) : ?Promise<MsgType> {
   if (command.scserver) {
+    let cmds = resolveFuncs(command.scserver, context, properties);
+
     // send a single OSC message
-    if (command.scserver.msg) {
-      const m = callIfFn(command.scserver.msg, context);
-      context.scserver.send.bundle(0.03, [m]);
+    if (cmds.msg) {
+      // TODO get default latency from context
+      context.scserver.send.bundle(0.03, [cmds.msg]);
     }
 
     // send an OSC bundle
-    if (command.scserver.bundle) {
-      const b = callIfFn(command.scserver.bundle, context);
-      context.scserver.send.bundle(b.time, b.packets);
+    if (cmds.bundle) {
+      context.scserver.send.bundle(cmds.bundle.time, cmds.bundle.packets);
     }
 
     // schedule events using a schedLoop function
-    if (command.scserver.schedLoop) {
+    if (cmds.schedLoop) {
+      // initialize the scheduler on first use
       if (!context.oscSched) {
-        const schedFn = (time, packets) => context.scserver.send.bundle(time, packets);
-        context.oscSched = new OSCSched(schedFn);
+        const sendFn = (time, packets) => context.scserver.send.bundle(time, packets);
+        context.oscSched = new OSCSched(sendFn);
       }
-      // schedLoop is a function that returns the actual schedLoop function
-      context.oscSched.schedLoop(command.scserver.schedLoop(context), context.epoch);
+
+      context.oscSched.schedLoop(cmds.schedLoop, context.epoch);
     }
 
     // Preparation commands that get an OSC callback from the server.
     // Only this one returns.
     // These are used only in preparation, not for play / update.
-    if (command.scserver.callAndResponse) {
-      const c = callIfFn(command.scserver.callAndResponse, context);
-      return context.scserver.callAndResponse(c);
+    if (cmds.callAndResponse) {
+      return context.scserver.callAndResponse(cmds.callAndResponse);
     }
   }
 }
 
-/**
- * If its a Function then call it with context
- */
-function callIfFn(thing, context) {
-  if (_.isFunction(thing)) {
-    return thing(context);
-  }
 
-  return thing;
+/**
+ * Replace any functions in the command object's values with the result of
+ * calling the function.
+ *
+ * eg. msg: (context) => { ... return ['/s_new', ...]; }
+ * becomes msg: ['/s_new', ...]
+ *
+ * Non-functions are passed through.
+ */
+export function resolveFuncs(command:Object, context:Object, properties:Object) : Object {
+  return _.mapValues(command, (value) => callIfFn(value, context, properties));
+}
+
+
+/**
+ * If its a Function then call it with context and properties
+ */
+function callIfFn(thing, context, properties) {
+  return _.isFunction(thing) ? thing(context, properties) : thing;
 }

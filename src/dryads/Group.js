@@ -1,7 +1,7 @@
 /* @flow */
-import {Dryad} from 'dryadic';
-import {nodeFree, groupNew, AddActions} from '../server/osc/msg.js';
-import {whenNodeGo, whenNodeEnd} from '../server/node-watcher';
+import { Dryad } from 'dryadic';
+import { nodeFree, groupNew, AddActions } from '../server/osc/msg.js';
+import { whenNodeGo, whenNodeEnd } from '../server/node-watcher';
 
 
 /**
@@ -18,14 +18,15 @@ export default class Group extends Dryad {
     return 'SCServer';
   }
 
-  prepareForAdd() : Function {  // ? can you do that ?
-    return (context:Object) => {
-      let nodeID = context.scserver.state.nextNodeID();
-      return {
-        nodeID: nodeID,
+  prepareForAdd() : Object {
+    return {
+      updateContext: (context/*, properties*/) => ({
+        nodeID: context.scserver.state.nextNodeID(),
         parentGroup: context.group || 0,
-        group: nodeID  // group for the children
-      };
+        // TODO: but this overwrites my own group !
+        // what if parent is a group ?
+        group: context.nodeID
+      })
     };
   }
 

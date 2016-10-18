@@ -3,6 +3,7 @@ import * as _  from 'lodash';
 
 import { Dryad } from 'dryadic';
 import Group from './Group';
+import type { DryadPlayer } from 'dryadic';
 
 import {
   synthNew,
@@ -77,24 +78,26 @@ export default class SynthEventList extends Dryad {
   add(player:DryadPlayer): Object {
     let commands = {
       scserver: {
-        schedLoop: (context) => {
+        schedLoop: (context, properties) => {
           // temporary: we need to know the play time of the whole document
           const epoch = context.epoch || (_.now() + 200);
           if (epoch !== context.epoch) {
             context = player.updateContext(context, {epoch});
           }
 
-          return this._makeSchedLoop(this.properties.events || [], this.properties.loopTime, epoch, context);
+          return this._makeSchedLoop(properties.events || [], properties.loopTime, epoch, context);
         }
       }
     };
 
+    // built-in stream support will be added to Dryadic
+    // for now it is hard to detect Bacon.Bus as being an object,
     if (this.properties.updateStream) {
       commands = _.assign(commands, {
-        run: (context) => {
-          let subscription = this.properties.updateStream.subscribe((streamEvent) => {
+        run: (context, properties) => {
+          let subscription = properties.updateStream.subscribe((streamEvent) => {
             let ee = streamEvent.value();
-            const loopTime = _.isUndefined(ee.loopTime) ? this.properties.loopTime : ee.loopTime;
+            const loopTime = _.isUndefined(ee.loopTime) ? properties.loopTime : ee.loopTime;
             let epoch = ee.epoch || context.epoch || (_.now() + 200);
             if (epoch !== context.epoch) {
               context = player.updateContext(context, {
@@ -105,7 +108,7 @@ export default class SynthEventList extends Dryad {
             player.callCommand(context.id, {
               scserver: {
                 // need to set epoch as well because OSCSched uses that for relative times
-                schedLoop: (ctx) => this._makeSchedLoop(ee.events || [], loopTime, ctx)
+                schedLoop: (ctx/*, props*/) => this._makeSchedLoop(ee.events || [], loopTime, ctx)
               }
             });
           });

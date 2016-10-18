@@ -32,7 +32,10 @@ export default class SCServer extends Dryad {
 
   prepareForAdd() : Object {
     return {
-      scserver: (context) => boot(_.defaults(this.properties.options, {log: context.log}))
+      callOrder: 'SELF_THEN_CHILDREN',
+      updateContext: (context, properties) => ({
+        scserver: boot(_.defaults(properties.options, {log: context.log}))
+      })
     };
   }
 
