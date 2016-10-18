@@ -1,7 +1,5 @@
+/* eslint no-console: 0 */
 
-jest.autoMockOff();
-
-// imports are getting mocked
 // import {SclangIO, STATES} from '../sclang-io';
 
 var scio = require('../sclang-io');
@@ -163,6 +161,7 @@ describe('sclang-io', function() {
         // ERROR: Quarks-install: path does not exist /Users/crucial/wrong
         // to STDOUT ?
         io.on('stdout', (out) => {
+          console.log('test STDOUT', out);
           resolve(true);
         });
 

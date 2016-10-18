@@ -9,7 +9,7 @@
  *
  */
 
-import {Promise} from 'bluebird';
+import { Promise } from 'bluebird';
 
 var path = require('path'),
     join = path.join,
@@ -18,7 +18,7 @@ var path = require('path'),
     yaml = require('js-yaml'),
     fs   = require('fs'),
     _ = require('lodash');
-import SCError from './Errors';
+import SCError from '../Errors';
 
 function defaultOptions() {
   // should get this from server/default-server-options.json
