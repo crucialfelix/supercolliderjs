@@ -23,6 +23,7 @@ export default class AudioBus extends Dryad {
 
   prepareForAdd() : Object {
     return {
+      callOrder: 'SELF_THEN_CHILDREN',
       updateContext: (context, properties) => ({
         out: context.scserver.state.allocAudioBus(properties.numChannels),
         numChannels: properties.numChannels

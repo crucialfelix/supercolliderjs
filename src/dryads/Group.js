@@ -20,13 +20,21 @@ export default class Group extends Dryad {
 
   prepareForAdd() : Object {
     return {
-      updateContext: (context/*, properties*/) => ({
-        nodeID: context.scserver.state.nextNodeID(),
-        parentGroup: context.group || 0,
-        // TODO: but this overwrites my own group !
-        // what if parent is a group ?
-        group: context.nodeID
-      })
+      callOrder: 'SELF_THEN_CHILDREN',
+      updateContext: (context/*, properties*/) => {
+        const nodeID = context.scserver.state.nextNodeID();
+        return {
+          nodeID,
+          // TODO: but this overwrites my own group !
+          // what if parent is a group ?
+          // I need to create this group within that group
+          // This should just be childContext,
+          // but that is only called when creating the tree.
+          group: nodeID,
+          // for now, save it to parentGroup
+          parentGroup: context.group || 0,
+        };
+      }
     };
   }
 
