@@ -44,6 +44,13 @@ export default class Synth extends Dryad {
       scserver: {
         msg: (context, properties) => {
           let args = _.mapValues(properties.args, (value, key) => this._checkOscType(value, key, context.id));
+          // if out is not set in args and out is in synthdef
+          // then set it from context
+          // TODO: check that synthDef has an arg named out
+          if (_.isUndefined(args.out) && !_.isUndefined(context.out)) {
+            args.out = context.out;
+          }
+
           let defName = this._checkOscType(properties.def, 'synthDefName', context.id);
           return synthNew(defName, context.nodeID, AddActions.TAIL, context.group, args);
         }
