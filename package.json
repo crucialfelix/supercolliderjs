@@ -35,8 +35,7 @@
     "baconjs": "^0.7.88",
     "eslint": "^3.8.1",
     "eslint-plugin-flowtype": "^2.20.0",
-    "jest-cli": "^16.0.1",
-    "jscs": "^3.0.7"
+    "jest-cli": "^16.0.1"
   },
   "license": "MIT",
   "keywords": [
@@ -62,7 +61,6 @@
     "test": "jest && npm run lint",
     "lint": "eslint -c .eslintrc src bin",
     "jest": "npm run build && jest --watch",
-    "jsstyle": "jscs src bin examples/*.js",
     "compile": "babel --source-maps --out-dir=./lib src",
     "watch": "babel --watch --source-maps --out-dir=./lib src",
     "copy": "cp src/server/*.json lib/server/ && cp -R src/supercollider-js lib/",
