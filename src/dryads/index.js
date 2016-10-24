@@ -1,3 +1,4 @@
+/* @flow */
 import scserver from './middleware/scserver';
 
 import SCServer from './SCServer';
@@ -10,7 +11,9 @@ import SynthControl from './SynthControl';
 import SynthStream from './SynthStream';
 import SynthEventList from './SynthEventList';
 
+// confusing to swap the names like this
 import {dryadic as makeDryadPlayer} from 'dryadic';
+import type { Dryad, DryadPlayer } from 'dryadic';
 
 // re-export all the Dryad classes
 export {
@@ -26,21 +29,25 @@ export {
 };
 
 // export the layer for app = dryadic().use(layer)
+const middleware:[Function] = [
+  scserver
+];
+
+const classes:[Dryad] = [
+  SCServer,
+  SCLang,
+  Group,
+  Synth,
+  AudioBus,
+  SCSynthDef,
+  SynthControl,
+  SynthStream,
+  SynthEventList
+];
+
 export const layer = {
-  middleware: [
-    scserver
-  ],
-  classes: [
-    SCServer,
-    SCLang,
-    Group,
-    Synth,
-    AudioBus,
-    SCSynthDef,
-    SynthControl,
-    SynthStream,
-    SynthEventList
-  ]
+  middleware,
+  classes
 };
 
 
@@ -67,7 +74,7 @@ export const layer = {
  *   ...
  *   player.stop();
  */
-export function dryadic(rootDryad, moreLayers=[], rootContext={}) {
+export function dryadic(rootDryad:Dryad, moreLayers:[any]=[], rootContext:Object={}) : DryadPlayer {
   return makeDryadPlayer(rootDryad, [layer].concat(moreLayers), rootContext);
 }
 
@@ -92,7 +99,7 @@ export function dryadic(rootDryad, moreLayers=[], rootContext={}) {
  * @param {Dryad|Array} rootDryad - Dryad object or hyperscript document
  * @returns {DryadPlayer}
  */
-export function play(rootDryad) {
+export function play(rootDryad:Dryad) : DryadPlayer {
   return dryadic(rootDryad).play();
 }
 
@@ -103,7 +110,7 @@ export function play(rootDryad) {
  * This lookups each class by lower class 'classname'
  * and creates an instance with properties and children.
  */
-export function h(hgraph) {
+export function h(hgraph:any) : Dryad {
   let player = dryadic();
   return player.h(hgraph);
 }

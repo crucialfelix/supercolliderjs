@@ -1,9 +1,11 @@
-
-import {Dryad} from 'dryadic';
+/* @flow */
+import * as _  from 'lodash';
+import { Dryad } from 'dryadic';
+import type { DryadPlayer } from 'dryadic';
 import Group from './Group';
-import {synthNew, AddActions} from '../server/osc/msg.js';
-import * as _  from 'underscore';
+import { synthNew, nodeFree, AddActions } from '../server/osc/msg.js';
 
+const LATENCY = 0.03;
 
 /**
  * Given a Bacon.js stream that returns objects, this spawns a series of Synths.
@@ -26,34 +28,91 @@ import * as _  from 'underscore';
  */
 export default class SynthStream extends Dryad {
 
-  add(player) {
+  add(player:DryadPlayer) : Object {
     return {
-      run: (context) => {
-        let subscription = this.properties.stream.subscribe((event) => {
+      run: (context:Object, properties:Object) => {
+        let subscription = properties.stream.subscribe((event) => {
           // This assumes a Bacon event.
           // Should validate that event.value is object
-          let ev = event.value();
-          let defaultParams = this.properties.defaultParams || {};
-          const args = _.assign({out: context.out || 0}, defaultParams.args, ev.args);
-          const defName = ev.defName || this.properties.defaultParams.defName;
-          const synth = synthNew(defName, -1, AddActions.TAIL, context.group, args);
-          player.callCommand(context.id, {
-            scserver: {
-              bundle: {
-                time: 0.03,
-                packets: [synth]
-              }
-            }
-          });
+          // assumes context has not been updated and is the same event
+          // use player.getContext()
+          this.handleEvent(event.value(), context, properties, player);
         });
         player.updateContext(context, {subscription});
       }
+      // initial event
+      // scserver: {
+      //   bundle: ()
+      // }
     };
   }
 
-  remove() {
+  commandsForEvent(event:Object, context:Object, properties:Object) : Object {
+    const msgs = [];
+    let updateContext;
+    let nodeIDs = context.nodeIDs || {};
+    let key = event.key ? String(event.key) : undefined;
+
+    switch (event.type) {
+
+      case 'noteOff': {
+        // if no key then there is no way to shut off notes
+        // other than sending to the group
+        let nodeID:number = nodeIDs[key];
+        if (nodeID) {
+          msgs.push(nodeFree(nodeID));
+          // TODO: if synthDef hasGate else just free it
+          // msgs.push(nodeSet(nodeID, [event.gate || 'gate', 0]));
+          // remove from nodeIDs
+          updateContext = {
+            nodeIDs: _.omit(nodeIDs, [key])
+          };
+        } else {
+          throw new Error(`NodeID was not registered for event key ${key || 'undefined'}`);
+        }
+        break;
+      }
+
+      default: {
+        // noteOn
+        let defaultParams = properties.defaultParams || {};
+        const args = _.assign({out: context.out || 0}, defaultParams.args, event.args);
+        const defName = event.defName || properties.defaultParams.defName;
+        // if ev.id then create a nodeID and store it
+        // otherwise it is anonymous
+        let nodeID = -1;
+        if (key) {
+          nodeID = context.scserver.state.nextNodeID();
+          // store the nodeID
+          updateContext = {
+            nodeIDs: _.assign({}, nodeIDs, {
+              [key]: nodeID
+            })
+          };
+        }
+        const synth = synthNew(defName, nodeID, AddActions.TAIL, context.group, args);
+        msgs.push(synth);
+      }
+    }
+
     return {
-      run: (context) => {
+      scserver: {
+        bundle: {
+          time: LATENCY,
+          packets: msgs
+        }
+      },
+      updateContext
+    };
+  }
+
+  handleEvent(event:Object, context:Object, properties:Object, player:DryadPlayer) {
+    player.callCommand(context.id, this.commandsForEvent(event, context, properties));
+  }
+
+  remove() : Object {
+    return {
+      run: (context:Object) => {
         if (context.subscription) {
           if (_.isFunction(context.subscription)) {
             // baconjs style
@@ -67,7 +126,7 @@ export default class SynthStream extends Dryad {
     };
   }
 
-  subgraph() {
+  subgraph() : Dryad {
     return new Group({}, [this]);
   }
 }

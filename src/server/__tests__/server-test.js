@@ -1,10 +1,5 @@
 
-// jest.autoMockOn();
-jest.dontMock('../server');
-jest.dontMock('../ServerState');
-jest.dontMock('../internals/SendOSC');
-jest.dontMock('rx');
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 import {EventEmitter} from 'events';
 
 var Server = require('../server').Server;

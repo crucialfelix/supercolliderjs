@@ -1,7 +1,6 @@
-import * as _  from 'underscore';
+import * as _  from 'lodash';
 
-jest.dontMock('../middleware/OSCSched');
-var OSCSched = require('../middleware/OSCSched').default;
+import OSCSched from '../OSCSched';
 
 
 describe('OSCSched', function() {

@@ -1,4 +1,6 @@
-
+/**
+ * Plays a repeating sequence of two notes forever and ever.
+ */
 var sc = require('../index.js');
 
 function saw(children) {

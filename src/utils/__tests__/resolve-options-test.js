@@ -1,9 +1,6 @@
 
-
-jest.autoMockOff();
-jest.dontMock('../resolveOptions');
 var resolveOptions = require('../resolveOptions').default;
-var _ = require('underscore');
+var _ = require('lodash');
 
 describe('resolveOptions', function() {
 
@@ -17,12 +14,12 @@ describe('resolveOptions', function() {
   });
 
   pit('should reject if configPath does not exist', function() {
-    var badPath = '/bad/path.yaml';
+    var badPath = '/---~no-way-do-you-have-this-path-on-your-computer~---/bad/path.yaml';
     return resolveOptions(badPath, {}).then(() => {
       this.fail('should not have resolved');
     }, function(err) {
       expect(err.message).toBeTruthy();
-      expect(err.configPath).toEqual(badPath);
+      expect(err.message).toContain(badPath);
     });
   });
 

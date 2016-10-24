@@ -1,7 +1,8 @@
-
+/* @flow */
 import {Dryad} from 'dryadic';
+import type { DryadPlayer } from 'dryadic';
 import {nodeSet} from '../server/osc/msg';
-import * as _  from 'underscore';
+import * as _  from 'lodash';
 
 
 /**
@@ -19,15 +20,15 @@ export default class SynthControl extends Dryad {
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer
    */
-  requireParent() {
+  requireParent() : string {
     return 'SCServer';
   }
 
-  add(player) {
+  add(player:DryadPlayer) : Object {
     return {
-      run: (context) => {
-        if (this.properties.stream) {
-          let subscription = this.properties.stream
+      run: (context, properties) => {
+        if (properties.stream) {
+          let subscription = properties.stream
             .subscribe((event) => {
               // This assumes a Bacon event.
               // Should validate that event.value is object
@@ -47,7 +48,7 @@ export default class SynthControl extends Dryad {
     };
   }
 
-  remove() {
+  remove() : Object {
     return {
       run: (context) => {
         if (context.subscription) {

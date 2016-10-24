@@ -1,8 +1,4 @@
 
-jest.dontMock('../index');
-jest.dontMock('../SCServer');
-jest.dontMock('../Group');
-
 var dryads = require('../index');
 var SCServer = require('../SCServer').default;
 

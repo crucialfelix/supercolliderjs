@@ -20,10 +20,10 @@
  *   send.msg     - send an OSC message
  */
 
-import {EventEmitter} from 'events';
+import EventEmitter from 'events';
 import {Observable, Subject} from 'rx';
 import {spawn} from 'child_process';
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 import * as dgram from 'dgram';
 import * as osc from 'osc-min';
 import {Promise} from 'bluebird';
@@ -35,6 +35,8 @@ import defaultOptions from './default-server-options.json';
 import Logger from '../utils/logger';
 import resolveOptions from '../utils/resolveOptions';
 import ServerState from './ServerState';
+
+import type {CallAndResponseType, MsgType} from '../Types';
 
 
 export class Server extends EventEmitter {
@@ -100,7 +102,13 @@ export class Server extends EventEmitter {
     this.log = new Logger(this.options.debug, this.options.echo, this.options.log);
     this.send.subscribe((event) => {
       // will be a type:msg or type:bundle
-      var out = JSON.stringify(event.payload || event, null, 2);
+      // if args has a type: Buffer in it then compress that
+      var out = JSON.stringify(event.payload || event, (k:string, v:any):any => {
+        if (k === 'data' && _.isArray(v)) {
+          return _.reduce(v, (memo:string, n:number):string => memo + (n).toString(16), '');
+        }
+        return v;
+      }, 2);
       if (!this.osc) {
         out = '[NOT CONNECTED] ' + out;
       }
@@ -112,7 +120,7 @@ export class Server extends EventEmitter {
       if (o[0] === '/fail') {
         this.log.err(o);
       }
-    }, (err) => this.log.err(err));
+    }, (err:Error) => this.log.err(err));
     this.stdout.subscribe((o) => {
       // scsynth doesn't send ERROR messages to stderr
       // if ERROR or FAILURE in output then redirect as though it did
@@ -122,8 +130,8 @@ export class Server extends EventEmitter {
       } else {
         this.log.stdout(o);
       }
-    }, (o) => this.log.stderr(o));
-    this.processEvents.subscribe((o) => this.log.dbug(o), (o) => this.log.err(o));
+    }, (err:Error) => this.log.stderr(err));
+    this.processEvents.subscribe((o) => this.log.dbug(o), (err:Error) => this.log.err(err));
   }
 
   /**
@@ -222,7 +230,7 @@ export class Server extends EventEmitter {
 
       setTimeout(() => {
         if (!this.isRunning) {
-          reject();
+          reject(new Error('Server failed to start in 3000ms'));
         }
       }, 3000);
     });
@@ -406,7 +414,7 @@ export class Server extends EventEmitter {
    * @param {int} timeout - in milliseconds before rejecting the Promise
    * @returns {Promise} - resolves with all values the server responsed with after the matched response.
    */
-  callAndResponse(callAndResponse:Object, timeout:number=4000) {
+  callAndResponse(callAndResponse:CallAndResponseType, timeout:number=4000) : Promise<MsgType> {
     var promise = this.oscOnce(callAndResponse.response, timeout);
     this.send.msg(callAndResponse.call);
     return promise;
@@ -421,7 +429,7 @@ export class Server extends EventEmitter {
  * @param {Store} store - optional external Store to hold Server state
  * @returns {Promise} - resolves with the Server
  */
-export function boot(options:Object={}, store:any=null) {
+export function boot(options:Object={}, store:any=null) : Promise<Server> {
   return resolveOptions(undefined, options).then((opts) => {
     var s = new Server(opts, store);
     return s.boot().then(() => s.connect()).then(() => s);

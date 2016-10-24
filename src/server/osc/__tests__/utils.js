@@ -1,8 +1,6 @@
 
-jest.dontMock('../utils');
-jest.dontMock('osc-min');
 var utils = require('../utils');
-var _ = require('underscore');
+var _ = require('lodash');
 
 describe('parseMessage', function() {
   it('should parse a message', function() {
@@ -19,6 +17,7 @@ describe('parseMessage', function() {
     };
     var p = utils.parseMessage(msg);
     expect(_.isArray(p)).toBe(true);
+    expect(p).toEqual(['/n_go', 1000, 0, -1, 3, 0]);
     expect(p.length).toBe(6);
   });
 });

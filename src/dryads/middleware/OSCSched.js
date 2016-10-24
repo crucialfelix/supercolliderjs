@@ -1,5 +1,5 @@
 /* @flow */
-import * as _  from 'underscore';
+import * as _  from 'lodash';
 import { deltaTimeTag } from '../../server/osc/utils';
 
 /**
@@ -65,6 +65,10 @@ export default class OSCSched {
    */
   schedLoop(getNextFn:Function, epoch:?number) {
     this.getNextFn = getNextFn;
+    if (!this.getNextFn) {
+      throw new Error('getNextFn is null');
+    }
+
     if (epoch) {
       this.epoch = epoch;
     }

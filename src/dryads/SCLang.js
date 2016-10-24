@@ -1,7 +1,7 @@
 /* @flow */
 import {Dryad} from 'dryadic';
 import {boot} from '../lang/sclang';
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 
 const defaultOptions = {
   debug: true,
@@ -28,13 +28,16 @@ export default class SCLang extends Dryad {
     };
   }
 
-  prepareForAdd() {
+  prepareForAdd() : Object {
     return {
-      sclang: (context: Object) => boot(_.defaults(this.properties.options, {log: context.log}))
+      callOrder: 'SELF_THEN_CHILDREN',
+      updateContext: (context, properties) => ({
+        sclang: boot(_.defaults(properties.options, {log: context.log}))
+      })
     };
   }
 
-  remove() {
+  remove() : Object {
     return {
       run: (context: Object) => {
         return context.sclang.quit();

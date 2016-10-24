@@ -27,10 +27,11 @@ var
   events = require('events'),
   dgram = require('dgram'),
   osc = require('osc-min'),
-  uuid = require('node-uuid'),
-  _ = require('underscore'),
+  cuid = require('cuid'),
+  _ = require('lodash'),
   Promise = require('bluebird');
 
+import SCError from './Errors';
 import Logger from './utils/logger';
 
 
@@ -77,7 +78,7 @@ export class SCAPI extends events.EventEmitter {
         clumps,
         self = this;
 
-      requestId = _.isUndefined(requestId) ? uuid() : requestId;
+      requestId = _.isUndefined(requestId) ? cuid() : requestId;
       args = args ? args : [];
       if (!_.isString(oscpath)) {
         self.log.err('Bad oscpath' + oscpath);
@@ -161,7 +162,7 @@ export class SCAPI extends events.EventEmitter {
     if (signal === 'reply') {
       request.resolve(response);
     } else {
-      request.reject(response);
+      request.reject(new SCError('API Error response', response));
     }
     delete this.requests[requestId];
   }

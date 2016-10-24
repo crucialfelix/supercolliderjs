@@ -1,7 +1,9 @@
-
-import {EventEmitter} from 'events';
-import {Observable} from 'rx';
-import {makeBundle, makeMessage, deltaTimeTag} from '../osc/utils';
+/* @flow */
+import EventEmitter from 'events';
+import { Observable } from 'rx';
+import { makeBundle, makeMessage, deltaTimeTag } from '../osc/utils';
+import type { MsgType, OSCTimeType } from '../../Types';
+import type { Disposable } from 'Rx';
 
 /**
  * Owned by the Server, this is an object that you call .msg or .bundle on
@@ -12,7 +14,7 @@ import {makeBundle, makeMessage, deltaTimeTag} from '../osc/utils';
  */
 export default class SendOSC extends EventEmitter {
 
-  msg(message) {
+  msg(message:MsgType) {
     this.emit('msg', makeMessage(message));
   }
 
@@ -33,7 +35,7 @@ export default class SendOSC extends EventEmitter {
   * @param {Array} packets - osc messages as [address, arg1, ...argN]
   *                        or bundles as Objects: .timeTag .packets
   */
-  bundle(time, packets) {
+  bundle(time:OSCTimeType, packets:[MsgType]) {
     if ((typeof time === 'number') && (time < 10000)) {
       time = deltaTimeTag(time);
     }
@@ -51,7 +53,7 @@ export default class SendOSC extends EventEmitter {
    * @param {Number} delta
    * @param {Date} now - optional, default new Date
    */
-  deltaTimeTag(delta, now) {
+  deltaTimeTag(delta:number, now:?Date) : [number] {
     return deltaTimeTag(delta, now);
   }
 
@@ -62,9 +64,12 @@ export default class SendOSC extends EventEmitter {
    *
    * @returns {Rx.Disposable} - `thing.dispose();` to unsubscribe
    */
-  subscribe(onNext, onError, onComplete) {
+  subscribe(onNext:Function, onError:?Function, onComplete:?Function) : Disposable {
     var msgs = Observable.fromEvent(this, 'msg', (msg) => {
-      return {type: 'msg', payload: msg};
+      return {
+        type: 'msg',
+        payload: msg
+      };
     });
     var bundles = Observable.fromEvent(this, 'bundle', (bundle) => {
       return {

@@ -1,6 +1,8 @@
+/* @flow */
 
-import _ from 'underscore';
+import _ from 'lodash';
 import * as osc from 'osc-min';
+import type { MsgType, OSCMinMsgType, OSCTimeType } from '../../Types';
 
 /**
  * Convert full OSC message to a simple Array
@@ -18,18 +20,19 @@ import * as osc from 'osc-min';
 
     ['/n_go', 1000, 0, -1, 3, 0]
  */
-export function parseMessage(msg) {
+export function parseMessage(msg:OSCMinMsgType) : MsgType {
   if (msg.oscType === 'bundle') {
-    return [timetagToDate(msg.timetag)].concat(_.map(msg.elements, parseMessage));
+    return [timetagToDate(msg.timetag)].concat(msg.elements.map(parseMessage));
   }
-  return [msg.address].concat(_.pluck(msg.args, 'value'));
+  // for each msg.arg pluck just value
+  return [msg.address].concat(msg.args.map((a) => a.value));
 }
 
 
 /**
  * Format an object for osc-min message
  */
-export function makeMessage(msg) {
+export function makeMessage(msg:MsgType) : OSCMinMsgType {
   return {
     oscType: 'message',
     address: msg[0],
@@ -48,7 +51,7 @@ export function makeMessage(msg) {
  * @param {Array} packets - osc messages as [address, arg1, ...argN]
  *                        or bundles as Objects: .timeTag .packets
  */
-export function makeBundle(time, packets) {
+export function makeBundle(time:OSCTimeType, packets:[MsgType]) : OSCMinMsgType {
   return {
     oscType: 'bundle',
     timetag: time,
@@ -61,11 +64,12 @@ export function makeBundle(time, packets) {
  *
  * @private
  */
-export function asPacket(thing) {
+export function asPacket(thing:[MsgType]|MsgType) : OSCMinMsgType {
   if (_.isArray(thing)) {
     return makeMessage(thing);
   }
-  return makeBundle(thing.timeTag, thing.packets || []);
+  let bundle = (thing: MsgType);  // typecast
+  return makeBundle(bundle.timeTag, bundle.packets || []);
 }
 
 

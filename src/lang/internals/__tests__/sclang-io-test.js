@@ -1,7 +1,5 @@
+/* eslint no-console: 0 */
 
-jest.autoMockOff();
-
-// imports are getting mocked
 // import {SclangIO, STATES} from '../sclang-io';
 
 var scio = require('../sclang-io');
@@ -150,23 +148,24 @@ describe('sclang-io', function() {
       var io = new SclangIO();
       io.setState(STATES.READY);
 
-      // stick a blank Promise into register so it will
-      // parse the response
-      io.registerCall('725282d0-a31c-11e5-9a22-59ba9f49924a', {
+      // Stick a blank Promise into register so it will
+      // parse the response. Must be the same id as in the fixture.
+      io.registerCall('citjy45o00002xpxp9dapi2tt', {
         resolve: () => {},
         reject: () => {}
       });
 
       return new Promise((resolve) => {
         // this is what is really being tested:
-        // does it post to STDOUT
-        io.on('stdout', (/*out*/) => {
-          // console.log('STDOUT:', out);
+        // does it post the stuff inside CAPTURE
+        // ERROR: Quarks-install: path does not exist /Users/crucial/wrong
+        // to STDOUT ?
+        io.on('stdout', (out) => {
+          console.log('test STDOUT', out);
           resolve(true);
         });
 
-        var text = readFile('forward-stdout.txt');
-        io.parse(text);
+        io.parse(readFile('forward-stdout.txt'));
       });
     });
   });

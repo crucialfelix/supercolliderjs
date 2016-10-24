@@ -11,10 +11,3 @@ declare class Socket {
 declare module dgram {
   declare function createSocket(type: string): Socket;
 }
-
-
-// dryadic
-declare class DryadPlayer {
-  callCommand(id: string, command: Object): void;
-  updateContext(context: Object, update: Object): Object;
-}
