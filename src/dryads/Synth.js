@@ -51,7 +51,7 @@ export default class Synth extends Dryad {
             args.out = context.out;
           }
 
-          let defName = this._checkOscType(properties.def, 'synthDefName', context.id);
+          let defName = this._checkOscType(properties.def && properties.def.name, 'def.name', context.id);
           return synthNew(defName, context.nodeID, AddActions.TAIL, context.group, args);
         }
       },
@@ -59,7 +59,7 @@ export default class Synth extends Dryad {
         return whenNodeGo(context.scserver, context.id, context.nodeID)
           .then((nodeID) => {
             // TODO: call a method instead so its testable
-            updateNodeState(context.scserver, context.nodeID, {synthDef: properties.def});
+            updateNodeState(context.scserver, context.nodeID, {synthDef: properties.def.name});
             return nodeID;
           });
       }

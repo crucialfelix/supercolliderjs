@@ -23,7 +23,7 @@ const StateKeys = {
  *  - watch  (Boolean)     - watch compileFrom file and recompile on changes
  *  - saveToDir   - path to save compiled .scsyndef to after compiling
  *  - loadFrom    - path of previously compiled .scsyndef file to load to server
- *  							This can be used to load SynthDefs without needing sclang running at all.
+ *               This can be used to load SynthDefs without needing sclang running at all.
  *
  * `synthDef` is set in the context for children Dryads to access.
  * It is an object:
@@ -31,9 +31,7 @@ const StateKeys = {
  * - .bytes
  * - .synthDesc object with descriptive meta data
  *
- * `synthDefName` is also set in context for children Dryads
- *
- * The synthDefName is not known until after the source code is compiled.
+ * Note that the synthDefName is not known until after the source code is compiled.
  *
  */
 export default class SCSynthDef extends Dryad {
@@ -88,7 +86,8 @@ export default class SCSynthDef extends Dryad {
     // synthDefName should be set for child context
     this.putSynthDef(context, result.name, result.synthDesc);
     // you need to use a setter
-    context.synthDefName = result.name;
+    context.synthDef = result;
+    // context.synthDefName = result.name;
     let buffer = new Buffer(result.bytes);
     let promises = [
       context.scserver.callAndResponse(defRecv(buffer))
@@ -175,8 +174,8 @@ export default class SCSynthDef extends Dryad {
       scserver: {
         // no need to do this if server has gone away
         msg: (context) => {
-          if (context.synthDefName) {
-            return defFree(context.synthDefName);
+          if (context.synthDef) {
+            return defFree(context.synthDef.name);
           }
         }
       },
@@ -196,14 +195,13 @@ export default class SCSynthDef extends Dryad {
   }
 
   /**
-   * Return the value of this object, which is the synthDefName for use in /s_new.
-   *
-   * Could return the whole synthDef data object.
+   * Return the value of this object, which is the synthDef: {name, bytes, synthDesc} 
+   * for use in /s_new.
    */
   value(context:Object) : string {
-    if (!context.synthDefName) {
-      throw new Error('No synthDefName in context for SCSynthDef');
+    if (!context.synthDef) {
+      throw new Error('No synthDef in context for SCSynthDef');
     }
-    return context.synthDefName;
+    return context.synthDef;
   }
 }
