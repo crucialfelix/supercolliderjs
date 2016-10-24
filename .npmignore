@@ -11,5 +11,6 @@ docs/
 esdoc/
 esdoc.json
 examples/
+tests/
 org
 src/
