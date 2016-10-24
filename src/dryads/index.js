@@ -11,6 +11,7 @@ import SynthControl from './SynthControl';
 import SynthStream from './SynthStream';
 import SynthEventList from './SynthEventList';
 
+// confusing to swap the names like this
 import {dryadic as makeDryadPlayer} from 'dryadic';
 import type { Dryad, DryadPlayer } from 'dryadic';
 
