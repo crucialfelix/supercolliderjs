@@ -81,7 +81,8 @@ export default function scserver(command:Object, context:Object, properties:Obje
     // send a single OSC message
     if (cmds.msg) {
       // TODO get default latency from context
-      context.scserver.send.bundle(0.03, [cmds.msg]);
+      // TODO: should collect all messages into one bundle, in order
+      context.scserver.send.bundle(0.05, [cmds.msg]);
     }
 
     // send an OSC bundle
