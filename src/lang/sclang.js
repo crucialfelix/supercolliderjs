@@ -14,7 +14,7 @@
  * @ -- flow  -- not quite ready
  */
 
-import * as _ from 'lodash';
+import _ from 'lodash';
 import cuid from 'cuid';
 import fs from 'fs';
 import temp from 'temp';

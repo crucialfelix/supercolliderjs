@@ -1,5 +1,5 @@
 /* @flow */
-import * as _  from 'lodash';
+import _ from 'lodash';
 import OSCSched from './OSCSched';
 import type { MsgType } from '../../Types';
 

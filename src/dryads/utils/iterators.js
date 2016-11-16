@@ -1,5 +1,5 @@
 /* @flow */
-import * as _  from 'lodash';
+import _ from 'lodash';
 
 export function sortEvents(events: Array<Object>) {
   return events.sort((a, b) => a.time - b.time);

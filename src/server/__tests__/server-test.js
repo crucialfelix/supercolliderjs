@@ -1,5 +1,5 @@
 
-import * as _ from 'lodash';
+import _ from 'lodash';
 import {EventEmitter} from 'events';
 
 var Server = require('../server').Server;

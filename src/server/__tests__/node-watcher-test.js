@@ -2,7 +2,7 @@
 
 var nw = require('../node-watcher');
 var Server = require('../server').Server;
-import * as _ from 'lodash';
+import _ from 'lodash';
 import {Promise} from 'bluebird';
 
 

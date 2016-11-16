@@ -1,7 +1,7 @@
 /* @flow */
 import { Map, List} from 'immutable';
-import * as _ from 'lodash';
 import {Promise} from 'bluebird';
+import _ from 'lodash';
 import type { Disposable } from 'Rx';
 import type { Server } from './server';
 import type { NodeStateType } from '../Types';
