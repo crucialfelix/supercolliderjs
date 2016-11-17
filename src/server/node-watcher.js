@@ -1,9 +1,20 @@
-/* @flow */
+/**
+ * Functions for watching scsynth's node lifecycle notifications.
+ *
+ * Node states and metadata are stored in server.state, so most
+ * useful information can be retrieved from there.
+ *
+ * These functions here are for registering callbacks.
+ *
+ * @flow
+ * @module node-watcher
+ *
+ */
 import { Map, List} from 'immutable';
-import {Promise} from 'bluebird';
 import _ from 'lodash';
+import { Promise } from 'bluebird';
 import type { Disposable } from 'Rx';
-import type { Server } from './server';
+import type Server from './server';
 import type { NodeStateType } from '../Types';
 
 const keys = {
@@ -14,25 +25,24 @@ const keys = {
   ON_NODE_END: 'ON_NODE_END'
 };
 
-/**
-server.state
-  NODE_WATCHER
-    ON_NODE_GO
-      {nodeID}: [handlerId, ...]
-    ON_NODE_END:
-      {nodeID}: [handlerId, ...]
-    CALLBACKS:
-      {handlerId}: handler
-    NODES:
-      {nodeID}: info dict
-**/
 
 /**
- * Watch server OSC receive for any n_XXX messages
- * Save info for node and call any registered callbacks.
+ * Watch server OSC receive for any n_XXX messages:
+ *
+ * - `n_go`
+ * - `n_end`
+ * - `n_on`
+ * - `n_off`
+ * - `n_move`
+ * - `n_info`
+ *
+ * Save all of the supplied info for the node
+ * and call any registered callbacks.
  *
  * Initially there is no need to unwatch unless you are
- * creating and discarding Server objects which can happen during testing.
+ * creating and discarding Server objects which can happen
+ * during testing.
+ *
  * TODO: add Server.destroy
  *
  * @param {Server} server
@@ -59,7 +69,7 @@ export function watchNodeNotifications(server:Server) : Disposable {
 
 
 /**
- * Call a function when the server sends an /n_go message
+ * Call a function when the server sends an `/n_go` message
  * One callback allowed per id and node
  * The id is usually a context id but could be a random guid
  *
@@ -75,8 +85,11 @@ export function onNodeGo(server:Server, id:string, nodeID:number, handler:Functi
 
 
 /**
- * Returns a Promise that resolves when the server sends an /n_go message
- * The id is usually a context id but could be a random guid
+ * Returns a Promise that resolves when the server sends an
+ * `/n_go` message.
+ *
+ * The id is usually a context id (dryadic) but could be any random guid.
+ * It can be anything you want to supply as long as it is unique.
  *
  * @param {Server} server
  * @param {String} id - unique id for this callback registration
@@ -91,7 +104,7 @@ export function whenNodeGo(server:Server, id:string, nodeID:number) : Promise<nu
 
 
 /**
- * Call a function when the server sends an /n_end message
+ * Call a function when the server sends an `/n_end` message
  * One callback allowed per id and node.
  *
  * @param {Server} server
@@ -106,7 +119,8 @@ export function onNodeEnd(server:Server, id:string, nodeID:number, handler:Funct
 
 
 /**
- * Returns a Promise that resolves when the server sends an /n_end message
+ * Returns a Promise that resolves when the server sends an `/n_end` message.
+ *
  * The id is usually a context id but could be a random guid
  */
 export function whenNodeEnd(server:Server, id:string, nodeID:number) : Promise<number> {
@@ -122,7 +136,9 @@ export function whenNodeEnd(server:Server, id:string, nodeID:number) : Promise<n
 // }
 
 /**
- * Update values in the Server's node state registery
+ * Update values in the Server's node state registery.
+ *
+ * This is for internal use.
  */
 export function updateNodeState(server:Server, nodeID:number, nodeState:NodeStateType) {
   // unless its n_end then delete
@@ -133,8 +149,9 @@ export function updateNodeState(server:Server, nodeID:number, nodeState:NodeStat
   });
 }
 
-/***   @private  ************************************************/
-
+/**
+ * @private
+ */
 function _registerHandler(type, server:Server, id:string, nodeID:number, handler:Function) : Function {
 
   var dispose = () => {
@@ -164,7 +181,9 @@ function _registerHandler(type, server:Server, id:string, nodeID:number, handler
 }
 
 /**
- * Delete a handler from state object
+ * Delete a handler from state object.
+ *
+ * @private
  */
 function _disposeHandler(type, server:Server, id, nodeID:number) {
   server.state.mutate(keys.NODE_WATCHER, (state) => {
@@ -183,6 +202,9 @@ function _disposeHandler(type, server:Server, id, nodeID:number) {
   });
 }
 
+/**
+ * @private
+ */
 function _handlersFor(server:Server, type, nodeID:number) {
   return server.state.getIn([keys.NODE_WATCHER, type, String(nodeID)], List())
     .map((handlerId) => {
@@ -190,6 +212,9 @@ function _handlersFor(server:Server, type, nodeID:number) {
     });
 }
 
+/**
+ * @private
+ */
 function _saveNodeState(server:Server, set, msg) {
   const nodeID = msg[0];
   const isGroup = msg[4] > 0;
@@ -206,7 +231,9 @@ function _saveNodeState(server:Server, set, msg) {
 }
 
 /**
- * Call any handlers registered for n_XXX events
+ * Call any handlers registered for n_XXX events.
+ *
+ * @private
  */
 function _callNodeHandlers(server:Server, eventType, nodeID:number) {
   _handlersFor(server, eventType, nodeID).forEach((h) => h(nodeID));

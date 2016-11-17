@@ -2,11 +2,14 @@
 import { Map } from 'immutable';
 
 /**
- * A store that holds the state tree.
+ * A Store that holds a state tree. This is used by ServerState as
+ * its immutable memory storage.
  *
- * Holds an Immutable Map and offers functions to mutate sub-states in that tree,
- * and stores the new state.
+ * Holds an Immutable.Map
+ * and offers functions to mutate sub-states
+ * in that tree, and stores the new state.
  *
+ * https://facebook.github.io/immutable-js/docs/#/Map
  */
 export default class Store {
 

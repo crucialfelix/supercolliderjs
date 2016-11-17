@@ -1,4 +1,8 @@
-/* @flow */
+/**
+ * @flow
+ * @module iterators
+ * @ temp off - memberof dryads
+ */
 import _ from 'lodash';
 
 export function sortEvents(events: Array<Object>) {

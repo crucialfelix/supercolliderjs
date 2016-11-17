@@ -1,4 +1,8 @@
-/* @flow */
+/**
+ * @flow
+ * @module allocators
+ * @ private
+ */
 import * as Immutable from 'immutable';
 
 // immutable list of numbers
@@ -14,7 +18,7 @@ type BlockMapType = Immutable.Map<string, *>;
  * @param {int} initial
  * @returns {Array} [next {int}, state {int}]
  */
-export function increment(state:number, initial:number=0) : [number] {
+export function increment(state:number, initial:number=0) : [number, number] {
   let next = (state || initial) + 1;
   return [next, next];
 }

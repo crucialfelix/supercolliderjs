@@ -1,4 +1,7 @@
-/* @flow */
+/**
+ * @module dryads
+ * @flow
+ */
 import scserver from './middleware/scserver';
 
 import SCServer from './SCServer';

@@ -1,23 +1,5 @@
 /**
  * @flow
- *
- * Server - boots the SuperCollider synthesis server
- *
- *  SuperCollider comes with an executable called scsynth
- *  which can be communicated with via udp OSC
- *
- *  The primary way to send messages in with
- *  eg. server.send.msg('/s_new', ['defName', 440])
-
- *  and the responses are emitted as 'OSC'
- *  eg. server.receive.subscribe(function(msg) function(msg) {  ...  });
- *
- * methods:
- *   boot        - boot an scsynth process
- *   quit
- *   connect     - connect via udp OSC
- *   disconnect
- *   send.msg     - send an OSC message
  */
 
 import EventEmitter from 'events';
@@ -33,30 +15,90 @@ import {parseMessage} from './osc/utils';
 import {notify} from './osc/msg';
 import defaultOptions from './default-server-options.json';
 import Logger from '../utils/logger';
-import resolveOptions from '../utils/resolveOptions';
 import ServerState from './ServerState';
 
 import type {CallAndResponseType, MsgType} from '../Types';
 
 
-export class Server extends EventEmitter {
+/**
+  * Server - boots the SuperCollider synthesis server
+  *
+  * SuperCollider comes with an executable called scsynth
+  * which can be communicated with via OSC.
+  *
+  * The primary way to send raw OSC messages is with:
+  * ```js
+  * server.send.msg('/s_new', ['defName', 440])
+  * ```
+  *
+  * and the responses can be subscribed to:
+  * ```js
+  * server.receive.subscribe(function(msg) function(msg) {  ...  });
+  * ```
+ */
+export default class Server extends EventEmitter {
 
   options: Object;
+
   address: string;
-  process: any;  // what node spawn() returns
-  isRunning: boolean;
-  send: SendOSC;
-  receive: Subject;
-  stdout: Subject;
-  processEvents: Subject;
-  _serverObservers: Object;
-  state: ServerState;
-  log: Logger;
-  osc: Socket;  // node Socket. see /declarations
 
   /**
-   * @param {Object} options - command line options for scsynth
-   * @param {Store} stateStore - optional parent Store for allocators and node watchers
+   * The process id that nodejs spawn() returns
+   * @private
+   */
+  process: any;
+
+  isRunning: boolean;
+
+  /**
+   * Supports `server.send.msg()` and `server.send.bundle()`
+   *
+   * You can also subscribe to it and get the OSC messages
+   * and bundles that are being sent echoed to you for
+   * debugging purposes.
+   */
+  send: SendOSC;
+
+  /**
+   * A subscribeable stream of OSC events received.
+   */
+  receive: Subject;
+
+  /**
+   * A subscribeable stream of STDOUT printed by the scsynth process.
+   */
+  stdout: Subject;
+
+  /**
+   * A subscribeable stream of events related to the scsynth process.
+   * Used internally.
+   */
+  processEvents: Subject;
+
+  /**
+   * Holds the mutable server state
+   * including allocators and the node state watcher.
+   * If a parent stateStore is supplied then it will store within that.
+   */
+  state: ServerState;
+
+  /**
+   * The logger used to print messages to the console.
+   */
+  log: Logger;
+
+  /**
+   * Node Socket. see /declarations
+   * @private
+   */
+  osc: Socket;
+
+  /* @private */
+  _serverObservers: Object;
+
+  /**
+   * @param options - command line options for scsynth
+   * @param stateStore - optional parent Store for allocators and node watchers
    */
   constructor(options: Object={}, stateStore: any=null) {
     super();
@@ -65,23 +107,9 @@ export class Server extends EventEmitter {
     this.process = null;
     this.isRunning = false;
 
-    /**
-     * @member {SendOSC} send - supports server.send.msg() and server.send.bundle()
-     *            You can also subscribe to it and get osc messages and bundles echoed
-     *            to you for debugging purposes.
-     */
     this.send = new SendOSC();
-    /**
-     * @member {Rx.Subject} receive - a subscribeable stream of OSC events received
-     */
     this.receive = new Subject();
-    /**
-     * @member {Rx.Subject} stdout - a subscribeable stream of stdout printed by the scsynth process
-     */
     this.stdout = new Subject();
-    /**
-     * @member {Rx.Subject} processEvents - a subscribeable stream of events related to the scsynth process
-     */
     this.processEvents = new Subject();
 
     this._initLogger();
@@ -90,11 +118,6 @@ export class Server extends EventEmitter {
 
     this._serverObservers = {};
 
-    /**
-     * @member {ServerState} state - Holds the mutable server state including
-     *                            allocators and the node state watcher.
-     *    If a parent stateStore is supplied then it will store within that.
-     */
     this.state = new ServerState(this, stateStore);
   }
 
@@ -404,14 +427,20 @@ export class Server extends EventEmitter {
 
   /**
    * Send an OSC command that expects a reply from the server,
-   * and resolves with the response.
+   * returning a `Promise` that resolves with the response.
    *
    * This is for getting responses async from the server.
    * The first part of the message matches the expected args,
    * and the rest of the message contains the response.
    *
-   * @param {Object} callAndResponse - Object with call: [osc_msg, 1, 2], response: [osc_response, 1, 2, 3]
-   * @param {int} timeout - in milliseconds before rejecting the Promise
+   * @param {Object} callAndResponse
+   *
+   *  ```js
+   *  {
+   *      call: ['/some_osc_msg', 1, 2],
+   *      response: ['/expected_osc_response', 1, 2, 3]
+   *  }```
+   * @param {int} timeout - in milliseconds before rejecting the `Promise`
    * @returns {Promise} - resolves with all values the server responsed with after the matched response.
    */
   callAndResponse(callAndResponse:CallAndResponseType, timeout:number=4000) : Promise<MsgType> {

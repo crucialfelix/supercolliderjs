@@ -195,7 +195,7 @@ export default class SCSynthDef extends Dryad {
   }
 
   /**
-   * Return the value of this object, which is the synthDef: {name, bytes, synthDesc} 
+   * Return the value of this object, which is the synthDef: {name, bytes, synthDesc}
    * for use in /s_new.
    */
   value(context:Object) : string {
