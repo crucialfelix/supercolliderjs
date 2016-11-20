@@ -13,6 +13,7 @@ import {Promise} from 'bluebird';
 import SendOSC from './internals/SendOSC';
 import {parseMessage} from './osc/utils';
 import {notify} from './osc/msg';
+import resolveOptions from '../utils/resolveOptions';
 import defaultOptions from './default-server-options.json';
 import Logger from '../utils/logger';
 import ServerState from './ServerState';
