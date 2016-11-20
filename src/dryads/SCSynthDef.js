@@ -128,9 +128,7 @@ export default class SCSynthDef extends Dryad {
       )
     }.value;`;
     return context.sclang.interpret(wrappedCode, undefined, false, false, true)
-      .then((result:Object) => {
-        return result;
-      }, (error:SCLangError) => {
+      .catch((error:SCLangError) => {
         error.annotate(`Failed to compile SynthDef  ${error.message} ${pathName || ''}`, {
           properties: this.properties,
           sourceCode
@@ -161,8 +159,11 @@ export default class SCSynthDef extends Dryad {
           // should use updater here
           context._watcher = fs.watch(path.resolve(properties.compileFrom),
             () => {
-              return this.compileFrom(context, properties.compileFrom)
-                .then((result:SclangResultType) => this._sendSynthDef(context, result));
+              this.compileFrom(context, properties.compileFrom)
+                .then((result:SclangResultType) => {
+                  return this._sendSynthDef(context, properties, result)
+                    .catch((error) => console.error(error));
+                });
             });
         }
       }
