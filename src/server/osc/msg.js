@@ -529,7 +529,7 @@ export function groupNew(nodeID:number, addAction:number=AddActions.HEAD, target
   * @param {int} targetID
   * @return {Array} - OSC message
   */
-export function parallelGroupNew(groupID:number, addAction:numberAddActions.HEAD, targetID:number=0) : MsgType {
+export function parallelGroupNew(groupID:number, addAction:number=AddActions.HEAD, targetID:number=0) : MsgType {
   return ['/p_new', groupID, addAction, targetID];
 }
 

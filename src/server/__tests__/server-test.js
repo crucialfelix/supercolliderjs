@@ -1,8 +1,7 @@
 
 import _ from 'lodash';
-import {EventEmitter} from 'events';
-
-var Server = require('../server').Server;
+import { EventEmitter } from 'events';
+import Server from '../server';
 
 describe('Server', function() {
 

@@ -1,6 +1,6 @@
 
 var resolveOptions = require('../resolveOptions').default;
-var _ = require('lodash');
+import _ from 'lodash';
 
 describe('resolveOptions', function() {
 

@@ -1,9 +1,7 @@
-/*jshint sub:true*/
-
-var nw = require('../node-watcher');
-var Server = require('../server').Server;
 import _ from 'lodash';
-import {Promise} from 'bluebird';
+import { Promise } from 'bluebird';
+import Server from '../server';
+import * as nw from '../node-watcher';
 
 
 describe('node-watcher', function() {

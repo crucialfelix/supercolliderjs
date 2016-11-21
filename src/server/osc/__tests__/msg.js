@@ -1,6 +1,6 @@
 
 var msg = require('../msg');
-var _ = require('lodash');
+import _ from 'lodash';
 
 describe('msg', function() {
   it('should evaluate each one without error', function() {

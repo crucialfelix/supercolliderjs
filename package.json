@@ -27,15 +27,15 @@
   "devDependencies": {
     "babel": "^6.2.4",
     "babel-cli": "^6.16.0",
-    "babel-eslint": "^7.0.0",
-    "babel-jest": "^16.0.0",
+    "babel-eslint": "^7.1.1",
+    "babel-jest": "^17.0.2",
     "babel-plugin-transform-class-properties": "^6.16.0",
     "babel-plugin-transform-flow-strip-types": "^6.14.0",
     "babel-preset-es2015": "^6.16.0",
     "baconjs": "^0.7.88",
-    "eslint": "^3.8.1",
+    "eslint": "^3.10.2",
     "eslint-plugin-flowtype": "^2.21.0",
-    "jest-cli": "^16.0.2"
+    "jest-cli": "^17.0.3"
   },
   "license": "MIT",
   "keywords": [
@@ -70,7 +70,7 @@
     "postinstall": "node -e \"require('fs').stat('lib', function (e, s) { process.exit(e || !s.isDirectory() ? 1 : 0) })\" || npm run build"
   },
   "jest": {
-    "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
+    "transform": {".*": "<rootDir>/node_modules/babel-jest"},
     "testPathDirs": [
       "src"
     ],
