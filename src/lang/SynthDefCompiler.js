@@ -8,8 +8,9 @@ import fs from 'fs';
 import { defRecv } from '../server/osc/msg.js';
 import { boot } from './sclang';
 import type { SCLangError } from '../Errors';
-import { SclangResultType, SynthDefResultType } from '../Types';
+import { SclangResultType, SynthDefResultType, SynthDefResultMapType } from '../Types';
 import type Server from '../server/server';
+import type SCLang from './sclang';
 
 /**
  * Utility class to compile SynthDefs either from source code or by loading a path.
@@ -43,7 +44,7 @@ export default class SynthDefCompiler {
    * Returns an object with each compiled synthdef
    * as a SynthDefResultType.
    */
-  compile(defs:Object) : Promise<Object> {
+  compile(defs:Object) : Promise<SynthDefResultMapType> {
     let defsList = _.toPairs(defs);
     return Promise.all(
       _.map(defsList, ([defName:string, spec:Object]) => this._compileOne(defName, spec))
@@ -53,7 +54,12 @@ export default class SynthDefCompiler {
     });
   }
 
-  compileAndSend(defs:Object, server:Server) : Promise<*> {
+  /**
+   * Compile SynthDefs and send them to the server.
+   *
+   * @returns a Promise for {defName: SynthDefResult, ...}
+   */
+  compileAndSend(defs:Object, server:Server) : Promise<SynthDefResultMapType> {
     return this.compile(defs).then((compiledDefs) => {
       let commands = _.map(compiledDefs, ({name}) => this.sendCommand(name));
       return Promise.all(
