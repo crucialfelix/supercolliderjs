@@ -50,7 +50,7 @@
     "type": "git",
     "url": "git://github.com/crucialfelix/supercolliderjs"
   },
-  "main": "index",
+  "main": "lib/index",
   "bin": {
     "supercollider-server": "./bin/scsynth.js",
     "supercollider": "./bin/sclang.js",
