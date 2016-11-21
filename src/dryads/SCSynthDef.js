@@ -1,6 +1,7 @@
 /* @flow */
-import {Dryad} from 'dryadic';
-import {defRecv, defFree, defLoad} from '../server/osc/msg.js';
+/* eslint no-console: 0 */
+import { Dryad } from 'dryadic';
+import { defRecv, defFree, defLoad } from '../server/osc/msg.js';
 import path from 'path';
 import fs from 'fs';
 import type { SCLangError } from '../Errors';
@@ -47,6 +48,7 @@ export default class SCSynthDef extends Dryad {
   }
 
   prepareForAdd() : Object {
+    // search context for a SynthDefCompiler, else create one with context.lang
     return {
       updateContext: (context, properties) => ({
         synthDef: this._prepareForAdd(context, properties)

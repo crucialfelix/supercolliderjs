@@ -124,7 +124,6 @@ export default class SCLang extends EventEmitter {
   }
 
   isReady() {
-    console.log('state', this.stateWatcher.state);
     return this.stateWatcher.state === 'ready';
   }
 
@@ -300,7 +299,7 @@ export default class SCLang extends EventEmitter {
   /**
     * listen to events from process and pipe stdio to the stateWatcher
     */
-  installListeners(subprocess:ChildProcessType, listenToStdin:boolean) {
+  installListeners(subprocess:ChildProcessType, listenToStdin:boolean=false) {
     if (listenToStdin) {
       // stdin of the global top level nodejs process
       process.stdin.setEncoding('utf8');
