@@ -1,8 +1,6 @@
 /node_modules
-/docs/_build
 /lib
 coverage
-esdoc
 .node-version
 .tags1
 0.10.0
@@ -10,3 +8,4 @@ esdoc
 0.9.1
 0.9.2
 0.9.3
+docs/_site
