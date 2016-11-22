@@ -1,3 +1,16 @@
+
+0.14.0 / 2016-11-22
+==================
+
+  * Add new API: ServerPlus
+  * Examples moved to https://github.com/crucialfelix/supercolliderjs-examples
+  * Add new docs and API documentation
+  * CHANGE: generate main package export from src/index.js
+  * add SynthDefResultMapType
+  * add checkInstall.js utility: checks that sclang/scsynth exists, prints the the config to console.
+  * add SynthDefCompiler - utility class to compile SynthDefs
+  * fix: dryads/SCSynthDef watch file was calling _sendSynthDef with incorrect args
+
 0.13.0 / 2016-10-24
 ===================
 
