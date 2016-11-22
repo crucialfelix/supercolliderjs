@@ -1,6 +1,5 @@
-
-var Server = require('../server').Server;
-var ServerState = require('../ServerState').default;
+import Server from '../server';
+import ServerState from '../ServerState';
 
 describe('ServerState', function() {
 

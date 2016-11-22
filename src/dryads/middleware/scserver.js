@@ -1,5 +1,7 @@
-/* @flow */
-import * as _  from 'lodash';
+/**
+ * @flow
+ */
+import _ from 'lodash';
 import OSCSched from './OSCSched';
 import type { MsgType } from '../../Types';
 
@@ -121,13 +123,14 @@ export default function scserver(command:Object, context:Object, properties:Obje
  * Non-functions are passed through.
  */
 export function resolveFuncs(command:Object, context:Object, properties:Object) : Object {
-  return _.mapValues(command, (value) => callIfFn(value, context, properties));
+  return _.mapValues(command, (value) => _callIfFn(value, context, properties));
 }
 
 
 /**
  * If its a Function then call it with context and properties
+ * @private
  */
-function callIfFn(thing, context, properties) {
+function _callIfFn(thing, context, properties) {
   return _.isFunction(thing) ? thing(context, properties) : thing;
 }

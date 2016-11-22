@@ -1,6 +1,6 @@
 
 var utils = require('../utils');
-var _ = require('lodash');
+import _ from 'lodash';
 
 describe('parseMessage', function() {
   it('should parse a message', function() {

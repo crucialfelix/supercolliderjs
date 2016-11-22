@@ -1,5 +1,9 @@
-/* @flow */
-import * as _  from 'lodash';
+/**
+ * @flow
+ * @module iterators
+ * @ temp off - memberof dryads
+ */
+import _ from 'lodash';
 
 export function sortEvents(events: Array<Object>) {
   return events.sort((a, b) => a.time - b.time);

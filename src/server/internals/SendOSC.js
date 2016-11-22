@@ -25,15 +25,15 @@ export default class SendOSC extends EventEmitter {
   * as relative seconds from 'now'; here is is interpreted as a
   * unix timestamp. See deltaTimeTag
   *
-  * @param {null|Number|Array|Date} time -
-  *         null: now, immediately
-  *         Number: if less than 10000 then it is interpreted
-  *          as number of seconds from now.
-  *          It it is larger then it is interpreted as a unix timestamp in seconds
-  *         Array: [secondsSince1900Jan1, fractionalSeconds]
-  *         Date
-  * @param {Array} packets - osc messages as [address, arg1, ...argN]
-  *                        or bundles as Objects: .timeTag .packets
+  * @param {null|Number|Array|Date} time
+  *   - null: now, immediately
+  *   - Number: if less than 10000 then it is interpreted
+  *       as number of seconds from now.
+  *       It it is larger then it is interpreted as a unix timestamp in seconds
+  *   - Array: `[secondsSince1900Jan1, fractionalSeconds]`
+  *   - Date
+  * @param {Array} packets - osc messages as `[address, arg1, ...argN]`
+  *                        or sub bundles as `[{timeTag: , packets: }, ...]`
   */
   bundle(time:OSCTimeType, packets:[MsgType]) {
     if ((typeof time === 'number') && (time < 10000)) {
@@ -43,12 +43,11 @@ export default class SendOSC extends EventEmitter {
   }
 
   /**
-   * deltaTimeTag(secondsFromNow, [now])
-   *
    * Make NTP timetag array relative to the current time.
    *
-   * Usage:
-   * server.send.bundle(server.send.deltaTimetag(1.0), [ ... msgs ]);
+   * @example:
+   *
+   *    server.send.bundle(server.send.deltaTimetag(1.0), [ ... msgs ]);
    *
    * @param {Number} delta
    * @param {Date} now - optional, default new Date
@@ -60,7 +59,7 @@ export default class SendOSC extends EventEmitter {
   /**
    * Subscribe to monitor OSC messages and bundles sent.
    *
-   * Events are: {type: msg|bundle: payload: Array}
+   * Events are: `{type: msg|bundle: payload: Array}`
    *
    * @returns {Rx.Disposable} - `thing.dispose();` to unsubscribe
    */

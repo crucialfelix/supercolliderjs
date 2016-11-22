@@ -1,20 +1,8 @@
 /**
- * sclang - boots a supercollider language interpreter process
- *  and enables stdin/out and system level event responders
- *
- *  SuperCollider comes with an executable called sclang
- *  which can be communicated with via stdin/stdout
- *  or via OSC.
- *
- * methods:
- *   boot  - boot an sclang process
- *   write - write to stdin of the sclang process
- *   quit
- *
  * @ -- flow  -- not quite ready
  */
 
-import * as _ from 'lodash';
+import _ from 'lodash';
 import cuid from 'cuid';
 import fs from 'fs';
 import temp from 'temp';
@@ -33,7 +21,19 @@ import { SclangResultType } from '../Types';
 
 type ChildProcessType = child_process$ChildProcess;
 
-export class SCLang extends EventEmitter {
+/**
+  * This class manages a supercollider language interpreter process
+  * and sends messages to and from it using STDIN / STDOUT.
+  *
+  *  SuperCollider comes with an executable called sclang
+  *  which can be communicated with via stdin/stdout
+  *  or via OSC.
+  *
+  *
+  * @ member of lang
+  * @extends EventEmitter
+  */
+export default class SCLang extends EventEmitter {
 
   options: Object;
   process: ?ChildProcessType;
@@ -55,6 +55,7 @@ export class SCLang extends EventEmitter {
   /**
    * build args for sclang
    *
+   * ```
    *   -d <path>                      Set runtime directory
    *   -D                             Enter daemon mode (no input)
    *   -g <memory-growth>[km]         Set heap growth (default 256k)
@@ -66,6 +67,7 @@ export class SCLang extends EventEmitter {
    *   -u <network-port-number>       Set UDP listening port (default 57120)
    *   -i <ide-name>                  Specify IDE name (for enabling IDE-specific class code, default "none")
    *   -a                             Standalone mode
+   * ```
    */
   args(options:Object) : Array<string> {
     var o = [];
@@ -90,8 +92,6 @@ export class SCLang extends EventEmitter {
    * This is the config file that sclang reads, specifying
    * includePaths and excludePaths
    *
-   * @param {object} config - options to write to file
-   * @returns {Promise} resolving with the path of the temp config file
    */
   makeSclangConfig(config:Object) : Promise<string> {
     /**
@@ -123,14 +123,35 @@ export class SCLang extends EventEmitter {
     });
   }
 
+  isReady() {
+    return this.stateWatcher.state === 'ready';
+  }
 
   /**
-   * boot
+   * Start sclang executable as a subprocess.
    *
-   * start sclang as a subprocess
+   * sclang will compile it's class library, and this may result in syntax
+   * or compile errors. These errors are parsed and returned in a structured format.
    *
-   * Resolves with {dirs: [compiled, directories]}
-   * or rejects: {dirs: [], compileErrors: [], parseErrors: [], duplicateClasses: [], errors[], extensionErrors: [], stdout: 'compiling class library...'}
+   * Resolves with:
+   *
+   * ```js
+   * {dirs: [compiled directories]}
+   * ```
+   *
+   * or rejects with:
+   *
+   * ```js
+   * {
+   *   dirs: [],
+   *   compileErrors: [],
+   *   parseErrors: [],
+   *   duplicateClasses: [],
+   *   errors[],
+   *   extensionErrors: [],
+   *   stdout: 'compiling class library...etc.'
+   * }
+   * ```
    *
    * @returns {Promise}
    */
@@ -278,7 +299,7 @@ export class SCLang extends EventEmitter {
   /**
     * listen to events from process and pipe stdio to the stateWatcher
     */
-  installListeners(subprocess:ChildProcessType, listenToStdin:boolean) {
+  installListeners(subprocess:ChildProcessType, listenToStdin:boolean=false) {
     if (listenToStdin) {
       // stdin of the global top level nodejs process
       process.stdin.setEncoding('utf8');
@@ -445,9 +466,9 @@ export class SCLang extends EventEmitter {
 
 
 /**
-  * Alternate constructor
-  * resolves options, boots and loads interpreter
+  * Boots an sclang interpereter, resolving options and connecting.
   *
+  * @memberof lang
   * @param {object} options
   * @returns {Promise}
   */

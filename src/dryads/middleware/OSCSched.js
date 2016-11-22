@@ -1,5 +1,5 @@
 /* @flow */
-import * as _  from 'lodash';
+import _ from 'lodash';
 import { deltaTimeTag } from '../../server/osc/utils';
 
 /**

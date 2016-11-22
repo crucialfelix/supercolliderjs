@@ -1,15 +1,4 @@
-
 /**
-  * This parses the stdout of sclang
-  * and detects changes of the interpreter state
-  * and converts compilation errors into js objects.
-  *
-  * Also detects runtime errors and
-  * results posted when sc code is evaluated from supercollider.js
-  *
-  * Convert errors and responses into JavaScript objects
-  * Emit events when state changes
-  *
   * @flow
   */
 
@@ -30,6 +19,19 @@ export const STATES = {
 };
 
 
+/**
+ * This parses the stdout of sclang and detects changes of the
+ * interpreter state and converts compilation errors into js objects.
+ *
+ * Also detects runtime errors and results posted when sc code
+ * is evaluated from supercollider.js
+ *
+ * Convert errors and responses into JavaScript objects
+ *
+ * Emit events when state changes
+ *
+ * @private
+ */
 export class SclangIO extends EventEmitter {
 
   states:Object;
@@ -314,7 +316,6 @@ export class SclangIO extends EventEmitter {
    * Register a Promise for a block of code that is being sent
    * to sclang to be interpreted.
    *
-   * @param {string} guid
    * @param {Object} promise - a Promise or an object with reject, resolve
    */
   registerCall(guid:string, promise:Promise<*>|Object) {
@@ -323,9 +324,6 @@ export class SclangIO extends EventEmitter {
 
   /**
     * Parse syntax error from STDOUT runtime errors.
-    *
-    * @param {String} text
-    * @returns {Object}
     */
   parseSyntaxErrors(text:string) : Object {
     var
@@ -350,8 +348,6 @@ export class SclangIO extends EventEmitter {
   /**
    * Push text posted by sclang during library compilation
    * to the .output stack for later procesing
-   *
-   * @param {String} text
    */
   pushOutputText(text:string) {
     this.output.push(text);
@@ -380,9 +376,6 @@ export class SclangIO extends EventEmitter {
   /**
     * Parse library compile errors and information
     * collected from sclang STDOUT.
-    *
-    * @param {String} text
-    * @returns {Object}
     */
   parseCompileOutput(text:string) : Object {
     let errors = {

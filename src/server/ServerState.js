@@ -6,7 +6,7 @@ import * as Immutable from 'immutable';
 import Store from './internals/Store';
 import * as alloc from './internals/allocators';
 import { watchNodeNotifications } from './node-watcher';
-import type { Server } from './server';
+import type Server from './server';
 
 
 const StateKeys = {
@@ -18,9 +18,18 @@ const StateKeys = {
 };
 
 /**
- * Holds state for a Server such as node/bus/buffer allocators, node status and SynthDefs compiled.
+ * Holds state for a Server such as node/bus/buffer allocators,
+ * node status and SynthDefs compiled.
  *
- * Each server is stored by its unique address, so multiple Servers can store state in the same global Store object.
+ * Server has this has as the property: server.state
+ *
+ * Many of these functions are low-level accessors and allocators
+ * useful for building higher-level applications that are easier
+ * to use.
+ *
+ * Each server is stored by its unique address,
+ * so multiple Servers can store state in the same
+ * global Store object.
  */
 export default class ServerState {
 
@@ -72,7 +81,7 @@ export default class ServerState {
   /**
    * Get current state value for the server using an array of keys.
    *
-   * @param {String} keys - list of keys eg. ['NODE_WATCHER', 'n_go', 1000]
+   * @param {String} keys - list of keys eg. `['NODE_WATCHER', 'n_go', 1000]`
    * @param {any} notSetValue - default value to return if empty
    * @returns {any}
    */

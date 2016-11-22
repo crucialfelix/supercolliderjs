@@ -5,6 +5,7 @@
   * to make it easy to map directly to a calling function.
   *
   * @flow
+  * @module msg
   */
 import _ from 'lodash';
 
@@ -15,15 +16,17 @@ import {
 } from '../../Types';
 
 /**
- * add actions for specifying relationship of newly adding node
- * to its targetID
-  * 0 add the new group to the the head of the group specified by the add target ID.
-  * 1 add the new group to the the tail of the group specified by the add target ID.
-  * 2 add the new group just before the node specified by the add target ID.
-  * 3 add the new group just after the node specified by the add target ID.
-  * 4 the new node replaces the node specified by the add target ID. The target node is freed.
+  * Add actions for specifying relationship of newly adding node
+  * to its targetID
+  *
+  * - 0 add the new group to the the head of the group specified by the add target ID.
+  * - 1 add the new group to the the tail of the group specified by the add target ID.
+  * - 2 add the new group just before the node specified by the add target ID.
+  * - 3 add the new group just after the node specified by the add target ID.
+  *  - 4 the new node replaces the node specified by the add target ID. The target node is freed.
+  *  @memberof msg
  */
-export const AddActions = {
+export const AddActions:Object = {
   HEAD: 0,
   TAIL: 1,
   BEFORE: 2,
@@ -233,18 +236,24 @@ export function nodeRun(nodeID:number, on:number=1) : MsgType {
 
 /**
   * Set a node's control value(s).
-
-  * Takes a list of pairs of control indices and values and sets the controls to those values. If the node is a group, then it sets the controls of every node in the group.
-
-  * This message now supports array type tags ($[ and $]) in the control/value component of the OSC message.  Arrayed control values are applied in the manner of n_setn (i.e., sequentially starting at the indexed or named control).
-
-  I think this also takes [freq, 440],
-
-  @example
-  nodeSet(id, [[0, 440], ...])
-
+  *
+  * Takes a list of pairs of control indices and values and sets the controls to
+  * those values. If the node is a group, then it sets the controls of every node
+  * in the group.
+  *
+  * This message now supports array type tags (`$[` and `$]`) in the control/value
+  * component of the OSC message.  Arrayed control values are applied in the
+  * manner of `n_setn` (i.e., sequentially starting at the indexed or named control).
+  *
+  * I think this also takes `[freq, 440]`
+  *
+  * @example
+  * ```js
+  *  nodeSet(id, [[0, 440], ...])
+  *  ```
+  *
   * @param {int} nodeID
-  * @param {Object|Array} pairs - [[key, value], ...] or Object(key: value, ...)
+  * @param {Object|Array} pairs - `[[key, value], ...]` or `{key: value, ...}`
   * @return {Array} - OSC message
   */
 export function nodeSet(nodeID:number, pairs:PairsType) : MsgType {
@@ -255,11 +264,14 @@ export function nodeSet(nodeID:number, pairs:PairsType) : MsgType {
 
 /**
   * Set ranges of a node's control value(s).
-
-  * Set contiguous ranges of control indices to sets of values. For each range, the starting control index is given followed by the number of controls to change, followed by the values. If the node is a group, then it sets the controls of every node in the group.
-
+  *
+  * Set contiguous ranges of control indices to sets of values. For each range,
+  * the starting control index is given followed by the number of controls to change,
+  * followed by the values. If the node is a group, then it sets the controls of every
+  * node in the group.
+  *
   * @param {int} nodeID -
-  * @param {Array} valueSets - [[controlName|index, numValues, value1, ... valueN], ...]
+  * @param {Array} valueSets - `[[controlName|index, numValues, value1, ... valueN], ...]`
   * @return {Array} - OSC message
   */
 export function nodeSetn(nodeID:number, valueSets:PairsType=[]) : MsgType {
@@ -271,10 +283,13 @@ export function nodeSetn(nodeID:number, valueSets:PairsType=[]) : MsgType {
 /**
   * Fill ranges of a node's control value(s).
   *
-  * Set contiguous ranges of control indices to single values. For each range, the starting control index is given followed by the number of controls to change, followed by the value to fill. If the node is a group, then it sets the controls of every node in the group.
+  * Set contiguous ranges of control indices to single values. For each range,
+  * the starting control index is given followed by the number of controls to
+  * change, followed by the value to fill. If the node is a group, then it
+  * sets the controls of every node in the group.
   *
   * @param {int} nodeID -
-  * @param {Array} triples - [[key, numValuesToFill, value], ...]
+  * @param {Array} triples - `[[key, numValuesToFill, value], ...]`
   * @return {Array} - OSC message
   */
 export function nodeFill(nodeID:number, triples:PairsType=[]) : MsgType {
@@ -286,9 +301,9 @@ export function nodeFill(nodeID:number, triples:PairsType=[]) : MsgType {
   * Map a node's controls to read from a bus.
   *
   * @param {int} nodeID -
-  * @param {Array|Object} pairs - [[controlName, busID], ...]
+  * @param {Array|Object} pairs - `[[controlName, busID], ...]`
   * @return {Array} - OSC message
-
+  *
   * Takes a list of pairs of control names or indices and bus indices and causes those controls to be read continuously from a global control bus. If the node is a group, then it maps the controls of every node in the group. If the control bus index is -1 then any current mapping is undone. Any n_set, n_setn and n_fill command will also unmap the control.
   */
 export function nodeMap(nodeID:number, pairs:PairsType=[]) : MsgType {
@@ -298,11 +313,11 @@ export function nodeMap(nodeID:number, pairs:PairsType=[]) : MsgType {
 
 /**
   * Map a node's controls to read from buses.
-
- Takes a list of triples of control names or indices, bus indices, and number of controls to map and causes those controls to be mapped sequentially to buses. If the node is a group, then it maps the controls of every node in the group. If the control bus index is -1 then any current mapping is undone. Any n_set, n_setn and n_fill command will also unmap the control.
-
+  *
+  * Takes a list of triples of control names or indices, bus indices, and number of controls to map and causes those controls to be mapped sequentially to buses. If the node is a group, then it maps the controls of every node in the group. If the control bus index is -1 then any current mapping is undone. Any n_set, n_setn and n_fill command will also unmap the control.
+  *
   * @param {int} nodeID -
-  * @param {Array} triples - [[controlName|index, busID, numControlsToMap], ...]
+  * @param {Array} triples - `[[controlName|index, busID, numControlsToMap], ...]`
   * @return {Array} - OSC message
 
   */
@@ -312,12 +327,12 @@ export function nodeMapn(nodeID:number, triples:PairsType=[]) : MsgType {
 
 
 /**
-  Map a node's controls to read from an audio bus.
-
-  Takes a list of pairs of control names or indices and audio bus indices and causes those controls to be read continuously from a global audio bus. If the node is a group, then it maps the controls of every node in the group. If the audio bus index is -1 then any current mapping is undone. Any n_set, n_setn and n_fill command will also unmap the control. For the full audio rate signal, the argument must have its rate set to \ar.
+ * Map a node's controls to read from an audio bus.
+ *
+ * Takes a list of pairs of control names or indices and audio bus indices and causes those controls to be read continuously from a global audio bus. If the node is a group, then it maps the controls of every node in the group. If the audio bus index is -1 then any current mapping is undone. Any n_set, n_setn and n_fill command will also unmap the control. For the full audio rate signal, the argument must have its rate set to \ar.
   *
   * @param {int} nodeID -
-  * @param {Array} pairs - [[controlName|index, audioBusID], ...]
+  * @param {Array} pairs - `[[controlName|index, audioBusID], ...]`
   * @return {Array} - OSC message
   */
 export function nodeMapAudio(nodeID:number, pairs:PairsType) : MsgType {
@@ -327,12 +342,12 @@ export function nodeMapAudio(nodeID:number, pairs:PairsType) : MsgType {
 
 /**
   * Map a node's controls to read from audio buses.
-
+  *
   * @param {int} nodeID -
-  * @param {Array} triples - [[controlName|index, audioBusID, numControlsToMap], ...]
+  * @param {Array} triples - `[[controlName|index, audioBusID, numControlsToMap], ...]`
   * @return {Array} - OSC message
-
-  Takes a list of triples of control names or indices, audio bus indices, and number of controls to map and causes those controls to be mapped sequentially to buses. If the node is a group, then it maps the controls of every node in the group. If the audio bus index is -1 then any current mapping is undone. Any n_set, n_setn and n_fill command will also unmap the control. For the full audio rate signal, the argument must have its rate set to \ar.
+  *
+  * Takes a list of triples of control names or indices, audio bus indices, and number of controls to map and causes those controls to be mapped sequentially to buses. If the node is a group, then it maps the controls of every node in the group. If the audio bus index is -1 then any current mapping is undone. Any `n_set`, `n_setn` and `n_fill` command will also unmap the control. For the full audio rate signal, the argument must have its rate set to `\ar`.
   */
 export function nodeMapAudion(nodeID:number, triples:PairsType=[]) : MsgType {
   return ['/n_mapan', nodeID].concat(_.flatten(triples));
@@ -340,8 +355,8 @@ export function nodeMapAudion(nodeID:number, triples:PairsType=[]) : MsgType {
 
 
 /**
-  Places node A in the same group as node B, to execute immediately before node B.
-
+  * Places node A in the same group as node B, to execute immediately before node B.
+  *
   * @param {int} moveNodeID - the node to move (A)
   * @param {int} beforeNodeID - the node to move A before
   * @return {Array} - OSC message
@@ -352,8 +367,8 @@ export function nodeBefore(moveNodeID:number, beforeNodeID:number) : MsgType {
 
 
 /**
-   Places node A in the same group as node B, to execute immediately after node B.
-
+  * Places node A in the same group as node B, to execute immediately after node B.
+  *
   * @param {int} moveNodeID - the ID of the node to place (A)
   * @param {int} afterNodeID - the ID of the node after which the above is placed (B)
   * @return {Array} - OSC message
@@ -365,10 +380,10 @@ export function nodeAfter(moveNodeID:number, afterNodeID:number) : MsgType {
 
 /**
   * Get info about a node.
-
-  The server sends an /n_info message for each node to registered clients.
-  See Node Notifications for the format of the /n_info message.
-
+  *
+  * The server sends an `/n_info` message for each node to registered clients.
+  * See Node Notifications for the format of the `/n_info` message.
+  *
   * @param {int} nodeID
   * @return {Array} - OSC message
   */
@@ -382,9 +397,9 @@ export function nodeQuery(nodeID:number) : CallAndResponseType {
 
 /**
   * Trace a node.
-
-  Causes a synth to print out the values of the inputs and outputs of its unit generators for one control period. Causes a group to print the node IDs and names of each node in the group for one control period.
-
+  *
+  * Causes a synth to print out the values of the inputs and outputs of its unit generators for one control period. Causes a group to print the node IDs and names of each node in the group for one control period.
+  *
   * @param {int} nodeID
   * @return {Array} - OSC message
   */
@@ -393,10 +408,10 @@ export function nodeTrace(nodeID:number) : MsgType {
 }
 
 /**
-  Move and order a list of nodes.
-
-  Move the listed nodes to the location specified by the target and add action, and place them in the order specified. Nodes which have already been freed will be ignored.
-
+  * Move and order a list of nodes.
+  *
+  * Move the listed nodes to the location specified by the target and add action, and place them in the order specified. Nodes which have already been freed will be ignored.
+  *
   * @param {int} addAction
   * @param {int} targetID
   * @param {Array.<int>} nodeIDs
@@ -415,25 +430,22 @@ export function nodeOrder(addAction:number, targetID:number, nodeIDs:[number]) :
 
   There are four ways to add the node to the tree as determined by the add action argument
 
-  Controls may be set when creating the synth. The control arguments are the same as for the n_set command.
+  Controls may be set when creating the synth. The control arguments are the same as for the `n_set` command.
 
-  If you send /s_new with a synth ID of -1, then the server will generate an ID for you. The server reserves all negative IDs. Since you don't know what the ID is, you cannot talk to this node directly later. So this is useful for nodes that are of finite duration and that get the control information they need from arguments and buses or messages directed to their group. In addition no notifications are sent when there are changes of state for this node, such as `/n_go`, `/n_end`, `/n_on`, `/n_off`.
+  If you send `/s_new` with a synth ID of -1, then the server will generate an ID for you. The server reserves all negative IDs. Since you don't know what the ID is, you cannot talk to this node directly later. So this is useful for nodes that are of finite duration and that get the control information they need from arguments and buses or messages directed to their group. In addition no notifications are sent when there are changes of state for this node, such as `/n_go`, `/n_end`, `/n_on`, `/n_off`.
 
   If you use a node ID of -1 for any other command, such as `/n_map`, then it refers to the most recently created node by `/s_new` (auto generated ID or not). This is how you can map  the controls of a node with an auto generated ID. In a multi-client situation, the only way you can be sure what node -1 refers to is to put the messages in a bundle.
 
-  This message now supports array type tags ($[ and $]) in the control/value component of the OSC message.  Arrayed control values are applied in the manner of n_setn (i.e., sequentially starting at the indexed or named control). See the linkGuides/NodeMessaging helpfile.
+  This message now supports array type tags (`$[` and `$]`) in the control/value component of the OSC message.  Arrayed control values are applied in the manner of n_setn (i.e., sequentially starting at the indexed or named control). See the linkGuides/NodeMessaging helpfile.
 
-  * @param {String} defName -
-  * @param {int} nodeID -
-  * @param {int} addAction -
-  * @param {int} targetID -
   * @param {Object} args
-      key: a control index or name
-      value: floating point and integer arguments are interpreted as control value.
-      A symbol argument consisting of the letter 'c' or 'a' (for control or audio) followed by the bus's index.
-  * @return {Array} - OSC message
+  * - key: a control index or name
+  * - value: floating point and integer arguments are interpreted
+  *          as control value.
+  * A symbol argument consisting of the letter 'c' or 'a' (for control or audio) followed by the bus's index.
+  * @return OSC message
   */
-export function synthNew(defName:string, nodeID:number, addAction:number=AddActions.TAIL, targetID:number=0, args:PairsType=[]) : MsgType {
+export function synthNew(defName:string, nodeID:number=-1, addAction:number=AddActions.TAIL, targetID:number=0, args:PairsType=[]) : MsgType {
   return ['/s_new', defName, nodeID, addAction, targetID].concat(flattenPairs(args));
 }
 
@@ -441,7 +453,7 @@ export function synthNew(defName:string, nodeID:number, addAction:number=AddActi
 /**
   * Get control value(s).
 
-  * @param {int} synthID -
+  * @param {int} synthID
   * @param {Array.<int|String>} controlNames - index or names
   * @return {Array} - OSC message
 
@@ -458,7 +470,7 @@ export function synthGet(synthID:number, controlNames:[number|string]) : CallAnd
 /**
   Get ranges of control value(s).
 
-  * @param {int} synthID -
+  * @param {int} synthID
   * @param {int|String} controlName - a control index or name
   * @param {int} n - number of sequential controls to get (M)
   * @return {Array} - OSC message
@@ -499,7 +511,7 @@ export function synthNoid(synthIDs:[number]) : MsgType {
   * @param {int} targetID
   * @return {Array} - OSC message
   */
-export function groupNew(nodeID:number, addAction:number, targetID:number) : MsgType {
+export function groupNew(nodeID:number, addAction:number=AddActions.HEAD, targetID:number=0) : MsgType {
   return ['/g_new', nodeID, _.isUndefined(addAction) ? AddActions.HEAD : addAction, targetID || 0];
 }
 
@@ -517,7 +529,7 @@ export function groupNew(nodeID:number, addAction:number, targetID:number) : Msg
   * @param {int} targetID
   * @return {Array} - OSC message
   */
-export function parallelGroupNew(groupID:number, addAction:number, targetID:number) : MsgType {
+export function parallelGroupNew(groupID:number, addAction:number=AddActions.HEAD, targetID:number=0) : MsgType {
   return ['/p_new', groupID, addAction, targetID];
 }
 
@@ -825,7 +837,7 @@ export function bufferZero(bufferID:number, completionMsg:?MsgType=null) : CallA
   * Takes a list of pairs of sample indices and values and sets the samples to those values.
 
   * @param {int} bufferID
-  * @param {Array} pairs - [[frame, value], ...]
+  * @param {Array} pairs - `[[frame, value], ...]`
   * @return {Array} - OSC message
   */
 export function bufferSet(bufferID:number, pairs:PairsType) : MsgType {
@@ -960,7 +972,7 @@ export function bufferGetn(bufferID:number, startFrame:number, numFrames:number)
 /**
   * Takes a list of pairs of bus indices and values and sets the buses to those values.
   *
-  * @param {Array} pairs - [[busID, value], ...]
+  * @param {Array} pairs - `[[busID, value], ...]`
   * @return {Array} - OSC message
   */
 export function controlBusSet(pairs:PairsType) : MsgType {
@@ -973,7 +985,7 @@ export function controlBusSet(pairs:PairsType) : MsgType {
 
   * Set contiguous ranges of buses to sets of values. For each range, the starting bus index is given followed by the number of channels to change, followed by the values.
   *
-  * @param {Array} triples - [[firstBusID, numBussesToChange, value], ...]
+  * @param {Array} triples - `[[firstBusID, numBussesToChange, value], ...]`
   * @return {Array} - OSC message
   */
 export function controlBusSetn(triples:PairsType=[]) : MsgType {
@@ -983,11 +995,12 @@ export function controlBusSetn(triples:PairsType=[]) : MsgType {
 
 /**
   * Fill ranges of bus value(s).
-
-  * Set contiguous ranges of buses to single values. For each range, the starting sample index is given followed by the number of buses to change, followed by the value to fill.
-  * what is diff to c_setn ?
   *
-  * @param {Array} triples - [[firstBusID, numBussesToChange, value], ...]
+  * Set contiguous ranges of buses to single values. For each range, the starting sample index is given followed by the number of buses to change, followed by the value to fill.
+  *
+  * TODO: What is difference to `c_setn` ?
+  *
+  * @param {Array} triples - `[[firstBusID, numBussesToChange, value], ...]`
   * @return {Array} - OSC message
   */
 export function controlBusFill(triples:PairsType=[]) : MsgType {
@@ -997,9 +1010,9 @@ export function controlBusFill(triples:PairsType=[]) : MsgType {
 
 /**
   * Get control bus values
-
+  *
   * Takes a bus ID and replies with the corresponding `c_set` command.
-
+  *
   * @param {Number} busID
   */
 export function controlBusGet(busID:number) : CallAndResponseType {
@@ -1012,7 +1025,7 @@ export function controlBusGet(busID:number) : CallAndResponseType {
 
 /**
   * Get contiguous ranges of buses. Replies with the corresponding `c_setn` command.
-
+  *
   * @param {int} startBusIndex - starting bus index
   * @param {int} numBusses - number of sequential buses to get (M)
   */

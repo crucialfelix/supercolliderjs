@@ -1,6 +1,7 @@
 /* @flow */
-import {Dryad} from 'dryadic';
-import {defRecv, defFree, defLoad} from '../server/osc/msg.js';
+/* eslint no-console: 0 */
+import { Dryad } from 'dryadic';
+import { defRecv, defFree, defLoad } from '../server/osc/msg.js';
 import path from 'path';
 import fs from 'fs';
 import type { SCLangError } from '../Errors';
@@ -47,6 +48,7 @@ export default class SCSynthDef extends Dryad {
   }
 
   prepareForAdd() : Object {
+    // search context for a SynthDefCompiler, else create one with context.lang
     return {
       updateContext: (context, properties) => ({
         synthDef: this._prepareForAdd(context, properties)
@@ -128,9 +130,7 @@ export default class SCSynthDef extends Dryad {
       )
     }.value;`;
     return context.sclang.interpret(wrappedCode, undefined, false, false, true)
-      .then((result:Object) => {
-        return result;
-      }, (error:SCLangError) => {
+      .catch((error:SCLangError) => {
         error.annotate(`Failed to compile SynthDef  ${error.message} ${pathName || ''}`, {
           properties: this.properties,
           sourceCode
@@ -161,8 +161,11 @@ export default class SCSynthDef extends Dryad {
           // should use updater here
           context._watcher = fs.watch(path.resolve(properties.compileFrom),
             () => {
-              return this.compileFrom(context, properties.compileFrom)
-                .then((result:SclangResultType) => this._sendSynthDef(context, result));
+              this.compileFrom(context, properties.compileFrom)
+                .then((result:SclangResultType) => {
+                  return this._sendSynthDef(context, properties, result)
+                    .catch((error) => console.error(error));
+                });
             });
         }
       }
@@ -195,7 +198,7 @@ export default class SCSynthDef extends Dryad {
   }
 
   /**
-   * Return the value of this object, which is the synthDef: {name, bytes, synthDesc} 
+   * Return the value of this object, which is the synthDef: {name, bytes, synthDesc}
    * for use in /s_new.
    */
   value(context:Object) : string {

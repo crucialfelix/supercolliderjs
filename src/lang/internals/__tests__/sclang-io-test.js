@@ -1,13 +1,7 @@
 /* eslint no-console: 0 */
-
-// import {SclangIO, STATES} from '../sclang-io';
-
-var scio = require('../sclang-io');
-var SclangIO = scio.SclangIO;
-var STATES = scio.STATES;
-
-import {join} from 'path';
+import { join } from 'path';
 import fs from 'fs';
+import { SclangIO, STATES } from '../sclang-io';
 
 // parse a series of output files with the option to break into chunks
 function readFile(filename) {
@@ -77,7 +71,7 @@ describe('sclang-io', function() {
     expect(io.result.duplicateClasses[0].files[0]).toEqual('/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc');
   });
 
-  describe('parseCompleErrors', () => {
+  describe('parseCompileErrors', () => {
     it('should parse Duplicate class errors', function() {
       var io = new SclangIO();
       io.setState(STATES.BOOTING);

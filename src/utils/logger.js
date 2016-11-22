@@ -14,22 +14,30 @@ const colors = {
 
 
 /**
- * usage:
+ * A customized logging interface for supercollider.js
  *
- * log = new Logger(true, true);
+ * Has special colors for osc messages and for logging stdin/stdout traffic.
  *
- * log.dbug('a message');
- * log.err('oh no');
- * log.stdin('command that I sent')
- * log.stdout('output from server')
- * log.stderr('error from server')
+ * @example
+ *
+ *     log = new Logger(true, true);
+ *
+ *     log.dbug('a message');
+ *     log.err('oh no');
+ *     log.stdin('command that I sent')
+ *     log.stdout('output from server')
+ *     log.stderr('error from server')
  *
  */
-
 export default class Logger {
 
   /**
-   * @param {winston.Logger|undefined} log - optional external winston Logger or compatible API
+   * @param {Boolean} debug - Post all debugging calls to log.
+   *                        If false then only errors are posted.
+   * @param {Boolean} echo - Echo stdin/stdout and osc traffic to console
+   * @param {winston.Logger|undefined} log - Default is to use console.(log|error)
+   *                                       but any object with a compatible API such
+   *                                       as winston will work.
    */
   constructor(debug, echo, log) {
     this.debug = debug;
@@ -39,46 +47,70 @@ export default class Logger {
     this.browser = typeof window !== 'undefined';
   }
 
+  /**
+   * Log debugging information but only if this.debug is true
+   */
   dbug(text) {
     if (this.debug) {
       this.print('debug  ', text, colors.debug);
     }
   }
 
+  /**
+   * Log an error.
+   */
   err(text) {
     this.print('error  ', text, colors.error);
   }
 
+  /**
+   * Log messages that were sent to stdin or sclang.
+   */
   stdin(text) {
     if (this.echo) {
       this.print('stdin  ', text, colors.stdin);
     }
   }
 
+  /**
+   * Log messages that were received from stdout of sclang/scsynth.
+   */
   stdout(text) {
     if (this.echo) {
       this.print('stdout ', text, colors.stdout);
     }
   }
 
+  /**
+   * Log messages that were emitted from stderr of sclang/scsynth.
+   */
   stderr(text) {
     if (this.echo) {
       this.print('stderr ', text, colors.stderr);
     }
   }
 
+  /**
+   * Log OSC messages sent to scsynth.
+   */
   sendosc(text) {
     if (this.echo) {
       this.print('sendosc', text, colors.sendosc);
     }
   }
 
+  /**
+   * Log OSC messages received from scsynth.
+   */
   rcvosc(text) {
     if (this.echo) {
       this.print('rcvosc ', text, colors.rcvosc);
     }
   }
 
+  /**
+   * @private
+   */
   print(label, text, color) {
     if (this.browser) {
       console.log('%c' + label, 'font-size: 10px; color:' + color, text);

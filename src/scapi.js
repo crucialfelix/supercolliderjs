@@ -1,5 +1,17 @@
 /* jslint node: true */
 
+var
+  events = require('events'),
+  dgram = require('dgram'),
+  osc = require('osc-min'),
+  cuid = require('cuid'),
+  _ = require('lodash'),
+  Promise = require('bluebird');
+
+import SCError from './Errors';
+import Logger from './utils/logger';
+
+
 /*
  *
  *  Communicates via OSC with the SuperCollider API quark
@@ -22,20 +34,7 @@
  *
  *  See examples/call-api-from-node.js
 */
-
-var
-  events = require('events'),
-  dgram = require('dgram'),
-  osc = require('osc-min'),
-  cuid = require('cuid'),
-  _ = require('lodash'),
-  Promise = require('bluebird');
-
-import SCError from './Errors';
-import Logger from './utils/logger';
-
-
-export class SCAPI extends events.EventEmitter {
+export default class SCAPI extends events.EventEmitter {
 
   constructor(schost, scport) {
     super();

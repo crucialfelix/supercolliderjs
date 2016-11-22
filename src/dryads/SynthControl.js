@@ -2,7 +2,7 @@
 import {Dryad} from 'dryadic';
 import type { DryadPlayer } from 'dryadic';
 import {nodeSet} from '../server/osc/msg';
-import * as _  from 'lodash';
+import _ from 'lodash';
 
 
 /**

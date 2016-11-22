@@ -1,12 +1,10 @@
 
-//  import SCLang from '../sclang';
-var SCLang = require('../sclang').SCLang;
-
-var _ = require('lodash');
-var path = require('path');
-var fs = require('fs');
-var EventEmitter = require('events').EventEmitter;
-import {STATES} from '../internals/sclang-io';
+import _ from 'lodash';
+import path from 'path';
+import fs from 'fs';
+import { EventEmitter } from 'events';
+// import {STATES} from '../internals/sclang-io';
+import SCLang from '../sclang';
 
 
 class MockProcess extends EventEmitter {
@@ -35,7 +33,7 @@ describe('sclang', function() {
       expect(opts.includePaths.length).toEqual(1);
       var isIn = _.some(opts.includePaths, function(p) {
         // and that directory should really exist
-        return p.match(/supercollider\-js/) && fs.existsSync(p);
+        return p.match(/supercollider\-js$/) && fs.statSync(p);
       });
       expect(isIn).toBeTruthy();
     });
@@ -83,8 +81,9 @@ describe('sclang', function() {
       var sclang = new SCLang();
       var SPAWNED = 'SPAWNED';
       spyOn(sclang, 'spawnProcess').and.returnValue(SPAWNED);
-      var fail = (err) => this.fail(err);
-      return sclang.boot().then((result) => expect(result).toEqual(SPAWNED)).error(fail);
+      return sclang.boot()
+        .then((result) => expect(result).toEqual(SPAWNED))
+        .catch((err) => this.fail(err));
     });
   });
 
@@ -133,7 +132,8 @@ describe('sclang', function() {
     it('should install event listeners', function() {
       var subprocess = new MockProcess();
       var sclang = new SCLang();
-      sclang.installListeners(subprocess, true);
+      // don't listen to stdin or tests will hang
+      sclang.installListeners(subprocess, false);
     });
 
     // the test runner jest-cli is getting these and breaking
@@ -145,7 +145,7 @@ describe('sclang', function() {
     //   var sclang = new SCLang();
     //   sclang.setState(STATES.BOOTING);
     //   sclang.installListeners(subprocess, true);
-    // 
+    //
     //   process.stdin.emit('data', '');
     //   subprocess.stdout.emit('data', 'data');
     //   subprocess.stderr.emit('data', 'data');
