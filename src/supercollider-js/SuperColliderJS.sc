@@ -355,13 +355,13 @@ SuperColliderJS {
 			},
 			Number: { arg obj;
 				if(obj.isNaN, {
-					"NaN"
+					"\"NaN\""
 				}, {
 					if(obj === inf, {
-						"Infinity"
+						"\"Infinity\""
 					}, {
 						if(obj === (-inf), {
-							"-Infinity"
+							"\"-Infinity\""
 						}, {
 							// as full precision please
 							obj.asString
