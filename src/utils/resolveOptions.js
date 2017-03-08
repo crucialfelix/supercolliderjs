@@ -57,7 +57,11 @@ function defaultOptions() {
 }
 
 function getUserHome() {
-  return process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+  const home = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+  if (!home) {
+    throw new Error('Failed to find user home directory');
+  }
+  return home;
 }
 
 function filterUndefs(opts) {
