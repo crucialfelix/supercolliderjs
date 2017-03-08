@@ -16,7 +16,7 @@ import { Promise } from 'bluebird';
 import Logger from '../utils/logger';
 import { SclangIO, STATES } from './internals/sclang-io';
 import resolveOptions from '../utils/resolveOptions';
-import SCError from '../Errors';
+import { SCError } from '../Errors';
 import { SclangResultType } from '../Types';
 
 type ChildProcessType = child_process$ChildProcess;
