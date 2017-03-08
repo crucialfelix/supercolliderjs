@@ -382,7 +382,7 @@ export default class Server extends EventEmitter {
    * Send OSC message to server
    *
    * @deprecated - use: `server.send.msg([address, arg1, arg2])``
-   * @param {String} address - OSC command, referred to as address
+   * @param {String} address - OSC command string eg. `/s_new` which is referred to in OSC as the address
    * @param {Array} args
    */
   sendMsg(address:string, args:Array<string|number>) {

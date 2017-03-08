@@ -269,7 +269,8 @@ export default class SCLang extends EventEmitter {
         // By default allow a missing sclang_conf file
         // so that the language can create it on demand if you use Quarks or LanguageConfig.
         if (!options.failIfSclangConfIsMissing) {
-          this.log.err(e);
+          // Was the sclang_conf just in the defaults or was it explicitly set ?
+          this.log.dbug(e);
           sclang_conf = defaultConf;
         } else {
           throw new Error('Cannot open or read specified sclang_conf ' + options.sclang_conf);
@@ -466,19 +467,21 @@ export default class SCLang extends EventEmitter {
 
 
 /**
-  * Boots an sclang interpereter, resolving options and connecting.
+  * Boots an sclang interpreter, resolving options and connecting.
   *
   * @memberof lang
-  * @param {object} options
-  * @returns {Promise}
+  *
+  * @param {Object} commandLineOptions - A dict of options to be merged into the loaded config. Command line options to be supplied to sclang --sclang=/some/path/to/sclang
+  * commandLineOptions.config - Explicit path to a yaml config file
+  * If undefined then it will look for config files in:
+  *    - .supercollider.yaml
+  *    - ~/.supercollider.yaml
   */
-export function boot(options:Object={}) : Promise<SCLang> {
-  return resolveOptions(options.config, options).then((opts) => {
+export function boot(commandLineOptions:Object={}) : Promise<SCLang> {
+  return resolveOptions(commandLineOptions.config, commandLineOptions).then((opts) => {
     var sclang = new SCLang(opts);
     return sclang.boot().then(() => {
-      return sclang.storeSclangConf().then(() => {
-        return sclang;
-      });
+      return sclang.storeSclangConf().then(() => sclang);
     });
   });
 }
