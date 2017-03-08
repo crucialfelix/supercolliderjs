@@ -1,3 +1,4 @@
+*.sh
 /node_modules
 /lib
 coverage
@@ -9,3 +10,4 @@ coverage
 0.9.2
 0.9.3
 docs/_site
+documentation.json
