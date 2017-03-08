@@ -77,7 +77,7 @@ describe('sclang', function() {
   });
 
   describe('boot', function() {
-    pit('should call spawnProcess', function() {
+    it('should call spawnProcess', function() {
       var sclang = new SCLang();
       var SPAWNED = 'SPAWNED';
       spyOn(sclang, 'spawnProcess').and.returnValue(SPAWNED);
@@ -88,7 +88,7 @@ describe('sclang', function() {
   });
 
   describe('makeSclangConfig', function() {
-    pit('should write a yaml file and resolve with a path', function() {
+    it('should write a yaml file and resolve with a path', function() {
       var sclang = new SCLang();
       var fail = (err) => this.fail(err);
       return sclang.makeSclangConfig({includePaths: [], excludePaths: []})
@@ -188,12 +188,12 @@ describe('sclang', function() {
   });
 
   describe('quit', function() {
-    pit('should quit silently if not booted', function() {
+    it('should quit silently if not booted', function() {
       var sclang = new SCLang();
       return sclang.quit();
     });
 
-    pit('should quit process', function() {
+    it('should quit process', function() {
       var sclang = new SCLang();
       sclang.process = new MockProcess();
       spyOn(sclang.process, 'kill').and.returnValue(null);

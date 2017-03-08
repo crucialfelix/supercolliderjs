@@ -13,7 +13,7 @@ describe('Server', function() {
   });
 
   describe('boot sequence', function() {
-    pit('should detect "server ready" even if the output is broken into chunks', function() {
+    it('should detect "server ready" even if the output is broken into chunks', function() {
 
       var one = 'SuperCollider 3 se';
       var two = 'rver ready.';
@@ -38,7 +38,7 @@ describe('Server', function() {
   });
 
   describe('oscOnce', function() {
-    pit('should fullfill', function() {
+    it('should fullfill', function() {
       var s = new Server();
 
       s.send.msg = jest.genMockFunction();
@@ -67,7 +67,7 @@ describe('Server', function() {
   });
 
   describe('callAndResponse', function() {
-    pit('should call and get response', function() {
+    it('should call and get response', function() {
       var s = new Server();
 
       var car = {

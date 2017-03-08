@@ -20,7 +20,6 @@
     "describe": true,
     "expect": true,
     "it": true,
-    "pit": true,
     "spyOn": true
   },
   "rules": {

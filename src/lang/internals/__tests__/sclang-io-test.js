@@ -138,7 +138,7 @@ describe('sclang-io', function() {
       expect(error.charPos).toBe(47);
     });
 
-    pit('on successful interpret, should still post output to stdout', function() {
+    it('on successful interpret, should still post output to stdout', function() {
       var io = new SclangIO();
       io.setState(STATES.READY);
 

@@ -19,7 +19,10 @@ import resolveOptions from '../utils/resolveOptions';
 import { SCError } from '../Errors';
 import { SclangResultType } from '../Types';
 
-type ChildProcessType = child_process$ChildProcess;
+// This is a private magic built in type.
+// It is now undefined, so using any until I track that down.
+// 'any' just opts out of type checking
+type ChildProcessType = any; // child_process$ChildProcess;
 
 /**
   * This class manages a supercollider language interpreter process

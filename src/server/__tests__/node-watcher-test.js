@@ -84,7 +84,7 @@ describe('node-watcher', function() {
   });
 
   describe('watchNodeNotifications', function() {
-    pit('should fire a onNodeGo handler when server receives', function() {
+    it('should fire a onNodeGo handler when server receives', function() {
       var s = new Server();
 
       return new Promise((resolve) => {
