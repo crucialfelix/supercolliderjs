@@ -5,7 +5,7 @@ import _ from 'lodash';
 describe('resolveOptions', function() {
 
   // `pit` is `it` for promises
-  pit('should get default options with no undefines', function() {
+  it('should get default options with no undefines', function() {
     return resolveOptions().then(function(opts) {
       _.each(opts, function(val) {
         expect(val).toBeDefined();
@@ -13,7 +13,7 @@ describe('resolveOptions', function() {
     });
   });
 
-  pit('should reject if configPath does not exist', function() {
+  it('should reject if configPath does not exist', function() {
     var badPath = '/---~no-way-do-you-have-this-path-on-your-computer~---/bad/path.yaml';
     return resolveOptions(badPath, {}).then(() => {
       this.fail('should not have resolved');
@@ -23,7 +23,7 @@ describe('resolveOptions', function() {
     });
   });
 
-  pit('should remove undefined values from supplied options', function() {
+  it('should remove undefined values from supplied options', function() {
     return resolveOptions(null, {sclang: undefined}).then(function(opts) {
       _.each(opts, function(val) {
         expect(val).toBeDefined();

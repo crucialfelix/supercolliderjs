@@ -2,8 +2,8 @@
 import assign from 'lodash/assign';
 
 // http://www.2ality.com/2011/12/subtyping-builtins.html
-function copyOwnFrom(target, source) {
-    Object.getOwnPropertyNames(source).forEach(function(propName) {
+function copyOwnFrom(target:Object, source:Object) : Object {
+    Object.getOwnPropertyNames(source).forEach(function(propName:string) {
         Object.defineProperty(target, propName,
             Object.getOwnPropertyDescriptor(source, propName));
     });

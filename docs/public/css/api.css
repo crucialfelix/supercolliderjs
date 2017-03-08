@@ -1,3 +1,24 @@
+
+@media (min-width: 745px) {
+  .api nav {
+    height: 100%;
+    width: 11rem;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #fff;
+    overflow-x: hidden;
+    padding: 1rem 0 1rem .5rem;
+    transition: 0.5s;
+  }
+
+  .api main {
+    transition: margin-left .5s;
+    padding-left: 8rem;
+  }
+}
+
 .api code {
   font-family: "Inconsolata", "Source Sans Pro", Menlo, Monaco, "Courier New", monospace;
 }
@@ -40,11 +61,6 @@ ul {
   left: 0;
 }*/
 
-@media (min-width: 600px) {
-  .api__main {
-    left: 300px;
-  }
-}
 
 .api__section {
   margin: 4rem 0;
@@ -132,11 +148,12 @@ ul {
 }
 .api nav > ul > li {
   list-style: none;
+  font-size: .9em;
 }
 
 .api__nav-item-members {
   margin-left: .5rem;
-  font-size: .9em;
+  font-size: .8em;
 }
 
 .api__type {}

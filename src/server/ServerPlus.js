@@ -23,7 +23,7 @@ class Group {
   id:number;
   server:ServerPlus;
 
-  constructor(server, id) {
+  constructor(server:ServerPlus, id:number) {
     this.id = id;
     this.server = server;
   }
@@ -31,7 +31,7 @@ class Group {
   /**
    * Stop the Group and remove it from the play graph on the server.
    */
-  free() {
+  free() : Promise<number> {
     this.server.send.msg(msg.nodeFree(this.id));
     return whenNodeEnd(this.server, String(this.id), this.id);
   }
@@ -85,7 +85,7 @@ class AudioBus {
   server:ServerPlus;
   numChannels:number;
 
-  constructor(server, id, numChannels) {
+  constructor(server:ServerPlus, id:number, numChannels:number) {
     this.server = server;
     this.id = id;
     this.numChannels = numChannels;
@@ -132,7 +132,7 @@ class Buffer {
   numFrames:number;
   numChannels:number;
 
-  constructor(server, id, numFrames, numChannels) {
+  constructor(server:ServerPlus, id:number, numFrames:number, numChannels:number) {
     this.server = server;
     this.id = id;
     this.numFrames = numFrames;
@@ -142,7 +142,7 @@ class Buffer {
   /**
    * Deallocate the Buffer, freeing memory on the server.
    */
-  free() {
+  free() : Promise<number> {
     return this.server.callAndResponse(msg.bufferFree(this.id))
       .then(() => {
         this.server.state.freeBuffer(this.id, this.numChannels);
@@ -180,7 +180,7 @@ class SynthDef {
   sourceCode:?string;
   path:?string;
 
-  constructor(server, defName, synthDefResult, sourceCode, path) {
+  constructor(server:ServerPlus, defName:string, synthDefResult:SynthDefResultType, sourceCode:?string, path:?string) {
     this.server = server;
     this.name = defName;
     this.synthDefResult = synthDefResult;
@@ -259,7 +259,7 @@ export default class ServerPlus extends Server {
    * multiple supercollider interpreters. This is harmless, but
    * you do have a lot of icons bouncing in your dock.
    *
-   * @param defs - object with `{defName: spec, ...}` where spec is
+   * @param defs - An object with `{defName: spec, ...}` where spec is
    *               an object like `{source: "SynthDef('noise', { ...})"}`
    *               or `{path: "./noise.scd"}`
    * @returns An object with the synthDef names as keys and Promises as values.
