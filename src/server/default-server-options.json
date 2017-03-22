@@ -1,6 +1,6 @@
 {
   "host": "127.0.0.1",
-  "port": "57110",
+  "serverPort": "57110",
   "protocol": "udp",
 
   "numPrivateAudioBusChannels": 112,
@@ -25,11 +25,9 @@
   "inputStreamsEnabled": null,
   "outputStreamsEnabled": null,
 
-  "inDevice": null,
-  "outDevice": null,
+  "device": null,
 
   "verbosity": 0,
-  "zeroConf": false,
 
   "restrictedPath": null,
   "ugenPluginsPath": null,

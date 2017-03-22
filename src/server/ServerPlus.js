@@ -360,13 +360,21 @@ export default class ServerPlus extends Server {
 
 
 /**
- * Boot a server with options and connect
+ * Start the scsynth server with options:
+ *
+ * ```js
+ *   sc.server.boot({device: 'Soundflower (2ch)'}).then(server => {
+ *     //
+ *   });
+ *
+ *   sc.server.boot({serverPort: '11211'})
+ * ```
  *
  * @memberof server
  *
- * @param {Object} options - command line options for server
+ * @param {Object} options - Optional command line options for server
  * @param {Store} store - optional external Store to hold Server state
- * @returns {Promise} - resolves with the Server
+ * @returns {Promise} - resolves with a Server (ServerPlus actually)
  */
 export function boot(options:Object={}, store:any=null) : Promise<ServerPlus> {
   return resolveOptions(undefined, options)

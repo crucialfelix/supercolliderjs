@@ -193,18 +193,113 @@ export default class Server extends EventEmitter {
   }
 
   /**
-   * Format command line args for scsynth
+   * Format the command line args for scsynth.
    *
-   * not yet fully implemented
+   * The args built using the options supplied to `Server(options)` or `sc.server.boot(options)`
    *
-   * @return {array} list of non-default args
+   * ```js
+   *  sc.server.boot({device: 'Soundflower (2ch)'});
+   *  sc.server.boot({serverPort: '11211'});
+   *  ```
+   *
+   * Supported arguments:
+   *
+   *     numAudioBusChannels
+   *     numControlBusChannels
+   *     numInputBusChannels
+   *     numOutputBusChannels
+   *     numBuffers
+   *     maxNodes
+   *     maxSynthDefs
+   *     blockSize
+   *     hardwareBufferSize
+   *     memSize
+   *     numRGens - max random generators
+   *     numWireBufs
+   *     sampleRate
+   *     loadDefs - (0 or 1)
+   *     inputStreamsEnabled - "01100" means only the 2nd and 3rd input streams
+   *                          on the device will be enabled
+   *     outputStreamsEnabled
+   *     device - name of hardware device
+   *            or array of names for [inputDevice, outputDevice]
+   *     verbosity: 0 1 2
+   *     restrictedPath
+   *     ugenPluginsPath
+   *     password - for TCP logins open to the internet
+   *     maxLogins - max users that may login
+   *
+   * Arbitrary arguments can be passed in as options.commandLineArgs
+   * which is an array of strings that will be space-concatenated
+   * and correctly shell-escaped.
+   *
+   * Host is currently ignored: it is always local on the same machine.
+   *
+   * See ServerOptions documentation: http://danielnouri.org/docs/SuperColliderHelp/ServerArchitecture/ServerOptions.html
+   *
+   * @return {Array<string>} List of non-default args
    */
-  args() {
-    var o = [];
-    // o.push(this.options.protocol === 'udp' ? '-u' : '-t');
-    o.push('-u');  // only udp socket is implemented right now
-    o.push(this.options.serverPort);
-    return o;
+  args() : Array<string> {
+    const flagMap = {
+      numAudioBusChannels: '-a',
+      numControlBusChannels: '-c',
+      numInputBusChannels: '-i',
+      numOutputBusChannels: '-o',
+      numBuffers: '-b',
+      maxNodes: '-n',
+      maxSynthDefs: '-d',
+      blockSize: '-z',
+      hardwareBufferSize: '-Z',
+      memSize: '-m',
+      numRGens: '-r',
+      numWireBufs: '-w',
+      sampleRate: '-S',
+      loadDefs: '-D',
+      inputStreamsEnabled: '-I',
+      outputStreamsEnabled: '-O',
+      device: '-H',
+      verbosity: '-v',
+      zeroConf: '-R',
+      restrictedPath: '-P',
+      ugenPluginsPath: '-U',
+      password: '-p',
+      maxLogins: '-l'
+    };
+
+    const {
+      serverPort,
+      protocol,
+      commandLineArgs
+    } = this.options;
+
+    const opts = [
+      '-u',
+      serverPort
+    ];
+
+    if (protocol === 'tcp') {
+      throw new Error('Only udp sockets are supported at this time.');
+    }
+
+    _.forEach(this.options, (option, argName) => {
+      if (flagMap[argName]) {
+        let flag = flagMap[argName];
+        if (option !== defaultOptions[argName]) {
+          opts.push(flag);
+          if (_.isArray(option)) {
+            opts.push(...option);
+          } else {
+            opts.push(option);
+          }
+        }
+      }
+    });
+
+    if (_.isArray(commandLineArgs)) {
+      opts.push(...commandLineArgs);
+    }
+
+    return opts.map(String);
   }
 
   /**
