@@ -195,7 +195,12 @@ class SynthDef {
 }
 
 /**
- * Extends Server with methods for creating Synth, Group etc.
+ * This extends Server with convienient methods for creating Synth, Group, compiling SynthDefs, creating Buses, Buffers etc.
+ *
+ * All methods return Promises, and all arguments accept Promises.
+ * This means that async actions (like starting a sclang interpreter,
+ * compiling SynthDefs and sending them to the server) are complete and their results
+ * are ready to be used by whatever they have been supplied to.
  */
 export default class ServerPlus extends Server {
 

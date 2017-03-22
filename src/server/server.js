@@ -22,19 +22,23 @@ import type {CallAndResponseType, MsgType} from '../Types';
 
 
 /**
-  * Server - boots the SuperCollider synthesis server
+  * Server - starts a SuperCollider synthesis server (scsynth)
+  * as a child process. Enables OSC communication, subscribe to process events,
+  * send call and response OSC messages.
   *
   * SuperCollider comes with an executable called scsynth
   * which can be communicated with via OSC.
   *
-  * The primary way to send raw OSC messages is with:
+  * To send raw OSC messages:
   * ```js
   * server.send.msg('/s_new', ['defName', 440])
   * ```
   *
-  * and the responses can be subscribed to:
+  * Raw OSC responses can be subscribed to:
   * ```js
-  * server.receive.subscribe(function(msg) function(msg) {  ...  });
+  * server.receive.subscribe(function(msg) {
+  *   console.log(msg);
+  * });
   * ```
  */
 export default class Server extends EventEmitter {
@@ -122,6 +126,7 @@ export default class Server extends EventEmitter {
     this.state = new ServerState(this, stateStore);
   }
 
+  /* @private */
   _initLogger() {
     this.log = new Logger(this.options.debug, this.options.echo, this.options.log);
     this.send.subscribe((event) => {
@@ -159,8 +164,9 @@ export default class Server extends EventEmitter {
   }
 
   /**
-    * emit signals are deprecated and will be removed in 1.0
-    * use instead server.{channel}.subscribe((event) => { })
+    * Emit signals are deprecated and will be removed in 1.0
+    *
+    * Instead use ```server.{channel}.subscribe((event) => { })```
     *
     * Event Emitter emits:
     *    'out'   - stdout text from the server
@@ -168,6 +174,8 @@ export default class Server extends EventEmitter {
     *    'exit'  - when server exits
     *    'close' - when server closes the UDP connection
     *    'OSC'   - OSC responses from the server
+    *
+    * @private
    */
   _initEmitter() {
     this.receive.subscribe((msg) => {
