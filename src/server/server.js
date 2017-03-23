@@ -3,23 +3,22 @@
  */
 
 import EventEmitter from 'events';
-import {Observable, Subject} from 'rx';
-import {spawn} from 'child_process';
+import { Observable, Subject } from 'rx';
+import { spawn } from 'child_process';
 import _ from 'lodash';
 import * as dgram from 'dgram';
 import * as osc from 'osc-min';
-import {Promise} from 'bluebird';
+import { Promise } from 'bluebird';
 
 import SendOSC from './internals/SendOSC';
-import {parseMessage} from './osc/utils';
-import {notify} from './osc/msg';
+import { parseMessage } from './osc/utils';
+import { notify } from './osc/msg';
 import resolveOptions from '../utils/resolveOptions';
 import defaultOptions from './default-server-options.json';
 import Logger from '../utils/logger';
 import ServerState from './ServerState';
 
-import type {CallAndResponseType, MsgType} from '../Types';
-
+import type { CallAndResponseType, MsgType } from '../Types';
 
 /**
   * Server - starts a SuperCollider synthesis server (scsynth)
@@ -42,7 +41,6 @@ import type {CallAndResponseType, MsgType} from '../Types';
   * ```
  */
 export default class Server extends EventEmitter {
-
   options: Object;
 
   address: string;
@@ -105,7 +103,7 @@ export default class Server extends EventEmitter {
    * @param options - command line options for scsynth
    * @param stateStore - optional parent Store for allocators and node watchers
    */
-  constructor(options: Object={}, stateStore: any=null) {
+  constructor(options: Object = {}, stateStore: any = null) {
     super();
     this.options = _.defaults(options, defaultOptions);
     this.address = this.options.host + ':' + this.options.port;
@@ -128,39 +126,60 @@ export default class Server extends EventEmitter {
 
   /* @private */
   _initLogger() {
-    this.log = new Logger(this.options.debug, this.options.echo, this.options.log);
-    this.send.subscribe((event) => {
+    this.log = new Logger(
+      this.options.debug,
+      this.options.echo,
+      this.options.log
+    );
+    this.send.subscribe(event => {
       // will be a type:msg or type:bundle
       // if args has a type: Buffer in it then compress that
-      var out = JSON.stringify(event.payload || event, (k:string, v:any):any => {
-        if (k === 'data' && _.isArray(v)) {
-          return _.reduce(v, (memo:string, n:number):string => memo + (n).toString(16), '');
-        }
-        return v;
-      }, 2);
+      var out = JSON.stringify(
+        event.payload || event,
+        (k: string, v: any): any => {
+          if (k === 'data' && _.isArray(v)) {
+            return _.reduce(
+              v,
+              (memo: string, n: number): string => memo + n.toString(16),
+              ''
+            );
+          }
+          return v;
+        },
+        2
+      );
       if (!this.osc) {
         out = '[NOT CONNECTED] ' + out;
       }
       this.log.sendosc(out);
     });
-    this.receive.subscribe((o) => {
-      this.log.rcvosc(o);
-      // log all /fail responses as error
-      if (o[0] === '/fail') {
-        this.log.err(o);
-      }
-    }, (err:Error) => this.log.err(err));
-    this.stdout.subscribe((o) => {
-      // scsynth doesn't send ERROR messages to stderr
-      // if ERROR or FAILURE in output then redirect as though it did
-      // so it shows up in logs
-      if (o.match(/ERROR|FAILURE/)) {
-        this.log.stderr(o);
-      } else {
-        this.log.stdout(o);
-      }
-    }, (err:Error) => this.log.stderr(err));
-    this.processEvents.subscribe((o) => this.log.dbug(o), (err:Error) => this.log.err(err));
+    this.receive.subscribe(
+      o => {
+        this.log.rcvosc(o);
+        // log all /fail responses as error
+        if (o[0] === '/fail') {
+          this.log.err(o);
+        }
+      },
+      (err: Error) => this.log.err(err)
+    );
+    this.stdout.subscribe(
+      o => {
+        // scsynth doesn't send ERROR messages to stderr
+        // if ERROR or FAILURE in output then redirect as though it did
+        // so it shows up in logs
+        if (o.match(/ERROR|FAILURE/)) {
+          this.log.stderr(o);
+        } else {
+          this.log.stdout(o);
+        }
+      },
+      (err: Error) => this.log.stderr(err)
+    );
+    this.processEvents.subscribe(
+      o => this.log.dbug(o),
+      (err: Error) => this.log.err(err)
+    );
   }
 
   /**
@@ -178,24 +197,39 @@ export default class Server extends EventEmitter {
     * @private
    */
   _initEmitter() {
-    this.receive.subscribe((msg) => {
+    this.receive.subscribe(msg => {
       this.emit('OSC', msg);
     });
-    this.processEvents.subscribe(() => {}, (err) => this.emit('exit', err));
-    this.stdout.subscribe((out) => this.emit('out', out), (out) => this.emit('stderr', out));
+    this.processEvents.subscribe(() => {}, err => this.emit('exit', err));
+    this.stdout.subscribe(
+      out => this.emit('out', out),
+      out => this.emit('stderr', out)
+    );
   }
 
   _initSender() {
-    this.send.on('msg', (msg) => {
+    this.send.on('msg', msg => {
       if (this.osc) {
         var buf = osc.toBuffer(msg);
-        this.osc.send(buf, 0, buf.length, this.options.serverPort, this.options.host);
+        this.osc.send(
+          buf,
+          0,
+          buf.length,
+          this.options.serverPort,
+          this.options.host
+        );
       }
     });
-    this.send.on('bundle', (bundle) => {
+    this.send.on('bundle', bundle => {
       if (this.osc) {
         var buf = osc.toBuffer(bundle);
-        this.osc.send(buf, 0, buf.length, this.options.serverPort, this.options.host);
+        this.osc.send(
+          buf,
+          0,
+          buf.length,
+          this.options.serverPort,
+          this.options.host
+        );
       }
     });
   }
@@ -228,7 +262,7 @@ export default class Server extends EventEmitter {
    *     loadDefs - (0 or 1)
    *     inputStreamsEnabled - "01100" means only the 2nd and 3rd input streams
    *                          on the device will be enabled
-   *     outputStreamsEnabled
+   *     outputStreamsEnabled,
    *     device - name of hardware device
    *            or array of names for [inputDevice, outputDevice]
    *     verbosity: 0 1 2
@@ -247,7 +281,7 @@ export default class Server extends EventEmitter {
    *
    * @return {Array<string>} List of non-default args
    */
-  args() : Array<string> {
+  args(): Array<string> {
     const flagMap = {
       numAudioBusChannels: '-a',
       numControlBusChannels: '-c',
@@ -280,10 +314,7 @@ export default class Server extends EventEmitter {
       commandLineArgs
     } = this.options;
 
-    const opts = [
-      '-u',
-      serverPort
-    ];
+    const opts = ['-u', serverPort];
 
     if (protocol === 'tcp') {
       throw new Error('Only udp sockets are supported at this time.');
@@ -331,44 +362,52 @@ export default class Server extends EventEmitter {
         reject(e);
       }
 
-      this._serverObservers.stdout = Observable.fromEvent(this.process.stdout, 'data', (data) => String(data));
-      this._serverObservers.stdout.subscribe((e) => this.stdout.onNext(e));
-      this._serverObservers.stderr = Observable.fromEvent(this.process.stderr, 'data')
-        .subscribe((out) => {
-          // just pipe it into the stdout object's error stream
-          this.stdout.onError(out);
-        });
+      this._serverObservers.stdout = Observable.fromEvent(
+        this.process.stdout,
+        'data',
+        data => String(data)
+      );
+      this._serverObservers.stdout.subscribe(e => this.stdout.onNext(e));
+      this._serverObservers.stderr = Observable.fromEvent(
+        this.process.stderr,
+        'data'
+      ).subscribe(out => {
+        // just pipe it into the stdout object's error stream
+        this.stdout.onError(out);
+      });
 
       // Keep a local buffer of the stdout text because on Windows it can be split into odd chunks.
       var stdoutBuffer = '';
       // watch for ready message
-      this._serverObservers.stdout.takeWhile((text) => {
-        stdoutBuffer += text;
-        return !(stdoutBuffer.match(/SuperCollider 3 server ready/));
-      })
-        .subscribe(
-          () => {},
-          this.log.err,
-          () => { // onComplete
-            stdoutBuffer = '';
-            this.isRunning = true;
-            resolve(this);
-          });
+      this._serverObservers.stdout
+        .takeWhile(text => {
+          stdoutBuffer += text;
+          return !stdoutBuffer.match(/SuperCollider 3 server ready/);
+        })
+        .subscribe(() => {}, this.log.err, () => {
+          // onComplete
+          stdoutBuffer = '';
+          this.isRunning = true;
+          resolve(this);
+        });
 
-      setTimeout(() => {
-        if (!this.isRunning) {
-          reject(new Error('Server failed to start in 3000ms'));
-        }
-      }, 3000);
+      setTimeout(
+        () => {
+          if (!this.isRunning) {
+            reject(new Error('Server failed to start in 3000ms'));
+          }
+        },
+        3000
+      );
     });
   }
 
   _spawnProcess() {
-    var
-      execPath = this.options.scsynth,
-      args = this.args();
+    var execPath = this.options.scsynth, args = this.args();
 
-    this.processEvents.onNext('Start process: ' + execPath + ' ' + args.join(' '));
+    this.processEvents.onNext(
+      'Start process: ' + execPath + ' ' + args.join(' ')
+    );
     this.process = spawn(execPath, args, {
       cwd: this.options.cwd,
       options: {
@@ -394,18 +433,22 @@ export default class Server extends EventEmitter {
 
     process.on('exit', killChild);
 
-    this.process.on('error', (err) => {
+    this.process.on('error', err => {
       this.processEvents.onError(err);
       this.isRunning = false;
       // this.disconnect()
     });
     this.process.on('close', (code, signal) => {
-      this.processEvents.onError('Server closed. Exit code: ' + code + ' signal: ' + signal);
+      this.processEvents.onError(
+        'Server closed. Exit code: ' + code + ' signal: ' + signal
+      );
       this.isRunning = false;
       // this.disconnect()
     });
     this.process.on('exit', (code, signal) => {
-      this.processEvents.onError('Server exited. Exit code: ' + code + ' signal: ' + signal);
+      this.processEvents.onError(
+        'Server exited. Exit code: ' + code + ' signal: ' + signal
+      );
       this.isRunning = false;
       // this.disconnect()
     });
@@ -439,17 +482,22 @@ export default class Server extends EventEmitter {
       this.osc.on('listening', () => {
         this.processEvents.onNext(udpListening);
       });
-      this.osc.on('close', (e) => {
+      this.osc.on('close', e => {
         this.processEvents.onNext('udp closed: ' + e);
         this.disconnect();
       });
 
       // pipe events to this.receive
-      this._serverObservers.oscMessage = Observable.fromEvent(this.osc, 'message', (msgbuf) => osc.fromBuffer(msgbuf));
-      this._serverObservers.oscMessage.subscribe((e) => this.receive.onNext(parseMessage(e)));
+      this._serverObservers.oscMessage = Observable.fromEvent(
+        this.osc,
+        'message',
+        msgbuf => osc.fromBuffer(msgbuf)
+      );
+      this._serverObservers.oscMessage.subscribe(e =>
+        this.receive.onNext(parseMessage(e)));
 
       this._serverObservers.oscError = Observable.fromEvent(this.osc, 'error');
-      this._serverObservers.oscError.subscribe((e) => {
+      this._serverObservers.oscError.subscribe(e => {
         this.receive.onError(e);
         reject(e);
       });
@@ -488,7 +536,7 @@ export default class Server extends EventEmitter {
    * @param {String} address - OSC command string eg. `/s_new` which is referred to in OSC as the address
    * @param {Array} args
    */
-  sendMsg(address:string, args:Array<string|number>) {
+  sendMsg(address: string, args: Array<string | number>) {
     this.send.msg([address].concat(args));
   }
 
@@ -505,9 +553,9 @@ export default class Server extends EventEmitter {
    * @param {int} timeout - in milliseconds before the Promise is rejected
    * @returns {Promise}
    */
-  oscOnce(matchArgs:Array<string|number>, timeout:number=4000): Promise {
+  oscOnce(matchArgs: Array<string | number>, timeout: number = 4000): Promise {
     return new Promise((resolve, reject) => {
-      var subscription = this.receive.subscribe((msg) => {
+      var subscription = this.receive.subscribe(msg => {
         var command = msg.slice(0, matchArgs.length);
         if (_.isEqual(command, matchArgs)) {
           var payload = msg.slice(matchArgs.length);
@@ -517,10 +565,17 @@ export default class Server extends EventEmitter {
       });
 
       // if timeout then reject and dispose
-      var tid = setTimeout(() => {
-        dispose();
-        reject(new Error(`Timed out waiting for OSC response: ${JSON.stringify(matchArgs)}`));
-      }, timeout);
+      var tid = setTimeout(
+        () => {
+          dispose();
+          reject(
+            new Error(
+              `Timed out waiting for OSC response: ${JSON.stringify(matchArgs)}`
+            )
+          );
+        },
+        timeout
+      );
 
       function dispose() {
         subscription.dispose();
@@ -547,13 +602,15 @@ export default class Server extends EventEmitter {
    * @param {int} timeout - in milliseconds before rejecting the `Promise`
    * @returns {Promise} - resolves with all values the server responsed with after the matched response.
    */
-  callAndResponse(callAndResponse:CallAndResponseType, timeout:number=4000) : Promise<MsgType> {
+  callAndResponse(
+    callAndResponse: CallAndResponseType,
+    timeout: number = 4000
+  ): Promise<MsgType> {
     var promise = this.oscOnce(callAndResponse.response, timeout);
     this.send.msg(callAndResponse.call);
     return promise;
   }
 }
-
 
 /**
  * Boot a server with options and connect
@@ -562,8 +619,8 @@ export default class Server extends EventEmitter {
  * @param {Store} store - optional external Store to hold Server state
  * @returns {Promise} - resolves with the Server
  */
-export function boot(options:Object={}, store:any=null) : Promise<Server> {
-  return resolveOptions(undefined, options).then((opts) => {
+export function boot(options: Object = {}, store: any = null): Promise<Server> {
+  return resolveOptions(undefined, options).then(opts => {
     var s = new Server(opts, store);
     return s.boot().then(() => s.connect()).then(() => s);
   });

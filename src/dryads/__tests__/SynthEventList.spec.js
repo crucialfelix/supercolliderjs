@@ -1,12 +1,9 @@
-
 const SynthEventList = require('../SynthEventList').default;
 const _ = require('lodash');
 const Bacon = require('baconjs').Bacon;
 
 describe('SynthEventList', function() {
-  let events = [
-    {defName: 'blip', args: {freq: 440}, time: 1.0}
-  ];
+  let events = [{ defName: 'blip', args: { freq: 440 }, time: 1.0 }];
   let context = {
     group: 0,
     out: 0,
@@ -36,7 +33,7 @@ describe('SynthEventList', function() {
   });
 
   describe('spawn events in supplied list on .add', function() {
-    let props = {events};
+    let props = { events };
     let sel = new SynthEventList(props);
     let commands = sel.add(player);
     it('should contain a function', function() {
@@ -53,7 +50,7 @@ describe('SynthEventList', function() {
     var bus, sel, dp, updated, called, properties;
     beforeEach(function() {
       bus = new Bacon.Bus();
-      properties = {updateStream: bus};
+      properties = { updateStream: bus };
       sel = new SynthEventList(properties);
 
       dp = {
@@ -75,7 +72,7 @@ describe('SynthEventList', function() {
 
       let commands = sel.add(dp);
       commands.run(context, properties);
-      expect(updated).toBeTruthy();  // {subscription: bacon subscription}
+      expect(updated).toBeTruthy(); // {subscription: bacon subscription}
     });
 
     it('should get a new event when pushed to bus', function() {
@@ -83,12 +80,10 @@ describe('SynthEventList', function() {
       let commands = sel.add(dp);
       commands.run(context, properties);
       bus.push({
-        events: [
-          {defName: 'nuevo-blip', args: {freq: 441}, time: 2.0}
-        ]
+        events: [{ defName: 'nuevo-blip', args: { freq: 441 }, time: 2.0 }]
       });
       expect(called).toBeDefined();
-      expect(called.scserver).toBeTruthy();  // scserver command
+      expect(called.scserver).toBeTruthy(); // scserver command
     });
   });
 });

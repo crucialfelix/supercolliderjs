@@ -76,7 +76,11 @@ import type { MsgType } from '../../Types';
  * @param {Object} properties
  * @return Promise is only returned when using .callAndResponse
  */
-export default function scserver(command:Object, context:Object, properties:Object) : ?Promise<MsgType> {
+export default function scserver(
+  command: Object,
+  context: Object,
+  properties: Object
+): ?Promise<MsgType> {
   if (command.scserver) {
     let cmds = resolveFuncs(command.scserver, context, properties);
 
@@ -96,7 +100,8 @@ export default function scserver(command:Object, context:Object, properties:Obje
     if (cmds.schedLoop) {
       // initialize the scheduler on first use
       if (!context.oscSched) {
-        const sendFn = (time, packets) => context.scserver.send.bundle(time, packets);
+        const sendFn = (time, packets) =>
+          context.scserver.send.bundle(time, packets);
         context.oscSched = new OSCSched(sendFn);
       }
 
@@ -112,7 +117,6 @@ export default function scserver(command:Object, context:Object, properties:Obje
   }
 }
 
-
 /**
  * Replace any functions in the command object's values with the result of
  * calling the function.
@@ -122,10 +126,13 @@ export default function scserver(command:Object, context:Object, properties:Obje
  *
  * Non-functions are passed through.
  */
-export function resolveFuncs(command:Object, context:Object, properties:Object) : Object {
-  return _.mapValues(command, (value) => _callIfFn(value, context, properties));
+export function resolveFuncs(
+  command: Object,
+  context: Object,
+  properties: Object
+): Object {
+  return _.mapValues(command, value => _callIfFn(value, context, properties));
 }
-
 
 /**
  * If its a Function then call it with context and properties

@@ -19,11 +19,10 @@ import type { SynthDefResultType } from '../Types';
  * See `server.group(...)`
  */
 class Group {
+  id: number;
+  server: ServerPlus;
 
-  id:number;
-  server:ServerPlus;
-
-  constructor(server:ServerPlus, id:number) {
+  constructor(server: ServerPlus, id: number) {
     this.id = id;
     this.server = server;
   }
@@ -31,7 +30,7 @@ class Group {
   /**
    * Stop the Group and remove it from the play graph on the server.
    */
-  free() : Promise<number> {
+  free(): Promise<number> {
     this.server.send.msg(msg.nodeFree(this.id));
     return whenNodeEnd(this.server, String(this.id), this.id);
   }
@@ -48,7 +47,7 @@ class Group {
    * For a Group it sends the set message to all children Synths
    * in the Group.
    */
-  set(settings:Object) {
+  set(settings: Object) {
     this.server.send.msg(msg.nodeSet(this.id, settings));
   }
   // moveAfter
@@ -64,7 +63,6 @@ class Group {
  * See `server.synth(...)`
  */
 class Synth extends Group {
-
   // store def and args
   // synthDef
   // release
@@ -80,12 +78,11 @@ class Synth extends Group {
  * The server only gets bus ids for reading and writing to.
  */
 class AudioBus {
+  id: number;
+  server: ServerPlus;
+  numChannels: number;
 
-  id:number;
-  server:ServerPlus;
-  numChannels:number;
-
-  constructor(server:ServerPlus, id:number, numChannels:number) {
+  constructor(server: ServerPlus, id: number, numChannels: number) {
     this.server = server;
     this.id = id;
     this.numChannels = numChannels;
@@ -108,7 +105,6 @@ class AudioBus {
  * The server only gets bus ids for reading and writing to.
  */
 class ControlBus extends AudioBus {
-
   /**
    * Deallocate the ControlBus, freeing it for resuse.
    */
@@ -126,13 +122,17 @@ class ControlBus extends AudioBus {
  * See `server.buffer(...)` and `server.readBuffer(...)`
  */
 class Buffer {
+  id: number;
+  server: ServerPlus;
+  numFrames: number;
+  numChannels: number;
 
-  id:number;
-  server:ServerPlus;
-  numFrames:number;
-  numChannels:number;
-
-  constructor(server:ServerPlus, id:number, numFrames:number, numChannels:number) {
+  constructor(
+    server: ServerPlus,
+    id: number,
+    numFrames: number,
+    numChannels: number
+  ) {
     this.server = server;
     this.id = id;
     this.numFrames = numFrames;
@@ -142,11 +142,10 @@ class Buffer {
   /**
    * Deallocate the Buffer, freeing memory on the server.
    */
-  free() : Promise<number> {
-    return this.server.callAndResponse(msg.bufferFree(this.id))
-      .then(() => {
-        this.server.state.freeBuffer(this.id, this.numChannels);
-      });
+  free(): Promise<number> {
+    return this.server.callAndResponse(msg.bufferFree(this.id)).then(() => {
+      this.server.state.freeBuffer(this.id, this.numChannels);
+    });
   }
 
   // read
@@ -173,14 +172,19 @@ class Buffer {
  * or compiled from a file at path.
  */
 class SynthDef {
+  server: ServerPlus;
+  name: string;
+  synthDefResult: SynthDefResultType;
+  sourceCode: ?string;
+  path: ?string;
 
-  server:ServerPlus;
-  name:string;
-  synthDefResult:SynthDefResultType;
-  sourceCode:?string;
-  path:?string;
-
-  constructor(server:ServerPlus, defName:string, synthDefResult:SynthDefResultType, sourceCode:?string, path:?string) {
+  constructor(
+    server: ServerPlus,
+    defName: string,
+    synthDefResult: SynthDefResultType,
+    sourceCode: ?string,
+    path: ?string
+  ) {
     this.server = server;
     this.name = defName;
     this.synthDefResult = synthDefResult;
@@ -203,16 +207,20 @@ class SynthDef {
  * are ready to be used by whatever they have been supplied to.
  */
 export default class ServerPlus extends Server {
-
   /**
    * @private
    */
-  _synthDefCompiler:?SynthDefCompiler;
+  _synthDefCompiler: ?SynthDefCompiler;
 
   /**
    * Create a Synth on the server
    */
-  synth(synthDef:SynthDef, args:Object={}, group:?Group, addAction:number=msg.AddActions.TAIL) : Promise<Synth> {
+  synth(
+    synthDef: SynthDef,
+    args: Object = {},
+    group: ?Group,
+    addAction: number = msg.AddActions.TAIL
+  ): Promise<Synth> {
     return Promise.all([
       Promise.resolve(synthDef),
       Promise.resolve(group)
@@ -221,10 +229,9 @@ export default class ServerPlus extends Server {
       let sn = msg.synthNew(def.name, nodeId, addAction, g ? g.id : 0, args);
       this.send.msg(sn);
       // unique string for callback registration
-      return whenNodeGo(this, String(nodeId), nodeId)
-      .then(() => {
-        return new Synth(this, nodeId);
-      });
+      return whenNodeGo(this, String(nodeId), nodeId).then(
+        () => new Synth(this, nodeId)
+      );
     });
   }
 
@@ -233,24 +240,25 @@ export default class ServerPlus extends Server {
   /**
    * Create a Group on the server
    */
-  group(group:?Group, addAction:number=msg.AddActions.TAIL) : Promise<Group> {
-    return Promise.resolve(group)
-      .then((g) => {
-        let nodeId = this.state.nextNodeID();
-        let sn = msg.groupNew(nodeId, addAction, g ? g.id : 0);
-        this.send.msg(sn);
-        // unique string for callback registration
-        return whenNodeGo(this, String(nodeId), nodeId)
-          .then(() => {
-            return new Group(this, nodeId);
-          });
+  group(
+    group: ?Group,
+    addAction: number = msg.AddActions.TAIL
+  ): Promise<Group> {
+    return Promise.resolve(group).then(g => {
+      let nodeId = this.state.nextNodeID();
+      let sn = msg.groupNew(nodeId, addAction, g ? g.id : 0);
+      this.send.msg(sn);
+      // unique string for callback registration
+      return whenNodeGo(this, String(nodeId), nodeId).then(() => {
+        return new Group(this, nodeId);
       });
+    });
   }
 
   /**
    * @private
    */
-  get synthDefCompiler() : SynthDefCompiler {
+  get synthDefCompiler(): SynthDefCompiler {
     if (!this._synthDefCompiler) {
       this._synthDefCompiler = new SynthDefCompiler();
     }
@@ -271,22 +279,34 @@ export default class ServerPlus extends Server {
    *                    Each Promise will resolve with a SynthDef.
    *                    Each Promises can be supplied directly to `server.synth()`
    */
-  synthDefs(defs:Object) : {[defName:string] : Promise<SynthDef>} {
+  synthDefs(defs: Object): { [defName: string]: Promise<SynthDef> } {
     let compile = this.synthDefCompiler.boot().then(() => {
       return this.synthDefCompiler.compileAndSend(defs, this);
     });
 
     return _.mapValues(defs, (requested, name) => {
       return new Promise((resolve, reject) => {
-        return compile.then((defsMap) => {
+        return compile.then(defsMap => {
           let result = defsMap[name];
           if (!result) {
             return reject(new Error(`${name} not found in compiled SynthDefs`));
           }
           if (result.name !== name) {
-            return reject(new Error(`SynthDef compiled as ${result.name} but server.synthDefs was called with: ${name}`));
+            return reject(
+              new Error(
+                `SynthDef compiled as ${result.name} but server.synthDefs was called with: ${name}`
+              )
+            );
           }
-          resolve(new SynthDef(this, result.name, result, result.synthDesc.sourceCode, requested && requested.path));
+          resolve(
+            new SynthDef(
+              this,
+              result.name,
+              result,
+              result.synthDesc.sourceCode,
+              requested && requested.path
+            )
+          );
         });
       });
     });
@@ -295,16 +315,26 @@ export default class ServerPlus extends Server {
   /**
    * @private
    */
-  _compileSynthDef(defName:string, sourceCode:?string, path:?string) : Promise<SynthDef> {
+  _compileSynthDef(
+    defName: string,
+    sourceCode: ?string,
+    path: ?string
+  ): Promise<SynthDef> {
     return this.synthDefCompiler.boot().then(() => {
-      return this.synthDefCompiler.compileAndSend({
-        [defName]: sourceCode ? {source: sourceCode} : {path: path}
-      }, this)
-        .then((defs) => {
+      return this.synthDefCompiler
+        .compileAndSend(
+          {
+            [defName]: sourceCode ? { source: sourceCode } : { path: path }
+          },
+          this
+        )
+        .then(defs => {
           // what if defName does not match synthDefResult.name ?
           let synthDefResult = defs[defName];
           if (!synthDefResult) {
-            throw new Error(`SynthDefResult not found ${defName} in compile return values`);
+            throw new Error(
+              `SynthDefResult not found ${defName} in compile return values`
+            );
           }
           return new SynthDef(this, defName, synthDefResult, sourceCode, path);
         });
@@ -314,24 +344,25 @@ export default class ServerPlus extends Server {
   /**
    * Load and compile a SynthDef from path and send it to the server.
    */
-  loadSynthDef(defName:string, path:string) : Promise<SynthDef> {
+  loadSynthDef(defName: string, path: string): Promise<SynthDef> {
     return this._compileSynthDef(defName, null, path);
   }
 
   /**
    * Compile a SynthDef from supercollider source code and send it to the server.
    */
-  synthDef(defName:string, sourceCode:string) : Promise<SynthDef> {
+  synthDef(defName: string, sourceCode: string): Promise<SynthDef> {
     return this._compileSynthDef(defName, sourceCode);
   }
 
   /**
    * Allocate a Buffer on the server.
    */
-  buffer(numFrames:number, numChannels:number=1) : Promise<Buffer> {
+  buffer(numFrames: number, numChannels: number = 1): Promise<Buffer> {
     let id = this.state.allocBufferID(numChannels);
-    return this.callAndResponse(msg.bufferAlloc(id, numFrames, numChannels))
-      .then(() => new Buffer(this, id, numFrames, numChannels))
+    return this.callAndResponse(
+      msg.bufferAlloc(id, numFrames, numChannels)
+    ).then(() => new Buffer(this, id, numFrames, numChannels));
   }
 
   /**
@@ -340,16 +371,22 @@ export default class ServerPlus extends Server {
    * Problem: scsynth uses however many channels there are in the sound file,
    * but the client (sclang or supercolliderjs) doesn't know how many there are.
    */
-  readBuffer(path:string, numChannels:number=2, startFrame:number=0, numFramesToRead:number= -1) : Promise<Buffer> {
+  readBuffer(
+    path: string,
+    numChannels: number = 2,
+    startFrame: number = 0,
+    numFramesToRead: number = -1
+  ): Promise<Buffer> {
     let id = this.state.allocBufferID(numChannels);
-    return this.callAndResponse(msg.bufferAllocRead(id, path, startFrame, numFramesToRead))
-      .then(() => new Buffer(this, id, numFramesToRead, numChannels))
+    return this.callAndResponse(
+      msg.bufferAllocRead(id, path, startFrame, numFramesToRead)
+    ).then(() => new Buffer(this, id, numFramesToRead, numChannels));
   }
 
   /**
    * Allocate an audio bus.
    */
-  audioBus(numChannels:number=1) : AudioBus {
+  audioBus(numChannels: number = 1): AudioBus {
     let id = this.state.allocAudioBus(numChannels);
     return new AudioBus(this, id, numChannels);
   }
@@ -357,12 +394,11 @@ export default class ServerPlus extends Server {
   /**
    * Allocate a control bus.
    */
-  controlBus(numChannels:number=1) : ControlBus {
+  controlBus(numChannels: number = 1): ControlBus {
     let id = this.state.allocControlBus(numChannels);
     return new ControlBus(this, id, numChannels);
   }
 }
-
 
 /**
  * Start the scsynth server with options:
@@ -381,12 +417,12 @@ export default class ServerPlus extends Server {
  * @param {Store} store - optional external Store to hold Server state
  * @returns {Promise} - resolves with a Server (ServerPlus actually)
  */
-export function boot(options:Object={}, store:any=null) : Promise<ServerPlus> {
-  return resolveOptions(undefined, options)
-    .then((opts) => {
-      var s = new ServerPlus(opts, store);
-      return s.boot()
-        .then(() => s.connect())
-        .then(() => s);
-    });
+export function boot(
+  options: Object = {},
+  store: any = null
+): Promise<ServerPlus> {
+  return resolveOptions(undefined, options).then(opts => {
+    var s = new ServerPlus(opts, store);
+    return s.boot().then(() => s.connect()).then(() => s);
+  });
 }

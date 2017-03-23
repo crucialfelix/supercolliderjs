@@ -1,6 +1,6 @@
 /* @flow */
-import {Dryad} from 'dryadic';
-import {boot} from '../server/server';
+import { Dryad } from 'dryadic';
+import { boot } from '../server/server';
 import _ from 'lodash';
 
 const defaultOptions = {
@@ -16,32 +16,31 @@ const defaultOptions = {
  * see {@link Server}
  */
 export default class SCServer extends Dryad {
-
-  defaultProperties() : Object {
+  defaultProperties(): Object {
     return {
       options: defaultOptions
     };
   }
 
-  initialContext() : Object {
+  initialContext(): Object {
     return {
       out: 0,
       group: 0
     };
   }
 
-  prepareForAdd() : Object {
+  prepareForAdd(): Object {
     return {
       callOrder: 'SELF_THEN_CHILDREN',
       updateContext: (context, properties) => ({
-        scserver: boot(_.defaults(properties.options, {log: context.log}))
+        scserver: boot(_.defaults(properties.options, { log: context.log }))
       })
     };
   }
 
-  remove() : Object {
+  remove(): Object {
     return {
-      run: (context) => {
+      run: context => {
         if (context.scserver) {
           return context.scserver.quit();
         }

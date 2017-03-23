@@ -1,6 +1,6 @@
 /* @flow */
-import {Dryad} from 'dryadic';
-import {boot} from '../lang/sclang';
+import { Dryad } from 'dryadic';
+import { boot } from '../lang/sclang';
 import _ from 'lodash';
 
 const defaultOptions = {
@@ -21,23 +21,22 @@ const defaultOptions = {
  * This Dryad class is just a simple wrapper around that.
  */
 export default class SCLang extends Dryad {
-
   defaultProperties() {
     return {
       options: defaultOptions
     };
   }
 
-  prepareForAdd() : Object {
+  prepareForAdd(): Object {
     return {
       callOrder: 'SELF_THEN_CHILDREN',
       updateContext: (context, properties) => ({
-        sclang: boot(_.defaults(properties.options, {log: context.log}))
+        sclang: boot(_.defaults(properties.options, { log: context.log }))
       })
     };
   }
 
-  remove() : Object {
+  remove(): Object {
     return {
       run: (context: Object) => {
         return context.sclang.quit();

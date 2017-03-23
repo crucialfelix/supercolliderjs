@@ -12,7 +12,6 @@ import { Map } from 'immutable';
  * https://facebook.github.io/immutable-js/docs/#/Map
  */
 export default class Store {
-
   state: Map<string, any>;
 
   constructor() {
@@ -39,7 +38,7 @@ export default class Store {
    *
    * @returns {any} result
    */
-  mutateStateAndReturn(keys: Array<string>, fn: Function) : any {
+  mutateStateAndReturn(keys: Array<string>, fn: Function): any {
     var result, subState;
     [result, subState] = fn(this.state.getIn(keys, Map()));
     this.state = this.state.setIn(keys, subState);

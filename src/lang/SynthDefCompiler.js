@@ -8,7 +8,11 @@ import fs from 'fs';
 import { defRecv } from '../server/osc/msg.js';
 import { boot } from './sclang';
 import type { SCLangError } from '../Errors';
-import { SclangResultType, SynthDefResultType, SynthDefResultMapType } from '../Types';
+import {
+  SclangResultType,
+  SynthDefResultType,
+  SynthDefResultMapType
+} from '../Types';
 import type Server from '../server/server';
 import type SCLang from './sclang';
 
@@ -21,11 +25,10 @@ import type SCLang from './sclang';
  * @ member of lang
  */
 export default class SynthDefCompiler {
+  lang: ?SCLang;
+  store: Map<string, SynthDefResultType>;
 
-  lang:?SCLang;
-  store:Map<string,SynthDefResultType>;
-
-  constructor(lang:?SCLang) {
+  constructor(lang: ?SCLang) {
     this.lang = lang;
     this.store = new Map();
   }
@@ -44,12 +47,15 @@ export default class SynthDefCompiler {
    * Returns an object with each compiled synthdef
    * as a SynthDefResultType.
    */
-  compile(defs:Object) : Promise<SynthDefResultMapType> {
+  compile(defs: Object): Promise<SynthDefResultMapType> {
     let defsList = _.toPairs(defs);
     return Promise.all(
-      _.map(defsList, ([defName:string, spec:Object]) => this._compileOne(defName, spec))
-    ).then((compiledDefs) => {
-      let defsMap = _.fromPairs(_.map(compiledDefs, (result) => [result.name, result]));
+      _.map(defsList, ([defName: string, spec: Object]) =>
+        this._compileOne(defName, spec))
+    ).then(compiledDefs => {
+      let defsMap = _.fromPairs(
+        _.map(compiledDefs, result => [result.name, result])
+      );
       return defsMap;
     });
   }
@@ -59,21 +65,21 @@ export default class SynthDefCompiler {
    *
    * @returns a Promise for {defName: SynthDefResult, ...}
    */
-  compileAndSend(defs:Object, server:Server) : Promise<SynthDefResultMapType> {
-    return this.compile(defs).then((compiledDefs) => {
-      let commands = _.map(compiledDefs, ({name}) => this.sendCommand(name));
-      return Promise.all(
-        commands.map(cmd => server.callAndResponse(cmd))
-      ).then(() => compiledDefs);
+  compileAndSend(defs: Object, server: Server): Promise<SynthDefResultMapType> {
+    return this.compile(defs).then(compiledDefs => {
+      let commands = _.map(compiledDefs, ({ name }) => this.sendCommand(name));
+      return Promise.all(commands.map(cmd => server.callAndResponse(cmd))).then(
+        () => compiledDefs
+      );
     });
   }
 
-  set(defName:string, data:SynthDefResultType) {
+  set(defName: string, data: SynthDefResultType) {
     this.store.set(defName, data);
     return data;
   }
 
-  get(defName:string) : SynthDefResultType {
+  get(defName: string): SynthDefResultType {
     return this.store.get(defName);
   }
 
@@ -85,7 +91,7 @@ export default class SynthDefCompiler {
     return commands;
   }
 
-  sendCommand(defName:string) {
+  sendCommand(defName: string) {
     let data = this.get(defName);
     let buffer = new Buffer(data.bytes);
     return defRecv(buffer);
@@ -106,35 +112,42 @@ export default class SynthDefCompiler {
   //
   // }
 
-  _compileOne(defName:string, spec:Object) : Promise<SynthDefResultType> {
+  _compileOne(defName: string, spec: Object): Promise<SynthDefResultType> {
     // path or source
     if (spec.source) {
-      return this.compileSource(spec.source)
-        .then((result:SclangResultType) => {
-          this.set(defName, result);
-          return result;
-        });
+      return this.compileSource(
+        spec.source
+      ).then((result: SclangResultType) => {
+        this.set(defName, result);
+        return result;
+      });
     }
 
     // if watch then add a watcher
 
     if (spec.path) {
-      return this.compilePath(spec.path)
-        .then((result:SclangResultType) => {
-          this.set(result.name, result);
-          return result;
-        });
+      return this.compilePath(spec.path).then((result: SclangResultType) => {
+        this.set(result.name, result);
+        return result;
+      });
     }
 
-    return Promise.reject(new Error(`Spec to SynthDefCompiler not recognized ${defName} ${JSON.stringify(spec)}`));
+    return Promise.reject(
+      new Error(
+        `Spec to SynthDefCompiler not recognized ${defName} ${JSON.stringify(spec)}`
+      )
+    );
   }
 
   /**
    * Returns a Promise for a SynthDef result object: name, bytes, synthDesc
    */
-  compileSource(sourceCode:string, pathName:?string) : Promise<SynthDefResultType> {
+  compileSource(
+    sourceCode: string,
+    pathName: ?string
+  ): Promise<SynthDefResultType> {
     const wrappedCode = `{
-      var def = { ${ sourceCode } }.value.asSynthDef;
+      var def = { ${sourceCode} }.value.asSynthDef;
       (
         name: def.name,
         synthDesc: def.asSynthDesc.asJSON(),
@@ -142,15 +155,22 @@ export default class SynthDefCompiler {
       )
     }.value;`;
     if (this.lang) {
-      return this.lang.interpret(wrappedCode, undefined, false, false, true)
-      .then((result:SynthDefResultType) => {
-        return result;
-      }, (error:SCLangError) => {
-        error.annotate(`Failed to compile SynthDef  ${error.message} ${pathName || ''}`, {
-          sourceCode
-        });
-        return Promise.reject(error);
-      });
+      return this.lang
+        .interpret(wrappedCode, undefined, false, false, true)
+        .then(
+          (result: SynthDefResultType) => {
+            return result;
+          },
+          (error: SCLangError) => {
+            error.annotate(
+              `Failed to compile SynthDef  ${error.message} ${pathName || ''}`,
+              {
+                sourceCode
+              }
+            );
+            return Promise.reject(error);
+          }
+        );
     }
     return Promise.reject(new Error('SC intpreter is not booted'));
   }
@@ -158,15 +178,17 @@ export default class SynthDefCompiler {
   /**
    * Returns a Promise for a SynthDef result object: name, bytes, synthDesc
    */
-  compilePath(sourcePath:string) : Promise<SynthDefResultType> {
+  compilePath(sourcePath: string): Promise<SynthDefResultType> {
     return new Promise((resolve, reject) => {
       fs.readFile(path.resolve(sourcePath), (err, fileBuf) => {
         if (err) {
           reject(err);
         } else {
           // is it really just ascii ?
-          this.compileSource(fileBuf.toString('ascii'), sourcePath)
-            .then(resolve, reject);
+          this.compileSource(fileBuf.toString('ascii'), sourcePath).then(
+            resolve,
+            reject
+          );
         }
       });
     });

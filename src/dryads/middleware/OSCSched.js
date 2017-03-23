@@ -11,7 +11,6 @@ import { deltaTimeTag } from '../../server/osc/utils';
  * It is used by calling `.schedLoop(getNext, epoch)`
  */
 export default class OSCSched {
-
   sendFn: Function;
   latency: number;
   setTimeout: Function;
@@ -31,7 +30,12 @@ export default class OSCSched {
    * @param  {Function} setTimeoutFn=setTimeout  JavaScript setTimeout (injectable for mocking tests)
    * @param  {Function} clearTimeoutFn=clearTimeout JavaScript setInterval (injectable for mocking tests)
    */
-  constructor(sendFn:Function, latency:number=0.05, setTimeoutFn: Function=setTimeout, clearTimeoutFn:Function=clearTimeout) {
+  constructor(
+    sendFn: Function,
+    latency: number = 0.05,
+    setTimeoutFn: Function = setTimeout,
+    clearTimeoutFn: Function = clearTimeout
+  ) {
     this.sendFn = sendFn;
     this.latency = latency;
     this.setTimeout = setTimeoutFn;
@@ -63,7 +67,7 @@ export default class OSCSched {
    *
    * @param  {float} epoch     Javascript timestamp (milliseconds since 1970 UTC)
    */
-  schedLoop(getNextFn:Function, epoch:?number) {
+  schedLoop(getNextFn: Function, epoch: ?number) {
     this.getNextFn = getNextFn;
     if (!this.getNextFn) {
       throw new Error('getNextFn is null');
@@ -91,7 +95,9 @@ export default class OSCSched {
       logicalNow = now;
     }
 
-    const next = memo ? this.getNextFn(logicalNow, memo) : this.getNextFn(logicalNow);
+    const next = memo
+      ? this.getNextFn(logicalNow, memo)
+      : this.getNextFn(logicalNow);
     if (next) {
       const delta = next.event.time - now;
       if (delta <= this.latency) {
@@ -100,7 +106,10 @@ export default class OSCSched {
         } else {
           /* eslint no-console: 0 */
           // TODO: throw EventPastDue and catch that, log it with context.log
-          console.warn('Event is past due. Skipping.', JSON.stringify({delta, now, event: next.event}));
+          console.warn(
+            'Event is past due. Skipping.',
+            JSON.stringify({ delta, now, event: next.event })
+          );
         }
 
         // this steps by logical time
@@ -121,11 +130,14 @@ export default class OSCSched {
    *                        to be passed to the next call to getNextFn
    */
   _jitSend(now: number, delta: number, next: Object) {
-    this.timerId = this.setTimeout(() => {
-      this.timerId = null;
-      this._send(next.event);
-      this._schedNext(next.memo, next.event.time);
-    }, (delta - this.latency) * 1000);
+    this.timerId = this.setTimeout(
+      () => {
+        this.timerId = null;
+        this._send(next.event);
+        this._schedNext(next.memo, next.event.time);
+      },
+      (delta - this.latency) * 1000
+    );
   }
 
   /**

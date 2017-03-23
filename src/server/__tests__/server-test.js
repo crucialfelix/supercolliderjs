@@ -1,10 +1,8 @@
-
 import _ from 'lodash';
 import { EventEmitter } from 'events';
 import Server from '../server';
 
 describe('Server', function() {
-
   describe('default constructor', function() {
     it('should exist', function() {
       var server = new Server();
@@ -14,7 +12,6 @@ describe('Server', function() {
 
   describe('boot sequence', function() {
     it('should detect "server ready" even if the output is broken into chunks', function() {
-
       var one = 'SuperCollider 3 se';
       var two = 'rver ready.';
 
@@ -26,7 +23,7 @@ describe('Server', function() {
         stderr: new EventEmitter()
       };
 
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         // spawn process is mocked
         // should get triggered by the stdout and then resolve
         server.boot().then(resolve);
@@ -43,7 +40,7 @@ describe('Server', function() {
 
       s.send.msg = jest.genMockFunction();
 
-      var p = s.oscOnce(['/done', '/notify']).then((rest) => {
+      var p = s.oscOnce(['/done', '/notify']).then(rest => {
         // p is now fulfilled
         // console.log(rest);
         expect(_.isEqual(rest, [15])).toBe(true);
@@ -54,7 +51,6 @@ describe('Server', function() {
       s.receive.onNext(['/done', '/notify', 15]);
       return p;
     });
-
 
     it('should reject if server is not booted', function() {
       // this would be send that rejects it
@@ -77,7 +73,7 @@ describe('Server', function() {
 
       s.send.msg = jest.genMockFunction();
 
-      var p = s.callAndResponse(car).then((response) => {
+      var p = s.callAndResponse(car).then(response => {
         expect(_.isEqual(response, [15])).toBe(true);
       });
       // console.log('sender', s.send);

@@ -1,16 +1,14 @@
-
 var dryads = require('../index');
 var SCServer = require('../SCServer').default;
 
 describe('SCServer', function() {
-
   it('should load SCServer', function() {
     expect(dryads.SCServer).toBeTruthy();
   });
 
   it('should set default options of SCServer', function() {
     let s = new SCServer();
-    expect(s.properties).toEqual({options: {debug: false}});
+    expect(s.properties).toEqual({ options: { debug: false } });
   });
 
   // it('should pass context.scserver to child Group', function() {

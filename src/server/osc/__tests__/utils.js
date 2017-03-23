@@ -1,4 +1,3 @@
-
 var utils = require('../utils');
 import _ from 'lodash';
 
@@ -7,11 +6,11 @@ describe('parseMessage', function() {
     var msg = {
       address: '/n_go',
       args: [
-         {type: 'integer', value: 1000},
-         {type: 'integer', value: 0},
-         {type: 'integer', value: -1},
-         {type: 'integer', value: 3},
-         {type: 'integer', value: 0}
+        { type: 'integer', value: 1000 },
+        { type: 'integer', value: 0 },
+        { type: 'integer', value: -1 },
+        { type: 'integer', value: 3 },
+        { type: 'integer', value: 0 }
       ],
       oscType: 'message'
     };
@@ -22,7 +21,6 @@ describe('parseMessage', function() {
   });
 });
 
-
 describe('makeMessage', function() {
   it('should format a message', function() {
     var msg = utils.makeMessage(['/n_go', 1000, 0, -1, 3, 0]);
@@ -30,16 +28,12 @@ describe('makeMessage', function() {
   });
 });
 
-
 describe('makeBundle', function() {
   it('should format a bundle', function() {
-    var b = utils.makeBundle(0, [
-      ['/n_go', 1000, 0, -1, 3, 0]
-    ]);
+    var b = utils.makeBundle(0, [['/n_go', 1000, 0, -1, 3, 0]]);
     expect(b).toBeTruthy();
   });
 });
-
 
 describe('asPacket', function() {
   var address = '/n_go';
@@ -55,9 +49,7 @@ describe('asPacket', function() {
   it('should convert object to bundle object', function() {
     var bobj = {
       timeTag: 0,
-      packets: [
-        [address].concat(args)
-      ]
+      packets: [[address].concat(args)]
     };
     var obj = utils.asPacket(bobj);
     expect(_.isObject(obj)).toBe(true);
@@ -80,9 +72,7 @@ describe('asPacket', function() {
   //   console.log(objs);
   //   expect(objs[0].args).toEqual(args);
   // });
-
 });
-
 
 describe('timeTag', function() {
   it('should make an NTP timeTag array with no args', function() {
@@ -108,5 +98,4 @@ describe('timeTag', function() {
     var ntp = utils.dateToTimetag(epoch);
     expect(ntp).toEqual([2211667200, 0]);
   });
-
 });

@@ -10,7 +10,7 @@
  * @module node-watcher
  *
  */
-import { Map, List} from 'immutable';
+import { Map, List } from 'immutable';
 import _ from 'lodash';
 import { Promise } from 'bluebird';
 import type { Disposable } from 'Rx';
@@ -24,7 +24,6 @@ const keys = {
   ON_NODE_GO: 'ON_NODE_GO',
   ON_NODE_END: 'ON_NODE_END'
 };
-
 
 /**
  * Watch server OSC receive for any n_XXX messages:
@@ -48,7 +47,7 @@ const keys = {
  * @param {Server} server
  * @returns {Rx.Disposable} - sub.dispose(); to turn it off.
  */
-export function watchNodeNotifications(server:Server) : Disposable {
+export function watchNodeNotifications(server: Server): Disposable {
   // n_go
   // n_end
   // n_on
@@ -56,8 +55,8 @@ export function watchNodeNotifications(server:Server) : Disposable {
   // n_move
   // n_info
   var re = /^\/n_(go|end|on|off|move|info)$/;
-  var stream = server.receive.filter((msg) => msg[0].match(re));
-  var dispose = stream.subscribe((msg) => {
+  var stream = server.receive.filter(msg => msg[0].match(re));
+  var dispose = stream.subscribe(msg => {
     var cmd = msg[0];
     var r = _responders[cmd];
     if (r) {
@@ -66,7 +65,6 @@ export function watchNodeNotifications(server:Server) : Disposable {
   });
   return dispose;
 }
-
 
 /**
  * Call a function when the server sends an `/n_go` message
@@ -79,10 +77,14 @@ export function watchNodeNotifications(server:Server) : Disposable {
  * @param {Function} handler
  * @returns {Function} - cancel function
  */
-export function onNodeGo(server:Server, id:string, nodeID:number, handler:Function) : Function {
+export function onNodeGo(
+  server: Server,
+  id: string,
+  nodeID: number,
+  handler: Function
+): Function {
   return _registerHandler(keys.ON_NODE_GO, server, id, nodeID, handler);
 }
-
 
 /**
  * Returns a Promise that resolves when the server sends an
@@ -96,12 +98,15 @@ export function onNodeGo(server:Server, id:string, nodeID:number, handler:Functi
  * @param {int} nodeID
  * @returns {Promise} - resolves with nodeID
  */
-export function whenNodeGo(server:Server, id:string, nodeID:number) : Promise<number> {
-  return new Promise((resolve) => {
+export function whenNodeGo(
+  server: Server,
+  id: string,
+  nodeID: number
+): Promise<number> {
+  return new Promise(resolve => {
     onNodeGo(server, id, nodeID, () => resolve(nodeID));
   });
 }
-
 
 /**
  * Call a function when the server sends an `/n_end` message
@@ -113,22 +118,29 @@ export function whenNodeGo(server:Server, id:string, nodeID:number) : Promise<nu
  * @param {Function} handler
  * @returns {Function} - cancel function
  */
-export function onNodeEnd(server:Server, id:string, nodeID:number, handler:Function) : Function {
+export function onNodeEnd(
+  server: Server,
+  id: string,
+  nodeID: number,
+  handler: Function
+): Function {
   return _registerHandler(keys.ON_NODE_END, server, id, nodeID, handler);
 }
-
 
 /**
  * Returns a Promise that resolves when the server sends an `/n_end` message.
  *
  * The id is usually a context id but could be a random guid
  */
-export function whenNodeEnd(server:Server, id:string, nodeID:number) : Promise<number> {
-  return new Promise((resolve) => {
+export function whenNodeEnd(
+  server: Server,
+  id: string,
+  nodeID: number
+): Promise<number> {
+  return new Promise(resolve => {
     onNodeEnd(server, id, nodeID, () => resolve(nodeID));
   });
 }
-
 
 // function disposeForId(server:Server, id) {
 //   // remove all by matching the context id
@@ -140,41 +152,46 @@ export function whenNodeEnd(server:Server, id:string, nodeID:number) : Promise<n
  *
  * This is for internal use.
  */
-export function updateNodeState(server:Server, nodeID:number, nodeState:NodeStateType) {
+export function updateNodeState(
+  server: Server,
+  nodeID: number,
+  nodeState: NodeStateType
+) {
   // unless its n_end then delete
-  server.state.mutate(keys.NODE_WATCHER, (state) => {
-    return state.mergeIn([keys.NODES, String(nodeID)],
-      Map(),
-      nodeState);
+  server.state.mutate(keys.NODE_WATCHER, state => {
+    return state.mergeIn([keys.NODES, String(nodeID)], Map(), nodeState);
   });
 }
 
 /**
  * @private
  */
-function _registerHandler(type, server:Server, id:string, nodeID:number, handler:Function) : Function {
-
+function _registerHandler(
+  type,
+  server: Server,
+  id: string,
+  nodeID: number,
+  handler: Function
+): Function {
   var dispose = () => {
     _disposeHandler(type, server, id, nodeID);
   };
 
-  server.state.mutate(keys.NODE_WATCHER, (state) => {
+  server.state.mutate(keys.NODE_WATCHER, state => {
     const handlerId = id + ':' + nodeID;
 
     return state
       .mergeDeep({
         [keys.CALLBACKS]: {
           [handlerId]: (...args) => {
-            if ((type === keys.ON_NODE_GO) || (type === keys.ON_NODE_END)) {
+            if (type === keys.ON_NODE_GO || type === keys.ON_NODE_END) {
               dispose();
             }
             handler.apply(this, args);
           }
-        }})
-      .updateIn(
-        [type, String(nodeID)],
-        List(),
-        (list) => list.push(handlerId));
+        }
+      })
+      .updateIn([type, String(nodeID)], List(), list => list.push(handlerId));
   });
 
   return dispose;
@@ -185,8 +202,8 @@ function _registerHandler(type, server:Server, id:string, nodeID:number, handler
  *
  * @private
  */
-function _disposeHandler(type, server:Server, id, nodeID:number) {
-  server.state.mutate(keys.NODE_WATCHER, (state) => {
+function _disposeHandler(type, server: Server, id, nodeID: number) {
+  server.state.mutate(keys.NODE_WATCHER, state => {
     // why would I get undefined ??
     // probably no longer happens with new mutate
     // state = state || Map();
@@ -195,19 +212,18 @@ function _disposeHandler(type, server:Server, id, nodeID:number) {
 
     return state
       .deleteIn([keys.CALLBACKS, handlerId])
-      .updateIn(
-        [type, String(nodeID)],
-        List(),
-        (list) => list.filter((hid) => hid !== handlerId));
+      .updateIn([type, String(nodeID)], List(), list =>
+        list.filter(hid => hid !== handlerId));
   });
 }
 
 /**
  * @private
  */
-function _handlersFor(server:Server, type, nodeID:number) {
-  return server.state.getIn([keys.NODE_WATCHER, type, String(nodeID)], List())
-    .map((handlerId) => {
+function _handlersFor(server: Server, type, nodeID: number) {
+  return server.state
+    .getIn([keys.NODE_WATCHER, type, String(nodeID)], List())
+    .map(handlerId => {
       return server.state.getIn([keys.NODE_WATCHER, keys.CALLBACKS, handlerId]);
     });
 }
@@ -215,10 +231,10 @@ function _handlersFor(server:Server, type, nodeID:number) {
 /**
  * @private
  */
-function _saveNodeState(server:Server, set, msg) {
+function _saveNodeState(server: Server, set, msg) {
   const nodeID = msg[0];
   const isGroup = msg[4] > 0;
-  var nodeState:NodeStateType = {
+  var nodeState: NodeStateType = {
     parent: msg[1],
     previous: msg[2],
     next: msg[3],
@@ -235,44 +251,55 @@ function _saveNodeState(server:Server, set, msg) {
  *
  * @private
  */
-function _callNodeHandlers(server:Server, eventType, nodeID:number) {
-  _handlersFor(server, eventType, nodeID).forEach((h) => h(nodeID));
+function _callNodeHandlers(server: Server, eventType, nodeID: number) {
+  _handlersFor(server, eventType, nodeID).forEach(h => h(nodeID));
 }
-
 
 /**
  * @private
  */
 const _responders = {
-  '/n_go': (server:Server, args) => {
-    _saveNodeState(server, {
-      isPlaying: true,
-      isRunning: true
-    }, args);
+  '/n_go': (server: Server, args) => {
+    _saveNodeState(
+      server,
+      {
+        isPlaying: true,
+        isRunning: true
+      },
+      args
+    );
 
     _callNodeHandlers(server, keys.ON_NODE_GO, args[0]);
   },
-  '/n_end': (server:Server, args) => {
+  '/n_end': (server: Server, args) => {
     const nodeID = args[0];
-    server.state.mutate(keys.NODE_WATCHER, (state) => {
+    server.state.mutate(keys.NODE_WATCHER, state => {
       return state.deleteIn([keys.NODES, String(nodeID)]);
     });
     _callNodeHandlers(server, keys.ON_NODE_END, nodeID);
   },
-  '/n_on': (server:Server, args) => {
-    _saveNodeState(server, {
-      isRunning: true
-    }, args);
+  '/n_on': (server: Server, args) => {
+    _saveNodeState(
+      server,
+      {
+        isRunning: true
+      },
+      args
+    );
   },
-  '/n_off': (server:Server, args) => {
-    _saveNodeState(server, {
-      isRunning: false
-    }, args);
+  '/n_off': (server: Server, args) => {
+    _saveNodeState(
+      server,
+      {
+        isRunning: false
+      },
+      args
+    );
   },
-  '/n_info': (server:Server, args) => {
+  '/n_info': (server: Server, args) => {
     _saveNodeState(server, {}, args);
   },
-  '/n_move': (server:Server, args) => {
+  '/n_move': (server: Server, args) => {
     _saveNodeState(server, {}, args);
   }
 };

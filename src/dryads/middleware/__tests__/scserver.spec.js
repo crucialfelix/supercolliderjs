@@ -1,4 +1,3 @@
-
 import scserver from '../scserver';
 
 /**
@@ -20,13 +19,12 @@ describe('scserver', function() {
     it('should send msg', function() {
       let cmd = {
         scserver: {
-          msg: ['/s_new', 'sin', 1000, 0 , 1]
+          msg: ['/s_new', 'sin', 1000, 0, 1]
         }
       };
 
       scserver(cmd, context, properties);
       expect(context.scserver.send.bundle).toHaveBeenCalled();
     });
-
   });
 });

@@ -13,8 +13,7 @@ import type { Disposable } from 'Rx';
  * You may also subscribe to this for debugging, logging or entertainment purposes.
  */
 export default class SendOSC extends EventEmitter {
-
-  msg(message:MsgType) {
+  msg(message: MsgType) {
     this.emit('msg', makeMessage(message));
   }
 
@@ -35,8 +34,8 @@ export default class SendOSC extends EventEmitter {
   * @param {Array} packets - osc messages as `[address, arg1, ...argN]`
   *                        or sub bundles as `[{timeTag: , packets: }, ...]`
   */
-  bundle(time:OSCTimeType, packets:[MsgType]) {
-    if ((typeof time === 'number') && (time < 10000)) {
+  bundle(time: OSCTimeType, packets: [MsgType]) {
+    if (typeof time === 'number' && time < 10000) {
       time = deltaTimeTag(time);
     }
     this.emit('bundle', makeBundle(time, packets));
@@ -52,7 +51,7 @@ export default class SendOSC extends EventEmitter {
    * @param {Number} delta
    * @param {Date} now - optional, default new Date
    */
-  deltaTimeTag(delta:number, now:?Date) : [number] {
+  deltaTimeTag(delta: number, now: ?Date): [number] {
     return deltaTimeTag(delta, now);
   }
 
@@ -63,14 +62,18 @@ export default class SendOSC extends EventEmitter {
    *
    * @returns {Rx.Disposable} - `thing.dispose();` to unsubscribe
    */
-  subscribe(onNext:Function, onError:?Function, onComplete:?Function) : Disposable {
-    var msgs = Observable.fromEvent(this, 'msg', (msg) => {
+  subscribe(
+    onNext: Function,
+    onError: ?Function,
+    onComplete: ?Function
+  ): Disposable {
+    var msgs = Observable.fromEvent(this, 'msg', msg => {
       return {
         type: 'msg',
         payload: msg
       };
     });
-    var bundles = Observable.fromEvent(this, 'bundle', (bundle) => {
+    var bundles = Observable.fromEvent(this, 'bundle', bundle => {
       return {
         type: 'bundle',
         payload: bundle

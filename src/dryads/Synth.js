@@ -1,9 +1,12 @@
 /* @flow */
-import {Dryad} from 'dryadic';
-import {synthNew, nodeFree, AddActions} from '../server/osc/msg';
-import {whenNodeGo, whenNodeEnd, updateNodeState} from '../server/node-watcher';
+import { Dryad } from 'dryadic';
+import { synthNew, nodeFree, AddActions } from '../server/osc/msg';
+import {
+  whenNodeGo,
+  whenNodeEnd,
+  updateNodeState
+} from '../server/node-watcher';
 import _ from 'lodash';
-
 
 /**
  * Creates a synth on the server.
@@ -13,18 +16,17 @@ import _ from 'lodash';
  * - args
  */
 export default class Synth extends Dryad {
-
   /**
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer
    */
-  requireParent() : string {
+  requireParent(): string {
     return 'SCServer';
   }
 
-  prepareForAdd() : Object {
+  prepareForAdd(): Object {
     return {
-      updateContext: (context) => ({
+      updateContext: context => ({
         nodeID: context.scserver.state.nextNodeID()
       })
     };
@@ -39,11 +41,12 @@ export default class Synth extends Dryad {
   //   return name;
   // }
 
-  add() : Object {
+  add(): Object {
     return {
       scserver: {
         msg: (context, properties) => {
-          let args = _.mapValues(properties.args, (value, key) => this._checkOscType(value, key, context.id));
+          let args = _.mapValues(properties.args, (value, key) =>
+            this._checkOscType(value, key, context.id));
           // if out is not set in args and out is in synthdef
           // then set it from context
           // TODO: check that synthDef has an arg named out
@@ -51,38 +54,55 @@ export default class Synth extends Dryad {
             args.out = context.out;
           }
 
-          let defName = this._checkOscType(properties.def && properties.def.name, 'def.name', context.id);
-          return synthNew(defName, context.nodeID, AddActions.TAIL, context.group, args);
+          let defName = this._checkOscType(
+            properties.def && properties.def.name,
+            'def.name',
+            context.id
+          );
+          return synthNew(
+            defName,
+            context.nodeID,
+            AddActions.TAIL,
+            context.group,
+            args
+          );
         }
       },
       run: (context, properties) => {
-        return whenNodeGo(context.scserver, context.id, context.nodeID)
-          .then((nodeID) => {
-            // TODO: call a method instead so its testable
-            updateNodeState(context.scserver, context.nodeID, {synthDef: properties.def.name});
-            return nodeID;
+        return whenNodeGo(
+          context.scserver,
+          context.id,
+          context.nodeID
+        ).then(nodeID => {
+          // TODO: call a method instead so its testable
+          updateNodeState(context.scserver, context.nodeID, {
+            synthDef: properties.def.name
           });
+          return nodeID;
+        });
       }
     };
   }
 
-  remove() : Object {
+  remove(): Object {
     return {
       scserver: {
-        msg: (context) => nodeFree(context.nodeID)
+        msg: context => nodeFree(context.nodeID)
       },
-      run: (context) => whenNodeEnd(context.scserver, context.id, context.nodeID)
+      run: context => whenNodeEnd(context.scserver, context.id, context.nodeID)
     };
   }
 
-  _checkOscType(v:any, key:string, id:string) : any {
+  _checkOscType(v: any, key: string, id: string): any {
     switch (typeof v) {
       case 'number':
       case 'string':
-      // case 'Buffer':
+        // case 'Buffer':
         return v;
       default:
-        throw new Error(`Invalid OSC type for Synth ${key}: [${typeof v}: ${v}] @ ${id}`);
+        throw new Error(
+          `Invalid OSC type for Synth ${key}: [${typeof v}: ${v}] @ ${id}`
+        );
     }
   }
 }

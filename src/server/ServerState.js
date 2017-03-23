@@ -8,7 +8,6 @@ import * as alloc from './internals/allocators';
 import { watchNodeNotifications } from './node-watcher';
 import type Server from './server';
 
-
 const StateKeys = {
   SERVERS: 'SERVERS',
   NODE_IDS: 'nodeAllocator',
@@ -32,15 +31,14 @@ const StateKeys = {
  * global Store object.
  */
 export default class ServerState {
-
-  server:Server;
-  store:Store;
+  server: Server;
+  store: Store;
 
   /**
    * @param {Server} server
    * @param {Store} store - optional parent Store to use.
    */
-  constructor(server:Server, store:Store) {
+  constructor(server: Server, store: Store) {
     this.server = server;
     this.store = store ? store : new Store();
     this.resetState();
@@ -55,7 +53,11 @@ export default class ServerState {
         options.numOutputBusChannels;
 
       var ab = alloc.initialBlockState(numAudioChannels);
-      ab = alloc.reserveBlock(ab, 0, options.numInputBusChannels + options.numOutputBusChannels);
+      ab = alloc.reserveBlock(
+        ab,
+        0,
+        options.numInputBusChannels + options.numOutputBusChannels
+      );
       var cb = alloc.initialBlockState(options.numControlBusChannels);
       var bb = alloc.initialBlockState(options.numBuffers);
 
@@ -74,7 +76,7 @@ export default class ServerState {
    * @param {String} key - top level key eg. nodeAllocator, controlBufAllocator
    * @param {Function} fn - will receive current state or an empty Map, returns the altered state.
    */
-  mutate(key:string, fn:Function) {
+  mutate(key: string, fn: Function) {
     this.store.mutateState(this._keys([key]), fn);
   }
 
@@ -85,7 +87,7 @@ export default class ServerState {
    * @param {any} notSetValue - default value to return if empty
    * @returns {any}
    */
-  getIn(keys:[string], notSetValue:any) : any {
+  getIn(keys: [string], notSetValue: any): any {
     return this.store.getIn(this._keys(keys), notSetValue);
   }
 
@@ -94,8 +96,11 @@ export default class ServerState {
    *
    * @returns {int}
    */
-  nextNodeID() : number {
-    return this.store.mutateStateAndReturn(this._keys([StateKeys.NODE_IDS]), alloc.increment);
+  nextNodeID(): number {
+    return this.store.mutateStateAndReturn(
+      this._keys([StateKeys.NODE_IDS]),
+      alloc.increment
+    );
   }
 
   /**
@@ -103,7 +108,7 @@ export default class ServerState {
    *
    * @returns {int} bus number
    */
-  allocAudioBus(numChannels:number=1) : number {
+  allocAudioBus(numChannels: number = 1): number {
     return this._allocBlock(StateKeys.AUDIO_BUSSES, numChannels);
   }
 
@@ -112,7 +117,7 @@ export default class ServerState {
    *
    * @returns {int} bus number
    */
-  allocControlBus(numChannels:number=1) : number {
+  allocControlBus(numChannels: number = 1): number {
     return this._allocBlock(StateKeys.CONTROL_BUSSES, numChannels);
   }
 
@@ -125,7 +130,7 @@ export default class ServerState {
    * @param {int} index
    * @param {int} numChannels
    */
-  freeAudioBus(index:number, numChannels:number) {
+  freeAudioBus(index: number, numChannels: number) {
     this._freeBlock(StateKeys.AUDIO_BUSSES, index, numChannels);
   }
 
@@ -138,7 +143,7 @@ export default class ServerState {
    * @param {int} index
    * @param {int} numChannels
    */
-  freeControlBus(index:number, numChannels:number) {
+  freeControlBus(index: number, numChannels: number) {
     this._freeBlock(StateKeys.CONTROL_BUSSES, index, numChannels);
   }
 
@@ -151,7 +156,7 @@ export default class ServerState {
    * @param {int} numConsecutive - consecutively numbered buffers are needed by VOsc and VOsc3.
    * @returns {int} - buffer id
    */
-  allocBufferID(numConsecutive:number=1) : number {
+  allocBufferID(numConsecutive: number = 1): number {
     return this._allocBlock(StateKeys.BUFFERS, numConsecutive);
   }
 
@@ -163,20 +168,20 @@ export default class ServerState {
    * @param {int} index
    * @param {int} numConsecutive - consecutively numbered buffers are needed by VOsc and VOsc3.
    */
-  freeBuffer(index:number, numConsecutive:number) {
+  freeBuffer(index: number, numConsecutive: number) {
     this._freeBlock(StateKeys.BUFFERS, index, numConsecutive);
   }
 
-  _allocBlock(key:string, numChannels:number) : number {
-    return this.store.mutateStateAndReturn(this._keys([key]),
-      (state) => alloc.allocBlock(state, numChannels));
+  _allocBlock(key: string, numChannels: number): number {
+    return this.store.mutateStateAndReturn(this._keys([key]), state =>
+      alloc.allocBlock(state, numChannels));
   }
 
-  _freeBlock(key:string, index:number, numChannels:number) {
-    this.mutate(key, (state) => alloc.freeBlock(state, index, numChannels));
+  _freeBlock(key: string, index: number, numChannels: number) {
+    this.mutate(key, state => alloc.freeBlock(state, index, numChannels));
   }
 
-  _keys(more:Array<string>=[]) : [string] {
+  _keys(more: Array<string> = []): [string] {
     return [StateKeys.SERVERS, this.server.address].concat(more);
   }
 }

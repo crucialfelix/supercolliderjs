@@ -1,11 +1,9 @@
-
 import _ from 'lodash';
 import path from 'path';
 import fs from 'fs';
 import { EventEmitter } from 'events';
 // import {STATES} from '../internals/sclang-io';
 import SCLang from '../sclang';
-
 
 class MockProcess extends EventEmitter {
   constructor() {
@@ -17,7 +15,6 @@ class MockProcess extends EventEmitter {
 }
 
 describe('sclang', function() {
-
   describe('default constructor', function() {
     it('should exist', function() {
       var sclang = new SCLang();
@@ -26,7 +23,6 @@ describe('sclang', function() {
   });
 
   describe('sclangConfigOptions', function() {
-
     it('should include supercollider-js', function() {
       var sclang = new SCLang();
       var opts = sclang.sclangConfigOptions();
@@ -52,24 +48,18 @@ describe('sclang', function() {
       var sclang = new SCLang({});
       var opts = sclang.sclangConfigOptions({
         sclang_conf: path.join(__dirname, 'fixtures', 'sclang_test_conf.yaml'),
-        includePaths: [
-          '/custom/one',
-          '/path/include/one'
-        ],
-        excludePaths: [
-          '/custom/two'
-        ]
+        includePaths: ['/custom/one', '/path/include/one'],
+        excludePaths: ['/custom/two']
       });
       expect(opts.includePaths.length).toEqual(3 + 1);
       expect(opts.excludePaths.length).toEqual(2);
     });
-
   });
 
   describe('args', function() {
     it('should format args correctly', function() {
       var sclang = new SCLang();
-      var args = sclang.args({langPort: 4});
+      var args = sclang.args({ langPort: 4 });
       // [ '-i', 'supercolliderjs', '-u', 4 ]
       expect(args.length).toEqual(4);
       expect(args[3]).toEqual(4);
@@ -81,18 +71,21 @@ describe('sclang', function() {
       var sclang = new SCLang();
       var SPAWNED = 'SPAWNED';
       spyOn(sclang, 'spawnProcess').and.returnValue(SPAWNED);
-      return sclang.boot()
-        .then((result) => expect(result).toEqual(SPAWNED))
-        .catch((err) => this.fail(err));
+      return sclang
+        .boot()
+        .then(result => expect(result).toEqual(SPAWNED))
+        .catch(err => this.fail(err));
     });
   });
 
   describe('makeSclangConfig', function() {
     it('should write a yaml file and resolve with a path', function() {
       var sclang = new SCLang();
-      var fail = (err) => this.fail(err);
-      return sclang.makeSclangConfig({includePaths: [], excludePaths: []})
-        .then((tmpPath) => expect(tmpPath).toBeTruthy()).error(fail);
+      var fail = err => this.fail(err);
+      return sclang
+        .makeSclangConfig({ includePaths: [], excludePaths: [] })
+        .then(tmpPath => expect(tmpPath).toBeTruthy())
+        .error(fail);
     });
   });
 
@@ -109,7 +102,7 @@ describe('sclang', function() {
       var config = sclang.sclangConfigOptions({});
       expect(config.postInlineWarning).toBeDefined();
 
-      config = sclang.sclangConfigOptions({postInlineWarning: undefined});
+      config = sclang.sclangConfigOptions({ postInlineWarning: undefined });
       expect(config.postInlineWarning).toEqual(false);
     });
   });
@@ -128,7 +121,6 @@ describe('sclang', function() {
   });
 
   describe('installListeners', function() {
-
     it('should install event listeners', function() {
       var subprocess = new MockProcess();
       var sclang = new SCLang();
@@ -204,5 +196,4 @@ describe('sclang', function() {
       return p;
     });
   });
-
 });
