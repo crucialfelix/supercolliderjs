@@ -334,11 +334,11 @@ export default class Server extends EventEmitter {
       numRGens: '-r',
       numWireBufs: '-w',
       sampleRate: '-S',
-      loadDefs: '-D',
+      loadDefs: '-D', // boolean
       inputStreamsEnabled: '-I',
       outputStreamsEnabled: '-O',
       device: '-H',
-      verbosity: '-v',
+      verbosity: '-V',
       zeroConf: '-R',
       restrictedPath: '-P',
       ugenPluginsPath: '-U',
@@ -359,8 +359,8 @@ export default class Server extends EventEmitter {
     }
 
     _.forEach(this.options, (option, argName) => {
-      if (flagMap[argName]) {
-        let flag = flagMap[argName];
+      let flag = flagMap[argName];
+      if (flag) {
         if (option !== defaultOptions[argName]) {
           opts.push(flag);
           if (_.isArray(option)) {
