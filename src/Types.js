@@ -40,3 +40,53 @@ export type NodeStateType = {
   head: ?number,
   tail: ?number
 };
+
+// @typedef
+export type ServerOptions = {
+  host: ?string,
+  serverPort: ?string,
+  protocol: ?string,
+
+  commandLineOptions: ?Array<string>,
+
+  numPrivateAudioBusChannels: ?number,
+  numAudioBusChannels: ?number,
+  numControlBusChannels: ?number,
+  numInputBusChannels: ?number,
+  numOutputBusChannels: ?number,
+  numBuffers: ?number,
+
+  maxNodes: ?number,
+  maxSynthDefs: ?number,
+  blockSize: ?number,
+  hardwareBufferSize: ?number,
+
+  memSize: ?number,
+  numRGens: ?number,
+  numWireBufs: ?number,
+
+  sampleRate: ?number,
+  loadDefs: ?boolean,
+
+  inputStreamsEnabled: ?boolean,
+  outputStreamsEnabled: ?boolean,
+
+  device: ?string,
+
+  verbosity: ?number,
+  zeroConf: ?boolean,
+
+  restrictedPath: ?string,
+  ugenPluginsPath: ?string,
+
+  initialNodeID: ?number,
+  remoteControlVolume: ?boolean,
+
+  memoryLocking: ?boolean,
+  threads: ?boolean,
+  useSystemClock: ?boolean,
+
+  // Environment variables to set for server process
+  // eg. SC_JACK_DEFAULT_INPUTS: "system:capture_1,system:capture_2"
+  env: ?Object
+};

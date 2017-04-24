@@ -63,7 +63,7 @@
     "jest": "npm run build && jest --watch",
     "compile": "babel --source-maps --out-dir=./lib src",
     "watch": "babel --watch --source-maps --out-dir=./lib src",
-    "copy": "cp src/server/*.json lib/server/ && cp -R src/supercollider-js lib/",
+    "copy": "cp -R src/supercollider-js lib/",
     "build": "npm run compile && npm run copy",
     "prepublish": "npm run build",
     "postinstall": "node -e \"require('fs').stat('lib', function (e, s) { process.exit(e || !s.isDirectory() ? 1 : 0) })\" || npm run build"

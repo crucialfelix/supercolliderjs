@@ -85,4 +85,32 @@ describe('Server', function() {
       return p;
     });
   });
+
+  describe('args', function() {
+    it('should work with empty options', function() {
+      const s = new Server();
+      const a = s.args();
+      expect(_.isArray(a)).toBeTruthy();
+    });
+
+    it('should pass loadDefs as -D if false', function() {
+      const s = new Server({ loadDefs: false });
+      const a = s.args();
+      expect(a.find(v => v === '-D')).toBeTruthy();
+    });
+
+    it('would not include -D if loadDefs is the default true', function() {
+      const s = new Server({ loadDefs: true });
+      const a = s.args();
+      expect(a.find(v => v === '-D')).toBeFalsy();
+    });
+
+    it('would include device as -H', function() {
+      const device = 'Soundflower (2ch)';
+      const s = new Server({ device });
+      const a = s.args();
+      expect(a.find(v => v === '-H')).toBeTruthy();
+      expect(a.find(v => v === device)).toBeTruthy();
+    });
+  });
 });

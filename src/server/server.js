@@ -14,11 +14,11 @@ import SendOSC from './internals/SendOSC';
 import { parseMessage } from './osc/utils';
 import { notify } from './osc/msg';
 import resolveOptions from '../utils/resolveOptions';
-import defaultOptions from './default-server-options.json';
+import defaultOptions from './default-server-options';
 import Logger from '../utils/logger';
 import ServerState from './ServerState';
 
-import type { CallAndResponseType, MsgType } from '../Types';
+import type { CallAndResponseType, MsgType, ServerOptions } from '../Types';
 
 /**
   * Server - starts a SuperCollider synthesis server (scsynth)
@@ -41,7 +41,45 @@ import type { CallAndResponseType, MsgType } from '../Types';
   * ```
  */
 export default class Server extends EventEmitter {
-  options: Object;
+  /**
+   * ```js
+   * host: string,
+   * serverPort: string,
+   * protocol: string,
+   * commandLineOptions: Array<string>,
+   * numPrivateAudioBusChannels: number,
+   * numAudioBusChannels: number,
+   * numControlBusChannels: number,
+   * numInputBusChannels: number,
+   * numOutputBusChannels: number,
+   * numBuffers: number,
+   * maxNodes: number,
+   * maxSynthDefs: number,
+   * blockSize: number,
+   * hardwareBufferSize: number,
+   * memSize: number,
+   * numRGens: number,
+   * numWireBufs: number,
+   * sampleRate: number,
+   * loadDefs: boolean,
+   * inputStreamsEnabled: boolean,
+   * outputStreamsEnabled: boolean,
+   * device: string,
+   * verbosity: number,
+   * zeroConf: boolean,
+   * restrictedPath: string,
+   * ugenPluginsPath: string,
+   * initialNodeID: number,
+   * remoteControlVolume: boolean,
+   * memoryLocking: boolean,
+   * threads: boolean,
+   * useSystemClock: boolean,
+   * // Environment variables to set for the server process
+   * // eg. SC_JACK_DEFAULT_INPUTS: "system:capture_1,system:capture_2"
+   * env: Object
+   * ```
+   */
+  options: ServerOptions;
 
   address: string;
 
@@ -103,7 +141,7 @@ export default class Server extends EventEmitter {
    * @param options - command line options for scsynth
    * @param stateStore - optional parent Store for allocators and node watchers
    */
-  constructor(options: Object = {}, stateStore: any = null) {
+  constructor(options: ServerOptions = {}, stateStore: any = null) {
     super();
     this.options = _.defaults(options, defaultOptions);
     this.address = this.options.host + ':' + this.options.port;
@@ -405,15 +443,18 @@ export default class Server extends EventEmitter {
   _spawnProcess() {
     var execPath = this.options.scsynth, args = this.args();
 
-    this.processEvents.onNext(
-      'Start process: ' + execPath + ' ' + args.join(' ')
-    );
-    this.process = spawn(execPath, args, {
+    const logMsg = 'Start process: ' + execPath + ' ' + args.join(' ');
+    this.processEvents.onNext(logMsg);
+
+    const options = {
       cwd: this.options.cwd,
-      options: {
-        detached: false
-      }
-    });
+      detached: false,
+      // Environment variables to set for server process
+      // eg. SC_JACK_DEFAULT_INPUTS: "system:capture_1,system:capture_2"
+      env: this.options.env || {}
+    };
+
+    this.process = spawn(execPath, args, options);
 
     if (!this.process.pid) {
       let error = `Failed to boot ${execPath}`;
@@ -619,9 +660,15 @@ export default class Server extends EventEmitter {
  * @param {Store} store - optional external Store to hold Server state
  * @returns {Promise} - resolves with the Server
  */
-export function boot(options: Object = {}, store: any = null): Promise<Server> {
-  return resolveOptions(undefined, options).then(opts => {
-    var s = new Server(opts, store);
-    return s.boot().then(() => s.connect()).then(() => s);
+export function boot(
+  options: ServerOptions = {},
+  store: any = null
+): Promise<Server> {
+  return resolveOptions(
+    undefined,
+    options
+  ).then((opts: ServerOptions): Server => {
+    const s: Server = new Server(opts, store);
+    return s.boot().then((): Server => s.connect()).then((): Server => s);
   });
 }
