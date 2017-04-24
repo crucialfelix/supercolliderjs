@@ -14,7 +14,7 @@
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "cuid": "^1.3.8",
-    "dryadic": "^0.3.0",
+    "dryadic": "^0.3.1",
     "immutable": "^3.8.1",
     "js-yaml": "^3.7.0",
     "lodash": "^4.17.2",
@@ -82,6 +82,6 @@
     "collectCoverage": true
   },
   "engines": {
-    "node": ">=4 <7"
+    "node": ">=4"
   }
 }
