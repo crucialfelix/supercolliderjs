@@ -418,7 +418,7 @@ export default class Server extends EventEmitter {
       var stdoutBuffer = '';
       // watch for ready message
       this._serverObservers.stdout
-        .takeWhile(text => {
+        .takeWhile((text: string): boolean => {
           stdoutBuffer += text;
           return !stdoutBuffer.match(/SuperCollider 3 server ready/);
         })
@@ -514,7 +514,7 @@ export default class Server extends EventEmitter {
    *
    * @returns {Promise} - resolves when udp responds
    */
-  connect() {
+  connect(): Promise<Server> {
     return new Promise((resolve, reject) => {
       const udpListening = 'udp is listening';
 
@@ -547,7 +547,7 @@ export default class Server extends EventEmitter {
       // which will cause a udp listening event.
       // After server responds then we are truly connected.
       this.callAndResponse(notify()).then(() => {
-        resolve();
+        resolve(this);
       });
     });
   }
@@ -595,7 +595,7 @@ export default class Server extends EventEmitter {
    * @returns {Promise}
    */
   oscOnce(matchArgs: Array<string | number>, timeout: number = 4000): Promise {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve: Function, reject: Function) => {
       var subscription = this.receive.subscribe(msg => {
         var command = msg.slice(0, matchArgs.length);
         if (_.isEqual(command, matchArgs)) {
