@@ -1,4 +1,19 @@
 
+0.14.2 / 2016-03-18
+===================
+
+* Support all command line arguments for scsynth
+* Switch sound input/output device with options to scsynth
+* Support custom enviornment vars for scsynth (eg. set SC_JACK_DEFAULT_INPUTS)
+* fix: Verbosity is -V now, not -v
+* package: remove the node engine restriction of  <7
+
+0.14.1 / 2016-03-18
+===================
+
+* Fix 27 : return inf as the string “Infinity”, -inf as “-Infinity” and NaN as “NaN”
+
+
 0.14.0 / 2016-11-22
 ==================
 

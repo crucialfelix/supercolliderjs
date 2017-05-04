@@ -1,7 +1,7 @@
 {
   "name": "supercolliderjs",
   "description": "JavaScript library for the SuperCollider music language and synthesis server",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "author": "Chris Sattinger <crucialfelix@gmail.com>",
   "contributors": [
     {
