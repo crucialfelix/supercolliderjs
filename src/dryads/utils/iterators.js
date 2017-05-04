@@ -10,9 +10,8 @@ export function sortEvents(events: Array<Object>) {
 }
 
 export function clipTime(events: Array<Object>, start: number, end: number) {
-  return events.filter((e) => (e.time >= start) && (e.time <= end));
+  return events.filter(e => e.time >= start && e.time <= end);
 }
-
 
 /**
  * eventListIterator - Creates a function for use in a getNextEvent iterator that returns events sequentially
@@ -27,12 +26,11 @@ export function clipTime(events: Array<Object>, start: number, end: number) {
  *                         returns {Object} event - Which has .event (the original event) and .memo which is
  *                              used by OSCSched the next time this function is called.
  */
-export function eventListIterator(events: Array<Object>) : Function {
+export function eventListIterator(events: Array<Object>): Function {
   const sorted = sortEvents(events);
   const length = sorted.length;
 
-  return (now: number, memo: ?Object) : ?Object => {
-
+  return (now: number, memo: ?Object): ?Object => {
     if (length === 0) {
       return;
     }
@@ -43,7 +41,7 @@ export function eventListIterator(events: Array<Object>) : Function {
       if (event) {
         return {
           event,
-          memo: {i: memo.i + 1}
+          memo: { i: memo.i + 1 }
         };
       }
     } else {
@@ -54,14 +52,13 @@ export function eventListIterator(events: Array<Object>) : Function {
         if (delta >= 0) {
           return {
             event,
-            memo: {i: i + 1}
+            memo: { i: i + 1 }
           };
         }
       }
     }
   };
 }
-
 
 /**
  * loopedEventListIterator - Creates a function for use in a getNextEvent iterator that loops over an event list
@@ -79,12 +76,14 @@ export function eventListIterator(events: Array<Object>) : Function {
  *   returns {Object} item - Which has .event (the original event) and .memo which is
  *                              used by OSCSched the next time this function is called.
  */
-export function loopedEventListIterator(events: Array<Object>, loopTime: number) : Function {
-
+export function loopedEventListIterator(
+  events: Array<Object>,
+  loopTime: number
+): Function {
   const sorted = clipTime(sortEvents(events), 0, loopTime);
   const length = sorted.length;
 
-  return (now: number, memo: ?Object) : ?Object => {
+  return (now: number, memo: ?Object): ?Object => {
     if (length === 0) {
       return;
     }
@@ -100,8 +99,8 @@ export function loopedEventListIterator(events: Array<Object>, loopTime: number)
         // }
 
         return {
-          event: _.assign({}, event, {time: timeBase + event.time}),
-          memo: {i: memo.i + 1}
+          event: _.assign({}, event, { time: timeBase + event.time }),
+          memo: { i: memo.i + 1 }
         };
       }
     } else {
@@ -110,7 +109,7 @@ export function loopedEventListIterator(events: Array<Object>, loopTime: number)
 
       let timeBase = iteration * loopTime;
       let lastEventTime = sorted[length - 1].time;
-      if ((now > (timeBase + lastEventTime)) && (now < (timeBase + loopTime))) {
+      if (now > timeBase + lastEventTime && now < timeBase + loopTime) {
         // play position is between lastEvent and loopTime
         // so start search in next loop, not at start of current one
         timeBase = timeBase + loopTime;
@@ -124,7 +123,7 @@ export function loopedEventListIterator(events: Array<Object>, loopTime: number)
         if (delta >= 0) {
           return {
             event: _.assign({}, event, { time }),
-            memo: {i: (iteration * length) + i + 1}
+            memo: { i: iteration * length + i + 1 }
           };
         }
       }

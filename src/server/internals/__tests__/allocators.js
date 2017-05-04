@@ -1,10 +1,8 @@
-
 var alloc = require('../allocators');
 // doesnt work for jest:
 // import * as alloc from '../allocators';
 
 describe('inc', function() {
-
   it('should inc from null to 1', function() {
     var [n, s] = alloc.increment();
     expect(n).toEqual(1);
@@ -16,13 +14,9 @@ describe('inc', function() {
     expect(n).toEqual(2);
     expect(s).toEqual(2);
   });
-
 });
 
-
-
 describe('block allocator', function() {
-
   var is;
   beforeEach(function() {
     is = alloc.initialBlockState(8);
@@ -126,5 +120,4 @@ describe('block allocator', function() {
       expectFreeToBe(state, [[0, 8]]);
     });
   });
-
 });

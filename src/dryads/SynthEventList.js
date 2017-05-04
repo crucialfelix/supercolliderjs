@@ -5,16 +5,9 @@ import { Dryad } from 'dryadic';
 import Group from './Group';
 import type { DryadPlayer } from 'dryadic';
 
-import {
-  synthNew,
-  AddActions
-} from '../server/osc/msg';
+import { synthNew, AddActions } from '../server/osc/msg';
 
-import {
-  loopedEventListIterator,
-  eventListIterator
-} from './utils/iterators';
-
+import { loopedEventListIterator, eventListIterator } from './utils/iterators';
 
 /**
  * Takes a list of synth event objects with relative times and schedules them.
@@ -70,22 +63,26 @@ import {
  * __loopTime:__ Play the events continuously in a loop.
  */
 export default class SynthEventList extends Dryad {
-
   /**
    * @param  {DryadPlayer} player
    * @return {Object}      Command object
    */
-  add(player:DryadPlayer): Object {
+  add(player: DryadPlayer): Object {
     let commands = {
       scserver: {
         schedLoop: (context, properties) => {
           // temporary: we need to know the play time of the whole document
-          const epoch = context.epoch || (_.now() + 200);
+          const epoch = context.epoch || _.now() + 200;
           if (epoch !== context.epoch) {
-            context = player.updateContext(context, {epoch});
+            context = player.updateContext(context, { epoch });
           }
 
-          return this._makeSchedLoop(properties.events || [], properties.loopTime, epoch, context);
+          return this._makeSchedLoop(
+            properties.events || [],
+            properties.loopTime,
+            epoch,
+            context
+          );
         }
       }
     };
@@ -95,10 +92,12 @@ export default class SynthEventList extends Dryad {
     if (this.properties.updateStream) {
       commands = _.assign(commands, {
         run: (context, properties) => {
-          let subscription = properties.updateStream.subscribe((streamEvent) => {
+          let subscription = properties.updateStream.subscribe(streamEvent => {
             let ee = streamEvent.value();
-            const loopTime = _.isUndefined(ee.loopTime) ? properties.loopTime : ee.loopTime;
-            let epoch = ee.epoch || context.epoch || (_.now() + 200);
+            const loopTime = _.isUndefined(ee.loopTime)
+              ? properties.loopTime
+              : ee.loopTime;
+            let epoch = ee.epoch || context.epoch || _.now() + 200;
             if (epoch !== context.epoch) {
               context = player.updateContext(context, {
                 epoch
@@ -108,12 +107,13 @@ export default class SynthEventList extends Dryad {
             player.callCommand(context.id, {
               scserver: {
                 // need to set epoch as well because OSCSched uses that for relative times
-                schedLoop: (ctx/*, props*/) => this._makeSchedLoop(ee.events || [], loopTime, ctx)
+                schedLoop: (ctx /*, props*/) =>
+                  this._makeSchedLoop(ee.events || [], loopTime, ctx)
               }
             });
           });
 
-          player.updateContext(context, {subscription});
+          player.updateContext(context, { subscription });
         }
       });
     }
@@ -121,17 +121,27 @@ export default class SynthEventList extends Dryad {
     return commands;
   }
 
-  _makeSchedLoop(events: Array<Object>, loopTime: ?number, context: Object) : Function {
+  _makeSchedLoop(
+    events: Array<Object>,
+    loopTime: ?number,
+    context: Object
+  ): Function {
     const synthEvents = this._makeMsgs(events, context);
-    return loopTime ? loopedEventListIterator(synthEvents, loopTime) : eventListIterator(synthEvents);
+    return loopTime
+      ? loopedEventListIterator(synthEvents, loopTime)
+      : eventListIterator(synthEvents);
   }
 
-  _makeMsgs(events: Array<Object>, context: Object) : [Object] {
+  _makeMsgs(events: Array<Object>, context: Object): [Object] {
     const defaultParams = this.properties.defaultParams || {};
-    return events.map((event) => {
+    return events.map(event => {
       // TODO: do this a jit time in the schedLoop
       const defName = event.defName || defaultParams.defName;
-      const args = _.assign({out: context.out || 0}, defaultParams.args, event.args);
+      const args = _.assign(
+        { out: context.out || 0 },
+        defaultParams.args,
+        event.args
+      );
       const msg = synthNew(defName, -1, AddActions.TAIL, context.group, args);
       return {
         time: event.time,
@@ -140,11 +150,10 @@ export default class SynthEventList extends Dryad {
     });
   }
 
-
   /**
    * @return {Object}  command object
    */
-  remove() : Object {
+  remove(): Object {
     return {
       run: (context: Object) => {
         if (context.subscription) {
@@ -166,11 +175,10 @@ export default class SynthEventList extends Dryad {
     };
   }
 
-
   /**
    * @return {Dryad}  Wraps itself in a Group so all child Synth events will be removed on removal of the Group.
    */
-  subgraph() : Dryad {
+  subgraph(): Dryad {
     return new Group({}, [this]);
   }
 }

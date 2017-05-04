@@ -25,6 +25,7 @@
   "rules": {
     "block-scoped-var": 2,
     "camelcase": 0,
+    "comma-dangle": ["error", "never"],
     "comma-style": [
       2,
       "last"
@@ -44,6 +45,11 @@
       2,
       "allow-null"
     ],
+    "key-spacing": ["error", {
+      "beforeColon": false,
+      "afterColon": true
+    }],
+    "object-curly-spacing": ["error", "always"],
     "strict": [
       2,
       "never"
@@ -97,11 +103,11 @@
         }
     ],
     "flowtype/space-after-type-colon": [
-        0,
+        1,
         "always"
     ],
     "flowtype/space-before-type-colon": [
-        0,
+        1,
         "never"
     ],
     "flowtype/type-id-match": [

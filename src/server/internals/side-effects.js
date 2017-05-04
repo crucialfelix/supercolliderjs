@@ -1,5 +1,5 @@
-import {boot as _bootServer} from '../server';
-import {boot as _bootLang} from '../../lang/sclang';
+import { boot as _bootServer } from '../server';
+import { boot as _bootLang } from '../../lang/sclang';
 
 /**
  * @private

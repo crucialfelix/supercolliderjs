@@ -9,11 +9,7 @@
   */
 import _ from 'lodash';
 
-import {
-  MsgType,
-  CallAndResponseType,
-  PairsType
-} from '../../Types';
+import { MsgType, CallAndResponseType, PairsType } from '../../Types';
 
 /**
   * Add actions for specifying relationship of newly adding node
@@ -26,7 +22,7 @@ import {
   *  - 4 the new node replaces the node specified by the add target ID. The target node is freed.
   *  @memberof msg
  */
-export const AddActions:Object = {
+export const AddActions: Object = {
   HEAD: 0,
   TAIL: 1,
   BEFORE: 2,
@@ -34,8 +30,7 @@ export const AddActions:Object = {
   REPLACE: 4
 };
 
-
-function flattenPairs(pairs:PairsType) : MsgType {
+function flattenPairs(pairs: PairsType): MsgType {
   return _.flatten(_.isObject(pairs) ? _.toPairs(pairs) : pairs);
 }
 
@@ -44,7 +39,7 @@ function flattenPairs(pairs:PairsType) : MsgType {
   *
   * @return {Array} - OSC message
   */
-export function quit() : MsgType {
+export function quit(): MsgType {
   return ['/quit'];
 }
 
@@ -57,10 +52,10 @@ export function quit() : MsgType {
     If argument is 1, server will remember your return address and send you notifications. 0 will stop sending notifications.
   * @return {Array} - OSC message
   */
-export function notify(on:number=1) : CallAndResponseType {
+export function notify(on: number = 1): CallAndResponseType {
   return {
     call: ['/notify', on],
-    response: ['/done', '/notify']  // => clientID
+    response: ['/done', '/notify'] // => clientID
   };
 }
 
@@ -71,23 +66,21 @@ export function notify(on:number=1) : CallAndResponseType {
 
   * @return {Array} - OSC message
   */
-export function status() : CallAndResponseType {
+export function status(): CallAndResponseType {
   return {
     call: ['/status'],
-    response: ['/status.reply']  // => status array
+    response: ['/status.reply'] // => status array
   };
 }
-
 
 /**
   * Execute a command defined by a UGen Plug-in
   *
   * @return {Array} - OSC message
   */
-export function cmd(command:number, args:MsgType=[]) : MsgType {
+export function cmd(command: number, args: MsgType = []): MsgType {
   return ['/cmd', command].concat(args);
 }
-
 
 /**
   * Dump incoming OSC messages to stdout
@@ -98,10 +91,9 @@ export function cmd(command:number, args:MsgType=[]) : MsgType {
   * 3 print both the parsed and hexadecimal representations of the contents.
   * @return {Array} - OSC message
   */
-export function dumpOSC(code:number=1) : MsgType {
+export function dumpOSC(code: number = 1): MsgType {
   return ['/dumpOSC', code];
 }
-
 
 /**
   * Notify when async commands have completed.
@@ -113,33 +105,30 @@ export function dumpOSC(code:number=1) : MsgType {
   * @param {int} id - a unique number identifying this command.
   * @return {Array} - OSC message
   */
-export function sync(id:number) : CallAndResponseType {
+export function sync(id: number): CallAndResponseType {
   return {
     call: ['/sync', id],
     response: ['/synced', id]
   };
 }
 
-
 /**
   * Clear all scheduled bundles. Removes all bundles from the scheduling queue.
   *
   * @return {Array} - OSC message
   */
-export function clearSched() : MsgType {
+export function clearSched(): MsgType {
   return ['/clearSched'];
 }
-
 
 /**
   * Enable/disable error message posting.
   * @param {int} on
   * @return {Array} - OSC message
   */
-export function error(on:number=1) : MsgType {
+export function error(on: number = 1): MsgType {
   return ['/error', on];
 }
-
 
 /**** Synth Definition Commands **  */
 
@@ -153,13 +142,15 @@ export function error(on:number=1) : MsgType {
   * @return {Array} - OSC message
   *
   */
-export function defRecv(buffer:Buffer, completionMsg:?MsgType=null) : CallAndResponseType {
+export function defRecv(
+  buffer: Buffer,
+  completionMsg: ?MsgType = null
+): CallAndResponseType {
   return {
     call: ['/d_recv', buffer, completionMsg],
     response: ['/done', '/d_recv']
   };
 }
-
 
 /**
   * Load synth definition.
@@ -171,13 +162,15 @@ export function defRecv(buffer:Buffer, completionMsg:?MsgType=null) : CallAndRes
   * @param {Array} completionMsg
   * @return {Array} - OSC message
   */
-export function defLoad(path:string, completionMsg:?MsgType=null) : CallAndResponseType {
+export function defLoad(
+  path: string,
+  completionMsg: ?MsgType = null
+): CallAndResponseType {
   return {
     call: ['/d_load', path, completionMsg],
     response: ['/done']
   };
 }
-
 
 /**
   * Load a directory of synth definitions.
@@ -188,13 +181,15 @@ export function defLoad(path:string, completionMsg:?MsgType=null) : CallAndRespo
   * @param {Array} completionMsg
   * @return {Array} - OSC message
   */
-export function defLoadDir(path:string, completionMsg:?MsgType=null) : CallAndResponseType {
+export function defLoadDir(
+  path: string,
+  completionMsg: ?MsgType = null
+): CallAndResponseType {
   return {
     call: ['/d_loadDir', path, completionMsg],
     response: ['/done']
   };
 }
-
 
 /**
   * Delete synth definition.
@@ -204,10 +199,9 @@ export function defLoadDir(path:string, completionMsg:?MsgType=null) : CallAndRe
   * @param {String} defName
   * @return {Array} - OSC message
   */
-export function defFree(defName:string) : MsgType {
+export function defFree(defName: string): MsgType {
   return ['/d_free', defName];
 }
-
 
 /******* Node Commands **********************  */
 
@@ -216,7 +210,7 @@ export function defFree(defName:string) : MsgType {
   * @param {int} nodeID
   * @return {Array} - OSC message
   */
-export function nodeFree(nodeID:number) : MsgType {
+export function nodeFree(nodeID: number): MsgType {
   return ['/n_free', nodeID];
 }
 
@@ -229,10 +223,9 @@ export function nodeFree(nodeID:number) : MsgType {
   * @param {int} on - binary boolean
   * @return {Array} - OSC message
   */
-export function nodeRun(nodeID:number, on:number=1) : MsgType {
+export function nodeRun(nodeID: number, on: number = 1): MsgType {
   return ['/n_run', nodeID, on];
 }
-
 
 /**
   * Set a node's control value(s).
@@ -256,11 +249,9 @@ export function nodeRun(nodeID:number, on:number=1) : MsgType {
   * @param {Object|Array} pairs - `[[key, value], ...]` or `{key: value, ...}`
   * @return {Array} - OSC message
   */
-export function nodeSet(nodeID:number, pairs:PairsType) : MsgType {
+export function nodeSet(nodeID: number, pairs: PairsType): MsgType {
   return ['/n_set', nodeID].concat(flattenPairs(pairs));
 }
-
-
 
 /**
   * Set ranges of a node's control value(s).
@@ -274,11 +265,9 @@ export function nodeSet(nodeID:number, pairs:PairsType) : MsgType {
   * @param {Array} valueSets - `[[controlName|index, numValues, value1, ... valueN], ...]`
   * @return {Array} - OSC message
   */
-export function nodeSetn(nodeID:number, valueSets:PairsType=[]) : MsgType {
+export function nodeSetn(nodeID: number, valueSets: PairsType = []): MsgType {
   return ['/n_setn', nodeID].concat(_.flatten(valueSets));
 }
-
-
 
 /**
   * Fill ranges of a node's control value(s).
@@ -292,10 +281,9 @@ export function nodeSetn(nodeID:number, valueSets:PairsType=[]) : MsgType {
   * @param {Array} triples - `[[key, numValuesToFill, value], ...]`
   * @return {Array} - OSC message
   */
-export function nodeFill(nodeID:number, triples:PairsType=[]) : MsgType {
+export function nodeFill(nodeID: number, triples: PairsType = []): MsgType {
   return ['/n_fill', nodeID].concat(_.flatten(triples));
 }
-
 
 /**
   * Map a node's controls to read from a bus.
@@ -306,10 +294,9 @@ export function nodeFill(nodeID:number, triples:PairsType=[]) : MsgType {
   *
   * Takes a list of pairs of control names or indices and bus indices and causes those controls to be read continuously from a global control bus. If the node is a group, then it maps the controls of every node in the group. If the control bus index is -1 then any current mapping is undone. Any n_set, n_setn and n_fill command will also unmap the control.
   */
-export function nodeMap(nodeID:number, pairs:PairsType=[]) : MsgType {
+export function nodeMap(nodeID: number, pairs: PairsType = []): MsgType {
   return ['/n_map', nodeID].concat(flattenPairs(pairs));
 }
-
 
 /**
   * Map a node's controls to read from buses.
@@ -321,10 +308,9 @@ export function nodeMap(nodeID:number, pairs:PairsType=[]) : MsgType {
   * @return {Array} - OSC message
 
   */
-export function nodeMapn(nodeID:number, triples:PairsType=[]) : MsgType {
+export function nodeMapn(nodeID: number, triples: PairsType = []): MsgType {
   return ['/n_mapn', nodeID].concat(_.flatten(triples));
 }
-
 
 /**
  * Map a node's controls to read from an audio bus.
@@ -335,10 +321,9 @@ export function nodeMapn(nodeID:number, triples:PairsType=[]) : MsgType {
   * @param {Array} pairs - `[[controlName|index, audioBusID], ...]`
   * @return {Array} - OSC message
   */
-export function nodeMapAudio(nodeID:number, pairs:PairsType) : MsgType {
+export function nodeMapAudio(nodeID: number, pairs: PairsType): MsgType {
   return ['/n_mapa', nodeID].concat(flattenPairs(pairs));
 }
-
 
 /**
   * Map a node's controls to read from audio buses.
@@ -349,10 +334,12 @@ export function nodeMapAudio(nodeID:number, pairs:PairsType) : MsgType {
   *
   * Takes a list of triples of control names or indices, audio bus indices, and number of controls to map and causes those controls to be mapped sequentially to buses. If the node is a group, then it maps the controls of every node in the group. If the audio bus index is -1 then any current mapping is undone. Any `n_set`, `n_setn` and `n_fill` command will also unmap the control. For the full audio rate signal, the argument must have its rate set to `\ar`.
   */
-export function nodeMapAudion(nodeID:number, triples:PairsType=[]) : MsgType {
+export function nodeMapAudion(
+  nodeID: number,
+  triples: PairsType = []
+): MsgType {
   return ['/n_mapan', nodeID].concat(_.flatten(triples));
 }
-
 
 /**
   * Places node A in the same group as node B, to execute immediately before node B.
@@ -361,10 +348,9 @@ export function nodeMapAudion(nodeID:number, triples:PairsType=[]) : MsgType {
   * @param {int} beforeNodeID - the node to move A before
   * @return {Array} - OSC message
   */
-export function nodeBefore(moveNodeID:number, beforeNodeID:number) : MsgType {
+export function nodeBefore(moveNodeID: number, beforeNodeID: number): MsgType {
   return ['/n_before', moveNodeID, beforeNodeID];
 }
-
 
 /**
   * Places node A in the same group as node B, to execute immediately after node B.
@@ -373,10 +359,9 @@ export function nodeBefore(moveNodeID:number, beforeNodeID:number) : MsgType {
   * @param {int} afterNodeID - the ID of the node after which the above is placed (B)
   * @return {Array} - OSC message
   */
-export function nodeAfter(moveNodeID:number, afterNodeID:number) : MsgType {
+export function nodeAfter(moveNodeID: number, afterNodeID: number): MsgType {
   return ['/n_after', moveNodeID, afterNodeID];
 }
-
 
 /**
   * Get info about a node.
@@ -387,13 +372,12 @@ export function nodeAfter(moveNodeID:number, afterNodeID:number) : MsgType {
   * @param {int} nodeID
   * @return {Array} - OSC message
   */
-export function nodeQuery(nodeID:number) : CallAndResponseType {
+export function nodeQuery(nodeID: number): CallAndResponseType {
   return {
     call: ['/n_query', nodeID],
     response: ['/n_info', nodeID]
   };
 }
-
 
 /**
   * Trace a node.
@@ -403,7 +387,7 @@ export function nodeQuery(nodeID:number) : CallAndResponseType {
   * @param {int} nodeID
   * @return {Array} - OSC message
   */
-export function nodeTrace(nodeID:number) : MsgType {
+export function nodeTrace(nodeID: number): MsgType {
   return ['/n_trace', nodeID];
 }
 
@@ -417,7 +401,11 @@ export function nodeTrace(nodeID:number) : MsgType {
   * @param {Array.<int>} nodeIDs
   * @return {Array} - OSC message
   */
-export function nodeOrder(addAction:number, targetID:number, nodeIDs:[number]) : MsgType {
+export function nodeOrder(
+  addAction: number,
+  targetID: number,
+  nodeIDs: [number]
+): MsgType {
   return ['/n_order', addAction, targetID].concat(nodeIDs);
 }
 
@@ -445,10 +433,17 @@ export function nodeOrder(addAction:number, targetID:number, nodeIDs:[number]) :
   * A symbol argument consisting of the letter 'c' or 'a' (for control or audio) followed by the bus's index.
   * @return OSC message
   */
-export function synthNew(defName:string, nodeID:number=-1, addAction:number=AddActions.TAIL, targetID:number=0, args:PairsType=[]) : MsgType {
-  return ['/s_new', defName, nodeID, addAction, targetID].concat(flattenPairs(args));
+export function synthNew(
+  defName: string,
+  nodeID: number = -1,
+  addAction: number = AddActions.TAIL,
+  targetID: number = 0,
+  args: PairsType = []
+): MsgType {
+  return ['/s_new', defName, nodeID, addAction, targetID].concat(
+    flattenPairs(args)
+  );
 }
-
 
 /**
   * Get control value(s).
@@ -459,13 +454,15 @@ export function synthNew(defName:string, nodeID:number=-1, addAction:number=AddA
 
   Replies with the corresponding `/n_set` command.
   */
-export function synthGet(synthID:number, controlNames:[number|string]) : CallAndResponseType {
+export function synthGet(
+  synthID: number,
+  controlNames: [number | string]
+): CallAndResponseType {
   return {
     call: ['/s_get', synthID].concat(controlNames),
     response: ['/n_set', synthID]
   };
 }
-
 
 /**
   Get ranges of control value(s).
@@ -477,13 +474,16 @@ export function synthGet(synthID:number, controlNames:[number|string]) : CallAnd
 
   Get contiguous ranges of controls. Replies with the corresponding `/n_setn` command.
   */
-export function synthGetn(synthID:number, controlName:number|string, n:number) : CallAndResponseType {
+export function synthGetn(
+  synthID: number,
+  controlName: number | string,
+  n: number
+): CallAndResponseType {
   return {
     call: ['/s_getn', synthID, controlName, n],
     response: ['/n_setn', synthID]
   };
 }
-
 
 /**
   * Auto-reassign synths' ID to a reserved value.
@@ -493,10 +493,9 @@ export function synthGetn(synthID:number, controlName:number|string, n:number) :
   * @param {Array} synthIDs
   * @return {Array} - OSC message
   */
-export function synthNoid(synthIDs:[number]) : MsgType {
+export function synthNoid(synthIDs: [number]): MsgType {
   return ['/s_noid'].concat(synthIDs);
 }
-
 
 /****** Group Commands ***  */
 
@@ -511,10 +510,18 @@ export function synthNoid(synthIDs:[number]) : MsgType {
   * @param {int} targetID
   * @return {Array} - OSC message
   */
-export function groupNew(nodeID:number, addAction:number=AddActions.HEAD, targetID:number=0) : MsgType {
-  return ['/g_new', nodeID, _.isUndefined(addAction) ? AddActions.HEAD : addAction, targetID || 0];
+export function groupNew(
+  nodeID: number,
+  addAction: number = AddActions.HEAD,
+  targetID: number = 0
+): MsgType {
+  return [
+    '/g_new',
+    nodeID,
+    _.isUndefined(addAction) ? AddActions.HEAD : addAction,
+    targetID || 0
+  ];
 }
-
 
 /**
   Create a new parallel group.  supernova only
@@ -529,10 +536,13 @@ export function groupNew(nodeID:number, addAction:number=AddActions.HEAD, target
   * @param {int} targetID
   * @return {Array} - OSC message
   */
-export function parallelGroupNew(groupID:number, addAction:number=AddActions.HEAD, targetID:number=0) : MsgType {
+export function parallelGroupNew(
+  groupID: number,
+  addAction: number = AddActions.HEAD,
+  targetID: number = 0
+): MsgType {
   return ['/p_new', groupID, addAction, targetID];
 }
-
 
 /**
   * Moves node to the head (first to be executed) of the group.
@@ -542,10 +552,13 @@ export function parallelGroupNew(groupID:number, addAction:number=AddActions.HEA
   * @param {...int} rest - more node IDs to also move to head
   * @return {Array} - OSC message
   */
-export function groupHead(groupID:number, nodeID:number, ...rest:Array<number>) : MsgType {
+export function groupHead(
+  groupID: number,
+  nodeID: number,
+  ...rest: Array<number>
+): MsgType {
   return ['/g_head', groupID, nodeID].concat(rest);
 }
-
 
 /**
   * Moves node to the tail (last to be executed) of the group.
@@ -555,10 +568,13 @@ export function groupHead(groupID:number, nodeID:number, ...rest:Array<number>) 
   * @param {...int} rest - more node IDs to also move to tail
   * @return {Array} - OSC message
   */
-export function groupTail(groupID:number, nodeID:number, ...rest:Array<number>) : MsgType {
+export function groupTail(
+  groupID: number,
+  nodeID: number,
+  ...rest: Array<number>
+): MsgType {
   return ['/g_tail', groupID, nodeID].concat(rest);
 }
-
 
 /**
   Frees all immediate children nodes in the group
@@ -566,10 +582,9 @@ export function groupTail(groupID:number, nodeID:number, ...rest:Array<number>) 
   * @param {int} groupID
   * @return {Array} - OSC message
   */
-export function groupFreeAll(groupID:number) : MsgType {
+export function groupFreeAll(groupID: number): MsgType {
   return ['/g_freeAll', groupID];
 }
-
 
 /**
   * Free all synths in this group and all its sub-groups.
@@ -579,10 +594,9 @@ export function groupFreeAll(groupID:number) : MsgType {
   * @param {int} groupID
   * @return {Array} - OSC message
   */
-export function groupDeepFree(groupID:number) : MsgType {
+export function groupDeepFree(groupID: number): MsgType {
   return ['/g_deepFree', groupID];
 }
-
 
 /**
   * Post a representation of this group's node subtree to STDOUT
@@ -594,10 +608,12 @@ export function groupDeepFree(groupID:number) : MsgType {
   * @return {Array} - OSC message
   *
   */
-export function groupDumpTree(groupID:number, dumpControlValues:number=0) : MsgType {
+export function groupDumpTree(
+  groupID: number,
+  dumpControlValues: number = 0
+): MsgType {
   return ['/g_dumpTree', groupID, dumpControlValues];
 }
-
 
 /**
   * Get a representation of this group's node subtree.
@@ -626,13 +642,15 @@ export function groupDumpTree(groupID:number, dumpControlValues:number=0) : MsgT
   * @param {int} dumpControlValues -  if not 0 the current control (arg) values for synths will be included
   * @return {Array} - OSC message
   */
-export function groupQueryTree(groupID:number, dumpControlValues:number=0) : CallAndResponseType {
+export function groupQueryTree(
+  groupID: number,
+  dumpControlValues: number = 0
+): CallAndResponseType {
   return {
     call: ['/g_queryTree', groupID, dumpControlValues],
     response: ['/g_queryTree.reply', groupID]
   };
 }
-
 
 /***** Unit Generator Commands ***  */
 
@@ -647,10 +665,14 @@ export function groupQueryTree(groupID:number, dumpControlValues:number=0) : Cal
   * @param {Array} args
   * @return {Array} - OSC message
   */
-export function ugenCmd(nodeID:number, uGenIndex:number, command:string, args:MsgType=[]) : MsgType {
+export function ugenCmd(
+  nodeID: number,
+  uGenIndex: number,
+  command: string,
+  args: MsgType = []
+): MsgType {
   return ['/u_cmd', nodeID, uGenIndex, command].concat(args);
 }
-
 
 /***** Buffer Commands ***  */
 
@@ -667,13 +689,17 @@ export function ugenCmd(nodeID:number, uGenIndex:number, command:string, args:Ms
   * @param {Array} completionMsg - (optional)
   * @return {Array} - OSC message
   */
-export function bufferAlloc(bufferID:number, numFrames:number, numChannels:number, completionMsg:?MsgType=null) : CallAndResponseType {
+export function bufferAlloc(
+  bufferID: number,
+  numFrames: number,
+  numChannels: number,
+  completionMsg: ?MsgType = null
+): CallAndResponseType {
   return {
     call: ['/b_alloc', bufferID, numFrames, numChannels, completionMsg],
     response: ['/done', '/b_alloc', bufferID]
   };
 }
-
 
 /**
   * Allocate buffer space and read a sound file.
@@ -688,13 +714,25 @@ export function bufferAlloc(bufferID:number, numFrames:number, numChannels:numbe
   * @param {Array} completionMsg - (optional)
   * @return {Array} - OSC message
   */
-export function bufferAllocRead(bufferID:number, path:string, startFrame:number=0, numFramesToRead:number= -1, completionMsg:?MsgType=null) : CallAndResponseType {
+export function bufferAllocRead(
+  bufferID: number,
+  path: string,
+  startFrame: number = 0,
+  numFramesToRead: number = -1,
+  completionMsg: ?MsgType = null
+): CallAndResponseType {
   return {
-    call: ['/b_allocRead', bufferID, path, startFrame, numFramesToRead, completionMsg],
+    call: [
+      '/b_allocRead',
+      bufferID,
+      path,
+      startFrame,
+      numFramesToRead,
+      completionMsg
+    ],
     response: ['/done', '/b_allocRead', bufferID]
   };
 }
-
 
 /**
   * Allocate buffer space and read channels from a sound file.
@@ -710,13 +748,21 @@ export function bufferAllocRead(bufferID:number, path:string, startFrame:number=
   * @param {Array} completionMsg - (optional)
   * @return {Array} - OSC message
   */
-export function bufferAllocReadChannel(bufferID:number, path:string, startFrame:number, numFramesToRead:number, channels:[number], completionMsg:?MsgType=null) : CallAndResponseType {
+export function bufferAllocReadChannel(
+  bufferID: number,
+  path: string,
+  startFrame: number,
+  numFramesToRead: number,
+  channels: [number],
+  completionMsg: ?MsgType = null
+): CallAndResponseType {
   return {
-    call: ['/b_allocReadChannel', bufferID, path, startFrame, numFramesToRead].concat(channels).concat([completionMsg]),
+    call: ['/b_allocReadChannel', bufferID, path, startFrame, numFramesToRead]
+      .concat(channels)
+      .concat([completionMsg]),
     response: ['/done', '/b_allocReadChannel', bufferID]
   };
 }
-
 
 /**
   * Read sound file data into an existing buffer.
@@ -736,13 +782,29 @@ export function bufferAllocReadChannel(bufferID:number, path:string, startFrame:
   * @param {Array} completionMsg - (optional)
   * @return {Array} - OSC message
   */
-export function bufferRead(bufferID:number, path:string, startFrame:number=0, numFramesToRead:number= -1, startFrameInBuffer:number=0, leaveFileOpen:number=0, completionMsg:?MsgType=null) : CallAndResponseType {
+export function bufferRead(
+  bufferID: number,
+  path: string,
+  startFrame: number = 0,
+  numFramesToRead: number = -1,
+  startFrameInBuffer: number = 0,
+  leaveFileOpen: number = 0,
+  completionMsg: ?MsgType = null
+): CallAndResponseType {
   return {
-    call: ['/b_read', bufferID, path, startFrame, numFramesToRead, startFrameInBuffer, leaveFileOpen, completionMsg],
+    call: [
+      '/b_read',
+      bufferID,
+      path,
+      startFrame,
+      numFramesToRead,
+      startFrameInBuffer,
+      leaveFileOpen,
+      completionMsg
+    ],
     response: ['/done', '/b_read', bufferID]
   };
 }
-
 
 /**
   * Read sound file channel data into an existing buffer.
@@ -761,13 +823,31 @@ export function bufferRead(bufferID:number, path:string, startFrame:number=0, nu
   * @param {Array} completionMsg
   * @return {Array} - OSC message
   */
-export function bufferReadChannel(bufferID:number, path:string, startFrame:number=0, numFramesToRead:number= -1, startFrameInBuffer:number=0, leaveFileOpen:number=0, channels:Array<number>=[], completionMsg:?MsgType=null): CallAndResponseType  {
+export function bufferReadChannel(
+  bufferID: number,
+  path: string,
+  startFrame: number = 0,
+  numFramesToRead: number = -1,
+  startFrameInBuffer: number = 0,
+  leaveFileOpen: number = 0,
+  channels: Array<number> = [],
+  completionMsg: ?MsgType = null
+): CallAndResponseType {
   return {
-    call: ['/b_readChannel', bufferID, path, startFrame, numFramesToRead, startFrameInBuffer, leaveFileOpen].concat(channels).concat([completionMsg]),
+    call: [
+      '/b_readChannel',
+      bufferID,
+      path,
+      startFrame,
+      numFramesToRead,
+      startFrameInBuffer,
+      leaveFileOpen
+    ]
+      .concat(channels)
+      .concat([completionMsg]),
     response: ['/done', '/b_readChannel', bufferID]
   };
 }
-
 
 /**
   * Write buffer contents to a sound file.
@@ -791,13 +871,31 @@ export function bufferReadChannel(bufferID:number, path:string, startFrame:numbe
   * @param {Array} completionMsg - (optional)
   * @return {Array} - OSC message
   */
-export function bufferWrite(bufferID:number, path:string, headerFormat:string='aiff', sampleFormat:string='float', numFramesToWrite:number= -1, startFrameInBuffer:number=0, leaveFileOpen:number=0, completionMsg:?MsgType=null) : CallAndResponseType {
+export function bufferWrite(
+  bufferID: number,
+  path: string,
+  headerFormat: string = 'aiff',
+  sampleFormat: string = 'float',
+  numFramesToWrite: number = -1,
+  startFrameInBuffer: number = 0,
+  leaveFileOpen: number = 0,
+  completionMsg: ?MsgType = null
+): CallAndResponseType {
   return {
-    call: ['/b_write', bufferID, path, headerFormat, sampleFormat, numFramesToWrite, startFrameInBuffer, leaveFileOpen, completionMsg],
+    call: [
+      '/b_write',
+      bufferID,
+      path,
+      headerFormat,
+      sampleFormat,
+      numFramesToWrite,
+      startFrameInBuffer,
+      leaveFileOpen,
+      completionMsg
+    ],
     response: ['/done', '/b_write', bufferID]
   };
 }
-
 
 /**
   * Frees buffer space allocated for this buffer.
@@ -808,13 +906,15 @@ export function bufferWrite(bufferID:number, path:string, headerFormat:string='a
   * @param {Array} completionMsg - (optional)
   * @return {Array} - OSC message
   */
-export function bufferFree(bufferID:number, completionMsg:?MsgType=null) : CallAndResponseType {
+export function bufferFree(
+  bufferID: number,
+  completionMsg: ?MsgType = null
+): CallAndResponseType {
   return {
     call: ['/b_free', bufferID, completionMsg],
     response: ['/done', '/b_free', bufferID]
   };
 }
-
 
 /**
   * Sets all samples in the buffer to zero.
@@ -825,13 +925,15 @@ export function bufferFree(bufferID:number, completionMsg:?MsgType=null) : CallA
   * @param {Array} completionMsg - (optional)
   * @return {Array} - OSC message
   */
-export function bufferZero(bufferID:number, completionMsg:?MsgType=null) : CallAndResponseType {
+export function bufferZero(
+  bufferID: number,
+  completionMsg: ?MsgType = null
+): CallAndResponseType {
   return {
     call: ['/b_zero', bufferID, completionMsg],
     response: ['/done', '/b_zero', bufferID]
   };
 }
-
 
 /**
   * Takes a list of pairs of sample indices and values and sets the samples to those values.
@@ -840,10 +942,9 @@ export function bufferZero(bufferID:number, completionMsg:?MsgType=null) : CallA
   * @param {Array} pairs - `[[frame, value], ...]`
   * @return {Array} - OSC message
   */
-export function bufferSet(bufferID:number, pairs:PairsType) : MsgType {
+export function bufferSet(bufferID: number, pairs: PairsType): MsgType {
   return ['/b_set', bufferID].concat(_.flatten(pairs));
 }
-
 
 /**
   * Set ranges of sample value(s).
@@ -855,10 +956,13 @@ export function bufferSet(bufferID:number, pairs:PairsType) : MsgType {
   * @param {Array.<float>} values
   * @return {Array} - OSC message
   */
-export function bufferSetn(bufferID:number, startFrame:number, values:Array<number>=[]) : MsgType {
+export function bufferSetn(
+  bufferID: number,
+  startFrame: number,
+  values: Array<number> = []
+): MsgType {
   return ['/b_setn', bufferID, startFrame, values.length].concat(values);
 }
-
 
 /**
   * Fill ranges of samples with a value
@@ -871,10 +975,14 @@ export function bufferSetn(bufferID:number, startFrame:number, values:Array<numb
   * @param {float} value
   * @return {Array} - OSC message
   */
-export function bufferFill(bufferID:number, startFrame:number, numFrames:number, value:number) : MsgType {
+export function bufferFill(
+  bufferID: number,
+  startFrame: number,
+  numFrames: number,
+  value: number
+): MsgType {
   return ['/b_fill', bufferID, startFrame, numFrames, value];
 }
-
 
 /**
   * Call a command to fill a buffer.
@@ -888,13 +996,16 @@ export function bufferFill(bufferID:number, startFrame:number, numFrames:number,
   * @param {Array} args
   * @return {Array} - OSC message
   */
-export function bufferGen(bufferID:number, command:string, args:MsgType=[]) : CallAndResponseType {
+export function bufferGen(
+  bufferID: number,
+  command: string,
+  args: MsgType = []
+): CallAndResponseType {
   return {
     call: ['/b_gen', bufferID, command].concat(args),
     response: ['/done', '/b_gen', bufferID]
   };
 }
-
 
 /**
   * After using a buffer with `DiskOut`, close the soundfile and write header information.
@@ -904,13 +1015,12 @@ export function bufferGen(bufferID:number, command:string, args:MsgType=[]) : Ca
   * @param {int} bufferID
   * @return {Array} - OSC message
   */
-export function bufferClose(bufferID:number) : CallAndResponseType {
+export function bufferClose(bufferID: number): CallAndResponseType {
   return {
     call: ['/b_close', bufferID],
     response: ['/done', '/b_close', bufferID]
   };
 }
-
 
 /**
   * Get buffer info.
@@ -925,13 +1035,12 @@ export function bufferClose(bufferID:number) : CallAndResponseType {
   * @param {int} bufferID
   * @return {Array} - OSC message
   */
-export function bufferQuery(bufferID:number) : CallAndResponseType {
+export function bufferQuery(bufferID: number): CallAndResponseType {
   return {
     call: ['/b_query', bufferID],
-    response: ['/b_info', bufferID]  // => [numFrames, numChannels, sampleRate]
+    response: ['/b_info', bufferID] // => [numFrames, numChannels, sampleRate]
   };
 }
-
 
 /**
   * Get sample value(s).
@@ -940,13 +1049,15 @@ export function bufferQuery(bufferID:number) : CallAndResponseType {
   * @param {int} bufferID - buffer number
   * @param {Array} framesArray - sample indices to return
   */
-export function bufferGet(bufferID:number, framesArray:[number]) : CallAndResponseType {
+export function bufferGet(
+  bufferID: number,
+  framesArray: [number]
+): CallAndResponseType {
   return {
     call: ['/b_get', bufferID].concat(framesArray),
-    response: ['/b_set', bufferID]  // => sampleValues
+    response: ['/b_set', bufferID] // => sampleValues
   };
 }
-
 
 /**
     Get ranges of sample value(s).
@@ -958,14 +1069,16 @@ export function bufferGet(bufferID:number, framesArray:[number]) : CallAndRespon
   * @param {int} numFrames - number of sequential samples to get (M)
   * @return {Array} - OSC message
   */
-export function bufferGetn(bufferID:number, startFrame:number, numFrames:number) : CallAndResponseType {
+export function bufferGetn(
+  bufferID: number,
+  startFrame: number,
+  numFrames: number
+): CallAndResponseType {
   return {
     call: ['/b_getn', bufferID, startFrame, numFrames],
-    response: ['/b_setn', bufferID]  // => sampleValues
+    response: ['/b_setn', bufferID] // => sampleValues
   };
 }
-
-
 
 /***** Control Bus Commands ***  */
 
@@ -975,10 +1088,9 @@ export function bufferGetn(bufferID:number, startFrame:number, numFrames:number)
   * @param {Array} pairs - `[[busID, value], ...]`
   * @return {Array} - OSC message
   */
-export function controlBusSet(pairs:PairsType) : MsgType {
+export function controlBusSet(pairs: PairsType): MsgType {
   return ['/c_set'].concat(_.flatten(pairs));
 }
-
 
 /**
   * Set ranges of bus value(s).
@@ -988,10 +1100,9 @@ export function controlBusSet(pairs:PairsType) : MsgType {
   * @param {Array} triples - `[[firstBusID, numBussesToChange, value], ...]`
   * @return {Array} - OSC message
   */
-export function controlBusSetn(triples:PairsType=[]) : MsgType {
+export function controlBusSetn(triples: PairsType = []): MsgType {
   return ['/c_setn'].concat(_.flatten(triples));
 }
-
 
 /**
   * Fill ranges of bus value(s).
@@ -1003,10 +1114,9 @@ export function controlBusSetn(triples:PairsType=[]) : MsgType {
   * @param {Array} triples - `[[firstBusID, numBussesToChange, value], ...]`
   * @return {Array} - OSC message
   */
-export function controlBusFill(triples:PairsType=[]) : MsgType {
+export function controlBusFill(triples: PairsType = []): MsgType {
   return ['/c_fill'].concat(_.flatten(triples));
 }
-
 
 /**
   * Get control bus values
@@ -1015,13 +1125,12 @@ export function controlBusFill(triples:PairsType=[]) : MsgType {
   *
   * @param {Number} busID
   */
-export function controlBusGet(busID:number) : CallAndResponseType {
+export function controlBusGet(busID: number): CallAndResponseType {
   return {
     call: ['/c_get', busID],
-    response: ['/c_set', busID]  // => busValue
+    response: ['/c_set', busID] // => busValue
   };
 }
-
 
 /**
   * Get contiguous ranges of buses. Replies with the corresponding `c_setn` command.
@@ -1029,13 +1138,15 @@ export function controlBusGet(busID:number) : CallAndResponseType {
   * @param {int} startBusIndex - starting bus index
   * @param {int} numBusses - number of sequential buses to get (M)
   */
-export function controlBusGetn(startBusIndex:number, numBusses:number) : CallAndResponseType {
+export function controlBusGetn(
+  startBusIndex: number,
+  numBusses: number
+): CallAndResponseType {
   return {
     call: ['/c_getn', startBusIndex, numBusses],
-    response: ['/c_setn', startBusIndex]  // => busValues
+    response: ['/c_setn', startBusIndex] // => busValues
   };
 }
-
 
 /***** Non Real Time Mode Commands ***  */
 
@@ -1048,7 +1159,7 @@ export function controlBusGetn(startBusIndex:number, numBusses:number) : CallAnd
   Replies with `/done`.
 
   */
-export function nonRealTimeEnd() : CallAndResponseType {
+export function nonRealTimeEnd(): CallAndResponseType {
   return {
     call: ['/nrt_end'],
     response: ['/done']

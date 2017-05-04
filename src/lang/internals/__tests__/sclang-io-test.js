@@ -6,7 +6,7 @@ import { SclangIO, STATES } from '../sclang-io';
 // parse a series of output files with the option to break into chunks
 function readFile(filename) {
   let abs = join(__dirname, 'fixtures', filename);
-  return fs.readFileSync(abs, {encoding: 'utf8'});
+  return fs.readFileSync(abs, { encoding: 'utf8' });
 }
 
 function feedIt(filename, io) {
@@ -14,7 +14,6 @@ function feedIt(filename, io) {
 }
 
 describe('sclang-io', function() {
-
   describe('constructor', function() {
     it('should construct', function() {
       var io = new SclangIO();
@@ -68,7 +67,9 @@ describe('sclang-io', function() {
     expect(io.result.duplicateClasses).toBeDefined();
     expect(io.result.duplicateClasses.length).toEqual(1);
     expect(io.result.duplicateClasses[0].forClass).toEqual('Crucial');
-    expect(io.result.duplicateClasses[0].files[0]).toEqual('/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc');
+    expect(io.result.duplicateClasses[0].files[0]).toEqual(
+      '/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc'
+    );
   });
 
   describe('parseCompileErrors', () => {
@@ -81,18 +82,24 @@ describe('sclang-io', function() {
       expect(errors.duplicateClasses).toBeDefined();
       expect(errors.duplicateClasses.length).toEqual(1);
       expect(errors.duplicateClasses[0].forClass).toEqual('Crucial');
-      expect(errors.duplicateClasses[0].files[0]).toEqual('/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc');
+      expect(errors.duplicateClasses[0].files[0]).toEqual(
+        '/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc'
+      );
     });
 
     it('should parse extension for non-existent class', function() {
       var io = new SclangIO();
       io.setState(STATES.BOOTING);
-      var errors = io.parseCompileOutput(readFile('io-extension-for-non-existent-class.txt'));
+      var errors = io.parseCompileOutput(
+        readFile('io-extension-for-non-existent-class.txt')
+      );
 
       expect(errors).toBeDefined();
       expect(errors.extensionErrors).toBeDefined();
       expect(errors.extensionErrors[0].forClass).toEqual('Document');
-      expect(errors.extensionErrors[0].file).toEqual('/deprecated/3.7/deprecated-3.7.sc');
+      expect(errors.extensionErrors[0].file).toEqual(
+        '/deprecated/3.7/deprecated-3.7.sc'
+      );
     });
 
     // other errors:
@@ -123,7 +130,6 @@ describe('sclang-io', function() {
   });
 
   describe('SyntaxErrors', function() {
-
     it('should parse a SyntaxError from stdout', function() {
       var io = new SclangIO();
       io.setState(STATES.READY);
@@ -149,12 +155,12 @@ describe('sclang-io', function() {
         reject: () => {}
       });
 
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         // this is what is really being tested:
         // does it post the stuff inside CAPTURE
         // ERROR: Quarks-install: path does not exist /Users/crucial/wrong
         // to STDOUT ?
-        io.on('stdout', (out) => {
+        io.on('stdout', out => {
           console.log('test STDOUT', out);
           resolve(true);
         });
@@ -169,7 +175,7 @@ describe('sclang-io', function() {
       var io = new SclangIO();
       io.setState(STATES.READY);
       let output = [];
-      io.on('stdout', (o) => output.push(o));
+      io.on('stdout', o => output.push(o));
 
       feedIt('routine-postln.txt', io);
       // should have emited stdout with 'hi'
@@ -177,5 +183,4 @@ describe('sclang-io', function() {
       expect(output[0].match(/hi/)).toBeTruthy();
     });
   });
-
 });

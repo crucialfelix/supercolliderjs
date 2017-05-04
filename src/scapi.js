@@ -1,7 +1,6 @@
 /* jslint node: true */
 
-var
-  events = require('events'),
+var events = require('events'),
   dgram = require('dgram'),
   osc = require('osc-min'),
   cuid = require('cuid'),
@@ -10,7 +9,6 @@ var
 
 import SCError from './Errors';
 import Logger from './utils/logger';
-
 
 /*
  *
@@ -35,7 +33,6 @@ import Logger from './utils/logger';
  *  See examples/call-api-from-node.js
 */
 export default class SCAPI extends events.EventEmitter {
-
   constructor(schost, scport) {
     super();
     this.schost = schost ? schost : 'localhost';
@@ -45,7 +42,6 @@ export default class SCAPI extends events.EventEmitter {
   }
 
   connect() {
-
     var self = this;
     this.udp = dgram.createSocket('udp4');
 
@@ -72,8 +68,7 @@ export default class SCAPI extends events.EventEmitter {
 
   call(requestId, oscpath, args, ok, err) {
     var promise = new Promise((resolve, reject) => {
-      var
-        clientId = 0, // no longer needed
+      var clientId = 0, // no longer needed
         clumps,
         self = this;
 
@@ -85,12 +80,16 @@ export default class SCAPI extends events.EventEmitter {
       }
 
       function sender(rid, oscArgs) {
-        var
-          buf = osc.toBuffer({
-            address: '/API/call',
-            args: [clientId, rid, oscpath].concat(oscArgs)
-          });
-        self.udp.send(buf, 0, buf.length, self.scport, self.schost,
+        var buf = osc.toBuffer({
+          address: '/API/call',
+          args: [clientId, rid, oscpath].concat(oscArgs)
+        });
+        self.udp.send(
+          buf,
+          0,
+          buf.length,
+          self.scport,
+          self.schost,
           function(err2) {
             // this will get DNS errors
             // but not packet-too-big errors
@@ -101,13 +100,15 @@ export default class SCAPI extends events.EventEmitter {
         );
       }
 
-      this.requests[requestId] = {resolve: resolve, reject: reject};
+      this.requests[requestId] = { resolve: resolve, reject: reject };
 
       function isNotOsc(a) {
         // if any arg is an object or array
         // or a large string then pass the args as JSON
         // in multiple calls
-        return _.isObject(a) || _.isArray(a) || (_.isString(a) && a.length > 7168);
+        return _.isObject(a) ||
+          _.isArray(a) ||
+          (_.isString(a) && a.length > 7168);
       }
 
       if (_.some(args, isNotOsc)) {
@@ -128,10 +129,8 @@ export default class SCAPI extends events.EventEmitter {
   }
 
   receive(signal, msg) {
-
-    var
-      // clientId = msg.args[0].value,
-      requestId = msg.args[1].value,
+    var // clientId = msg.args[0].value,
+    requestId = msg.args[1].value,
       result = msg.args[2].value,
       request = this.requests[requestId];
     if (!request) {
@@ -153,9 +152,9 @@ export default class SCAPI extends events.EventEmitter {
     }
 
     var response = {
-      'signal': signal,
-      'request_id': requestId,
-      'result': result
+      signal: signal,
+      request_id: requestId,
+      result: result
     };
 
     if (signal === 'reply') {

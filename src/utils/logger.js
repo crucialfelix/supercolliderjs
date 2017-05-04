@@ -12,7 +12,6 @@ const colors = {
   rcvosc: 'magenta'
 };
 
-
 /**
  * A customized logging interface for supercollider.js
  *
@@ -30,7 +29,6 @@ const colors = {
  *
  */
 export default class Logger {
-
   /**
    * @param {Boolean} debug - Post all debugging calls to log.
    *                        If false then only errors are posted.
@@ -119,12 +117,12 @@ export default class Logger {
       if (typeof text !== 'string') {
         text = JSON.stringify(text, undefined, 2);
       }
-      var
-        lines = text.split('\n'),
+      var lines = text.split('\n'),
         clean = [label + ': ' + lines[0]],
-        rest = lines.slice(1)
-          .filter((s) => s.length > 0)
-          .map((s) => '           ' + s);
+        rest = lines
+          .slice(1)
+          .filter(s => s.length > 0)
+          .map(s => '           ' + s);
       clean = clean.concat(rest).join('\n');
       if (this.colorize) {
         clean = chalk[color](clean);

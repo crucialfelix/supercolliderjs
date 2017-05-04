@@ -4,7 +4,6 @@ import { Dryad } from 'dryadic';
 import { expectPlayGraphToEqual } from '../utils/test-utils';
 
 describe('Synth', function() {
-
   describe('simple', function() {
     let s = new Synth({
       def: 'saw',
@@ -20,14 +19,8 @@ describe('Synth', function() {
     it('should make playgraph', function() {
       let h = [
         'SCServer',
-        {'options': {'debug': false}},
-        [
-          [
-            'Synth',
-            {'def': 'saw', 'args': {'freq': 440}},
-            []
-          ]
-        ]
+        { options: { debug: false } },
+        [['Synth', { def: 'saw', args: { freq: 440 } }, []]]
       ];
       expectPlayGraphToEqual(s, h);
     });
@@ -43,9 +36,7 @@ describe('Synth', function() {
   });
 
   describe('Synth', function() {
-
     describe('with properties', function() {
-
       class FakeDef extends Dryad {
         value() {
           return 'fake-saw';
@@ -73,8 +64,8 @@ describe('Synth', function() {
         let h = [
           'SCServer',
           {
-            'options': {
-              'debug': false
+            options: {
+              debug: false
             }
           },
           [
@@ -82,16 +73,8 @@ describe('Synth', function() {
               'Properties',
               {},
               [
-                [
-                  'FakeDef',
-                  {},
-                  []
-                ],
-                [
-                  'FakeSlider',
-                  {},
-                  []
-                ],
+                ['FakeDef', {}, []],
+                ['FakeSlider', {}, []],
                 [
                   'PropertiesOwner',
                   {},
@@ -99,10 +82,10 @@ describe('Synth', function() {
                     [
                       'Synth',
                       {
-                        'args': {
+                        args: {
                           freq: function() {}
                         },
-                        'def': function() {}
+                        def: function() {}
                       },
                       []
                     ]
@@ -114,7 +97,7 @@ describe('Synth', function() {
         ];
 
         // Ignore the property accessor functions when comparing
-        expectPlayGraphToEqual(s, h, (g) => {
+        expectPlayGraphToEqual(s, h, g => {
           // console.log(JSON.stringify(g, null, 2));
           let propOwner = g[2][0][2][2];
           // console.log('propOwner', propOwner);
@@ -144,5 +127,4 @@ describe('Synth', function() {
       // });
     });
   });
-
 });

@@ -10,7 +10,6 @@ describe('Logger', function() {
   });
 
   it('should handle JSON type object', function() {
-    l.dbug({testing: {object: ['dbug', 3]}});
+    l.dbug({ testing: { object: ['dbug', 3] } });
   });
-
 });

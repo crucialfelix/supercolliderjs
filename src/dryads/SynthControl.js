@@ -1,9 +1,8 @@
 /* @flow */
-import {Dryad} from 'dryadic';
+import { Dryad } from 'dryadic';
 import type { DryadPlayer } from 'dryadic';
-import {nodeSet} from '../server/osc/msg';
+import { nodeSet } from '../server/osc/msg';
 import _ from 'lodash';
-
 
 /**
  * Sends nodeSet messages to the Synth in the parent context.
@@ -15,42 +14,40 @@ import _ from 'lodash';
  * sets context.nodeID
  */
 export default class SynthControl extends Dryad {
-
   /**
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer
    */
-  requireParent() : string {
+  requireParent(): string {
     return 'SCServer';
   }
 
-  add(player:DryadPlayer) : Object {
+  add(player: DryadPlayer): Object {
     return {
       run: (context, properties) => {
         if (properties.stream) {
-          let subscription = properties.stream
-            .subscribe((event) => {
-              // This assumes a Bacon event.
-              // Should validate that event.value is object
-              let msg = nodeSet(context.nodeID, event.value());
-              player.callCommand(context, {
-                scserver: {
-                  bundle: {
-                    time: 0.03,
-                    packets: [msg]
-                  }
+          let subscription = properties.stream.subscribe(event => {
+            // This assumes a Bacon event.
+            // Should validate that event.value is object
+            let msg = nodeSet(context.nodeID, event.value());
+            player.callCommand(context, {
+              scserver: {
+                bundle: {
+                  time: 0.03,
+                  packets: [msg]
                 }
-              });
+              }
             });
-          player.updateContext(context, {subscription});
+          });
+          player.updateContext(context, { subscription });
         }
       }
     };
   }
 
-  remove() : Object {
+  remove(): Object {
     return {
-      run: (context) => {
+      run: context => {
         if (context.subscription) {
           if (_.isFunction(context.subscription)) {
             // baconjs style

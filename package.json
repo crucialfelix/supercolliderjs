@@ -1,7 +1,7 @@
 {
   "name": "supercolliderjs",
   "description": "JavaScript library for the SuperCollider music language and synthesis server",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "author": "Chris Sattinger <crucialfelix@gmail.com>",
   "contributors": [
     {
@@ -14,9 +14,9 @@
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "cuid": "^1.3.8",
-    "dryadic": "^0.3.0",
+    "dryadic": "^0.3.2",
     "immutable": "^3.8.1",
-    "js-yaml": "^3.7.0",
+    "js-yaml": "^3.8.3",
     "lodash": "^4.17.2",
     "ncp": "^2.0.0",
     "osc-min": "^1.1.1",
@@ -26,15 +26,15 @@
   },
   "devDependencies": {
     "babel": "^6.23.0",
-    "babel-cli": "^6.23.0",
-    "babel-eslint": "^7.1.1",
+    "babel-cli": "^6.24.1",
+    "babel-eslint": "^7.2.3",
     "babel-jest": "^19.0.0",
-    "babel-plugin-transform-class-properties": "^6.19.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
-    "babel-preset-es2015": "^6.22.0",
-    "baconjs": "^0.7.89",
-    "eslint": "^3.17.1",
-    "eslint-plugin-flowtype": "^2.30.3",
+    "babel-preset-es2015": "^6.24.1",
+    "baconjs": "^0.7.93",
+    "eslint": "^3.19.0",
+    "eslint-plugin-flowtype": "^2.32.1",
     "jest": "^19.0.2"
   },
   "license": "MIT",
@@ -63,7 +63,7 @@
     "jest": "npm run build && jest --watch",
     "compile": "babel --source-maps --out-dir=./lib src",
     "watch": "babel --watch --source-maps --out-dir=./lib src",
-    "copy": "cp src/server/*.json lib/server/ && cp -R src/supercollider-js lib/",
+    "copy": "cp -R src/supercollider-js lib/",
     "build": "npm run compile && npm run copy",
     "prepublish": "npm run build",
     "postinstall": "node -e \"require('fs').stat('lib', function (e, s) { process.exit(e || !s.isDirectory() ? 1 : 0) })\" || npm run build"
@@ -82,6 +82,6 @@
     "collectCoverage": true
   },
   "engines": {
-    "node": ">=4 <7"
+    "node": ">=4"
   }
 }

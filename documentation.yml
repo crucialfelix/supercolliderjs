@@ -2,6 +2,7 @@ toc:
   - supercolliderjs
   - server
   - Server
+  - defaultServerOptions
   - ServerPlus
   - Synth
   - Group

@@ -1,4 +1,3 @@
-
 var msg = require('../msg');
 import _ from 'lodash';
 

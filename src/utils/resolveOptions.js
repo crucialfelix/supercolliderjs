@@ -1,4 +1,3 @@
-
 /**
  * Default configs for scsynth and sclang
  *
@@ -12,12 +11,12 @@
 import { Promise } from 'bluebird';
 
 var path = require('path'),
-    join = path.join,
-    untildify = require('untildify'),
-    os = require('os'),
-    yaml = require('js-yaml'),
-    fs   = require('fs'),
-    _ = require('lodash');
+  join = path.join,
+  untildify = require('untildify'),
+  os = require('os'),
+  yaml = require('js-yaml'),
+  fs = require('fs'),
+  _ = require('lodash');
 import SCError from '../Errors';
 
 function defaultOptions() {
@@ -57,7 +56,9 @@ function defaultOptions() {
 }
 
 function getUserHome() {
-  const home = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+  const home = process.env.HOME ||
+    process.env.HOMEPATH ||
+    process.env.USERPROFILE;
   if (!home) {
     throw new Error('Failed to find user home directory');
   }
@@ -91,12 +92,13 @@ function filterUndefs(opts) {
   */
 export default function resolveOptions(configPath, commandLineOptions) {
   return new Promise((resolve, reject) => {
-
     function ok(opts, aPath) {
-      var options = _.extend(defaultOptions(),
+      var options = _.extend(
+        defaultOptions(),
         filterUndefs(opts),
         filterUndefs(commandLineOptions),
-        {configPath: aPath});
+        { configPath: aPath }
+      );
 
       options.sclang = path.resolve(untildify(options.sclang));
       options.scsynth = path.resolve(untildify(options.scsynth));
@@ -114,7 +116,12 @@ export default function resolveOptions(configPath, commandLineOptions) {
         var options = yaml.safeLoad(fs.readFileSync(aPath, 'utf8'));
         ok(options, aPath);
       } catch (error) {
-        reject(new SCError(`Error reading config file ${aPath}: ${error.mesage}`, {error, configPath: aPath}));
+        reject(
+          new SCError(`Error reading config file ${aPath}: ${error.mesage}`, {
+            error,
+            configPath: aPath
+          })
+        );
       }
     }
 
@@ -133,7 +140,9 @@ export default function resolveOptions(configPath, commandLineOptions) {
         loadConfig(localConfigPath);
       } else {
         // look in ~
-        let homeDirConfigPath = checkPath(path.join(getUserHome(), '.supercollider.yaml'));
+        let homeDirConfigPath = checkPath(
+          path.join(getUserHome(), '.supercollider.yaml')
+        );
         if (homeDirConfigPath) {
           loadConfig(homeDirConfigPath);
         } else {

@@ -31,19 +31,18 @@ import type { MsgType, OSCMinMsgType, OSCTimeType } from '../../Types';
   * ['/n_go', 1000, 0, -1, 3, 0]
   * ```
  */
-export function parseMessage(msg:OSCMinMsgType) : MsgType {
+export function parseMessage(msg: OSCMinMsgType): MsgType {
   if (msg.oscType === 'bundle') {
     return [timetagToDate(msg.timetag)].concat(msg.elements.map(parseMessage));
   }
   // for each msg.arg pluck just value
-  return [msg.address].concat(msg.args.map((a) => a.value));
+  return [msg.address].concat(msg.args.map(a => a.value));
 }
-
 
 /**
  * Format an object for osc-min message
  */
-export function makeMessage(msg:MsgType) : OSCMinMsgType {
+export function makeMessage(msg: MsgType): OSCMinMsgType {
   return {
     oscType: 'message',
     address: msg[0],
@@ -51,23 +50,21 @@ export function makeMessage(msg:MsgType) : OSCMinMsgType {
   };
 }
 
-
 // export function checkTypes(input:[any]) : MsgType {
-  // _.each(input, (inp, i) => {
-  //   console.log(inp, typeof inp);
-  //   switch (typeof inp) {
-  //     case 'string':
-  //     case 'number':
-  //     case 'object':
-  //       break;
-  //     default:
-  //       throw new Error(`Invalid OSC Type at index ${i}: ${inp} of ${input}`);
-  //   }
-  // });
+// _.each(input, (inp, i) => {
+//   console.log(inp, typeof inp);
+//   switch (typeof inp) {
+//     case 'string':
+//     case 'number':
+//     case 'object':
+//       break;
+//     default:
+//       throw new Error(`Invalid OSC Type at index ${i}: ${inp} of ${input}`);
+//   }
+// });
 
 //   return input;
 // }
-
 
 /**
  * Format an object for osc-min bundle
@@ -80,7 +77,10 @@ export function makeMessage(msg:MsgType) : OSCMinMsgType {
  * @param {Array} packets - osc messages as `[address, arg1, ...argN]`
  *                        or sub bundles as `[{timeTag: , packets: }, ...]`
  */
-export function makeBundle(time:OSCTimeType, packets:[MsgType]) : OSCMinMsgType {
+export function makeBundle(
+  time: OSCTimeType,
+  packets: [MsgType]
+): OSCMinMsgType {
   return {
     oscType: 'bundle',
     timetag: time,
@@ -93,14 +93,13 @@ export function makeBundle(time:OSCTimeType, packets:[MsgType]) : OSCMinMsgType 
  *
  * @private
  */
-export function asPacket(thing:[MsgType]|MsgType) : OSCMinMsgType {
+export function asPacket(thing: [MsgType] | MsgType): OSCMinMsgType {
   if (_.isArray(thing)) {
     return makeMessage(thing);
   }
-  let bundle = (thing: MsgType);  // typecast
+  let bundle = (thing: MsgType); // typecast
   return makeBundle(bundle.timeTag, bundle.packets || []);
 }
-
 
 /**
  * Convert a timetag array to a JavaScript Date object in your local timezone.
@@ -122,7 +121,6 @@ export function asPacket(thing:[MsgType]|MsgType) : OSCMinMsgType {
  */
 export const timetagToDate = osc.timetagToDate;
 
-
 /**
  * Convert a JavaScript Date to a NTP timetag array `[secondsSince1970, fractionalSeconds]`.
  *
@@ -132,7 +130,6 @@ export const timetagToDate = osc.timetagToDate;
  */
 export const dateToTimetag = osc.dateToTimetag;
 
-
 /**
  * Make NTP timetag array relative to the current time.
  *
@@ -140,7 +137,7 @@ export const dateToTimetag = osc.dateToTimetag;
  * @param now      - JavaScript timestamp in milliseconds
  * @return `[ntpSecs, ntpFracs]`
  */
-export function deltaTimeTag(seconds: number, now: ?number) : [number,number] {
+export function deltaTimeTag(seconds: number, now: ?number): [number, number] {
   const d = (now || _.now()) / 1000 + (seconds || 0);
   return osc.timestampToTimetag(d);
 }

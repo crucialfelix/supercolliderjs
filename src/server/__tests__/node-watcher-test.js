@@ -3,9 +3,7 @@ import { Promise } from 'bluebird';
 import Server from '../server';
 import * as nw from '../node-watcher';
 
-
 describe('node-watcher', function() {
-
   var nodeID = 1000;
   var id = '0.1.2';
   var id2 = '0.1.3';
@@ -20,16 +18,13 @@ describe('node-watcher', function() {
       if (!_.isEqual(cs['ON_NODE_GO'], object['ON_NODE_GO'])) {
         expect(cs).toEqual(object);
       }
-      if (!_.isEqual(
-          _.keys(cs['CALLBACKS']),
-          _.keys(object['CALLBACKS']))) {
+      if (!_.isEqual(_.keys(cs['CALLBACKS']), _.keys(object['CALLBACKS']))) {
         expect(cs).toEqual(object);
       }
     }
   }
 
   describe('onNodeGo', function() {
-
     it('should register a callback', function() {
       function fn() {}
       var s = new Server();
@@ -37,9 +32,7 @@ describe('node-watcher', function() {
 
       expectEqualState(s, {
         ON_NODE_GO: {
-          '1000': [
-            '0.1.2:1000'
-          ]
+          '1000': ['0.1.2:1000']
         },
         CALLBACKS: {
           '0.1.2:1000': fn
@@ -55,10 +48,7 @@ describe('node-watcher', function() {
 
       expectEqualState(s, {
         ON_NODE_GO: {
-          '1000': [
-            '0.1.2:1000',
-            '0.1.3:1000'
-          ]
+          '1000': ['0.1.2:1000', '0.1.3:1000']
         },
         CALLBACKS: {
           '0.1.2:1000': fn,
@@ -87,9 +77,8 @@ describe('node-watcher', function() {
     it('should fire a onNodeGo handler when server receives', function() {
       var s = new Server();
 
-      return new Promise((resolve) => {
-
-        nw.onNodeGo(s, id, nodeID, (nid) => {
+      return new Promise(resolve => {
+        nw.onNodeGo(s, id, nodeID, nid => {
           expect(nid).toBe(nodeID);
           resolve();
         });
@@ -97,7 +86,5 @@ describe('node-watcher', function() {
         s.receive.onNext(['/n_go', nodeID, 0, -1, 3, 0]);
       });
     });
-
   });
-
 });

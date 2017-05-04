@@ -1,9 +1,7 @@
-
 import _ from 'lodash';
 const SynthStream = require('../SynthStream').default;
 
 describe('SynthStream', function() {
-
   let properties = {};
   let ss = new SynthStream(properties);
 
@@ -12,7 +10,6 @@ describe('SynthStream', function() {
   });
 
   describe('commandsForEvent', function() {
-
     it('has 1 message with no event.id supplied', function() {
       let event = {
         type: 'noteOn',
@@ -39,7 +36,9 @@ describe('SynthStream', function() {
 
       let cmds = ss.commandsForEvent(event, context, properties);
       expect(cmds.updateContext).toBeTruthy();
-      expect(cmds.scserver.bundle.packets).toEqual([['/s_new', 'sin', 1001, 1, 0, 'out', 0]]);
+      expect(cmds.scserver.bundle.packets).toEqual([
+        ['/s_new', 'sin', 1001, 1, 0, 'out', 0]
+      ]);
     });
 
     it('noteOff with event.key should updateContext and s_', function() {
@@ -73,6 +72,5 @@ describe('SynthStream', function() {
     });
 
     // no defName in event or default should not return anything
-
   });
 });

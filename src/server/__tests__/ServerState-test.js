@@ -2,7 +2,6 @@ import Server from '../server';
 import ServerState from '../ServerState';
 
 describe('ServerState', function() {
-
   var state;
   beforeEach(function() {
     var server = new Server();
@@ -83,5 +82,4 @@ describe('ServerState', function() {
       state.freeBuffer(b, 1);
     });
   });
-
 });
