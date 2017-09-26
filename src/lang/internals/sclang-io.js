@@ -2,6 +2,7 @@
   * @flow
   */
 
+import * as net from 'net';
 import _ from 'lodash';
 import EventEmitter from 'events';
 import { SCLangError } from '../../Errors';
@@ -15,8 +16,13 @@ export const STATES = {
   COMPILED: 'compiled',
   COMPILING: 'compiling',
   COMPILE_ERROR: 'compileError',
+  CONNECTING: 'connecting',
   READY: 'ready'
 };
+
+export const RESULT_LISTEN_HOST = 'localhost';
+export const RESULT_LISTEN_PORT = 22967;
+const FRAME_BYTE = 0xff; // should never appear in valid UTF8
 
 /**
  * This parses the stdout of sclang and detects changes of the
@@ -33,21 +39,67 @@ export const STATES = {
  */
 export class SclangIO extends EventEmitter {
   states: Object;
-  responseCollectors: Object;
   capturing: Object;
   calls: Object;
   state: ?string;
   output: Array<string>;
   result: Object;
+  resultSocket: Object;
+  partialMsg: string; // holds any message data we've received so far
 
   constructor() {
     super();
     this.states = this.makeStates();
+    this.resultSocket = this.makeSocket();
     this.reset();
   }
 
+  connectSCLang() {
+    this.setState(STATES.CONNECTING);
+    // notify the parent we're ready to connect, it's responsible for sending
+    // the command to SC to connect to the socket
+    this.emit('connect-ready');
+  }
+
+  makeSocket() {
+    var sock = net.createServer(socket => {
+      console.log("got a new connection")
+      if(this.state === STATES.CONNECTING) {
+        socket.on('data', (data) => {
+          this.handleTCPData(data);
+        });
+        socket.on('end', () => {
+          console.log("client disconnected");
+        });
+        this.setState(STATES.READY);
+      } else {
+        console.log("Got connection when we weren't expecting it!");
+      }
+    });
+    console.log("listening for TCP connection...");
+    sock.listen(RESULT_LISTEN_PORT, RESULT_LISTEN_HOST);
+    return sock;
+  }
+
+  handleTCPData(data) {
+    var handledChars = 0;
+    var frameEnd = data.indexOf(FRAME_BYTE);
+    console.log("frameEnd: " + frameEnd);
+    while(frameEnd != -1) {
+      // we've got the end of a message - handle it
+      var msg = this.partialMsg + data.slice(handledChars, frameEnd);
+      this.partialMsg = '';
+      this.handleMsg(JSON.parse(msg));
+      handledChars = frameEnd+1; // also swallow the divider char
+      // look for another message
+      frameEnd = data.indexOf(FRAME_BYTE, handledChars);
+    }
+    // we've handled all complete messages, store any leftover data
+    this.partialMsg += data.slice(handledChars);
+  }
+
   reset() {
-    this.responseCollectors = {};
+    this.partialMsg = '';
     this.capturing = {};
     this.calls = {};
     this.state = null;
@@ -62,9 +114,12 @@ export class SclangIO extends EventEmitter {
   */
   parse(input: string) {
     var echo = true, startState = this.state, last = 0;
+    // run through the handlers for this state until one causes a state change
+    // or we've gone through all of them
     this.states[this.state].forEach(stf => {
       var match;
       if (this.state === startState) {
+        // why is this a `while` loop and not an `if` statement?
         while ((match = stf.re.exec(input)) !== null) {
           last = match.index + match[0].length;
           // do not post if any handler returns true
@@ -148,7 +203,7 @@ export class SclangIO extends EventEmitter {
           fn: (match: RegExMatchType) => {
             this.result.version = match[1];
             this.processOutput();
-            this.setState(STATES.READY);
+            this.connectSCLang();
           }
         },
         {
@@ -183,13 +238,21 @@ export class SclangIO extends EventEmitter {
           re: /Welcome to SuperCollider ([0-9A-Za-z\-\.]+)\. /m,
           fn: (match: RegExMatchType) => {
             this.result.version = match[1];
-            this.setState(STATES.READY);
+            this.connectSCLang();
           }
         },
         {
           re: /^[\s]*sc3>[\s]*$/m,
           fn: (/*match:RegExMatchType, text*/) => {
-            this.setState(STATES.READY);
+            this.connectSCLang();
+          }
+        }
+      ],
+      connecting: [
+        {
+          re: /(.+)/m,
+          fn: (match: RegExMatchType, text: string) => {
+            console.log(text);
           }
         }
       ],
@@ -214,6 +277,7 @@ export class SclangIO extends EventEmitter {
 
             switch (type) {
               case 'CAPTURE':
+                console.log("hit capture");
                 if (body === 'START') {
                   this.capturing[guid] = [];
                   lines = [];
@@ -225,71 +289,29 @@ export class SclangIO extends EventEmitter {
                       )
                     ) {
                       started = true;
+                      console.log("starting capture");
                     } else if (
                       l.match(/SUPERCOLLIDERJS\:([0-9A-Za-z\-]+)\:CAPTURE:END/)
                     ) {
                       stopped = true;
+                      console.log("finished receiving capture");
+                      this.calls[guid].responseCapture = this.capturing[guid].join('\n') + lines.join('\n');
+                      delete this.capturing[guid];
+                      if(this.calls[guid].responseObj !== null) {
+                        // we already got the response TCP msg, so we can finish now
+                        this.finishResponse(guid);
+                      }
                     } else {
                       if (started && !stopped) {
                         lines.push(l);
                       }
                     }
                   });
-                  this.capturing[guid].push(lines.join('\n'));
-                }
-                return true;
-
-              case 'START':
-                this.responseCollectors[guid] = {
-                  type: body,
-                  chunks: []
-                };
-                return true;
-
-              case 'CHUNK':
-                this.responseCollectors[guid].chunks.push(body);
-                return true;
-
-              case 'END':
-                response = this.responseCollectors[guid];
-                stdout = response.chunks.join('');
-                obj = JSON.parse(stdout);
-
-                if (guid in this.calls) {
-                  if (response.type === 'Result') {
-                    // anything posted during CAPTURE should be forwarded
-                    // to stdout
-                    stdout = this.capturing[guid].join('\n');
-                    delete this.capturing[guid];
-                    if (stdout) {
-                      this.emit('stdout', stdout);
-                    }
-                    this.calls[guid].resolve(obj);
-                  } else {
-                    if (response.type === 'SyntaxError') {
-                      stdout = this.capturing[guid].join('\n');
-                      obj = this.parseSyntaxErrors(stdout);
-                      delete this.capturing[guid];
-                    }
-                    this.calls[guid].reject(
-                      new SCLangError(
-                        `Interpret error: ${obj.errorString}`,
-                        response.type,
-                        obj
-                      )
-                    );
-                  }
-                  delete this.calls[guid];
-                } else {
-                  // I hope sc doesn't post multiple streams at the same time
-                  if (guid === '0') {
-                    // out of band error
-                    this.emit('error', { type: response.type, error: obj });
+                  if(started && !stopped) {
+                    this.capturing[guid].push(lines.join('\n'));
                   }
                 }
-                delete this.responseCollectors[guid];
                 return true;
-
               default:
             }
           }
@@ -324,7 +346,75 @@ export class SclangIO extends EventEmitter {
    * @param {Object} promise - a Promise or an object with reject, resolve
    */
   registerCall(guid: string, promise: Promise<*> | Object) {
-    this.calls[guid] = promise;
+    this.calls[guid] = {
+      responseType: null,
+      responseObj: null,
+      responseCapture: null,
+      promise: promise
+    };
+  }
+
+  /**
+   * write
+   *
+   * Send a raw string to sclang to be interpreted
+   * callback is called after write is complete.
+   */
+  write(chunk: string, callback: ?Function) {
+    this.process.stdin.write(chunk, 'UTF-8');
+    // Send the escape character which is interpreted by sclang as:
+    // "evaluate the currently accumulated command line as SC code"
+    this.process.stdin.write('\x0c', null, callback);
+  }
+
+  // handle a response received over the TCP socket from the supercollider
+  // process.
+  handleMsg(msg: Object) {
+    console.log("Handling TCP Message");
+    if(!(msg.guid in this.calls)) {
+      // I hope sc doesn't post multiple streams at the same time
+      if (msg.guid === '0') {
+        // out of band error
+        this.emit('error', { type: msg.type, error: msg.data });
+      }
+      return
+    }
+
+    var call = this.calls[msg.guid];
+
+    call.responseObj = msg.data;
+    call.responseType = msg.type;
+
+    if(call.responseCapture !== null) {
+      // we've already received the STDOUT capture, so we can finish handling
+      // the message
+      this.finishResponse(msg.guid);
+    }
+  }
+
+  // we have a complete response with STDOUT and TCP data ready to be handled
+  finishResponse(guid) {
+    console.log("FINISHING RESPONSE");
+    var call = this.calls[guid]
+    if(call.responseType === 'Result') {
+      // anything posted during CAPTURE should be forwarded to stdout
+      this.emit('stdout', this.calls.responseCapture);
+      call.promise.resolve(call.responseObj);
+    } else {
+      if (call.responseType === 'SyntaxError') {
+        obj = this.parseSyntaxErrors(call.responseCapture);
+      }
+      console.log(call.responseType);
+      console.log(call.responseObj);
+      call.promise.reject(
+        new SCLangError(
+          `Interpret error: ${call.responseObj.errorString}`,
+          call.responseType,
+          call.responseObj
+        )
+      );
+    }
+    delete this.calls[guid];
   }
 
   /**

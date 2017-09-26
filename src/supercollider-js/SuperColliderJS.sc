@@ -1,7 +1,28 @@
 
 SuperColliderJS {
 
-	classvar tab, nl, jsonEncoders, errorEncoders, <>sclangConf;
+	classvar tab, nl, jsonEncoders, errorEncoders, <resultSocket, <>sclangConf;
+
+	*connect { arg resultHost, resultPort;
+		if(resultSocket.isNil, {
+			resultSocket = NetAddr(resultHost, resultPort);
+			{resultSocket.connect}.try {
+				"ERROR: Couldn't connect to %:%. Is supercolliderjs listening?\n".postf(resultHost, resultPort);
+				resultSocket = nil;
+			};
+		}, {
+			"Tried to connect again without calling disconnect".warn;
+		})
+	}
+
+	*disconnect {
+		if(resultSocket.isNil, {
+			"Tried to disconnect but already disconnected".warn;
+		}, {
+			resultSocket.disconnect;
+			resultSocket = nil;
+		})
+	}
 
 	*interpret { arg guid,
 		escapedCode,
@@ -20,7 +41,10 @@ SuperColliderJS {
 
 		thisProcess.nowExecutingPath = executingPath;
 
-		// capture compile errors, stdout
+		// capture compile errors - they're written directly to STDOUT and don't
+		// throw a catchable exception. Also capture any STDOUT written by the
+		// code we're calling. We'll also capture anything else that happens to
+		// get written to STDOUT while we're capturing, but c'est la vie
 		"\nSUPERCOLLIDERJS:%:CAPTURE:START\n".format(guid).postln;
 		compiled = code.compile;
 
@@ -53,14 +77,18 @@ SuperColliderJS {
 	}
 
 	*return { arg guid, type, object;
-		// post object as JSON to STDOUT
-		var json = this.stringify(object);
-		"\nSUPERCOLLIDERJS:%:START:%".format(guid, type).postln;
-		// sclang screws up when posting long lines in a single chunk
-		json.clump(2048).do { arg chunk;
-			"SUPERCOLLIDERJS:%:CHUNK:%".format(guid, chunk).postln;
-		};
-		"SUPERCOLLIDERJS:%:END:%".format(guid, type).postln;
+		if(resultSocket.isNil, {
+			"resultSocket must be connected before returning data".error;
+		}, {
+			var msg = (
+				\guid: guid,
+				\type: type,
+				\data: object
+			);
+			// send object over the socket, terminating with 0xff
+			resultSocket.sendRaw(this.stringify(msg));
+			resultSocket.sendRaw(0xff.asAscii.asString)
+		});
 	}
 
 	*executeFile { arg guid, path;
@@ -92,7 +120,6 @@ SuperColliderJS {
 		});
 
 		thisProcess.nowExecutingPath = saveExecutingPath;
-		"SUPERCOLLIDERJS.interpreted".postln;
 	}
 	/****************** JSON encoding *****************************************/
 

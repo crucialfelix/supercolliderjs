@@ -14,7 +14,7 @@ import { spawn } from 'child_process';
 import { Promise } from 'bluebird';
 
 import Logger from '../utils/logger';
-import { SclangIO, STATES } from './internals/sclang-io';
+import { SclangIO, STATES, RESULT_LISTEN_HOST, RESULT_LISTEN_PORT } from './internals/sclang-io';
 import resolveOptions from '../utils/resolveOptions';
 import { SCError } from '../Errors';
 import { SclangResultType } from '../Types';
@@ -206,9 +206,11 @@ export default class SCLang extends EventEmitter {
       }
 
       var bootListener = state => {
+        console.log("STATE: " + state);
         if (state === STATES.READY) {
           done = true;
           this.removeListener('state', bootListener);
+          console.log("RESOLVING");
           resolve(this.stateWatcher.result);
         } else if (state === STATES.COMPILE_ERROR) {
           done = true;
@@ -314,6 +316,10 @@ export default class SCLang extends EventEmitter {
       stateWatcher.on(name, (...args) => {
         this.emit(name, ...args);
       });
+      stateWatcher.on('connect-ready', () => {
+        this.write(`SuperColliderJS.connect("${RESULT_LISTEN_HOST}", ${RESULT_LISTEN_PORT})`,
+          null, true);
+      })
     }
     return stateWatcher;
   }
@@ -395,6 +401,7 @@ export default class SCLang extends EventEmitter {
       var setConfigPath = 'SuperColliderJS.sclangConf = "' +
         configPath +
         '";\n\n';
+      console.log("interpreting config path");
       return this.interpret(setConfigPath, null, true, true, true).then(
         () => this
       );
@@ -523,7 +530,9 @@ export function boot(commandLineOptions: Object = {}): Promise<SCLang> {
   ).then(opts => {
     var sclang = new SCLang(opts);
     return sclang.boot().then(() => {
-      return sclang.storeSclangConf().then(() => sclang);
+      console.log("storing conf");
+      return sclang.storeSclangConf()
+        .then(() => {console.log("conf stored"); return sclang});
     });
   });
 }
