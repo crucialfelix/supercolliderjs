@@ -42,12 +42,12 @@ export class SclangIO extends EventEmitter {
   states: Object;
   calls: Object;
   state: ?string;
-  output: Array<string>;
   result: Object;
   resultSocket: Object;
   partialMsg: string; // holds any message data we've received so far
-  partialCapture: string; // holds the in-progress capture
   partialStdout: string; // holds any leftover STDOUT data in-between data callbacks
+  captured: Array<string>; // holds the in-progress capture
+  captureGUID: string;
 
   constructor() {
     super();
@@ -107,10 +107,10 @@ export class SclangIO extends EventEmitter {
     this.partialMsg = '';
     this.partialStdout = '';
     this.captured = [];
-    this.captureGUID;
+    this.captureGUID = '';
     this.calls = {};
     this.state = null;
-    // these are stored on the object
+    // this is stored on the object
     // and are sent with compile error/success event
     this.result = {};
   }
