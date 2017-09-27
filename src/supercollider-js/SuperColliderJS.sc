@@ -45,11 +45,11 @@ SuperColliderJS {
 		// throw a catchable exception. Also capture any STDOUT written by the
 		// code we're calling. We'll also capture anything else that happens to
 		// get written to STDOUT while we're capturing, but c'est la vie
-		"\nSUPERCOLLIDERJS:%:CAPTURE:START\n".format(guid).postln;
+		"SUPERCOLLIDERJS:%:CAPTURE:START".format(guid).postln;
 		compiled = code.compile;
 
 		if(compiled.isNil, {
-			"\nSUPERCOLLIDERJS:%:CAPTURE:END".format(guid).postln;
+			"SUPERCOLLIDERJS:%:CAPTURE:END".format(guid).postln;
 			this.return(guid, "SyntaxError", nil);
 		}, {
 			{
@@ -63,7 +63,7 @@ SuperColliderJS {
 					err.reportError;
 				});
 			});
-			"\nSUPERCOLLIDERJS:%:CAPTURE:END".format(guid).postln;
+			"SUPERCOLLIDERJS:%:CAPTURE:END".format(guid).postln;
 			if(error.notNil, {
 				this.return(guid, "Error", error);
 			}, {
@@ -72,7 +72,6 @@ SuperColliderJS {
 		});
 
 		thisProcess.nowExecutingPath = saveExecutingPath;
-		"SUPERCOLLIDERJS.interpreted".postln;
 		^""
 	}
 

@@ -206,11 +206,9 @@ export default class SCLang extends EventEmitter {
       }
 
       var bootListener = state => {
-        console.log("STATE: " + state);
         if (state === STATES.READY) {
           done = true;
           this.removeListener('state', bootListener);
-          console.log("RESOLVING");
           resolve(this.stateWatcher.result);
         } else if (state === STATES.COMPILE_ERROR) {
           done = true;
@@ -401,7 +399,6 @@ export default class SCLang extends EventEmitter {
       var setConfigPath = 'SuperColliderJS.sclangConf = "' +
         configPath +
         '";\n\n';
-      console.log("interpreting config path");
       return this.interpret(setConfigPath, null, true, true, true).then(
         () => this
       );
@@ -530,9 +527,8 @@ export function boot(commandLineOptions: Object = {}): Promise<SCLang> {
   ).then(opts => {
     var sclang = new SCLang(opts);
     return sclang.boot().then(() => {
-      console.log("storing conf");
       return sclang.storeSclangConf()
-        .then(() => {console.log("conf stored"); return sclang});
+        .then(() => sclang);
     });
   });
 }

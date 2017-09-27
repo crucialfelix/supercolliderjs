@@ -65,7 +65,6 @@ export class SclangIO extends EventEmitter {
 
   makeSocket() {
     var sock = net.createServer(socket => {
-      console.log("got a new connection")
       if(this.state === STATES.CONNECTING) {
         socket.on('data', (data) => {
           this.handleTCPData(data);
@@ -78,7 +77,6 @@ export class SclangIO extends EventEmitter {
         console.log("Got connection when we weren't expecting it!");
       }
     });
-    console.log("listening for TCP connection...");
     sock.listen(RESULT_LISTEN_PORT, RESULT_LISTEN_HOST);
     return sock;
   }
@@ -92,7 +90,6 @@ export class SclangIO extends EventEmitter {
   handleTCPData(data) {
     var handledChars = 0;
     var frameEnd = data.indexOf(FRAME_BYTE);
-    console.log("frameEnd: " + frameEnd);
     while(frameEnd != -1) {
       // we've got the end of a message - handle it
       var msg = this.partialMsg + data.slice(handledChars, frameEnd);
@@ -131,21 +128,20 @@ export class SclangIO extends EventEmitter {
     // note that state handlers take care of state transitions, so the state
     // can change from line-to-line here
     this.partialStdout = inputLines[lastIdx];
-    for(var i = 0; i < lastIdx; ++i) {
-      var handled = false;
-      var prevState = this.state;
-      this.states[this.state].forEach(handler => {
+    for(var lineIdx = 0; lineIdx < lastIdx; ++lineIdx) {
+      var echo = null;
+      var handlers = this.states[this.state];
+      for(var handlerIdx = 0; handlerIdx < handlers.length; ++handlerIdx) {
+        var handler = handlers[handlerIdx];
         var match;
-        if((match = handler.re.exec(inputLines[i])) !== null) {
-          var echo = handler.fn(match, inputLines[i]);
-          if(echo) {
-            this.emit('stdout', inputLines[i] + '\n');
-          }
-          handled = true;
+        if((match = handler.re.exec(inputLines[lineIdx])) !== null) {
+          var echo = handler.fn(match, inputLines[lineIdx]);
+          break; // stop after the first matching handler
         }
-      });
-      if(!handled) {
-        console.log(`WARNING: unhandled stdout in state ${prevState}: \"${inputLines[i]}\"`)
+      }
+      if(echo !== false) {
+        // either the handler told us to echo or no handlers matched
+        this.emit('stdout', inputLines[lineIdx] + '\n');
       }
     }
   }
@@ -168,14 +164,22 @@ export class SclangIO extends EventEmitter {
             this.captureLine(text);
             return false;
           }
+        },
+        {
+          // collect all other output
+          re: /(.*)/,
+          fn: (match: RegExMatchType, text: string) => {
+            this.captureLine(text);
+            return false;
+          }
         }
       ],
       compiling: [
         {
-          re: /^compile done/m,
+          re: /^compile done/,
           fn: () => {
-            this.processOutput();
             this.setState(STATES.COMPILED);
+            this.processOutput();
             return true;
           }
         },
@@ -183,16 +187,15 @@ export class SclangIO extends EventEmitter {
           re: /^Library has not been compiled successfully/,
           fn: (match: RegExMatchType, text: string) => {
             this.captureLine(text);
-            this.processOutput();
             this.setState(STATES.COMPILE_ERROR);
+            this.processOutput();
             return true;
           }
         },
         {
           re: /^ERROR: There is a discrepancy\./,
           fn: (/*match*/) => {
-            this.processOutput();
-            this.setState(STATES.COMPILE_ERROR);
+            this.captureLine(text);
             return true;
           }
         },
@@ -228,7 +231,7 @@ export class SclangIO extends EventEmitter {
         },
         {
           // collect all other output
-          re: /(.+)/,
+          re: /(.*)/,
           fn: (match: RegExMatchType, text: string) => {
             this.captureLine(text);
             return true;
@@ -266,7 +269,7 @@ export class SclangIO extends EventEmitter {
           }
         },
         {
-          re: /^-> $/m,
+          re: /^-> $/,
           fn: (match: RegExMatchType, text: string) => {
             return false;
           }
@@ -279,6 +282,13 @@ export class SclangIO extends EventEmitter {
             this.setState(STATES.COMPILING);
             this.captureLine(text);
           }
+        },
+        {
+          // just print and discard any other output
+          re: /(.*)/,
+          fn: (match: RegExMatchType, text: string) => {
+            return true;
+          }
         }
       ],
       capturing: [
@@ -287,19 +297,20 @@ export class SclangIO extends EventEmitter {
           fn: (match: RegExMatchType, text: string) => {
             var guid = match[1];
             if(guid != this.captureGUID) {
-              console.log("ERROR: got different GUIDs in capture start and end");
+              console.log(`ERROR: got different GUIDs in capture start(${this.captureGUID}) and end(${guid})`);
             }
             this.calls[guid].responseCapture = this.captured.join('\n');
             if(this.calls[guid].responseObj !== null) {
               // we already got the response TCP msg, so we can finish now
               this.finishResponse(guid);
             }
+            this.setState(STATES.READY);
             return false;
           }
         },
         {
           // capture all other output
-          re: /(.+)/,
+          re: /(.*)/,
           fn: (match: RegExMatchType, text: string) => {
             this.captureLine(text);
             return true;
@@ -340,7 +351,6 @@ export class SclangIO extends EventEmitter {
   // handle a response received over the TCP socket from the supercollider
   // process.
   handleMsg(msg: Object) {
-    console.log("Handling TCP Message");
     if(!(msg.guid in this.calls)) {
       // I hope sc doesn't post multiple streams at the same time
       if (msg.guid === '0') {
@@ -364,7 +374,6 @@ export class SclangIO extends EventEmitter {
 
   // we have a complete response with STDOUT and TCP data ready to be handled
   finishResponse(guid) {
-    console.log("FINISHING RESPONSE");
     var call = this.calls[guid]
     if(call.responseType === 'Result') {
       // anything posted during CAPTURE should be forwarded to stdout
@@ -374,8 +383,6 @@ export class SclangIO extends EventEmitter {
       if (call.responseType === 'SyntaxError') {
         obj = this.parseSyntaxErrors(call.responseCapture);
       }
-      console.log(call.responseType);
-      console.log(call.responseObj);
       call.promise.reject(
         new SCLangError(
           `Interpret error: ${call.responseObj.errorString}`,
