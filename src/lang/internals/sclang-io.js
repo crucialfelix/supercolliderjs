@@ -17,7 +17,8 @@ export const STATES = {
   COMPILING: 'compiling',
   COMPILE_ERROR: 'compileError',
   CONNECTING: 'connecting',
-  READY: 'ready'
+  READY: 'ready',
+  CAPTURING: 'capturing',
 };
 
 export const RESULT_LISTEN_HOST = 'localhost';
@@ -39,13 +40,14 @@ const FRAME_BYTE = 0xff; // should never appear in valid UTF8
  */
 export class SclangIO extends EventEmitter {
   states: Object;
-  capturing: Object;
   calls: Object;
   state: ?string;
   output: Array<string>;
   result: Object;
   resultSocket: Object;
   partialMsg: string; // holds any message data we've received so far
+  partialCapture: string; // holds the in-progress capture
+  partialStdout: string; // holds any leftover STDOUT data in-between data callbacks
 
   constructor() {
     super();
@@ -81,6 +83,12 @@ export class SclangIO extends EventEmitter {
     return sock;
   }
 
+  /*
+   * Handle a block of TCP data representing the response data from SCLang. We
+   * don't make any assumptions about the alignment of the callback data with
+   * the messages, and just look for a 0xff byte which indicates the end of a
+   * message (which is just a JSON string).
+   */
   handleTCPData(data) {
     var handledChars = 0;
     var frameEnd = data.indexOf(FRAME_BYTE);
@@ -100,58 +108,45 @@ export class SclangIO extends EventEmitter {
 
   reset() {
     this.partialMsg = '';
-    this.capturing = {};
+    this.partialStdout = '';
+    this.captured = [];
+    this.captureGUID;
     this.calls = {};
     this.state = null;
     // these are stored on the object
     // and are sent with compile error/success event
-    this.output = [];
     this.result = {};
   }
 
   /**
-  * @param {string} input - parse the stdout of supercollider
+  * @param {string} input - parse the stdout of supercollider, line-by-line
   */
   parse(input: string) {
-    var echo = true, startState = this.state, last = 0;
-    // run through the handlers for this state until one causes a state change
-    // or we've gone through all of them
-    this.states[this.state].forEach(stf => {
-      var match;
-      if (this.state === startState) {
-        // why is this a `while` loop and not an `if` statement?
-        while ((match = stf.re.exec(input)) !== null) {
-          last = match.index + match[0].length;
-          // do not post if any handler returns true
-          if (stf.fn(match, input) === true) {
-            echo = false;
+    var inputLines = input.split('\n');
+    var lastIdx = inputLines.length - 1;
+    // grab any data leftover from the last call
+    inputLines[0] = this.partialStdout + inputLines[0];
+    // if this data doesn't end with a newline, save the last partial line
+    // if it does end with a newline, the last item is '' anyways
+    // note that state handlers take care of state transitions, so the state
+    // can change from line-to-line here
+    this.partialStdout = inputLines[lastIdx];
+    for(var i = 0; i < lastIdx; ++i) {
+      var handled = false;
+      var prevState = this.state;
+      this.states[this.state].forEach(handler => {
+        var match;
+        if((match = handler.re.exec(inputLines[i])) !== null) {
+          var echo = handler.fn(match, inputLines[i]);
+          if(echo) {
+            this.emit('stdout', inputLines[i] + '\n');
           }
-
-          // break if its not a /g regex with multiple results
-          if (!stf.re.global) {
-            break;
-          }
+          handled = true;
         }
+      });
+      if(!handled) {
+        console.log(`WARNING: unhandled stdout in state ${prevState}: \"${inputLines[i]}\"`)
       }
-    });
-
-    if (echo) {
-      this.emit('stdout', input);
-    }
-
-    // anything left over should be emitted to stdout ?
-    // This might result in some content being emitted twice.
-    // Currently if there is anything after SUPERCOLLIDERJS.interpret
-    // it is emitted.
-    // if (last < input.length  && (startState === this.state)) {
-    //   console.log('leftovers:', input.substr(last));
-    //   // this.parse(input.substr(last));
-    // }
-
-    // state has changed and there is still text to parse
-    if (last < input.length && startState !== this.state) {
-      // parse remainder with new state
-      this.parse(input.substr(last));
     }
   }
 
@@ -166,11 +161,12 @@ export class SclangIO extends EventEmitter {
     return {
       booting: [
         {
-          re: /^compiling class library/m,
+          re: /^compiling class library/,
           fn: (match: RegExMatchType, text: string) => {
             this.reset();
             this.setState(STATES.COMPILING);
-            this.pushOutputText(text);
+            this.captureLine(text);
+            return false;
           }
         }
       ],
@@ -180,159 +176,133 @@ export class SclangIO extends EventEmitter {
           fn: () => {
             this.processOutput();
             this.setState(STATES.COMPILED);
+            return true;
           }
         },
         {
-          re: /^Library has not been compiled successfully/m,
+          re: /^Library has not been compiled successfully/,
           fn: (match: RegExMatchType, text: string) => {
-            this.pushOutputText(text);
+            this.captureLine(text);
             this.processOutput();
             this.setState(STATES.COMPILE_ERROR);
+            return true;
           }
         },
         {
-          re: /^ERROR: There is a discrepancy\./m,
+          re: /^ERROR: There is a discrepancy\./,
           fn: (/*match*/) => {
             this.processOutput();
             this.setState(STATES.COMPILE_ERROR);
+            return true;
           }
         },
         {
           // it may go directly into initClasses without posting compile done
-          re: /Welcome to SuperCollider ([0-9A-Za-z\-\.]+)\. /m,
+          re: /Welcome to SuperCollider ([0-9A-Za-z\-\.]+)\. /,
           fn: (match: RegExMatchType) => {
             this.result.version = match[1];
             this.processOutput();
             this.connectSCLang();
+            return true;
           }
         },
         {
           // it sometimes posts this sc3> even when compile failed
-          re: /^[\s]*sc3>[\s]*$/m,
+          re: /^[\s]*sc3>[\s]*$/,
           fn: (match: RegExMatchType, text: string) => {
-            this.pushOutputText(text);
+            this.captureLine(text);
             this.processOutput();
             this.setState(STATES.COMPILE_ERROR);
+            return true;
           }
         },
         {
           // another case of just trailing off
-          re: /^error parsing/m,
+          re: /^error parsing/,
           fn: (match: RegExMatchType, text: string) => {
-            this.pushOutputText(text);
+            this.captureLine(text);
             this.processOutput();
             this.setState(STATES.COMPILE_ERROR);
+            return true;
           }
         },
         {
-          // collect all output
-          re: /(.+)/m,
+          // collect all other output
+          re: /(.+)/,
           fn: (match: RegExMatchType, text: string) => {
-            this.pushOutputText(text);
+            this.captureLine(text);
+            return true;
           }
         }
       ],
       compileError: [],
       compiled: [
         {
-          re: /Welcome to SuperCollider ([0-9A-Za-z\-\.]+)\. /m,
+          re: /Welcome to SuperCollider ([0-9A-Za-z\-\.]+)\. /,
           fn: (match: RegExMatchType) => {
             this.result.version = match[1];
             this.connectSCLang();
-          }
-        },
-        {
-          re: /^[\s]*sc3>[\s]*$/m,
-          fn: (/*match:RegExMatchType, text*/) => {
-            this.connectSCLang();
-          }
-        }
-      ],
-      connecting: [
-        {
-          re: /(.+)/m,
-          fn: (match: RegExMatchType, text: string) => {
-            console.log(text);
-          }
-        }
-      ],
-      // REPL is now active
-      ready: [
-        {
-          // There may be multiple SUPERCOLLIDERJS matches in a block of text.
-          // ie. this is a multi-line global regex
-          // This fn is called for each of them with a different match each time
-          // but the same text body.
-          re: /^SUPERCOLLIDERJS\:([0-9A-Za-z\-]+)\:([A-Za-z]+)\:(.*)$/mg,
-          fn: (match: RegExMatchType, text: string) => {
-            var guid = match[1],
-              type = match[2],
-              body = match[3],
-              response,
-              stdout,
-              obj,
-              lines,
-              started = false,
-              stopped = false;
-
-            switch (type) {
-              case 'CAPTURE':
-                console.log("hit capture");
-                if (body === 'START') {
-                  this.capturing[guid] = [];
-                  lines = [];
-                  // yuck
-                  _.each(text.split('\n'), (l: string) => {
-                    if (
-                      l.match(
-                        /SUPERCOLLIDERJS\:([0-9A-Za-z\-]+)\:CAPTURE:START/
-                      )
-                    ) {
-                      started = true;
-                      console.log("starting capture");
-                    } else if (
-                      l.match(/SUPERCOLLIDERJS\:([0-9A-Za-z\-]+)\:CAPTURE:END/)
-                    ) {
-                      stopped = true;
-                      console.log("finished receiving capture");
-                      this.calls[guid].responseCapture = this.capturing[guid].join('\n') + lines.join('\n');
-                      delete this.capturing[guid];
-                      if(this.calls[guid].responseObj !== null) {
-                        // we already got the response TCP msg, so we can finish now
-                        this.finishResponse(guid);
-                      }
-                    } else {
-                      if (started && !stopped) {
-                        lines.push(l);
-                      }
-                    }
-                  });
-                  if(started && !stopped) {
-                    this.capturing[guid].push(lines.join('\n'));
-                  }
-                }
-                return true;
-              default:
-            }
-          }
-        },
-        {
-          re: /^SUPERCOLLIDERJS.interpreted$/mg,
-          fn: (match: RegExMatchType, text: string) => {
-            let rest = text.substr(match.index + 28);
-            // remove the prompt ->
-            rest = rest.replace(/-> \r?\n?/, '');
-            this.emit('stdout', rest);
             return true;
           }
         },
         {
+          re: /^[\s]*sc3>[\s]*$/,
+          fn: (/*match:RegExMatchType, text*/) => {
+            this.connectSCLang();
+            return true;
+          }
+        }
+      ],
+      connecting: [],
+      // REPL is now active
+      ready: [
+        {
+          re: /^SUPERCOLLIDERJS\:([0-9A-Za-z\-]+)\:CAPTURE\:START$/,
+          fn: (match: RegExMatchType, text: string) => {
+            this.captureGUID = match[1],
+            this.captured = [];
+            this.setState(STATES.CAPTURING);
+            return false;
+          }
+        },
+        {
+          re: /^-> $/m,
+          fn: (match: RegExMatchType, text: string) => {
+            return false;
+          }
+        },
+        {
           // user compiled programmatically eg. with Quarks.gui button
-          re: /^compiling class library/m,
+          re: /^compiling class library/,
           fn: (match: RegExMatchType, text: string) => {
             this.reset();
             this.setState(STATES.COMPILING);
-            this.pushOutputText(text);
+            this.captureLine(text);
+          }
+        }
+      ],
+      capturing: [
+        {
+          re: /^SUPERCOLLIDERJS\:([0-9A-Za-z\-]+)\:CAPTURE\:END$/,
+          fn: (match: RegExMatchType, text: string) => {
+            var guid = match[1];
+            if(guid != this.captureGUID) {
+              console.log("ERROR: got different GUIDs in capture start and end");
+            }
+            this.calls[guid].responseCapture = this.captured.join('\n');
+            if(this.calls[guid].responseObj !== null) {
+              // we already got the response TCP msg, so we can finish now
+              this.finishResponse(guid);
+            }
+            return false;
+          }
+        },
+        {
+          // capture all other output
+          re: /(.+)/,
+          fn: (match: RegExMatchType, text: string) => {
+            this.captureLine(text);
+            return true;
           }
         }
       ]
@@ -440,11 +410,10 @@ export class SclangIO extends EventEmitter {
   }
 
   /**
-   * Push text posted by sclang during library compilation
-   * to the .output stack for later procesing
+   * Store text posted by sclang for later procesing
    */
-  pushOutputText(text: string) {
-    this.output.push(text);
+  captureLine(text: string) {
+    this.captured.push(text);
   }
 
   /**
@@ -452,7 +421,7 @@ export class SclangIO extends EventEmitter {
    * into this.result and resetting the stack.
    */
   processOutput() {
-    let parsed = this.parseCompileOutput((this.output || []).join('\n'));
+    let parsed = this.parseCompileOutput((this.captured || []).join('\n'));
 
     // merge with any previously processed
     _.each(parsed, (value, key) => {
@@ -464,7 +433,7 @@ export class SclangIO extends EventEmitter {
       }
     });
 
-    this.output = [];
+    this.captured = [];
   }
 
   /**
