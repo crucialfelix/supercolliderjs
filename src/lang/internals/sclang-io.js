@@ -335,19 +335,6 @@ export class SclangIO extends EventEmitter {
     };
   }
 
-  /**
-   * write
-   *
-   * Send a raw string to sclang to be interpreted
-   * callback is called after write is complete.
-   */
-  write(chunk: string, callback: ?Function) {
-    this.process.stdin.write(chunk, 'UTF-8');
-    // Send the escape character which is interpreted by sclang as:
-    // "evaluate the currently accumulated command line as SC code"
-    this.process.stdin.write('\x0c', null, callback);
-  }
-
   // handle a response received over the TCP socket from the supercollider
   // process.
   handleMsg(msg: Object) {
