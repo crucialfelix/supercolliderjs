@@ -4,9 +4,9 @@ import fs from 'fs';
 import { SclangIO, STATES } from '../sclang-io';
 
 // parse a series of output files with the option to break into chunks
-function readFile(filename) {
+function readFile(filename, encoding='utf8') {
   let abs = join(__dirname, 'fixtures', filename);
-  return fs.readFileSync(abs, { encoding: 'utf8' });
+  return fs.readFileSync(abs, { encoding: encoding });
 }
 
 function feedIt(filename, io) {
@@ -166,6 +166,8 @@ describe('sclang-io', function() {
         });
 
         io.parse(readFile('forward-stdout.txt'));
+        // note this file includes the 0xff byte on the end
+        io.handleTCPData(readFile('forward-tcp.bin', null));
       });
     });
   });
@@ -173,11 +175,17 @@ describe('sclang-io', function() {
   describe('capture', function() {
     it('should capture any immediate postln from end of CAPTURE', function() {
       var io = new SclangIO();
+      // guid must match fixture
+      io.registerCall('c1c4f120-4346-11e6-9df0-edccf25b99df', {
+        resolve: () => {},
+        reject: () => {}
+      });
       io.setState(STATES.READY);
       let output = [];
       io.on('stdout', o => output.push(o));
 
-      feedIt('routine-postln.txt', io);
+      feedIt('routine-stdout.txt', io);
+      io.handleTCPData(readFile('routine-tcp.bin', null));
       // should have emited stdout with 'hi'
       expect(output.length > 0).toBeTruthy();
       expect(output[0].match(/hi/)).toBeTruthy();

@@ -3,7 +3,7 @@ SuperColliderJS {
 
 	classvar tab, nl, jsonEncoders, errorEncoders, <resultSocket, <>sclangConf;
 
-	*connect { arg resultHost, resultPort;
+	*connect { arg resultPort, resultHost="localhost";
 		if(resultSocket.isNil, {
 			resultSocket = NetAddr(resultHost, resultPort);
 			{resultSocket.connect}.try {
@@ -85,7 +85,13 @@ SuperColliderJS {
 				\data: object
 			);
 			// send object over the socket, terminating with 0xff
-			resultSocket.sendRaw(this.stringify(msg));
+			// we build the object explicitly here rather than letting
+			// stringify do it because we need to handle the case where
+			// the object is `nil`, which would get ignored if it was in an Event
+			var outstr = "{\"guid\": " ++ this.stringify(guid) ++
+			 			", \"type\": " ++ this.stringify(type) ++
+						", \"data\": " ++ this.stringify(object) ++ "}";
+			resultSocket.sendRaw(outstr);
 			resultSocket.sendRaw(0xff.asAscii.asString)
 		});
 	}

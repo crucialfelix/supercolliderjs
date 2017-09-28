@@ -1,9 +1,3 @@
 SUPERCOLLIDERJS:citjy45o00002xpxp9dapi2tt:CAPTURE:START
-
 ERROR: Quarks-install: path does not exist /Users/crucial/wrong
-
 SUPERCOLLIDERJS:citjy45o00002xpxp9dapi2tt:CAPTURE:END
-
-SUPERCOLLIDERJS:citjy45o00002xpxp9dapi2tt:START:Result
-SUPERCOLLIDERJS:citjy45o00002xpxp9dapi2tt:CHUNK:"nil"
-SUPERCOLLIDERJS:citjy45o00002xpxp9dapi2tt:END:Result

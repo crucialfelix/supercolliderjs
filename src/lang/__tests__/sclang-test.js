@@ -14,6 +14,12 @@ class MockProcess extends EventEmitter {
   kill() {}
 }
 
+// make a fake promise that just resolves immediately, so we can easily spy on
+// functions that are supposed to return a promise.
+function fakePromise(arg) {
+  return new Promise(resolve => resolve(arg));
+}
+
 describe('sclang', function() {
   describe('default constructor', function() {
     it('should exist', function() {
@@ -69,11 +75,11 @@ describe('sclang', function() {
   describe('boot', function() {
     it('should call spawnProcess', function() {
       var sclang = new SCLang();
-      var SPAWNED = 'SPAWNED';
-      spyOn(sclang, 'spawnProcess').and.returnValue(SPAWNED);
-      return sclang
-        .boot()
-        .then(result => expect(result).toEqual(SPAWNED))
+      spyOn(sclang, 'spawnProcess').and.returnValue(fakePromise());
+      spyOn(sclang, 'connectSclang').and.returnValue(fakePromise());
+      return sclang.boot()
+        .then(() => expect(sclang.spawnProcess).toHaveBeenCalled())
+        .then(() => expect(sclang.connectSclang).toHaveBeenCalled())
         .catch(err => this.fail(err));
     });
   });

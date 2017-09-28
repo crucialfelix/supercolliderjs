@@ -14,7 +14,7 @@ import { spawn } from 'child_process';
 import { Promise } from 'bluebird';
 
 import Logger from '../utils/logger';
-import { SclangIO, STATES, RESULT_LISTEN_HOST, RESULT_LISTEN_PORT } from './internals/sclang-io';
+import { SclangIO, STATES } from './internals/sclang-io';
 import resolveOptions from '../utils/resolveOptions';
 import { SCError } from '../Errors';
 import { SclangResultType } from '../Types';
@@ -23,6 +23,9 @@ import { SclangResultType } from '../Types';
 // It is now undefined, so using any until I track that down.
 // 'any' just opts out of type checking
 type ChildProcessType = any; // child_process$ChildProcess;
+
+const RESULT_LISTEN_HOST = 'localhost';
+const RESULT_LISTEN_PORT = 22967;
 
 /**
   * This class manages a supercollider language interpreter process
@@ -170,12 +173,11 @@ export default class SCLang extends EventEmitter {
       return Promise.reject(e);
     }
 
-    return this.makeSclangConfig(config).then(configPath => {
-      return this.spawnProcess(
+    return this.makeSclangConfig(config)
+      .then(configPath => this.spawnProcess(
         this.options.sclang,
-        _.extend({}, this.options, { config: configPath })
-      );
-    });
+        _.extend({}, this.options, { config: configPath })))
+      .then(() => this.connectSclang());
   }
 
   close(): Promise<*> {
@@ -318,13 +320,6 @@ export default class SCLang extends EventEmitter {
       stateWatcher.on(name, (...args) => {
         this.emit(name, ...args);
       });
-      stateWatcher.on('connect-ready', () => {
-        this.write(`SuperColliderJS.connect("${RESULT_LISTEN_HOST}", ${RESULT_LISTEN_PORT})`,
-                   null, true);
-      })
-      stateWatcher.on('close-ready', () => {
-        this.write(`SuperColliderJS.disconnect()`, null, true);
-      })
     }
     return stateWatcher;
   }
@@ -414,6 +409,52 @@ export default class SCLang extends EventEmitter {
     }
   }
 
+  // start a new server, tell SCLang to connect to it, and wait for the connection
+  connectSclang(): Promise {
+    return new Promise((resolve, reject) => {
+      var connected = false;
+      var timeout = setTimeout(() => {
+        reject(new Error("Timed out waiting for connection from SCLang"));
+      }, 1000);
+      this.resultServer = net.createServer(socket => {
+        clearTimeout(timeout);
+        if(connected) {
+          console.warn("Got multiple connections! Something went wrong");
+          return;
+        }
+        socket.on('data', (data) => {
+          this.stateWatcher.handleTCPData(data);
+        });
+        connected = true;
+        resolve();
+      });
+      this.resultServer.listen(
+        {port: RESULT_LISTEN_PORT, host: RESULT_LISTEN_HOST},
+        () => {
+          this.write(`SuperColliderJS.connect(${RESULT_LISTEN_PORT})`,
+                     null, true);
+        });
+    });
+  }
+
+  disconnectSclang(): Promise {
+    return new Promise((resolve, reject) => {
+      this.resultServer.getConnections((err, numConnections) => {
+        if(err) {
+          reject(err);
+        }
+        if(numConnections != 1) {
+          console.warn(`Called disconnectSclang() with ${numConnections} connections`);
+        }
+        this.resultServer.close(() => {
+          this.resultServer = null;
+          resolve();
+        });
+        this.write(`SuperColliderJS.disconnect()`, null, true);
+      })
+    })
+  }
+
   /**
    * Interprets code in sclang and returns a Promise.
    *
@@ -492,7 +533,13 @@ export default class SCLang extends EventEmitter {
       var cleanup = () => {
         this.process = null;
         this.setState(null);
-        resolve(this);
+        if(this.resultServer) {
+          this.disconnectSclang()
+            .then(() => resolve(this));
+        }
+        else {
+          resolve(this);
+        }
       };
       if (this.process) {
         this.process.once('exit', cleanup);
@@ -528,16 +575,12 @@ export default class SCLang extends EventEmitter {
   *    - ~/.supercollider.yaml
   */
 export function boot(commandLineOptions: Object = {}): Promise<SCLang> {
-  return resolveOptions(
-    commandLineOptions.config,
-    commandLineOptions
-  ).then(opts => {
-    var sclang = new SCLang(opts);
-    return sclang.boot().then(() => {
-      return sclang.storeSclangConf()
-        .then(() => sclang);
-    });
-  });
+  var sclang;
+  return resolveOptions(commandLineOptions.config, commandLineOptions)
+    .then(opts => new SCLang(opts))
+    .then(lang => {sclang = lang; return sclang.boot()})
+    .then(() => sclang.storeSclangConf())
+    .then(() => sclang);
 }
 
 // deprec. will be removed in 1.0
