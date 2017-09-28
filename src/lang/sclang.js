@@ -174,11 +174,13 @@ export default class SCLang extends EventEmitter {
       return Promise.reject(e);
     }
 
+    var result;
     return this.makeSclangConfig(config)
       .then(configPath => this.spawnProcess(
         this.options.sclang,
         _.extend({}, this.options, { config: configPath })))
-      .then(() => this.connectSclang());
+      .then(r => { result = r; return this.connectSclang() })
+      .then(() => result);
   }
 
   close(): Promise<*> {
@@ -196,7 +198,7 @@ export default class SCLang extends EventEmitter {
    *                filtered with this.args so it will only include values
    *                that sclang uses.
    * @returns {Promise}
-   *     resolves null on successful boot and compile
+   *     resolves stateWatcher result on successful boot and compile
    *     rejects on failure to boot or failure to compile the class library
    */
   spawnProcess(execPath: string, commandLineOptions: Object): Promise<*> {
@@ -317,11 +319,24 @@ export default class SCLang extends EventEmitter {
 
   makeStateWatcher(): SclangIO {
     let stateWatcher = new SclangIO(this);
-    for (let name of ['interpreterLoaded', 'error', 'stdout', 'state']) {
+    var alreadyReady = false; // have we switched to the ready state?
+    for (let name of ['error', 'stdout']) {
       stateWatcher.on(name, (...args) => {
         this.emit(name, ...args);
       });
     }
+    stateWatcher.on('state', newState => {
+      // only pass through the first time our state changes
+      // to ready, and not the capturing state.
+      if(newState === 'capturing' ||
+         newState === 'ready' && alreadyReady) {
+        return;
+      }
+      else if(newState === 'ready') {
+        alreadyReady = true;
+      }
+      this.emit('state', newState);
+    });
     return stateWatcher;
   }
 
@@ -438,20 +453,14 @@ export default class SCLang extends EventEmitter {
   }
 
   disconnectSclang(): Promise {
-    return new Promise((resolve, reject) => {
-      this.resultServer.getConnections((err, numConnections) => {
-        if(err) {
-          reject(err);
-        }
-        if(numConnections !== 1) {
-          throw(new Error(`Called disconnectSclang() with ${numConnections} connections`));
-        }
-        this.resultServer.close(() => {
-          this.resultServer = null;
-          resolve();
-        });
+    return new Promise((resolve) => {
+      this.resultServer.close(() => {
+        this.resultServer = null;
+        resolve();
+      });
+      if(this.process) {
         this.write('SuperColliderJS.disconnect()', null, true);
-      })
+      }
     })
   }
 
