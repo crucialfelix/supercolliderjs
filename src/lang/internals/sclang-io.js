@@ -18,7 +18,7 @@ export const STATES = {
   COMPILE_ERROR: 'compileError',
   CONNECTING: 'connecting',
   READY: 'ready',
-  CAPTURING: 'capturing',
+  CAPTURING: 'capturing'
 };
 
 export const RESULT_LISTEN_HOST = 'localhost';
@@ -43,7 +43,7 @@ export class SclangIO extends EventEmitter {
   calls: Object;
   state: ?string;
   result: Object;
-  resultSocket: Object;
+  resultServer: Object;
   partialMsg: string; // holds any message data we've received so far
   partialStdout: string; // holds any leftover STDOUT data in-between data callbacks
   captured: Array<string>; // holds the in-progress capture
@@ -52,7 +52,7 @@ export class SclangIO extends EventEmitter {
   constructor() {
     super();
     this.states = this.makeStates();
-    this.resultSocket = this.makeSocket();
+    this.resultServer = this.makeServer();
     this.reset();
   }
 
@@ -63,8 +63,8 @@ export class SclangIO extends EventEmitter {
     this.emit('connect-ready');
   }
 
-  makeSocket() {
-    var sock = net.createServer(socket => {
+  makeServer() {
+    var server = net.createServer(socket => {
       if(this.state === STATES.CONNECTING) {
         socket.on('data', (data) => {
           this.handleTCPData(data);
@@ -77,8 +77,8 @@ export class SclangIO extends EventEmitter {
         console.log("Got connection when we weren't expecting it!");
       }
     });
-    sock.listen(RESULT_LISTEN_PORT, RESULT_LISTEN_HOST);
-    return sock;
+    server.listen(RESULT_LISTEN_PORT, RESULT_LISTEN_HOST);
+    return server;
   }
 
   /*
@@ -333,6 +333,23 @@ export class SclangIO extends EventEmitter {
       responseCapture: null,
       promise: promise
     };
+  }
+
+  close(): Promise<*> {
+    // notify the parent we're ready to close. it's responsible for sending
+    // the command to SC to close to the socket
+    this.emit('close-ready');
+    return new Promise((resolve, reject) => {
+      this.resultServer.close((err) => {
+        // callback called after the SCLang connection is closed
+        if(err) {
+          reject(err);
+        }
+        else {
+          resolve();
+        }
+      })
+    });
   }
 
   // handle a response received over the TCP socket from the supercollider

@@ -178,6 +178,10 @@ export default class SCLang extends EventEmitter {
     });
   }
 
+  close(): Promise<*> {
+    return this.stateWatcher.close();
+  }
+
   /**
    * spawnProcess - starts the sclang executable
    *
@@ -316,7 +320,10 @@ export default class SCLang extends EventEmitter {
       });
       stateWatcher.on('connect-ready', () => {
         this.write(`SuperColliderJS.connect("${RESULT_LISTEN_HOST}", ${RESULT_LISTEN_PORT})`,
-          null, true);
+                   null, true);
+      })
+      stateWatcher.on('close-ready', () => {
+        this.write(`SuperColliderJS.disconnect()`, null, true);
       })
     }
     return stateWatcher;
