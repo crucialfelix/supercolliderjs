@@ -2,7 +2,6 @@
   * @flow
   */
 
-import * as net from 'net';
 import _ from 'lodash';
 import EventEmitter from 'events';
 import { SCLangError } from '../../Errors';
@@ -60,7 +59,7 @@ export class SclangIO extends EventEmitter {
   handleTCPData(data) {
     var handledChars = 0;
     var frameEnd = data.indexOf(FRAME_BYTE);
-    while(frameEnd != -1) {
+    while(frameEnd !== -1) {
       // we've got the end of a message - handle it
       var msg = this.partialMsg + data.slice(handledChars, frameEnd);
       this.partialMsg = '';
@@ -98,11 +97,11 @@ export class SclangIO extends EventEmitter {
     // note that state handlers take care of state transitions, so the state
     // can change from line-to-line here
     this.partialStdout = inputLines[lastIdx];
-    for(var lineIdx = 0; lineIdx < lastIdx; ++lineIdx) {
+    for(var lineIdx = 0; lineIdx < lastIdx; lineIdx += 1) {
       var handlers = this.states[this.state];
       // default to echoing the input if there are no handlers that match
       var echo = inputLines[lineIdx];
-      for(var handlerIdx = 0; handlerIdx < handlers.length; ++handlerIdx) {
+      for(var handlerIdx = 0; handlerIdx < handlers.length; handlerIdx += 1) {
         var handler = handlers[handlerIdx];
         var match;
         if((match = handler.re.exec(inputLines[lineIdx])) !== null) {
@@ -152,6 +151,7 @@ export class SclangIO extends EventEmitter {
           re: /^compile done/,
           fn: (match: RegExMatchType, text: string) => {
             this.setState(STATES.COMPILED);
+            this.captureLine(text);
             this.processOutput();
             return null;
           }
@@ -180,7 +180,7 @@ export class SclangIO extends EventEmitter {
         {
           // it may go directly into initClasses without posting compile done
           re: /Welcome to SuperCollider ([0-9A-Za-z\-\.]+)\. /,
-          fn: (match: RegExMatchType) => {
+          fn: (match: RegExMatchType, text: string) => {
             this.result.version = match[1];
             this.processOutput();
             this.setState(STATES.READY);
@@ -228,10 +228,10 @@ export class SclangIO extends EventEmitter {
         },
         {
           re: /^[\s]*sc3>[\s]*(.*)/,
-          fn: (match: RegExMatchType, text: string) => {
+          fn: (match: RegExMatchType) => {
             this.setState(STATES.READY);
             var info = match[1];
-            return info == '' ? null : info;
+            return info === '' ? null : info;
           }
         }
       ],
@@ -239,8 +239,8 @@ export class SclangIO extends EventEmitter {
       ready: [
         {
           re: /^SUPERCOLLIDERJS\:([0-9A-Za-z\-]+)\:CAPTURE\:START$/,
-          fn: (match: RegExMatchType, text: string) => {
-            this.captureGUID = match[1],
+          fn: (match: RegExMatchType) => {
+            this.captureGUID = match[1];
             this.captured = [];
             this.setState(STATES.CAPTURING);
             return null;
@@ -248,9 +248,9 @@ export class SclangIO extends EventEmitter {
         },
         {
           re: /^-> ?(.*)/,
-          fn: (match: RegExMatchType, text: string) => {
+          fn: (match: RegExMatchType) => {
             var info = match[1];
-            return info == '' ? null : info;
+            return info === '' ? null : info;
           }
         },
         {
@@ -274,10 +274,10 @@ export class SclangIO extends EventEmitter {
       capturing: [
         {
           re: /^SUPERCOLLIDERJS\:([0-9A-Za-z\-]+)\:CAPTURE\:END$/,
-          fn: (match: RegExMatchType, text: string) => {
+          fn: (match: RegExMatchType) => {
             var guid = match[1];
-            if(guid != this.captureGUID) {
-              console.log(`ERROR: got different GUIDs in capture start(${this.captureGUID}) and end(${guid})`);
+            if(guid !== this.captureGUID) {
+              throw(new Error(`Got different GUIDs in capture start(${this.captureGUID}) and end(${guid})`));
             }
             this.calls[guid].responseCapture = this.captured.join('\n');
             if(this.calls[guid].responseObj !== null) {
@@ -351,7 +351,7 @@ export class SclangIO extends EventEmitter {
       call.promise.resolve(call.responseObj);
     } else {
       if (call.responseType === 'SyntaxError') {
-        obj = this.parseSyntaxErrors(call.responseCapture);
+        call.responseObj = this.parseSyntaxErrors(call.responseCapture);
       }
       call.promise.reject(
         new SCLangError(

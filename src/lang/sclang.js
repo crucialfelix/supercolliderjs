@@ -5,6 +5,7 @@
 import _ from 'lodash';
 import cuid from 'cuid';
 import fs from 'fs';
+import net from 'net';
 import temp from 'temp';
 import untildify from 'untildify';
 import yaml from 'js-yaml';
@@ -414,13 +415,12 @@ export default class SCLang extends EventEmitter {
     return new Promise((resolve, reject) => {
       var connected = false;
       var timeout = setTimeout(() => {
-        reject(new Error("Timed out waiting for connection from SCLang"));
+        reject(new Error('Timed out waiting for connection from SCLang'));
       }, 1000);
       this.resultServer = net.createServer(socket => {
         clearTimeout(timeout);
         if(connected) {
-          console.warn("Got multiple connections! Something went wrong");
-          return;
+          throw(new Error('Got multiple connections! Something went wrong'));
         }
         socket.on('data', (data) => {
           this.stateWatcher.handleTCPData(data);
@@ -429,7 +429,7 @@ export default class SCLang extends EventEmitter {
         resolve();
       });
       this.resultServer.listen(
-        {port: RESULT_LISTEN_PORT, host: RESULT_LISTEN_HOST},
+        { port: RESULT_LISTEN_PORT, host: RESULT_LISTEN_HOST },
         () => {
           this.write(`SuperColliderJS.connect(${RESULT_LISTEN_PORT})`,
                      null, true);
@@ -443,14 +443,14 @@ export default class SCLang extends EventEmitter {
         if(err) {
           reject(err);
         }
-        if(numConnections != 1) {
-          console.warn(`Called disconnectSclang() with ${numConnections} connections`);
+        if(numConnections !== 1) {
+          throw(new Error(`Called disconnectSclang() with ${numConnections} connections`));
         }
         this.resultServer.close(() => {
           this.resultServer = null;
           resolve();
         });
-        this.write(`SuperColliderJS.disconnect()`, null, true);
+        this.write('SuperColliderJS.disconnect()', null, true);
       })
     })
   }
