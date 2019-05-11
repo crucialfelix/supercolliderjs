@@ -7,7 +7,7 @@ var events = require('events'),
   _ = require('lodash'),
   Promise = require('bluebird');
 
-import SCError from './Errors';
+import { SCError } from './Errors';
 import Logger from './utils/logger';
 
 /*
