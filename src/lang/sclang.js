@@ -25,17 +25,17 @@ import { SclangResultType } from '../Types';
 type ChildProcessType = any; // child_process$ChildProcess;
 
 /**
-  * This class manages a supercollider language interpreter process
-  * and sends messages to and from it using STDIN / STDOUT.
-  *
-  *  SuperCollider comes with an executable called sclang
-  *  which can be communicated with via stdin/stdout
-  *  or via OSC.
-  *
-  *
-  * @ member of lang
-  * @extends EventEmitter
-  */
+ * This class manages a supercollider language interpreter process
+ * and sends messages to and from it using STDIN / STDOUT.
+ *
+ *  SuperCollider comes with an executable called sclang
+ *  which can be communicated with via stdin/stdout
+ *  or via OSC.
+ *
+ *
+ * @ member of lang
+ * @extends EventEmitter
+ */
 export default class SCLang extends EventEmitter {
   options: Object;
   process: ?ChildProcessType;
@@ -222,19 +222,16 @@ export default class SCLang extends EventEmitter {
       // that removes itself
       this.addListener('state', bootListener);
 
-      setTimeout(
-        () => {
-          if (!done) {
-            this.log.err('Timeout waiting for sclang to boot');
-            // force it to finalize
-            this.stateWatcher.processOutput();
-            // bootListener above will reject the promise
-            this.stateWatcher.setState(STATES.COMPILE_ERROR);
-            this.removeListener('state', bootListener);
-          }
-        },
-        10000
-      );
+      setTimeout(() => {
+        if (!done) {
+          this.log.err('Timeout waiting for sclang to boot');
+          // force it to finalize
+          this.stateWatcher.processOutput();
+          // bootListener above will reject the promise
+          this.stateWatcher.setState(STATES.COMPILE_ERROR);
+          this.removeListener('state', bootListener);
+        }
+      }, 10000);
 
       // long term listeners
       if (this.process) {
@@ -319,8 +316,8 @@ export default class SCLang extends EventEmitter {
   }
 
   /**
-    * listen to events from process and pipe stdio to the stateWatcher
-    */
+   * listen to events from process and pipe stdio to the stateWatcher
+   */
   installListeners(
     subprocess: ChildProcessType,
     listenToStdin: boolean = false
@@ -383,18 +380,17 @@ export default class SCLang extends EventEmitter {
   }
 
   /**
-    * storeSclangConf
-    *
-    * Store the original configuration path
-    * so that it can be accessed by the modified Quarks methods
-    * to store into the correct conf file.
-    */
+   * storeSclangConf
+   *
+   * Store the original configuration path
+   * so that it can be accessed by the modified Quarks methods
+   * to store into the correct conf file.
+   */
   storeSclangConf(): Promise<SCLang> {
     if (this.options.sclang_conf) {
       var configPath = path.resolve(untildify(this.options.sclang_conf));
-      var setConfigPath = 'SuperColliderJS.sclangConf = "' +
-        configPath +
-        '";\n\n';
+      var setConfigPath =
+        'SuperColliderJS.sclangConf = "' + configPath + '";\n\n';
       return this.interpret(setConfigPath, null, true, true, true).then(
         () => this
       );
@@ -433,7 +429,7 @@ export default class SCLang extends EventEmitter {
       var escaped = code
         .replace(/[\n\r]/g, '__NL__')
         .replace(/\\/g, '__SLASH__')
-        .replace(/\"/g, '\\"');
+        .replace(/"/g, '\\"');
       var guid = cuid();
 
       var args = [
@@ -487,17 +483,14 @@ export default class SCLang extends EventEmitter {
         this.process.once('exit', cleanup);
         // request a polite shutdown
         this.process.kill('SIGINT');
-        setTimeout(
-          () => {
-            // 3.6.6 doesn't fully respond to SIGINT
-            // but SIGTERM causes it to crash
-            if (this.process) {
-              this.process.kill('SIGTERM');
-              cleanup();
-            }
-          },
-          250
-        );
+        setTimeout(() => {
+          // 3.6.6 doesn't fully respond to SIGINT
+          // but SIGTERM causes it to crash
+          if (this.process) {
+            this.process.kill('SIGTERM');
+            cleanup();
+          }
+        }, 250);
       } else {
         cleanup();
       }
@@ -506,26 +499,25 @@ export default class SCLang extends EventEmitter {
 }
 
 /**
-  * Boots an sclang interpreter, resolving options and connecting.
-  *
-  * @memberof lang
-  *
-  * @param {Object} commandLineOptions - A dict of options to be merged into the loaded config. Command line options to be supplied to sclang --sclang=/some/path/to/sclang
-  * commandLineOptions.config - Explicit path to a yaml config file
-  * If undefined then it will look for config files in:
-  *    - .supercollider.yaml
-  *    - ~/.supercollider.yaml
-  */
+ * Boots an sclang interpreter, resolving options and connecting.
+ *
+ * @memberof lang
+ *
+ * @param {Object} commandLineOptions - A dict of options to be merged into the loaded config. Command line options to be supplied to sclang --sclang=/some/path/to/sclang
+ * commandLineOptions.config - Explicit path to a yaml config file
+ * If undefined then it will look for config files in:
+ *    - .supercollider.yaml
+ *    - ~/.supercollider.yaml
+ */
 export function boot(commandLineOptions: Object = {}): Promise<SCLang> {
-  return resolveOptions(
-    commandLineOptions.config,
-    commandLineOptions
-  ).then(opts => {
-    var sclang = new SCLang(opts);
-    return sclang.boot().then(() => {
-      return sclang.storeSclangConf().then(() => sclang);
-    });
-  });
+  return resolveOptions(commandLineOptions.config, commandLineOptions).then(
+    opts => {
+      var sclang = new SCLang(opts);
+      return sclang.boot().then(() => {
+        return sclang.storeSclangConf().then(() => sclang);
+      });
+    }
+  );
 }
 
 // deprec. will be removed in 1.0
