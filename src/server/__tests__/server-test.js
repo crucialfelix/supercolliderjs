@@ -38,7 +38,7 @@ describe('Server', function() {
     it('should fullfill', function() {
       var s = new Server();
 
-      s.send.msg = jest.genMockFunction();
+      s.send.msg = jest.fn();
 
       var p = s.oscOnce(['/done', '/notify']).then(rest => {
         // p is now fulfilled
@@ -71,7 +71,7 @@ describe('Server', function() {
         response: ['/done', '/notify']
       };
 
-      s.send.msg = jest.genMockFunction();
+      s.send.msg = jest.fn();
 
       var p = s.callAndResponse(car).then(response => {
         expect(_.isEqual(response, [15])).toBe(true);

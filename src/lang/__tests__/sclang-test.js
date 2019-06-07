@@ -29,7 +29,7 @@ describe('sclang', function() {
       expect(opts.includePaths.length).toEqual(1);
       var isIn = _.some(opts.includePaths, function(p) {
         // and that directory should really exist
-        return p.match(/supercollider\-js$/) && fs.statSync(p);
+        return p.match(/supercollider-js$/) && fs.statSync(p);
       });
       expect(isIn).toBeTruthy();
     });
