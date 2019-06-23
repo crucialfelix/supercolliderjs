@@ -6,24 +6,23 @@
  *
  * These functions here are for registering callbacks.
  *
- * @flow
  * @module node-watcher
  *
  */
-import { Map, List } from 'immutable';
-import _ from 'lodash';
-import { Promise } from 'bluebird';
-import type { Disposable } from 'Rx';
-import type Server from './server';
-import type { NodeStateType } from '../Types';
+import { Map, List } from "immutable";
+import _ from "lodash";
 
-const keys = {
-  NODE_WATCHER: 'NODE_WATCHER',
-  NODES: 'NODES',
-  CALLBACKS: 'CALLBACKS',
-  ON_NODE_GO: 'ON_NODE_GO',
-  ON_NODE_END: 'ON_NODE_END'
-};
+import { Disposable } from "rx";
+import Server from "./server";
+import { NodeStateType } from "../Types";
+
+enum Key {
+  NODE_WATCHER = "NODE_WATCHER",
+  NODES = "NODES",
+  CALLBACKS = "CALLBACKS",
+  ON_NODE_GO = "ON_NODE_GO",
+  ON_NODE_END = "ON_NODE_END"
+}
 
 /**
  * Watch server OSC receive for any n_XXX messages:
@@ -54,11 +53,11 @@ export function watchNodeNotifications(server: Server): Disposable {
   // n_off
   // n_move
   // n_info
-  var re = /^\/n_(go|end|on|off|move|info)$/;
-  var stream = server.receive.filter(msg => msg[0].match(re));
-  var dispose = stream.subscribe(msg => {
-    var cmd = msg[0];
-    var r = _responders[cmd];
+  const re = /^\/n_(go|end|on|off|move|info)$/;
+  const stream = server.receive.filter(msg => msg[0].match(re));
+  const dispose = stream.subscribe(msg => {
+    const cmd = msg[0];
+    const r = _responders[cmd];
     if (r) {
       r(server, msg.slice(1));
     }
@@ -83,7 +82,7 @@ export function onNodeGo(
   nodeID: number,
   handler: Function
 ): Function {
-  return _registerHandler(keys.ON_NODE_GO, server, id, nodeID, handler);
+  return _registerHandler(Key.ON_NODE_GO, server, id, nodeID, handler);
 }
 
 /**
@@ -124,7 +123,7 @@ export function onNodeEnd(
   nodeID: number,
   handler: Function
 ): Function {
-  return _registerHandler(keys.ON_NODE_END, server, id, nodeID, handler);
+  return _registerHandler(Key.ON_NODE_END, server, id, nodeID, handler);
 }
 
 /**
@@ -158,8 +157,8 @@ export function updateNodeState(
   nodeState: NodeStateType
 ) {
   // unless its n_end then delete
-  server.state.mutate(keys.NODE_WATCHER, state => {
-    return state.mergeIn([keys.NODES, String(nodeID)], Map(), nodeState);
+  server.state.mutate(Key.NODE_WATCHER, (state: object) => {
+    return state.mergeIn([Key.NODES, String(nodeID)], Map(), nodeState);
   });
 }
 
@@ -167,7 +166,7 @@ export function updateNodeState(
  * @private
  */
 function _registerHandler(
-  type,
+  type: Key,
   server: Server,
   id: string,
   nodeID: number,
@@ -177,14 +176,14 @@ function _registerHandler(
     _disposeHandler(type, server, id, nodeID);
   };
 
-  server.state.mutate(keys.NODE_WATCHER, state => {
-    const handlerId = id + ':' + nodeID;
+  server.state.mutate(Key.NODE_WATCHER, state => {
+    const handlerId = id + ":" + nodeID;
 
     return state
       .mergeDeep({
-        [keys.CALLBACKS]: {
+        [Key.CALLBACKS]: {
           [handlerId]: (...args) => {
-            if (type === keys.ON_NODE_GO || type === keys.ON_NODE_END) {
+            if (type === Key.ON_NODE_GO || type === Key.ON_NODE_END) {
               dispose();
             }
             handler.apply(this, args);
@@ -203,17 +202,18 @@ function _registerHandler(
  * @private
  */
 function _disposeHandler(type, server: Server, id, nodeID: number) {
-  server.state.mutate(keys.NODE_WATCHER, state => {
+  server.state.mutate(Key.NODE_WATCHER, state => {
     // why would I get undefined ??
     // probably no longer happens with new mutate
     // state = state || Map();
 
-    const handlerId = id + ':' + nodeID;
+    const handlerId = id + ":" + nodeID;
 
     return state
-      .deleteIn([keys.CALLBACKS, handlerId])
+      .deleteIn([Key.CALLBACKS, handlerId])
       .updateIn([type, String(nodeID)], List(), list =>
-        list.filter(hid => hid !== handlerId));
+        list.filter(hid => hid !== handlerId)
+      );
   });
 }
 
@@ -222,9 +222,9 @@ function _disposeHandler(type, server: Server, id, nodeID: number) {
  */
 function _handlersFor(server: Server, type, nodeID: number) {
   return server.state
-    .getIn([keys.NODE_WATCHER, type, String(nodeID)], List())
+    .getIn([Key.NODE_WATCHER, type, String(nodeID)], List())
     .map(handlerId => {
-      return server.state.getIn([keys.NODE_WATCHER, keys.CALLBACKS, handlerId]);
+      return server.state.getIn([Key.NODE_WATCHER, Key.CALLBACKS, handlerId]);
     });
 }
 
@@ -259,7 +259,7 @@ function _callNodeHandlers(server: Server, eventType, nodeID: number) {
  * @private
  */
 const _responders = {
-  '/n_go': (server: Server, args) => {
+  "/n_go": (server: Server, args) => {
     _saveNodeState(
       server,
       {
@@ -269,16 +269,16 @@ const _responders = {
       args
     );
 
-    _callNodeHandlers(server, keys.ON_NODE_GO, args[0]);
+    _callNodeHandlers(server, Key.ON_NODE_GO, args[0]);
   },
-  '/n_end': (server: Server, args) => {
+  "/n_end": (server: Server, args) => {
     const nodeID = args[0];
-    server.state.mutate(keys.NODE_WATCHER, state => {
-      return state.deleteIn([keys.NODES, String(nodeID)]);
+    server.state.mutate(Key.NODE_WATCHER, state => {
+      return state.deleteIn([Key.NODES, String(nodeID)]);
     });
-    _callNodeHandlers(server, keys.ON_NODE_END, nodeID);
+    _callNodeHandlers(server, Key.ON_NODE_END, nodeID);
   },
-  '/n_on': (server: Server, args) => {
+  "/n_on": (server: Server, args) => {
     _saveNodeState(
       server,
       {
@@ -287,7 +287,7 @@ const _responders = {
       args
     );
   },
-  '/n_off': (server: Server, args) => {
+  "/n_off": (server: Server, args) => {
     _saveNodeState(
       server,
       {
@@ -296,10 +296,10 @@ const _responders = {
       args
     );
   },
-  '/n_info': (server: Server, args) => {
+  "/n_info": (server: Server, args) => {
     _saveNodeState(server, {}, args);
   },
-  '/n_move': (server: Server, args) => {
+  "/n_move": (server: Server, args) => {
     _saveNodeState(server, {}, args);
   }
 };

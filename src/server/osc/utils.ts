@@ -1,13 +1,14 @@
 /**
  * OSC utilities
+
+ * This presents a different API than osc-min offers
  *
  * @module utils
- * @flow
  */
 
 import _ from 'lodash';
 import * as osc from 'osc-min';
-import type { MsgType, OSCMinMsgType, OSCTimeType } from '../../Types';
+import { MsgType, OSCMinMsgType, OSCTimeType } from '../../Types';
 
 /**
   * Convert full OSC message to a simple Array
@@ -17,11 +18,11 @@ import type { MsgType, OSCMinMsgType, OSCTimeType } from '../../Types';
   * ```js
   *  {address: '/n_go',
   *    args:
-  *     [ Object { type: 'integer', value: 1000 },
-  *       Object { type: 'integer', value: 0 },
-  *       Object { type: 'integer', value: -1 },
-  *       Object { type: 'integer', value: 3 },
-  *       Object { type: 'integer', value: 0 } ],
+  *     [ object { type: 'integer', value: 1000 },
+  *       object { type: 'integer', value: 0 },
+  *       object { type: 'integer', value: -1 },
+  *       object { type: 'integer', value: 3 },
+  *       object { type: 'integer', value: 0 } ],
   *    oscType: 'message' }
   * ```
   *
@@ -79,7 +80,7 @@ export function makeMessage(msg: MsgType): OSCMinMsgType {
  */
 export function makeBundle(
   time: OSCTimeType,
-  packets: [MsgType]
+  packets: MsgType[]
 ): OSCMinMsgType {
   return {
     oscType: 'bundle',
@@ -93,9 +94,10 @@ export function makeBundle(
  *
  * @private
  */
-export function asPacket(thing: [MsgType] | MsgType): OSCMinMsgType {
-  if (_.isArray(thing)) {
-    return makeMessage(thing);
+export function asPacket(thing: MsgType[]): OSCMinMsgType {
+  if (thing instanceof Array) {
+    let messages: MsgType[] = <MsgType[]>thing;
+    return makeMessage(messages);
   }
   let bundle = (thing: MsgType); // typecast
   return makeBundle(bundle.timeTag, bundle.packets || []);
@@ -137,7 +139,13 @@ export const dateToTimetag = osc.dateToTimetag;
  * @param now      - JavaScript timestamp in milliseconds
  * @return `[ntpSecs, ntpFracs]`
  */
-export function deltaTimeTag(seconds: number, now: ?number): [number, number] {
-  const d = (now || _.now()) / 1000 + (seconds || 0);
+export function deltaTimeTag(seconds: number, now?:number | Date): [number, number] {
+  let n:number;
+  if (now) {
+    n = typeof now === 'number' ? now : now.getTime();
+  } else {
+    n= _.now();
+  }
+  const d = n / 1000 + (seconds || 0);
   return osc.timestampToTimetag(d);
 }

@@ -1,53 +1,53 @@
-/* @flow */
-import assign from 'lodash/assign';
-
 // http://www.2ality.com/2011/12/subtyping-builtins.html
-function copyOwnFrom(target: Object, source: Object): Object {
+function copyOwnFrom(target: object, source: object): object {
   Object.getOwnPropertyNames(source).forEach(function(propName: string) {
-    Object.defineProperty(
-      target,
-      propName,
-      Object.getOwnPropertyDescriptor(source, propName)
-    );
+    let prop = Object.getOwnPropertyDescriptor(source, propName);
+    if (prop !== undefined) {
+      Object.defineProperty(target, propName, prop);
+    }
   });
   return target;
 }
 
 class ExtendableError {
-  message: string;
-  stack: string;
+  message: string = "";
+  stack: string = "";
 
   constructor(message: string) {
-    let superInstance = new Error(message); // Error.apply(null, [message]);
+    let superInstance = new Error(message);
     copyOwnFrom(this, superInstance);
-    if (typeof Error.captureStackTrace === 'function') {
+    if (typeof Error.captureStackTrace === "function") {
       Error.captureStackTrace(this, this.constructor);
     } else {
-      this.stack = superInstance.stack;
+      if (superInstance.stack !== undefined) {
+        this.stack = superInstance.stack;
+      }
     }
   }
 }
 
 /**
  * A custom error class that adds a data field for passing structured error data.
- *
  */
 export class SCError extends ExtendableError {
-  data: Object;
+  data: object;
 
-  constructor(message: string, data: Object) {
+  constructor(message: string, data: object) {
     super(message);
     this.data = data;
   }
 
   /**
-    * Update message and data with additional information.
-    * Used when passing the error along but when you want
-    * to add additional contextual debugging information.
-    */
-  annotate(message: string, data: Object) {
+   * Update message and data with additional information.
+   * Used when passing the error along but when you want
+   * to add additional contextual debugging information.
+   */
+  annotate(message: string, data: object) {
     this.message = message;
-    this.data = assign(this.data, data);
+    this.data = {
+      ...this.data,
+      ...data,
+    };
   }
 }
 
@@ -66,9 +66,9 @@ export class SCError extends ExtendableError {
  */
 export class SCLangError extends SCError {
   type: string;
-  error: Object;
+  error: object;
 
-  constructor(message: string, type: string, error: Object, data: Object = {}) {
+  constructor(message: string, type: string, error: object, data: object = {}) {
     super(message, data);
     this.type = type;
     this.error = error;

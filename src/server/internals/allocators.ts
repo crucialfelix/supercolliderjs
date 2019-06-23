@@ -1,12 +1,11 @@
 /**
- * @flow
  * @module allocators
  * @ private
  */
-import * as Immutable from 'immutable';
+import * as Immutable from "immutable";
 
 // immutable list of numbers
-type BlockMapType = Immutable.Map<string, *>;
+type BlockMapType = Immutable.Map<string, Immutable.List<number>>;
 
 /**
  * A simple incrementing allocator used for nodeIds.
@@ -47,8 +46,10 @@ export function allocBlock(
   state: BlockMapType,
   blockSize: number
 ): [number, BlockMapType] {
-  let keys = state.keySeq().sortBy((a, b) => parseInt(a, 10) > parseInt(b, 10));
-  var ret;
+  let keys = state
+    .keySeq()
+    .sortBy((value, key) => parseInt(value, 10) > parseInt(key, 10));
+  var ret: [number, BlockMapType] | undefined;
   keys.forEach(sizeKey => {
     let size = parseInt(sizeKey, 10);
     if (size >= blockSize) {
@@ -72,7 +73,7 @@ export function allocBlock(
   });
 
   if (!ret) {
-    throw new Error('No free block');
+    throw new Error("No free block");
   }
   return ret;
 }
@@ -111,9 +112,8 @@ export function reserveBlock(
   blockSize: number
 ): BlockMapType {
   // check if exact match is on free list
-  var removed = state.update(
-    String(blockSize),
-    blks => blks ? blks.filter(x => x !== addr) : blks
+  var removed = state.update(String(blockSize), blks =>
+    blks ? blks.filter(x => x !== addr) : blks
   );
   if (removed !== state) {
     return removed;
@@ -121,7 +121,7 @@ export function reserveBlock(
 
   var enc = findEnclosingFreeBlock(state, addr, blockSize);
   if (enc === NOT_FOUND) {
-    throw Error('Block is already allocated', addr, blockSize, state);
+    throw Error("Block is already allocated", addr, blockSize, state);
   }
 
   return splitFreeBlock(state, enc[0], enc[1], addr, blockSize);
@@ -147,7 +147,8 @@ export function freeBlockList(state: BlockMapType): Array<[number]> {
 
 /************ private *****************************************/
 
-const NOT_FOUND = [-1, -1];
+type FreeBlock = [number, number];
+const NOT_FOUND: FreeBlock = [-1, -1];
 
 /**
  * @param {Immutable.Map} state
@@ -159,9 +160,9 @@ function findEnclosingFreeBlock(
   state: BlockMapType,
   addr: number,
   blockSize: number
-): [number, number] {
+): FreeBlock {
   // let end = addr + blockSize;
-  var found = NOT_FOUND;
+  let found = NOT_FOUND;
   state.forEach((blks, sizeKey) => {
     let freeBlockSize = parseInt(sizeKey, 10);
     blks.forEach(fblock => {
@@ -187,9 +188,12 @@ function findEnclosingFreeBlock(
  * @returns {Boolean}
  */
 function blockEncloses(
+  // child block
   addr: number,
   size: number,
+  // address of the potentially enclosing block being tested
   encBlock: number,
+  // size of the potentially enclosing block being tested
   encSize: number
 ): boolean {
   return addr >= encBlock && addr + size <= encBlock + encSize;
@@ -206,9 +210,8 @@ function popFreeBlock(
   addr: number,
   blockSize: number
 ): BlockMapType {
-  return state.update(
-    String(blockSize),
-    blks => blks ? blks.filter(x => x !== addr) : blks
+  return state.update(String(blockSize), blks =>
+    blks ? blks.filter(x => x !== addr) : blks
   );
 }
 
@@ -224,7 +227,8 @@ function pushFreeBlock(
   blockSize: number
 ): BlockMapType {
   return state.update(String(blockSize), blks =>
-    (blks || Immutable.List()).push(addr));
+    (blks || Immutable.List()).push(addr)
+  );
 }
 
 /**
@@ -296,25 +300,26 @@ function mergeNeighbors(
   blockSize: number
 ): BlockMapType {
   var blockEnd = endAddr(addr, blockSize);
+  let nextState = state;
   freeBlockList(state).forEach(fb => {
     if (endAddr(fb[0], fb[1]) === addr) {
       // lower neighbor
-      state = popFreeBlock(state, fb[0], fb[1]);
-      state = popFreeBlock(state, addr, blockSize);
+      nextState = popFreeBlock(nextState, fb[0], fb[1]);
+      nextState = popFreeBlock(nextState, addr, blockSize);
       // this is the new me
       addr = fb[0];
       blockSize = fb[1] + blockSize;
-      state = pushFreeBlock(state, addr, blockSize);
+      nextState = pushFreeBlock(nextState, addr, blockSize);
     }
     // my end addr is still in the same place
     // even if block has been merged with lower neighbor
     if (fb[0] === blockEnd) {
       // upper neighbor
-      state = popFreeBlock(state, fb[0], fb[1]);
-      state = popFreeBlock(state, addr, blockSize);
+      nextState = popFreeBlock(nextState, fb[0], fb[1]);
+      nextState = popFreeBlock(nextState, addr, blockSize);
       blockSize = blockSize + fb[1];
-      state = pushFreeBlock(state, addr, blockSize);
+      nextState = pushFreeBlock(nextState, addr, blockSize);
     }
   });
-  return state;
+  return nextState;
 }

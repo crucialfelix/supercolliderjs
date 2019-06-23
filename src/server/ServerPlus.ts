@@ -1,17 +1,19 @@
 /**
- * @flow
  *
  * This is a sketch to make resource creation and management easier.
  *
  * status: ALPHA
  */
-import _ from 'lodash';
-import Server from './server';
-import * as msg from './osc/msg';
-import { whenNodeGo, whenNodeEnd } from './node-watcher';
-import SynthDefCompiler from '../lang/SynthDefCompiler';
-import resolveOptions from '../utils/resolveOptions';
-import type { SynthDefResultType } from '../Types';
+import _ from "lodash";
+
+import SynthDefCompiler from "../lang/SynthDefCompiler";
+import { SynthDefResultType, SynthDefResultMapType, SynthDefCompileRequest } from "../Types";
+import resolveOptions from "../utils/resolveOptions";
+import { whenNodeEnd, whenNodeGo } from "./node-watcher";
+import * as msg from "./osc/msg";
+import Server from "./server";
+import { ServerArgs } from "./options";
+import Store from "./internals/Store";
 
 /**
  * scsynth Group
@@ -47,7 +49,7 @@ class Group {
    * For a Group it sends the set message to all children Synths
    * in the Group.
    */
-  set(settings: Object) {
+  set(settings: object) {
     this.server.send.msg(msg.nodeSet(this.id, settings));
   }
   // moveAfter
@@ -127,12 +129,7 @@ class Buffer {
   numFrames: number;
   numChannels: number;
 
-  constructor(
-    server: ServerPlus,
-    id: number,
-    numFrames: number,
-    numChannels: number
-  ) {
+  constructor(server: ServerPlus, id: number, numFrames: number, numChannels: number) {
     this.server = server;
     this.id = id;
     this.numFrames = numFrames;
@@ -142,7 +139,7 @@ class Buffer {
   /**
    * Deallocate the Buffer, freeing memory on the server.
    */
-  free(): Promise<number> {
+  free(): Promise<void> {
     return this.server.callAndResponse(msg.bufferFree(this.id)).then(() => {
       this.server.state.freeBuffer(this.id, this.numChannels);
     });
@@ -175,15 +172,15 @@ class SynthDef {
   server: ServerPlus;
   name: string;
   synthDefResult: SynthDefResultType;
-  sourceCode: ?string;
-  path: ?string;
+  sourceCode?: string;
+  path?: string;
 
   constructor(
     server: ServerPlus,
     defName: string,
     synthDefResult: SynthDefResultType,
-    sourceCode: ?string,
-    path: ?string
+    sourceCode?: string,
+    path?: string,
   ) {
     this.server = server;
     this.name = defName;
@@ -199,6 +196,16 @@ class SynthDef {
 }
 
 /**
+ * Supplied to synthDefs
+ */
+// interface SynthDefsArgs {
+//   [defName: string]: {
+//     source?: string;
+//     path?: string;
+//   };
+// }
+
+/**
  * This extends Server with convienient methods for creating Synth, Group, compiling SynthDefs, creating Buses, Buffers etc.
  *
  * All methods return Promises, and all arguments accept Promises.
@@ -210,28 +217,18 @@ export default class ServerPlus extends Server {
   /**
    * @private
    */
-  _synthDefCompiler: ?SynthDefCompiler;
+  _synthDefCompiler?: SynthDefCompiler;
 
   /**
    * Create a Synth on the server
    */
-  synth(
-    synthDef: SynthDef,
-    args: Object = {},
-    group: ?Group,
-    addAction: number = msg.AddActions.TAIL
-  ): Promise<Synth> {
-    return Promise.all([
-      Promise.resolve(synthDef),
-      Promise.resolve(group)
-    ]).then(([def, g]) => {
+  synth(synthDef: SynthDef, args: object = {}, group?: Group, addAction: number = msg.AddActions.TAIL): Promise<Synth> {
+    return Promise.all([Promise.resolve(synthDef), Promise.resolve(group)]).then(([def, g]) => {
       let nodeId = this.state.nextNodeID();
       let sn = msg.synthNew(def.name, nodeId, addAction, g ? g.id : 0, args);
       this.send.msg(sn);
       // unique string for callback registration
-      return whenNodeGo(this, String(nodeId), nodeId).then(
-        () => new Synth(this, nodeId)
-      );
+      return whenNodeGo(this, String(nodeId), nodeId).then(() => new Synth(this, nodeId));
     });
   }
 
@@ -240,19 +237,13 @@ export default class ServerPlus extends Server {
   /**
    * Create a Group on the server
    */
-  group(
-    group: ?Group,
-    addAction: number = msg.AddActions.TAIL
-  ): Promise<Group> {
-    return Promise.resolve(group).then(g => {
-      let nodeId = this.state.nextNodeID();
-      let sn = msg.groupNew(nodeId, addAction, g ? g.id : 0);
-      this.send.msg(sn);
-      // unique string for callback registration
-      return whenNodeGo(this, String(nodeId), nodeId).then(() => {
-        return new Group(this, nodeId);
-      });
-    });
+  async group(group?: Group, addAction: number = msg.AddActions.TAIL): Promise<Group> {
+    const g = await Promise.resolve(group);
+    let nodeId = this.state.nextNodeID();
+    let sn = msg.groupNew(nodeId, addAction, g ? g.id : 0);
+    this.send.msg(sn);
+    await whenNodeGo(this, String(nodeId), nodeId);
+    return new Group(this, nodeId);
   }
 
   /**
@@ -279,73 +270,59 @@ export default class ServerPlus extends Server {
    *                    Each Promise will resolve with a SynthDef.
    *                    Each Promises can be supplied directly to `server.synth()`
    */
-  synthDefs(defs: Object): { [defName: string]: Promise<SynthDef> } {
-    let compile = this.synthDefCompiler.boot().then(() => {
+  synthDefs(defs: { [defName: string]: SynthDefCompileRequest }): { [defName: string]: Promise<SynthDef> } {
+    let compiling = this.synthDefCompiler.boot().then(() => {
       return this.synthDefCompiler.compileAndSend(defs, this);
     });
 
-    return _.mapValues(defs, (requested, name) => {
-      return new Promise((resolve, reject) => {
-        return compile.then(defsMap => {
-          let result = defsMap[name];
-          if (!result) {
-            return reject(new Error(`${name} not found in compiled SynthDefs`));
-          }
-          if (result.name !== name) {
-            return reject(
-              new Error(
-                `SynthDef compiled as ${result.name} but server.synthDefs was called with: ${name}`
-              )
-            );
-          }
-          resolve(
-            new SynthDef(
-              this,
-              result.name,
-              result,
-              result.synthDesc.sourceCode,
-              requested && requested.path
-            )
-          );
-        });
-      });
+    return _.mapValues(defs, async (requested, name) => {
+      // for each def await the same promise which returns a dict
+      const defsMap = await compiling;
+      let result: SynthDefResultType = defsMap[name];
+      if (!result) {
+        new Error(`${name} not found in compiled SynthDefs`);
+      }
+      if (result.name !== name) {
+        throw new Error(`SynthDef compiled as ${result.name} but server.synthDefs was called with: ${name}`);
+      }
+      // TODO need better typing for what it returns
+      let sourceCode: string = "results.synthDesc.sourceCode";
+
+      const synthDef = new SynthDef(
+        this,
+        result.name,
+        result,
+        sourceCode,
+        "path" in requested ? requested.path : undefined,
+      );
+      return synthDef;
     });
   }
 
   /**
    * @private
    */
-  _compileSynthDef(
-    defName: string,
-    sourceCode: ?string,
-    path: ?string
-  ): Promise<SynthDef> {
-    return this.synthDefCompiler.boot().then(() => {
-      return this.synthDefCompiler
-        .compileAndSend(
-          {
-            [defName]: sourceCode ? { source: sourceCode } : { path: path }
-          },
-          this
-        )
-        .then(defs => {
-          // what if defName does not match synthDefResult.name ?
-          let synthDefResult = defs[defName];
-          if (!synthDefResult) {
-            throw new Error(
-              `SynthDefResult not found ${defName} in compile return values`
-            );
-          }
-          return new SynthDef(this, defName, synthDefResult, sourceCode, path);
-        });
-    });
+  async _compileSynthDef(defName: string, sourceCode?: string, path?: string): Promise<SynthDef> {
+    await this.synthDefCompiler.boot();
+    const defs = await this.synthDefCompiler.compileAndSend(
+      {
+        [defName]: sourceCode ? { source: sourceCode } : { path: path },
+      },
+      this,
+    );
+    // what if defName does not match synthDefResult.name ?
+    let synthDefResult = defs[defName];
+    if (!synthDefResult) {
+      throw new Error(`SynthDefResult not found ${defName} in compile return values`);
+    }
+    return new SynthDef(this, defName, synthDefResult, sourceCode, path);
   }
 
   /**
    * Load and compile a SynthDef from path and send it to the server.
    */
   loadSynthDef(defName: string, path: string): Promise<SynthDef> {
-    return this._compileSynthDef(defName, null, path);
+    return this._compileSynthDef(defName, undefined, path);
   }
 
   /**
@@ -358,11 +335,10 @@ export default class ServerPlus extends Server {
   /**
    * Allocate a Buffer on the server.
    */
-  buffer(numFrames: number, numChannels: number = 1): Promise<Buffer> {
+  async buffer(numFrames: number, numChannels: number = 1): Promise<Buffer> {
     let id = this.state.allocBufferID(numChannels);
-    return this.callAndResponse(
-      msg.bufferAlloc(id, numFrames, numChannels)
-    ).then(() => new Buffer(this, id, numFrames, numChannels));
+    await this.callAndResponse(msg.bufferAlloc(id, numFrames, numChannels));
+    return new Buffer(this, id, numFrames, numChannels);
   }
 
   /**
@@ -371,16 +347,15 @@ export default class ServerPlus extends Server {
    * Problem: scsynth uses however many channels there are in the sound file,
    * but the client (sclang or supercolliderjs) doesn't know how many there are.
    */
-  readBuffer(
+  async readBuffer(
     path: string,
     numChannels: number = 2,
     startFrame: number = 0,
-    numFramesToRead: number = -1
+    numFramesToRead: number = -1,
   ): Promise<Buffer> {
     let id = this.state.allocBufferID(numChannels);
-    return this.callAndResponse(
-      msg.bufferAllocRead(id, path, startFrame, numFramesToRead)
-    ).then(() => new Buffer(this, id, numFramesToRead, numChannels));
+    await this.callAndResponse(msg.bufferAllocRead(id, path, startFrame, numFramesToRead));
+    return new Buffer(this, id, numFramesToRead, numChannels);
   }
 
   /**
@@ -404,25 +379,18 @@ export default class ServerPlus extends Server {
  * Start the scsynth server with options:
  *
  * ```js
- *   sc.server.boot({device: 'Soundflower (2ch)'}).then(server => {
- *     //
- *   });
- *
- *   sc.server.boot({serverPort: '11211'})
+ *   let server = await sc.server.boot({device: 'Soundflower (2ch)'});
  * ```
  *
  * @memberof server
  *
- * @param {Object} options - Optional command line options for server
- * @param {Store} store - optional external Store to hold Server state
- * @returns {Promise} - resolves with a Server (ServerPlus actually)
+ * @param options - Optional command line options for server
+ * @param store - optional external Store to hold Server state
  */
-export function boot(
-  options: Object = {},
-  store: any = null
-): Promise<ServerPlus> {
-  return resolveOptions(undefined, options).then(opts => {
-    var s = new ServerPlus(opts, store);
-    return s.boot().then(() => s.connect()).then(() => s);
-  });
+export async function boot(options: ServerArgs = {}, store?: Store): Promise<ServerPlus> {
+  const opts = await resolveOptions(null, options);
+  const s = new ServerPlus(opts, store);
+  await s.boot();
+  await s.connect();
+  return s;
 }

@@ -1,4 +1,4 @@
-/* @flow */
+
 import { Dryad } from 'dryadic';
 import { boot } from '../lang/sclang';
 import _ from 'lodash';
@@ -27,7 +27,7 @@ export default class SCLang extends Dryad {
     };
   }
 
-  prepareForAdd(): Object {
+  prepareForAdd(): object {
     return {
       callOrder: 'SELF_THEN_CHILDREN',
       updateContext: (context, properties) => ({
@@ -36,9 +36,9 @@ export default class SCLang extends Dryad {
     };
   }
 
-  remove(): Object {
+  remove(): object {
     return {
-      run: (context: Object) => {
+      run: (context: object) => {
         return context.sclang.quit();
       }
     };

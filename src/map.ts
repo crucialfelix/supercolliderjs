@@ -1,8 +1,8 @@
-/**
- * Useful mapping functions from supercollider
- *  @flow
- *  @module map
- */
+export interface Spec {
+  minval: number;
+  maxval: number;
+  warp: string;
+}
 
 /**
  * Convert a MIDI note (1..127) to frequency.
@@ -35,11 +35,11 @@ export function linToLin(
   if (value >= inMax) {
     return outMax;
   }
-  return (value - inMin) / (inMax - inMin) * (outMax - outMin) + outMin;
+  return ((value - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin;
 }
 
 /**
-* Map a number from linear min/max to exponential min/max.
+ * Map a number from linear min/max to exponential min/max.
  */
 export function linToExp(
   inMin: number,
@@ -58,7 +58,7 @@ export function linToExp(
 }
 
 /**
-* Map a number from exponential min/max to linear min/max.
+ * Map a number from exponential min/max to linear min/max.
  */
 export function expToLin(
   inMin: number,
@@ -73,10 +73,12 @@ export function expToLin(
   if (value >= inMax) {
     return outMax;
   }
-  return Math.pow(
-    outMax / outMin,
-    Math.log(value / inMin) / Math.log(inMax / inMin)
-  ) * outMin;
+  return (
+    Math.pow(
+      outMax / outMin,
+      Math.log(value / inMin) / Math.log(inMax / inMin)
+    ) * outMin
+  );
 }
 
 /**
@@ -96,7 +98,7 @@ export function dbToAmp(db: number): number {
 /**
  * Returns a function that maps 0..1 input to the spec's minval..maxval with a linear curve.
  */
-export function linear(spec: Object): Function {
+export function linear(spec: Spec): Function {
   let range = spec.maxval - spec.minval;
   return function(value) {
     return value * range + spec.minval;
@@ -106,7 +108,7 @@ export function linear(spec: Object): Function {
 /**
  * Returns a function that maps 0..1 input to the spec's minval..maxval with an exponential curve. minval/maxval must not have oppositive signs -- ie. the output range must not cross zero.
  */
-export function exp(spec: Object): Function {
+export function exp(spec: Spec): Function {
   let ratio = spec.maxval / spec.minval;
   return function(value) {
     return Math.pow(ratio, value) * spec.minval;
@@ -116,7 +118,7 @@ export function exp(spec: Object): Function {
 /**
  * Returns dB mapping function (DbFaderWarp)
  */
-export function dB(spec: Object): Function {
+export function dB(spec: Spec): Function {
   let minval = dbToAmp(spec.minval);
   let range = dbToAmp(spec.maxval) - minval;
   return function(value) {
@@ -127,7 +129,7 @@ export function dB(spec: Object): Function {
 /**
  * Returns amp mapping function (FaderWarp)
  */
-export function fader(spec: Object): Function {
+export function fader(spec: Spec): Function {
   let range = spec.maxval - spec.minval;
   return function(value) {
     return Math.pow(value, 2) * range - spec.minval;
@@ -137,7 +139,7 @@ export function fader(spec: Object): Function {
 /**
  * Returns inverse of linear mapping function
  */
-export function unmapLinear(spec: Object): Function {
+export function unmapLinear(spec: Spec): Function {
   let range = spec.maxval - spec.minval;
   return function(value) {
     return (value - spec.minval) / range;
@@ -147,7 +149,7 @@ export function unmapLinear(spec: Object): Function {
 /**
  * Returns inverse of exponential mapping function
  */
-export function unmapExp(spec: Object): Function {
+export function unmapExp(spec: Spec): Function {
   let ratio = Math.log(spec.maxval / spec.minval);
   return function(value) {
     return Math.log(value / spec.minval) / ratio;
@@ -157,7 +159,7 @@ export function unmapExp(spec: Object): Function {
 /**
  * Returns inverse of dB mapping function (DbFaderWarp)
  */
-export function unmapDb(spec: Object): Function {
+export function unmapDb(spec: Spec): Function {
   let minval = dbToAmp(spec.minval);
   let range = dbToAmp(spec.maxval) - minval;
   return function(value) {
@@ -168,7 +170,7 @@ export function unmapDb(spec: Object): Function {
 /**
  * Returns inverse of amp mapping function (FaderWarp)
  */
-export function unmapFader(spec: Object): Function {
+export function unmapFader(spec: Spec): Function {
   let range = spec.maxval - spec.minval;
   return function(value) {
     return Math.sqrt((value - spec.minval) / range);
@@ -179,20 +181,20 @@ export function unmapFader(spec: Object): Function {
  * Returns the inverse mapping function for a spec, using the curve
  * as defined by spec.warp
  */
-export function unmapWithSpec(value: number, spec: Object): number {
+export function unmapWithSpec(value: number, spec: Spec): number {
   switch (spec.warp) {
-    case 'linear':
-    case 'lin':
+    case "linear":
+    case "lin":
       return unmapLinear(spec)(value);
-    case 'exp':
-    case 'exponential':
+    case "exp":
+    case "exponential":
       return unmapExp(spec)(value);
-    case 'amp':
+    case "amp":
       return unmapFader(spec)(value);
-    case 'db':
+    case "db":
       return unmapDb(spec)(value);
     default:
-      throw new Error('Warp unknown or not yet implemented' + spec.warp);
+      throw new Error("Warp unknown or not yet implemented" + spec.warp);
   }
 }
 
@@ -200,19 +202,19 @@ export function unmapWithSpec(value: number, spec: Object): number {
  * Returns the mapping function for a spec, using the curve
  * as defined by spec.warp
  */
-export function mapWithSpec(value: number, spec: Object): number {
+export function mapWithSpec(value: number, spec: Spec): number {
   switch (spec.warp) {
-    case 'linear':
-    case 'lin':
+    case "linear":
+    case "lin":
       return linear(spec)(value);
-    case 'exp':
-    case 'exponential':
+    case "exp":
+    case "exponential":
       return exp(spec)(value);
-    case 'amp':
+    case "amp":
       return fader(spec)(value);
-    case 'db':
+    case "db":
       return dB(spec)(value);
     default:
-      throw new Error('Warp unknown or not yet implemented' + spec.warp);
+      throw new Error("Warp unknown or not yet implemented" + spec.warp);
   }
 }

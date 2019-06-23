@@ -1,22 +1,21 @@
 /**
  * @module dryads
- * @flow
  */
-import scserver from './middleware/scserver';
+import scserver from "./middleware/scserver";
 
-import SCServer from './SCServer';
-import SCLang from './SCLang';
-import Group from './Group';
-import Synth from './Synth';
-import AudioBus from './AudioBus';
-import SCSynthDef from './SCSynthDef';
-import SynthControl from './SynthControl';
-import SynthStream from './SynthStream';
-import SynthEventList from './SynthEventList';
+import SCServer from "./SCServer";
+import SCLang from "./SCLang";
+import Group from "./Group";
+import Synth from "./Synth";
+import AudioBus from "./AudioBus";
+import SCSynthDef from "./SCSynthDef";
+import SynthControl from "./SynthControl";
+import SynthStream from "./SynthStream";
+import SynthEventList from "./SynthEventList";
 
 // confusing to swap the names like this
-import { dryadic as makeDryadPlayer } from 'dryadic';
-import type { Dryad, DryadPlayer } from 'dryadic';
+import { dryadic as makeDryadPlayer } from "dryadic";
+import { Dryad, DryadPlayer } from "dryadic";
 
 // re-export all the Dryad classes
 export {
@@ -77,7 +76,7 @@ export const layer = {
 export function dryadic(
   rootDryad: Dryad,
   moreLayers: [any] = [],
-  rootContext: Object = {}
+  rootContext: object = {}
 ): DryadPlayer {
   return makeDryadPlayer(rootDryad, [layer].concat(moreLayers), rootContext);
 }

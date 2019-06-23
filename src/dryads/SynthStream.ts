@@ -1,9 +1,8 @@
-/* @flow */
-import _ from 'lodash';
-import { Dryad } from 'dryadic';
-import type { DryadPlayer } from 'dryadic';
-import Group from './Group';
-import { synthNew, nodeFree, AddActions } from '../server/osc/msg.js';
+import _ from "lodash";
+import { Dryad } from "dryadic";
+import { DryadPlayer } from "dryadic";
+import Group from "./Group";
+import { synthNew, nodeFree, AddActions } from "../server/osc/msg.js";
 
 const LATENCY = 0.03;
 
@@ -12,7 +11,7 @@ const LATENCY = 0.03;
  *
  * Properties:
  *  {Bacon.EventStream} stream
- *  {Object} defaultParams
+ *  {object} defaultParams
  *
  * The event values should be simple JavaScript objects:
  *
@@ -27,9 +26,9 @@ const LATENCY = 0.03;
  * defaultParams is a fixed object into which the event value is merged.
  */
 export default class SynthStream extends Dryad {
-  add(player: DryadPlayer): Object {
+  add(player: DryadPlayer): object {
     return {
-      run: (context: Object, properties: Object) => {
+      run: (context: object, properties: object) => {
         let subscription = properties.stream.subscribe(event => {
           // This assumes a Bacon event.
           // Should validate that event.value is object
@@ -46,14 +45,14 @@ export default class SynthStream extends Dryad {
     };
   }
 
-  commandsForEvent(event: Object, context: Object, properties: Object): Object {
+  commandsForEvent(event: object, context: object, properties: object): object {
     const msgs = [];
     let updateContext;
     let nodeIDs = context.nodeIDs || {};
     let key = event.key ? String(event.key) : undefined;
 
     switch (event.type) {
-      case 'noteOff': {
+      case "noteOff": {
         // if no key then there is no way to shut off notes
         // other than sending to the group
         let nodeID: number = nodeIDs[key];
@@ -67,7 +66,7 @@ export default class SynthStream extends Dryad {
           };
         } else {
           throw new Error(
-            `NodeID was not registered for event key ${key || 'undefined'}`
+            `NodeID was not registered for event key ${key || "undefined"}`
           );
         }
         break;
@@ -117,9 +116,9 @@ export default class SynthStream extends Dryad {
   }
 
   handleEvent(
-    event: Object,
-    context: Object,
-    properties: Object,
+    event: object,
+    context: object,
+    properties: object,
     player: DryadPlayer
   ) {
     player.callCommand(
@@ -128,9 +127,9 @@ export default class SynthStream extends Dryad {
     );
   }
 
-  remove(): Object {
+  remove(): object {
     return {
-      run: (context: Object) => {
+      run: (context: object) => {
         if (context.subscription) {
           if (_.isFunction(context.subscription)) {
             // baconjs style

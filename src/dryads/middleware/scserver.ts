@@ -1,9 +1,6 @@
-/**
- * @flow
- */
-import _ from 'lodash';
-import OSCSched from './OSCSched';
-import type { MsgType } from '../../Types';
+import _ from "lodash";
+import OSCSched from "./OSCSched";
+import { MsgType } from "../../Types";
 
 /**
  * Command middlware that sends OSC to the SuperCollider server (scsynth).
@@ -11,7 +8,7 @@ import type { MsgType } from '../../Types';
  * Command objects are collected from each Dryad (`add()` `remove()`) and
  * this middlware is called for each Dryad that has `scserver` commands.
  *
- * @param {Object} command
+ * @param {object} command
  *
  * For any of these you may supply a function that is called with context
  * and returns one of these forms.
@@ -72,15 +69,15 @@ import type { MsgType } from '../../Types';
  * and makes it easy to implement transport controls and looping.
  *
  *
- * @param {Object} context
- * @param {Object} properties
+ * @param {object} context
+ * @param {object} properties
  * @return Promise is only returned when using .callAndResponse
  */
 export default function scserver(
-  command: Object,
-  context: Object,
-  properties: Object
-): ?Promise<MsgType> {
+  command: object,
+  context: object,
+  properties: object
+): Promise<MsgType> | void {
   if (command.scserver) {
     let cmds = resolveFuncs(command.scserver, context, properties);
 
@@ -127,10 +124,10 @@ export default function scserver(
  * Non-functions are passed through.
  */
 export function resolveFuncs(
-  command: Object,
-  context: Object,
-  properties: Object
-): Object {
+  command: object,
+  context: object,
+  properties: object
+): object {
   return _.mapValues(command, value => _callIfFn(value, context, properties));
 }
 

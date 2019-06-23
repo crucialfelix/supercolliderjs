@@ -1,7 +1,7 @@
-import each from 'lodash/each';
-import { dryadic } from '../index';
-import type { Dryad, DryadPlayer } from 'dryadic';
-import type { JSONType } from '../../Types';
+import each from "lodash/each";
+import { dryadic } from "../index";
+import { Dryad, DryadPlayer } from "dryadic";
+import { JSONType } from "../../Types";
 
 export function makePlayer(dryad: Dryad): DryadPlayer {
   return dryadic(dryad);
@@ -48,7 +48,7 @@ export function getCommand(
   player: DryadPlayer,
   commandName: string,
   childAt: [number] = []
-): Object {
+): object {
   let cmd = player._collectCommands(commandName);
   // specify which child you want to get the command for with indices:
   // null top

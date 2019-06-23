@@ -1,11 +1,13 @@
-import _ from 'lodash';
-import path from 'path';
-import fs from 'fs';
-import { EventEmitter } from 'events';
-// import {STATES} from '../internals/sclang-io';
-import SCLang from '../sclang';
+import _ from "lodash";
+import path from "path";
+import fs from "fs";
+import { EventEmitter } from "events";
+// import {State} from '../internals/sclang-io';
+import SCLang from "../sclang";
 
 class MockProcess extends EventEmitter {
+  stdout: EventEmitter;
+  stderr: EventEmitter;
   constructor() {
     super();
     this.stdout = new EventEmitter();
@@ -14,16 +16,16 @@ class MockProcess extends EventEmitter {
   kill() {}
 }
 
-describe('sclang', function() {
-  describe('default constructor', function() {
-    it('should exist', function() {
+describe("sclang", function() {
+  describe("default constructor", function() {
+    it("should exist", function() {
       var sclang = new SCLang();
       expect(sclang).toBeDefined();
     });
   });
 
-  describe('sclangConfigOptions', function() {
-    it('should include supercollider-js', function() {
+  describe("sclangConfigOptions", function() {
+    it("should include supercollider-js", function() {
       var sclang = new SCLang();
       var opts = sclang.sclangConfigOptions();
       expect(opts.includePaths.length).toEqual(1);
@@ -34,30 +36,30 @@ describe('sclang', function() {
       expect(isIn).toBeTruthy();
     });
 
-    it('should read a supplied sclang_conf', function() {
+    it("should read a supplied sclang_conf", function() {
       var sclang = new SCLang({});
       var opts = sclang.sclangConfigOptions({
-        sclang_conf: path.join(__dirname, 'fixtures', 'sclang_test_conf.yaml')
+        sclang_conf: path.join(__dirname, "fixtures", "sclang_test_conf.yaml")
       });
       // as well as supercollider-js
       expect(opts.includePaths.length).toEqual(2 + 1);
       expect(opts.excludePaths.length).toEqual(1);
     });
 
-    it('should merge sclang_conf with supplied includePaths', function() {
+    it("should merge sclang_conf with supplied includePaths", function() {
       var sclang = new SCLang({});
       var opts = sclang.sclangConfigOptions({
-        sclang_conf: path.join(__dirname, 'fixtures', 'sclang_test_conf.yaml'),
-        includePaths: ['/custom/one', '/path/include/one'],
-        excludePaths: ['/custom/two']
+        sclang_conf: path.join(__dirname, "fixtures", "sclang_test_conf.yaml"),
+        includePaths: ["/custom/one", "/path/include/one"],
+        excludePaths: ["/custom/two"]
       });
       expect(opts.includePaths.length).toEqual(3 + 1);
       expect(opts.excludePaths.length).toEqual(2);
     });
   });
 
-  describe('args', function() {
-    it('should format args correctly', function() {
+  describe("args", function() {
+    it("should format args correctly", function() {
       var sclang = new SCLang();
       var args = sclang.args({ langPort: 4 });
       // [ '-i', 'supercolliderjs', '-u', 4 ]
@@ -66,11 +68,11 @@ describe('sclang', function() {
     });
   });
 
-  describe('boot', function() {
-    it('should call spawnProcess', function() {
+  describe("boot", function() {
+    it("should call spawnProcess", function() {
       var sclang = new SCLang();
-      var SPAWNED = 'SPAWNED';
-      spyOn(sclang, 'spawnProcess').and.returnValue(SPAWNED);
+      var SPAWNED = "SPAWNED";
+      spyOn(sclang, "spawnProcess").and.returnValue(SPAWNED);
       return sclang
         .boot()
         .then(result => expect(result).toEqual(SPAWNED))
@@ -78,8 +80,8 @@ describe('sclang', function() {
     });
   });
 
-  describe('makeSclangConfig', function() {
-    it('should write a yaml file and resolve with a path', function() {
+  describe("makeSclangConfig", function() {
+    it("should write a yaml file and resolve with a path", function() {
       var sclang = new SCLang();
       var fail = err => this.fail(err);
       return sclang
@@ -89,15 +91,15 @@ describe('sclang', function() {
     });
   });
 
-  describe('sclangConfigOptions', function() {
-    it('should include supercollider-js', function() {
+  describe("sclangConfigOptions", function() {
+    it("should include supercollider-js", function() {
       var sclang = new SCLang();
       var config = sclang.sclangConfigOptions();
       expect(config.includePaths.length).toEqual(1);
       expect(config.includePaths[0].match(/supercollider-js/)).toBeTruthy();
     });
 
-    it('postInlineWarning should not be undefined', function() {
+    it("postInlineWarning should not be undefined", function() {
       var sclang = new SCLang();
       var config = sclang.sclangConfigOptions({});
       expect(config.postInlineWarning).toBeDefined();
@@ -107,21 +109,21 @@ describe('sclang', function() {
     });
   });
 
-  describe('makeStateWatcher', function() {
-    it('should echo events from SclangIO to SCLang', function() {
+  describe("makeStateWatcher", function() {
+    it("should echo events from SclangIO to SCLang", function() {
       var sclang = new SCLang();
       var did = false;
       var stateWatcher = sclang.makeStateWatcher();
-      sclang.on('state', () => {
+      sclang.on("state", () => {
         did = true;
       });
-      stateWatcher.emit('state', 'READY');
+      stateWatcher.emit("state", "READY");
       expect(did).toEqual(true);
     });
   });
 
-  describe('installListeners', function() {
-    it('should install event listeners', function() {
+  describe("installListeners", function() {
+    it("should install event listeners", function() {
       var subprocess = new MockProcess();
       var sclang = new SCLang();
       // don't listen to stdin or tests will hang
@@ -135,7 +137,7 @@ describe('sclang', function() {
     //    */
     //   var subprocess = new MockProcess();
     //   var sclang = new SCLang();
-    //   sclang.setState(STATES.BOOTING);
+    //   sclang.setState(State.BOOTING);
     //   sclang.installListeners(subprocess, true);
     //
     //   process.stdin.emit('data', '');
@@ -148,51 +150,51 @@ describe('sclang', function() {
     // });
   });
 
-  describe('spawnProcess', function() {
+  describe("spawnProcess", function() {
     // mock spawn to return an event emitter
-    it('should spawnProcess', function() {
+    it("should spawnProcess", function() {
       var sclang = new SCLang();
-      spyOn(sclang, '_spawnProcess').and.returnValue({
+      spyOn(sclang, "_spawnProcess").and.returnValue({
         pid: 1
       });
-      spyOn(sclang, 'installListeners');
-      var promise = sclang.spawnProcess('/tmp/fake/path', {});
+      spyOn(sclang, "installListeners");
+      var promise = sclang.spawnProcess("/tmp/fake/path", {});
       expect(promise).toBeTruthy();
     });
   });
 
-  describe('interpret', function() {
-    it('should call this.write', function() {
+  describe("interpret", function() {
+    it("should call this.write", function() {
       var sclang = new SCLang();
-      spyOn(sclang, 'write').and.returnValue(null);
-      sclang.interpret('1 + 1', '/tmp/source.scd');
+      spyOn(sclang, "write").and.returnValue(null);
+      sclang.interpret("1 + 1", "/tmp/source.scd");
       expect(sclang.write).toHaveBeenCalled();
     });
   });
 
-  describe('executeFile', function() {
-    it('should call this.write', function() {
+  describe("executeFile", function() {
+    it("should call this.write", function() {
       var sclang = new SCLang();
-      spyOn(sclang, 'write').and.returnValue(null);
-      sclang.executeFile('/tmp/source.scd', false, true, true);
+      spyOn(sclang, "write").and.returnValue(null);
+      sclang.executeFile("/tmp/source.scd", false, true, true);
       expect(sclang.write).toHaveBeenCalled();
     });
   });
 
-  describe('quit', function() {
-    it('should quit silently if not booted', function() {
+  describe("quit", function() {
+    it("should quit silently if not booted", function() {
       var sclang = new SCLang();
       return sclang.quit();
     });
 
-    it('should quit process', function() {
+    it("should quit process", function() {
       var sclang = new SCLang();
       sclang.process = new MockProcess();
-      spyOn(sclang.process, 'kill').and.returnValue(null);
+      spyOn(sclang.process, "kill").and.returnValue(null);
       var p = sclang.quit().then(() => {
         expect(sclang.process).toEqual(null);
       });
-      sclang.process.emit('exit');
+      sclang.process.emit("exit");
       return p;
     });
   });

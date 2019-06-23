@@ -1,14 +1,22 @@
 /* jslint node: true */
 
-var events = require('events'),
-  dgram = require('dgram'),
-  osc = require('osc-min'),
-  cuid = require('cuid'),
-  _ = require('lodash'),
-  Promise = require('bluebird');
+var events = require("events"),
+  dgram = require("dgram"),
+  osc = require("osc-min"),
+  cuid = require("cuid"),
+  _ = require("lodash"),
+  Promise = require("bluebird");
 
-import { SCError } from './Errors';
-import Logger from './utils/logger';
+import { SCError } from "./Errors";
+import Logger from "./utils/logger";
+
+interface RequestHandler {
+  resolve: (result: any) => void;
+  reject: (error: SCError) => void;
+}
+interface RequestHandlers {
+  [guid: string]: RequestHandler;
+}
 
 /*
  *
@@ -31,31 +39,36 @@ import Logger from './utils/logger';
  *    API.mountDuplexOSC
  *
  *  See examples/call-api-from-node.js
-*/
+ */
 export default class SCAPI extends events.EventEmitter {
+  schost: string = "localhost";
+  scport: number = 57120;
+  requests: RequestHandlers = {};
+  log: Logger;
+  udp: any; // dgram socket, like EvenEmitter
+
   constructor(schost, scport) {
     super();
-    this.schost = schost ? schost : 'localhost';
+    this.schost = schost ? schost : "localhost";
     this.scport = scport ? scport : 57120;
     this.requests = {};
     this.log = new Logger(true, false);
   }
 
   connect() {
-    var self = this;
-    this.udp = dgram.createSocket('udp4');
+    this.udp = dgram.createSocket("udp4");
 
-    this.udp.on('message', function(msgbuf) {
+    this.udp.on("message", msgbuf => {
       var msg = osc.fromBuffer(msgbuf);
-      if (msg.address === '/API/reply') {
-        return self.receive('reply', msg);
+      if (msg.address === "/API/reply") {
+        return this.receive("reply", msg);
       }
-      return self.receive('scapi_error', msg);
+      return this.receive("scapi_error", msg);
     });
 
-    this.udp.on('error', function(e) {
-      self.emit('error', e);
-      this.log.err('ERROR:' + e);
+    this.udp.on("error", e => {
+      this.emit("error", e);
+      this.log.err("ERROR:" + e);
     });
   }
 
@@ -69,52 +82,45 @@ export default class SCAPI extends events.EventEmitter {
   call(requestId, oscpath, args, ok, err) {
     var promise = new Promise((resolve, reject) => {
       var clientId = 0, // no longer needed
-        clumps,
-        self = this;
+        clumps;
 
       requestId = _.isUndefined(requestId) ? cuid() : requestId;
       args = args ? args : [];
       if (!_.isString(oscpath)) {
-        self.log.err('Bad oscpath' + oscpath);
-        throw 'Bad oscpath' + oscpath;
+        this.log.err("Bad oscpath" + oscpath);
+        throw "Bad oscpath" + oscpath;
       }
 
-      function sender(rid, oscArgs) {
+      const sender = (rid, oscArgs) => {
         var buf = osc.toBuffer({
-          address: '/API/call',
-          args: [clientId, rid, oscpath].concat(oscArgs)
+          address: "/API/call",
+          args: [clientId, rid, oscpath].concat(oscArgs),
         });
-        self.udp.send(
-          buf,
-          0,
-          buf.length,
-          self.scport,
-          self.schost,
-          function(err2) {
-            // this will get DNS errors
-            // but not packet-too-big errors
-            if (err2) {
-              self.log.err(err2);
-            }
+        this.udp.send(buf, 0, buf.length, this.scport, this.schost, err2 => {
+          // this will get DNS errors
+          // but not packet-too-big errors
+          if (err2) {
+            this.log.err(err2);
           }
-        );
-      }
+        });
+      };
 
       this.requests[requestId] = { resolve: resolve, reject: reject };
 
-      function isNotOsc(a) {
+      const isNotOsc = (a: object | string) => {
         // if any arg is an object or array
         // or a large string then pass the args as JSON
         // in multiple calls
-        return _.isObject(a) ||
-          _.isArray(a) ||
-          (_.isString(a) && a.length > 7168);
-      }
+        if (typeof a === "string") {
+          return a.length > 7168;
+        }
+        return _.isObject(a) || _.isArray(a);
+      };
 
       if (_.some(args, isNotOsc)) {
         clumps = JSON.stringify(args).match(/.{1,7168}/g);
         _.each(clumps, function(clump, i) {
-          var rid = '' + (i + 1) + ',' + clumps.length + ':' + requestId;
+          var rid = "" + (i + 1) + "," + clumps.length + ":" + requestId;
           sender(rid, [clump]);
         });
       } else {
@@ -130,37 +136,37 @@ export default class SCAPI extends events.EventEmitter {
 
   receive(signal, msg) {
     var // clientId = msg.args[0].value,
-    requestId = msg.args[1].value,
+      requestId = msg.args[1].value,
       result = msg.args[2].value,
       request = this.requests[requestId];
     if (!request) {
-      this.emit('error', 'Unknown request ' + requestId);
-      this.log.err('Unknown request ' + requestId);
+      this.emit("error", "Unknown request " + requestId);
+      this.log.err("Unknown request " + requestId);
       return;
     }
 
     // reply or scapi_error
-    if (signal === 'reply') {
+    if (signal === "reply") {
       try {
         result = JSON.parse(result);
         result = result.result;
       } catch (e) {
-        result = 'MALFORMED JSON RESPONSE:' + result;
+        result = "MALFORMED JSON RESPONSE:" + result;
         this.log.err(result);
-        signal = 'scapi_error';
+        signal = "scapi_error";
       }
     }
 
     var response = {
       signal: signal,
       request_id: requestId,
-      result: result
+      result: result,
     };
 
-    if (signal === 'reply') {
+    if (signal === "reply") {
       request.resolve(response);
     } else {
-      request.reject(new SCError('API Error response', response));
+      request.reject(new SCError("API Error response", response));
     }
     delete this.requests[requestId];
   }

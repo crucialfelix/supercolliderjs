@@ -1,4 +1,4 @@
-/* @flow */
+
 import { Dryad } from 'dryadic';
 import { synthNew, nodeFree, AddActions } from '../server/osc/msg';
 import {
@@ -24,7 +24,7 @@ export default class Synth extends Dryad {
     return 'SCServer';
   }
 
-  prepareForAdd(): Object {
+  prepareForAdd(): object {
     return {
       updateContext: context => ({
         nodeID: context.scserver.state.nextNodeID()
@@ -32,7 +32,7 @@ export default class Synth extends Dryad {
     };
   }
 
-  // synthDefName(context:Object) : string {
+  // synthDefName(context:object) : string {
   //   // The parent SCSynthDef publishes both .synthDef (object) and .synthDefName to context
   //   let name = _.isString(this.properties.def) ? this.properties.def : (context.synthDef && context.synthDef.name);
   //   if (!name) {
@@ -41,7 +41,7 @@ export default class Synth extends Dryad {
   //   return name;
   // }
 
-  add(): Object {
+  add(): object {
     return {
       scserver: {
         msg: (context, properties) => {
@@ -84,7 +84,7 @@ export default class Synth extends Dryad {
     };
   }
 
-  remove(): Object {
+  remove(): object {
     return {
       scserver: {
         msg: context => nodeFree(context.nodeID)

@@ -1,15 +1,14 @@
 /**
- * @flow
  * @module iterators
  * @ temp off - memberof dryads
  */
-import _ from 'lodash';
+import _ from "lodash";
 
-export function sortEvents(events: Array<Object>) {
+export function sortEvents(events: Array<object>) {
   return events.sort((a, b) => a.time - b.time);
 }
 
-export function clipTime(events: Array<Object>, start: number, end: number) {
+export function clipTime(events: Array<object>, start: number, end: number) {
   return events.filter(e => e.time >= start && e.time <= end);
 }
 
@@ -19,18 +18,18 @@ export function clipTime(events: Array<Object>, start: number, end: number) {
  * @param  {Array} events Events are objects with .time attribute.
  * @return {Function}      arguments:
  *                          {number} now - in seconds,
- *                          {Object} memo - used internally
+ *                          {object} memo - used internally
  *                          If memo is not supplied then it will search for the next event
  *                          greater than or equal to 'now'
  *                          and if memo IS supplied then it iterates over the sorted event list.
- *                         returns {Object} event - Which has .event (the original event) and .memo which is
+ *                         returns {object} event - Which has .event (the original event) and .memo which is
  *                              used by OSCSched the next time this function is called.
  */
-export function eventListIterator(events: Array<Object>): Function {
+export function eventListIterator(events: Array<object>): Function {
   const sorted = sortEvents(events);
   const length = sorted.length;
 
-  return (now: number, memo: ?Object): ?Object => {
+  return (now: number, memo?: object): object | void => {
     if (length === 0) {
       return;
     }
@@ -68,22 +67,22 @@ export function eventListIterator(events: Array<Object>): Function {
  * @return {Function}      arguments:
  *
  *   {number} now - in seconds,
- *   {Object} memo - used internally
+ *   {object} memo - used internally
  *   If memo is not supplied then it will search for the next event
  *   greater than or equal to 'now'
  *   and if memo *is* supplied then it iterates over the sorted event list.
  *
- *   returns {Object} item - Which has .event (the original event) and .memo which is
+ *   returns {object} item - Which has .event (the original event) and .memo which is
  *                              used by OSCSched the next time this function is called.
  */
 export function loopedEventListIterator(
-  events: Array<Object>,
+  events: Array<object>,
   loopTime: number
 ): Function {
   const sorted = clipTime(sortEvents(events), 0, loopTime);
   const length = sorted.length;
 
-  return (now: number, memo: ?Object): ?Object => {
+  return (now: number, memo?: object): object | void => {
     if (length === 0) {
       return;
     }

@@ -1,4 +1,4 @@
-/* @flow */
+
 import Synth from '../Synth';
 import { Dryad } from 'dryadic';
 import { expectPlayGraphToEqual } from '../utils/test-utils';

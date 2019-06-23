@@ -1,4 +1,4 @@
-/* @flow */
+
 import _ from 'lodash';
 import { deltaTimeTag } from '../../server/osc/utils';
 
@@ -17,7 +17,7 @@ export default class OSCSched {
   clearTimeout: Function;
   getNextFn: Function;
   epoch: number;
-  timerId: ?number;
+  timerId?:number;
 
   /**
    * constructor -
@@ -67,7 +67,7 @@ export default class OSCSched {
    *
    * @param  {float} epoch     Javascript timestamp (milliseconds since 1970 UTC)
    */
-  schedLoop(getNextFn: Function, epoch: ?number) {
+  schedLoop(getNextFn: Function, epoch?:number) {
     this.getNextFn = getNextFn;
     if (!this.getNextFn) {
       throw new Error('getNextFn is null');
@@ -84,7 +84,7 @@ export default class OSCSched {
     this._schedNext();
   }
 
-  _schedNext(memo: ?Object, logicalNow: ?number) {
+  _schedNext(memo?:object, logicalNow?:number) {
     if (this.timerId) {
       this.clearTimeout(this.timerId);
       this.timerId = undefined;
@@ -126,10 +126,10 @@ export default class OSCSched {
    * Cancels any previously scheduled event.
    *
    * @param  {float} delta seconds to wait
-   * @param  {Object} event With .msgs .time and optional .memo
+   * @param  {object} event With .msgs .time and optional .memo
    *                        to be passed to the next call to getNextFn
    */
-  _jitSend(now: number, delta: number, next: Object) {
+  _jitSend(now: number, delta: number, next: object) {
     this.timerId = this.setTimeout(
       () => {
         this.timerId = null;
@@ -143,9 +143,9 @@ export default class OSCSched {
   /**
    * _send - send the OSC bundle
    *
-   * @param  {Object} event
+   * @param  {object} event
    */
-  _send(event: Object) {
+  _send(event: object) {
     this.sendFn(deltaTimeTag(event.time, this.epoch), event.msgs);
   }
 }

@@ -1,9 +1,8 @@
-/* @flow */
-import EventEmitter from 'events';
-import { Observable } from 'rx';
-import { makeBundle, makeMessage, deltaTimeTag } from '../osc/utils';
-import type { MsgType, OSCTimeType } from '../../Types';
-import type { Disposable } from 'Rx';
+import EventEmitter from "events";
+import { Observable } from "rx";
+import { makeBundle, makeMessage, deltaTimeTag } from "../osc/utils";
+import { MsgType, OSCTimeType } from "../../Types";
+import { Disposable } from "rx";
 
 /**
  * Owned by the Server, this is an object that you call .msg or .bundle on
@@ -14,31 +13,31 @@ import type { Disposable } from 'Rx';
  */
 export default class SendOSC extends EventEmitter {
   msg(message: MsgType) {
-    this.emit('msg', makeMessage(message));
+    this.emit("msg", makeMessage(message));
   }
 
   /**
-  * bundle
-  *
-  * Note that in SuperCollider language a number is interpreted
-  * as relative seconds from 'now'; here is is interpreted as a
-  * unix timestamp. See deltaTimeTag
-  *
-  * @param {null|Number|Array|Date} time
-  *   - null: now, immediately
-  *   - Number: if less than 10000 then it is interpreted
-  *       as number of seconds from now.
-  *       It it is larger then it is interpreted as a unix timestamp in seconds
-  *   - Array: `[secondsSince1900Jan1, fractionalSeconds]`
-  *   - Date
-  * @param {Array} packets - osc messages as `[address, arg1, ...argN]`
-  *                        or sub bundles as `[{timeTag: , packets: }, ...]`
-  */
-  bundle(time: OSCTimeType, packets: [MsgType]) {
-    if (typeof time === 'number' && time < 10000) {
+   * bundle
+   *
+   * Note that in SuperCollider language a number is interpreted
+   * as relative seconds from 'now'; here is is interpreted as a
+   * unix timestamp. See deltaTimeTag
+   *
+   * @param {null|Number|Array|Date} time
+   *   - null: now, immediately
+   *   - Number: if less than 10000 then it is interpreted
+   *       as number of seconds from now.
+   *       It it is larger then it is interpreted as a unix timestamp in seconds
+   *   - Array: `[secondsSince1900Jan1, fractionalSeconds]`
+   *   - Date
+   * @param {Array} packets - osc messages as `[address, arg1, ...argN]`
+   *                        or sub bundles as `[{timeTag: , packets: }, ...]`
+   */
+  bundle(time: OSCTimeType, packets: MsgType[]) {
+    if (typeof time === "number" && time < 10000) {
       time = deltaTimeTag(time);
     }
-    this.emit('bundle', makeBundle(time, packets));
+    this.emit("bundle", makeBundle(time, packets));
   }
 
   /**
@@ -51,7 +50,8 @@ export default class SendOSC extends EventEmitter {
    * @param {Number} delta
    * @param {Date} now - optional, default new Date
    */
-  deltaTimeTag(delta: number, now: ?Date): [number] {
+  deltaTimeTag(delta: number, now?: Date): [number, number] {
+    // was just [number]
     return deltaTimeTag(delta, now);
   }
 
@@ -63,19 +63,19 @@ export default class SendOSC extends EventEmitter {
    * @returns {Rx.Disposable} - `thing.dispose();` to unsubscribe
    */
   subscribe(
-    onNext: Function,
-    onError: ?Function,
-    onComplete: ?Function
+    onNext: (value: { type: string; payload: any }) => void,
+    onError?: (value: { type: string; payload: any }) => void,
+    onComplete?: () => void
   ): Disposable {
-    var msgs = Observable.fromEvent(this, 'msg', msg => {
+    var msgs = Observable.fromEvent(this, "msg", msg => {
       return {
-        type: 'msg',
+        type: "msg",
         payload: msg
       };
     });
-    var bundles = Observable.fromEvent(this, 'bundle', bundle => {
+    var bundles = Observable.fromEvent(this, "bundle", bundle => {
       return {
-        type: 'bundle',
+        type: "bundle",
         payload: bundle
       };
     });

@@ -1,15 +1,14 @@
 /* eslint no-console: 0 */
-
-var chalk = require('chalk');
+import chalk from "chalk";
 
 const colors = {
-  debug: 'gray',
-  error: 'yellow',
-  stdout: 'green',
-  stderr: 'red',
-  stdin: 'blue',
-  sendosc: 'cyan',
-  rcvosc: 'magenta'
+  debug: "gray",
+  error: "yellow",
+  stdout: "green",
+  stderr: "red",
+  stdin: "blue",
+  sendosc: "cyan",
+  rcvosc: "magenta",
 };
 
 /**
@@ -30,113 +29,127 @@ const colors = {
  */
 export default class Logger {
   /**
-   * @param {Boolean} debug - Post all debugging calls to log.
-   *                        If false then only errors are posted.
-   * @param {Boolean} echo - Echo stdin/stdout and osc traffic to console
-   * @param {winston.Logger|undefined} log - Default is to use console.(log|error)
-   *                                       but any object with a compatible API such
-   *                                       as winston will work.
+   *Post all debugging calls to log.
+   * If false then only errors are posted.
+   *
+   * @type {boolean}
+   * @memberof Logger
    */
-  constructor(debug, echo, log) {
+  private debug: boolean;
+  /**
+   * Echo stdin/stdout and osc traffic to console
+   *
+   * @type {boolean}
+   * @memberof Logger
+   */
+  private echo: boolean;
+  /**
+   * Default is to use console.(log|error|info)
+   *  but any object with a compatible API such
+   *  as winston will work.
+   */
+  private log: Console;
+
+  private colorize: boolean;
+  private browser: boolean;
+
+  constructor(debug = false, echo = false, log = console) {
     this.debug = debug;
     this.echo = echo;
-    this.colorize = typeof log === 'undefined';
-    this.log = log || console;
-    this.browser = typeof window !== 'undefined';
+    this.colorize = typeof log === "undefined";
+    this.log = log;
+    this.browser = typeof window !== "undefined";
   }
 
   /**
    * Log debugging information but only if this.debug is true
    */
-  dbug(text) {
+  dbug(text: any) {
     if (this.debug) {
-      this.print('debug  ', text, colors.debug);
+      this.print("debug  ", text, colors.debug);
     }
   }
 
   /**
    * Log an error.
    */
-  err(text) {
-    this.print('error  ', text, colors.error);
+  err(text: any) {
+    this.print("error  ", text, colors.error);
   }
 
   /**
    * Log messages that were sent to stdin or sclang.
    */
-  stdin(text) {
+  stdin(text: any) {
     if (this.echo) {
-      this.print('stdin  ', text, colors.stdin);
+      this.print("stdin  ", text, colors.stdin);
     }
   }
 
   /**
    * Log messages that were received from stdout of sclang/scsynth.
    */
-  stdout(text) {
+  stdout(text: any) {
     if (this.echo) {
-      this.print('stdout ', text, colors.stdout);
+      this.print("stdout ", text, colors.stdout);
     }
   }
 
   /**
    * Log messages that were emitted from stderr of sclang/scsynth.
    */
-  stderr(text) {
+  stderr(text: any) {
     if (this.echo) {
-      this.print('stderr ', text, colors.stderr);
+      this.print("stderr ", text, colors.stderr);
     }
   }
 
   /**
    * Log OSC messages sent to scsynth.
    */
-  sendosc(text) {
+  sendosc(text: any) {
     if (this.echo) {
-      this.print('sendosc', text, colors.sendosc);
+      this.print("sendosc", text, colors.sendosc);
     }
   }
 
   /**
    * Log OSC messages received from scsynth.
    */
-  rcvosc(text) {
+  rcvosc(text: any) {
     if (this.echo) {
-      this.print('rcvosc ', text, colors.rcvosc);
+      this.print("rcvosc ", text, colors.rcvosc);
     }
   }
 
-  /**
-   * @private
-   */
-  print(label, text, color) {
+  private print(label: string, text: any, color: string) {
     if (this.browser) {
-      console.log('%c' + label, 'font-size: 10px; color:' + color, text);
+      console.log("%c" + label, "font-size: 10px; color:" + color, text);
     } else {
       // terminal
-      if (typeof text !== 'string') {
+      if (typeof text !== "string") {
         text = JSON.stringify(text, undefined, 2);
       }
-      var lines = text.split('\n'),
-        clean = [label + ': ' + lines[0]],
+      const lines = text.split("\n"),
+        cleans = [label + ": " + lines[0]],
         rest = lines
           .slice(1)
-          .filter(s => s.length > 0)
-          .map(s => '           ' + s);
-      clean = clean.concat(rest).join('\n');
+          .filter((s: string) => s.length > 0)
+          .map((s: string) => `        ${s}`);
+      let clean = cleans.concat(rest).join("\n");
       if (this.colorize) {
         clean = chalk[color](clean);
       }
 
       switch (label.trim()) {
-        case 'debug':
-        case 'stdin':
-        case 'sendosc':
-        case 'rcvosc':
+        case "debug":
+        case "stdin":
+        case "sendosc":
+        case "rcvosc":
           this.log.info(clean);
           break;
-        case 'stderr':
-        case 'error':
+        case "stderr":
+        case "error":
           this.log.error(clean);
           break;
         default:

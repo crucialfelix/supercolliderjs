@@ -1,9 +1,9 @@
-/* @flow */
+
 import _ from 'lodash';
 
 import { Dryad } from 'dryadic';
 import Group from './Group';
-import type { DryadPlayer } from 'dryadic';
+import { DryadPlayer } from 'dryadic';
 
 import { synthNew, AddActions } from '../server/osc/msg';
 
@@ -65,9 +65,9 @@ import { loopedEventListIterator, eventListIterator } from './utils/iterators';
 export default class SynthEventList extends Dryad {
   /**
    * @param  {DryadPlayer} player
-   * @return {Object}      Command object
+   * @return {object}      Command object
    */
-  add(player: DryadPlayer): Object {
+  add(player: DryadPlayer): object {
     let commands = {
       scserver: {
         schedLoop: (context, properties) => {
@@ -122,9 +122,9 @@ export default class SynthEventList extends Dryad {
   }
 
   _makeSchedLoop(
-    events: Array<Object>,
-    loopTime: ?number,
-    context: Object
+    events: Array<object>,
+    loopTime?:number,
+    context: object
   ): Function {
     const synthEvents = this._makeMsgs(events, context);
     return loopTime
@@ -132,7 +132,7 @@ export default class SynthEventList extends Dryad {
       : eventListIterator(synthEvents);
   }
 
-  _makeMsgs(events: Array<Object>, context: Object): [Object] {
+  _makeMsgs(events: Array<object>, context: object): [object] {
     const defaultParams = this.properties.defaultParams || {};
     return events.map(event => {
       // TODO: do this a jit time in the schedLoop
@@ -151,11 +151,11 @@ export default class SynthEventList extends Dryad {
   }
 
   /**
-   * @return {Object}  command object
+   * @return {object}  command object
    */
-  remove(): Object {
+  remove(): object {
     return {
-      run: (context: Object) => {
+      run: (context: object) => {
         if (context.subscription) {
           if (_.isFunction(context.subscription)) {
             // baconjs style
@@ -167,7 +167,7 @@ export default class SynthEventList extends Dryad {
         }
       },
       scserver: {
-        sched: (context: Object) => {
+        sched: (context: object) => {
           // unschedAll
           return this._makeSchedLoop([], context.epoch, context);
         }

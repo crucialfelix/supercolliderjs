@@ -1,92 +1,73 @@
-export type JSONType =
-  | string
-  | number
-  | boolean
-  | null
-  | JSONObjectType
-  | JSONArrayType;
-export type JSONObjectType = { [key: string]: JSONType };
-export type JSONArrayType = Array<JSONType>;
+// export type JSONType =
+//   | string
+//   | number
+//   | boolean
+//   | null
+//   | JSONObjectType
+//   | JSONArrayType;
+// export type JSONObjectType = { [key: string]: JSONType };
+// export type JSONArrayType = Array<string | number | boolean | Date | JSONType>;
 
-// @typedef
+export type JSONType = string | number | boolean | Date | null | JSONObjectType;
+
+export interface JSONObjectType {
+  [x: string]: JSONType | JSONType[];
+}
+
+// interface JsonArray extends Array<string|number|boolean|Date|Json|JsonArray> { }
+
 export type SclangResultType = JSONType;
 
-export type SynthDefResultType = {
-  name: string,
-  bytes: Buffer,
-  synthDesc: JSONObjectType
-};
-export type SynthDefResultMapType = { [defName: string]: SynthDefResultType };
+export interface SynthDefResultType {
+  name: string;
+  bytes: Buffer;
+  synthDesc: JSONObjectType;
+  // sourceCode
+}
+export interface SynthDefResultMapType {
+  [defName: string]: SynthDefResultType;
+}
 
-// @typedef
+interface SynthDefCompileRequestWithSource {
+  source: string;
+}
+interface SynthDefCompileRequestWithPath {
+  path: string;
+}
+export type SynthDefCompileRequest = SynthDefCompileRequestWithSource | SynthDefCompileRequestWithPath;
+
 export type OscType = string | number | Buffer | null;
-// @typedef
-export type MsgType = [OscType];
-// @typedef
-export type CallAndResponseType = { call: MsgType, response: MsgType };
-// @typedef
-export type PairsType = Array<MsgType> | Object;
-// @typedef
-export type OSCTimeType = null | number | [number] | Date;
-// @typedef
-export type OSCMinMsgType = { oscType: string, address: string, args: MsgType };
 
-// @typedef
-export type NodeStateType = {
-  parent: ?number,
-  previous: ?number,
-  next: ?number,
-  isGroup: boolean,
-  head: ?number,
-  tail: ?number
-};
+// the first item must be a string
+export type MsgType = OscType[];
 
-// @typedef
-export type ServerOptions = {
-  host: ?string,
-  serverPort: ?string,
-  protocol: ?string,
+export interface BundleType extends MsgType {}
 
-  commandLineOptions: ?Array<string>,
+export interface CallAndResponseType {
+  call: MsgType;
+  response: MsgType;
+}
 
-  numPrivateAudioBusChannels: ?number,
-  numAudioBusChannels: ?number,
-  numControlBusChannels: ?number,
-  numInputBusChannels: ?number,
-  numOutputBusChannels: ?number,
-  numBuffers: ?number,
+export type PairsType = MsgType[] | object;
 
-  maxNodes: ?number,
-  maxSynthDefs: ?number,
-  blockSize: ?number,
-  hardwareBufferSize: ?number,
+export type OSCTimeType = null | number | [number, number] | Date;
 
-  memSize: ?number,
-  numRGens: ?number,
-  numWireBufs: ?number,
+// from osc-min library
+export interface OSCMinMsgType {
+  oscType: "message" | "bundle";
+  address: string;
+  // I think it's array of { type: value: }
+  args: MsgType;
+  // bundles may also have
+  timetag?: OSCTimeType;
+  elements?: OSCMinMsgType[];
+}
 
-  sampleRate: ?number,
-  loadDefs: ?boolean,
-
-  inputStreamsEnabled: ?boolean,
-  outputStreamsEnabled: ?boolean,
-
-  device: ?string,
-
-  verbosity: ?number,
-  zeroConf: ?boolean,
-
-  restrictedPath: ?string,
-  ugenPluginsPath: ?string,
-
-  initialNodeID: ?number,
-  remoteControlVolume: ?boolean,
-
-  memoryLocking: ?boolean,
-  threads: ?boolean,
-  useSystemClock: ?boolean,
-
-  // Environment variables to set for server process
-  // eg. SC_JACK_DEFAULT_INPUTS: "system:capture_1,system:capture_2"
-  env: ?Object
-};
+export interface NodeStateType {
+  parent?: number;
+  previous?: number;
+  next?: number;
+  isGroup: boolean;
+  head?: number;
+  tail?: number;
+}

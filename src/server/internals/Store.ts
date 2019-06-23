@@ -1,5 +1,6 @@
-/* @flow */
-import { Map } from 'immutable';
+import { Map } from "immutable";
+
+export type State = Map<string, any>;
 
 /**
  * A Store that holds a state tree. This is used by ServerState as
@@ -12,13 +13,13 @@ import { Map } from 'immutable';
  * https://facebook.github.io/immutable-js/docs/#/Map
  */
 export default class Store {
-  state: Map<string, any>;
+  state: State;
 
   constructor() {
     this.state = Map();
   }
 
-  getIn(keys: Array<string>, notSetValue: any): any {
+  getIn(keys: string[], notSetValue: any): any {
     return this.state.getIn(keys, notSetValue);
   }
 
@@ -26,8 +27,8 @@ export default class Store {
    * Fetch the object at keys
    * pass it to the function which mutates it and returns new sub state.
    */
-  mutateState(keys: Array<string>, fn: Function) {
-    this.state = this.state.updateIn(keys, Map(), fn);
+  mutateState(keys: string[], fn: Function) {
+    this.state = this.state.updateIn(keys, fn);
   }
 
   /**
@@ -38,9 +39,8 @@ export default class Store {
    *
    * @returns {any} result
    */
-  mutateStateAndReturn(keys: Array<string>, fn: Function): any {
-    var result, subState;
-    [result, subState] = fn(this.state.getIn(keys, Map()));
+  mutateStateAndReturn(keys: string[], fn: Function): any {
+    var [result, subState] = fn(this.state.getIn(keys, Map()));
     this.state = this.state.setIn(keys, subState);
     return result;
   }

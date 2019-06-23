@@ -11,6 +11,10 @@ module.exports = {
   rules: {
     indent: "off",
     "@typescript-eslint/indent": ["error", 2],
+    "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
+    "@typescript-eslint/camelcase": ["warn"],
+    //{ "accessibility": "explicit" }
+
     // indent: ["error", 2]
     // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
     // e.g. "@typescript-eslint/explicit-function-return-type": "off",

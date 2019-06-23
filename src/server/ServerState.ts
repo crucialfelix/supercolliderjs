@@ -1,19 +1,15 @@
-/**
- * @flow
- */
-
-import * as Immutable from 'immutable';
-import Store from './internals/Store';
-import * as alloc from './internals/allocators';
-import { watchNodeNotifications } from './node-watcher';
-import type Server from './server';
+import * as Immutable from "immutable";
+import Store from "./internals/Store";
+import * as alloc from "./internals/allocators";
+import { watchNodeNotifications } from "./node-watcher";
+import Server from "./server";
 
 const StateKeys = {
-  SERVERS: 'SERVERS',
-  NODE_IDS: 'nodeAllocator',
-  CONTROL_BUSSES: 'controlBusAllocator',
-  AUDIO_BUSSES: 'audioBusAllocator',
-  BUFFERS: 'bufferAllocator'
+  SERVERS: "SERVERS",
+  NODE_IDS: "nodeAllocator",
+  CONTROL_BUSSES: "controlBusAllocator",
+  AUDIO_BUSSES: "audioBusAllocator",
+  BUFFERS: "bufferAllocator"
 };
 
 /**
@@ -48,7 +44,8 @@ export default class ServerState {
   resetState() {
     this.store.mutateState(this._keys([]), () => {
       const options = this.server.options;
-      var numAudioChannels = options.numPrivateAudioBusChannels +
+      var numAudioChannels =
+        options.numPrivateAudioBusChannels +
         options.numInputBusChannels +
         options.numOutputBusChannels;
 
@@ -87,7 +84,7 @@ export default class ServerState {
    * @param {any} notSetValue - default value to return if empty
    * @returns {any}
    */
-  getIn(keys: [string], notSetValue: any): any {
+  getIn(keys: string[], notSetValue: any): any {
     return this.store.getIn(this._keys(keys), notSetValue);
   }
 
@@ -174,14 +171,15 @@ export default class ServerState {
 
   _allocBlock(key: string, numChannels: number): number {
     return this.store.mutateStateAndReturn(this._keys([key]), state =>
-      alloc.allocBlock(state, numChannels));
+      alloc.allocBlock(state, numChannels)
+    );
   }
 
   _freeBlock(key: string, index: number, numChannels: number) {
     this.mutate(key, state => alloc.freeBlock(state, index, numChannels));
   }
 
-  _keys(more: Array<string> = []): [string] {
+  _keys(more: string[] = []): string[] {
     return [StateKeys.SERVERS, this.server.address].concat(more);
   }
 }

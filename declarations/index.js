@@ -1,4 +1,4 @@
-/* @flow */
+
 
 // https://nodejs.org/api/net.html#net_class_net_socket
 declare class Socket {

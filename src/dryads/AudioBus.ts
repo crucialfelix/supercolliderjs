@@ -1,12 +1,15 @@
-/* @flow */
-import { Dryad } from 'dryadic';
+import { Dryad } from "dryadic";
+
+interface Props {
+  numChannels: number;
+}
 
 /**
-  * Allocates an audio bus, making it available in the children's context as .out (integer)
-  * and .numChannels (integer)
-  */
+ * Allocates an audio bus, making it available in the children's context as .out (integer)
+ * and .numChannels (integer)
+ */
 export default class AudioBus extends Dryad {
-  defaultProperties(): Object {
+  defaultProperties(): Props {
     return {
       numChannels: 1
     };
@@ -17,22 +20,22 @@ export default class AudioBus extends Dryad {
    * then this will wrap itself in an SCServer
    */
   requireParent(): string {
-    return 'SCServer';
+    return "SCServer";
   }
 
-  prepareForAdd(): Object {
+  prepareForAdd(): object {
     return {
-      callOrder: 'SELF_THEN_CHILDREN',
-      updateContext: (context, properties) => ({
+      callOrder: "SELF_THEN_CHILDREN",
+      updateContext: (context, properties: Props) => ({
         out: context.scserver.state.allocAudioBus(properties.numChannels),
         numChannels: properties.numChannels
       })
     };
   }
 
-  remove(): Object {
+  remove(): object {
     return {
-      run: (context, properties) =>
+      run: (context, properties: Props) =>
         context.scserver.state.freeAudioBus(context.out, properties.numChannels)
     };
   }
