@@ -12,7 +12,7 @@ import resolveOptions from "../utils/resolveOptions";
 import { whenNodeEnd, whenNodeGo } from "./node-watcher";
 import * as msg from "./osc/msg";
 import Server from "./server";
-import { ServerArgs } from "./options";
+import { ServerArgs, defaults } from "./options";
 import Store from "./internals/Store";
 
 /**
@@ -214,10 +214,7 @@ class SynthDef {
  * are ready to be used by whatever they have been supplied to.
  */
 export default class ServerPlus extends Server {
-  /**
-   * @private
-   */
-  _synthDefCompiler?: SynthDefCompiler;
+  private _synthDefCompiler?: SynthDefCompiler;
 
   /**
    * Create a Synth on the server
@@ -246,10 +243,7 @@ export default class ServerPlus extends Server {
     return new Group(this, nodeId);
   }
 
-  /**
-   * @private
-   */
-  get synthDefCompiler(): SynthDefCompiler {
+  private get synthDefCompiler(): SynthDefCompiler {
     if (!this._synthDefCompiler) {
       this._synthDefCompiler = new SynthDefCompiler();
     }
@@ -299,10 +293,7 @@ export default class ServerPlus extends Server {
     });
   }
 
-  /**
-   * @private
-   */
-  async _compileSynthDef(defName: string, sourceCode?: string, path?: string): Promise<SynthDef> {
+  private async _compileSynthDef(defName: string, sourceCode?: string, path?: string): Promise<SynthDef> {
     await this.synthDefCompiler.boot();
     const defs = await this.synthDefCompiler.compileAndSend(
       {
@@ -387,8 +378,8 @@ export default class ServerPlus extends Server {
  * @param options - Optional command line options for server
  * @param store - optional external Store to hold Server state
  */
-export async function boot(options: ServerArgs = {}, store?: Store): Promise<ServerPlus> {
-  const opts = await resolveOptions(null, options);
+export async function boot(options?: ServerArgs, store?: Store): Promise<ServerPlus> {
+  const opts = await resolveOptions(null, _.defaults(options, defaults));
   const s = new ServerPlus(opts, store);
   await s.boot();
   await s.connect();

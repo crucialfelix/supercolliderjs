@@ -9,7 +9,8 @@ import { CallAndResponse, MsgType } from "../Types";
 import Logger from "../utils/logger";
 import resolveOptions from "../utils/resolveOptions";
 import SendOSC from "./internals/SendOSC";
-import { defaultServerOptions, ServerArgs, ServerOptions } from "./options";
+import Store from "./internals/Store";
+import { defaults, ServerArgs, ServerOptions } from "./options";
 import { notify } from "./osc/msg";
 import { parseMessage } from "./osc/utils";
 import ServerState from "./ServerState";
@@ -46,9 +47,8 @@ export default class Server extends EventEmitter {
 
   /**
    * The process id that nodejs spawn() returns
-   * @private
    */
-  process: any;
+  private process: any;
 
   isRunning: boolean;
 
@@ -89,23 +89,16 @@ export default class Server extends EventEmitter {
    */
   log: Logger;
 
-  /**
-   * @private
-   */
-  osc?: dgram.Socket;
+  private osc?: dgram.Socket;
+
+  private _serverObservers: ServerObservers;
 
   /**
-   * @private
-   */
-  _serverObservers: ServerObservers;
-
-  /**
-   * @param options - command line options for scsynth
    * @param stateStore - optional parent Store for allocators and node watchers
    */
-  constructor(options: ServerArgs = {}, stateStore: any = null) {
+  constructor(options: ServerArgs = defaults, stateStore?: Store) {
     super();
-    this.options = _.defaults(options, defaultServerOptions);
+    this.options = _.defaults(options, defaults);
     this.address = this.options.host + ":" + this.options.serverPort;
     this.process = null;
     this.isRunning = false;
@@ -124,8 +117,7 @@ export default class Server extends EventEmitter {
     this.state = new ServerState(this, stateStore);
   }
 
-  /* @private */
-  _initLogger(): Logger {
+  private _initLogger(): Logger {
     // scsynth.server options this Server.options
     const log = new Logger(this.options.debug, this.options.echo, this.options.log);
     this.send.subscribe(event => {
@@ -185,10 +177,8 @@ export default class Server extends EventEmitter {
    *    'exit'  - when server exits
    *    'close' - when server closes the UDP connection
    *    'OSC'   - OSC responses from the server
-   *
-   * @private
    */
-  _initEmitter() {
+  private _initEmitter() {
     this.receive.subscribe(msg => {
       this.emit("OSC", msg);
     });
@@ -196,7 +186,7 @@ export default class Server extends EventEmitter {
     this.stdout.subscribe(out => this.emit("out", out), out => this.emit("stderr", out));
   }
 
-  _initSender() {
+  private _initSender() {
     this.send.on("msg", msg => {
       if (this.osc) {
         var buf = osc.toBuffer(msg);
@@ -296,7 +286,7 @@ export default class Server extends EventEmitter {
     _.forEach(this.options, (option, argName) => {
       let flag = flagMap[argName];
       if (flag) {
-        if (option !== defaultServerOptions[argName]) {
+        if (option !== defaults[argName]) {
           opts.push(flag);
           if (_.isArray(option)) {
             opts.push(...option);
@@ -475,10 +465,7 @@ export default class Server extends EventEmitter {
     });
   }
 
-  /**
-   * @private
-   */
-  disconnect() {
+  private disconnect() {
     if (this.osc) {
       this.osc.close();
       delete this.osc;
@@ -559,6 +546,8 @@ export default class Server extends EventEmitter {
    */
   callAndResponse(callAndResponse: CallAndResponse, timeout: number = 4000): Promise<MsgType> {
     var promise = this.oscOnce(callAndResponse.response, timeout);
+    // if it's valid to send a msg with an array on the end,
+    // then change the definition of Msg
     this.send.msg(callAndResponse.call);
     return promise;
   }
@@ -571,7 +560,7 @@ export default class Server extends EventEmitter {
  * @param {Store} store - optional external Store to hold Server state
  * @returns {Promise} - resolves with the Server
  */
-export async function boot(options: ServerArgs = {}, store: any = null): Promise<Server> {
+export async function boot(options: ServerArgs = defaults, store: any = null): Promise<Server> {
   const opts: ServerOptions = await resolveOptions(null, options);
   const s: Server = new Server(opts, store);
   await s.boot();

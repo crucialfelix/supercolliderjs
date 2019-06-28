@@ -9,7 +9,7 @@ const StateKeys = {
   NODE_IDS: "nodeAllocator",
   CONTROL_BUSSES: "controlBusAllocator",
   AUDIO_BUSSES: "audioBusAllocator",
-  BUFFERS: "bufferAllocator"
+  BUFFERS: "bufferAllocator",
 };
 
 /**
@@ -34,9 +34,9 @@ export default class ServerState {
    * @param {Server} server
    * @param {Store} store - optional parent Store to use.
    */
-  constructor(server: Server, store: Store) {
+  constructor(server: Server, store?: Store) {
     this.server = server;
-    this.store = store ? store : new Store();
+    this.store = store || new Store();
     this.resetState();
     watchNodeNotifications(this.server);
   }
@@ -45,16 +45,10 @@ export default class ServerState {
     this.store.mutateState(this._keys([]), () => {
       const options = this.server.options;
       var numAudioChannels =
-        options.numPrivateAudioBusChannels +
-        options.numInputBusChannels +
-        options.numOutputBusChannels;
+        options.numPrivateAudioBusChannels + options.numInputBusChannels + options.numOutputBusChannels;
 
       var ab = alloc.initialBlockState(numAudioChannels);
-      ab = alloc.reserveBlock(
-        ab,
-        0,
-        options.numInputBusChannels + options.numOutputBusChannels
-      );
+      ab = alloc.reserveBlock(ab, 0, options.numInputBusChannels + options.numOutputBusChannels);
       var cb = alloc.initialBlockState(options.numControlBusChannels);
       var bb = alloc.initialBlockState(options.numBuffers);
 
@@ -62,7 +56,7 @@ export default class ServerState {
         [StateKeys.NODE_IDS]: options.initialNodeID - 1,
         [StateKeys.AUDIO_BUSSES]: ab,
         [StateKeys.CONTROL_BUSSES]: cb,
-        [StateKeys.BUFFERS]: bb
+        [StateKeys.BUFFERS]: bb,
       });
     });
   }
@@ -94,10 +88,7 @@ export default class ServerState {
    * @returns {int}
    */
   nextNodeID(): number {
-    return this.store.mutateStateAndReturn(
-      this._keys([StateKeys.NODE_IDS]),
-      alloc.increment
-    );
+    return this.store.mutateStateAndReturn(this._keys([StateKeys.NODE_IDS]), alloc.increment);
   }
 
   /**
@@ -170,9 +161,7 @@ export default class ServerState {
   }
 
   _allocBlock(key: string, numChannels: number): number {
-    return this.store.mutateStateAndReturn(this._keys([key]), state =>
-      alloc.allocBlock(state, numChannels)
-    );
+    return this.store.mutateStateAndReturn(this._keys([key]), state => alloc.allocBlock(state, numChannels));
   }
 
   _freeBlock(key: string, index: number, numChannels: number) {

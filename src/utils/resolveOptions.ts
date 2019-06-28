@@ -13,8 +13,7 @@ import path from "path";
 import untildify from "untildify";
 
 import { SCError } from "../Errors";
-import defaultServerOptions from "../server/default-server-options";
-import { ServerOptions } from "../server/options";
+import { defaults, ServerOptions } from "../server/options";
 
 function getUserHome(): string {
   const home = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
@@ -31,7 +30,7 @@ function defaultOptions(): ServerOptions {
     echo: true,
     stdin: true,
     websocketPort: 4040,
-    ...defaultServerOptions,
+    ...defaults,
   };
 
   let defaultRoot;
