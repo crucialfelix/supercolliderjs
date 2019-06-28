@@ -39,7 +39,18 @@ export type SynthDefCompileRequest = SynthDefCompileRequestWithSource | SynthDef
 /**
  * OSC
  */
-export type OscType = string | number | Buffer | null;
+export type OscType = string | number | Buffer | CompletionMsg | null;
+/**
+ * Some scsynth messages accept another OSC message as the last argument,
+ * and will execute that message after the first message is completed.
+ */
+type CompletionMsgItem = string | number | Buffer | null;
+export type CompletionMsg = [string, ...CompletionMsgItem[]];
+
+/**
+ * An array of values of OscType
+ */
+export type OscValues = OscType[];
 
 /**
  * OSCTimeType
@@ -51,15 +62,25 @@ export type OscType = string | number | Buffer | null;
  */
 export type OSCTimeType = null | number | [number, number] | Date;
 
-export type MsgType = [string, ...OscType[]];
+/**
+ *  An OSC message is [address, val, val, val...]
+ */
+export type MsgType = [string, ...OscValues];
+
+/**
+ * An OSC bundle has a timetag and contains messages or bundles
+ * that should be executed at that scheduled time.
+ */
 export interface BundleType {
   timetag: OSCTimeType;
   packets: MsgType[] | BundleType[];
 }
 
-export type PairsType = MsgType[] | object;
-
-export interface CallAndResponseType {
+/**
+ * Call and response is where an OSC command is sent to the
+ * server which later responds with a message matching 'response'.
+ */
+export interface CallAndResponse {
   call: MsgType;
   response: MsgType;
 }

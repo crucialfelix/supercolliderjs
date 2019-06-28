@@ -5,7 +5,7 @@ import _ from "lodash";
 import * as osc from "osc-min";
 import { IDisposable, Observable, Subject } from "rx";
 
-import { CallAndResponseType, MsgType } from "../Types";
+import { CallAndResponse, MsgType } from "../Types";
 import Logger from "../utils/logger";
 import resolveOptions from "../utils/resolveOptions";
 import SendOSC from "./internals/SendOSC";
@@ -549,8 +549,6 @@ export default class Server extends EventEmitter {
    * The first part of the message matches the expected args,
    * and the rest of the message contains the response.
    *
-   * @param {object} callAndResponse
-   *
    *  ```js
    *  {
    *      call: ['/some_osc_msg', 1, 2],
@@ -559,7 +557,7 @@ export default class Server extends EventEmitter {
    * @param {int} timeout - in milliseconds before rejecting the `Promise`
    * @returns {Promise} - resolves with all values the server responsed with after the matched response.
    */
-  callAndResponse(callAndResponse: CallAndResponseType, timeout: number = 4000): Promise<MsgType> {
+  callAndResponse(callAndResponse: CallAndResponse, timeout: number = 4000): Promise<MsgType> {
     var promise = this.oscOnce(callAndResponse.response, timeout);
     this.send.msg(callAndResponse.call);
     return promise;

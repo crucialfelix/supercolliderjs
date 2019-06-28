@@ -6,7 +6,7 @@ import { SCLangError } from "../Errors";
 import { defRecv } from "../server/osc/msg.js";
 import Server from "../server/server";
 import {
-  CallAndResponseType,
+  CallAndResponse,
   SclangResultType,
   SynthDefCompileRequest,
   SynthDefResultMapType,
@@ -73,7 +73,7 @@ export default class SynthDefCompiler {
   }
 
   allSendCommands() {
-    let commands: CallAndResponseType[] = [];
+    let commands: CallAndResponse[] = [];
     this.store.forEach((value, defName) => {
       commands.push(this.sendCommand(defName));
     });
