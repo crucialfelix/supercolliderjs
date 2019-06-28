@@ -31,7 +31,7 @@ export default class SendOSC extends EventEmitter {
    *   - Array: `[secondsSince1900Jan1, fractionalSeconds]`
    *   - Date
    * @param {Array} packets - osc messages as `[address, arg1, ...argN]`
-   *                        or sub bundles as `[{timeTag: , packets: }, ...]`
+   *                        or sub bundles as `[{timetag: , packets: }, ...]`
    */
   bundle(time: OSCTimeType, packets: MsgType[]) {
     if (typeof time === "number" && time < 10000) {
@@ -65,18 +65,18 @@ export default class SendOSC extends EventEmitter {
   subscribe(
     onNext: (value: { type: string; payload: any }) => void,
     onError?: (value: { type: string; payload: any }) => void,
-    onComplete?: () => void
+    onComplete?: () => void,
   ): Disposable {
     var msgs = Observable.fromEvent(this, "msg", msg => {
       return {
         type: "msg",
-        payload: msg
+        payload: msg,
       };
     });
     var bundles = Observable.fromEvent(this, "bundle", bundle => {
       return {
         type: "bundle",
-        payload: bundle
+        payload: bundle,
       };
     });
     var combo = msgs.merge(bundles);

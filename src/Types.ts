@@ -36,31 +36,32 @@ interface SynthDefCompileRequestWithPath {
 }
 export type SynthDefCompileRequest = SynthDefCompileRequestWithSource | SynthDefCompileRequestWithPath;
 
+/**
+ * OSC
+ */
 export type OscType = string | number | Buffer | null;
 
-// the first item must be a string
-export type MsgType = OscType[];
+/**
+ * OSCTimeType
+ *
+ *  - null: now, immediately
+ *  - number: unix timestamp in seconds
+ *  - Array: `[secondsSince1900Jan1, fractionalSeconds]` Most precise
+ *  - Date
+ */
+export type OSCTimeType = null | number | [number, number] | Date;
 
-export interface BundleType extends MsgType {}
-
-export interface CallAndResponseType {
-  call: MsgType;
-  response: MsgType;
+export type MsgType = [string, ...OscType[]];
+export interface BundleType {
+  timetag: OSCTimeType;
+  packets: MsgType[] | BundleType[];
 }
 
 export type PairsType = MsgType[] | object;
 
-export type OSCTimeType = null | number | [number, number] | Date;
-
-// from osc-min library
-export interface OSCMinMsgType {
-  oscType: "message" | "bundle";
-  address: string;
-  // I think it's array of { type: value: }
-  args: MsgType;
-  // bundles may also have
-  timetag?: OSCTimeType;
-  elements?: OSCMinMsgType[];
+export interface CallAndResponseType {
+  call: MsgType;
+  response: MsgType;
 }
 
 export interface NodeStateType {
