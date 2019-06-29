@@ -1,9 +1,7 @@
-import * as _ from "lodash";
 import EventEmitter from "events";
-import { SCLangError } from "../../Errors";
+import * as _ from "lodash";
 
-type RegExMatchType = any; // Array<string|number>;
-// import { SclangResultType } from '../../Types';
+import { SCLangError } from "../../Errors";
 
 export enum State {
   NULL = "null",
@@ -11,12 +9,65 @@ export enum State {
   COMPILED = "compiled",
   COMPILING = "compiling",
   COMPILE_ERROR = "compileError",
-  READY = "ready"
+  READY = "ready",
 }
 
-export interface SclangCompileResult {
-  version?: string;
-  [key: string]: string | string[];
+class SclangCompileResult {
+  version: string = "";
+  stdout: string = "";
+  errors: CompileError[] = [];
+  extensionErrors: ExtensionError[] = [];
+  duplicateClasses: DuplicateClass[] = [];
+  dirs: string[] = [];
+}
+
+interface CompileError {
+  msg: string;
+  file: string;
+  line: number;
+  char: number;
+}
+interface ExtensionError {
+  forClass: string;
+  file: string;
+}
+interface DuplicateClass {
+  forClass: string;
+  files: string[];
+}
+
+interface StateChangeHandlers {
+  [name: string]: StateChangeHandler[];
+}
+interface StateChangeHandler {
+  re: RegExp;
+  // A handler can return true to stop further processing
+  fn: (match: RegExpExecArray, text: string) => void | true;
+}
+
+interface ResponseCollectors {
+  [guid: string]: {
+    type: string;
+    chunks: string[];
+  };
+}
+
+/**
+ * Captures STDOUT
+ */
+interface Capturing {
+  [guid: string]: string[];
+}
+
+/**
+ * Stores calls
+ */
+interface Calls {
+  [guid: string]: ResolveReject;
+}
+interface ResolveReject<R = any> {
+  resolve: (result: R) => void;
+  reject: (error: Error | SCLangError) => void;
 }
 
 /**
@@ -33,16 +84,17 @@ export interface SclangCompileResult {
  * @private
  */
 export class SclangIO extends EventEmitter {
-  states: object;
-  responseCollectors: object;
-  capturing: object;
-  calls: object;
-  state?: State;
-  output: string[];
+  states: StateChangeHandlers;
+  responseCollectors: ResponseCollectors = {};
+  capturing: Capturing = {};
+  calls: Calls = {};
+  state: State = State.NULL;
+  output: string[] = [];
   result: SclangCompileResult;
 
   constructor() {
     super();
+    this.result = new SclangCompileResult();
     this.states = this.makeStates();
     this.reset();
   }
@@ -51,22 +103,22 @@ export class SclangIO extends EventEmitter {
     this.responseCollectors = {};
     this.capturing = {};
     this.calls = {};
-    this.state = null;
+    this.state = State.NULL;
     // these are stored on the object
     // and are sent with compile error/success event
     this.output = [];
-    this.result = {};
+    this.result = new SclangCompileResult();
   }
 
   /**
    * @param {string} input - parse the stdout of supercollider
    */
   parse(input: string) {
-    var echo = true,
+    let echo = true,
       startState = this.state,
       last = 0;
-    this.states[this.state].forEach(stf => {
-      var match: RegExMatchType | null = null;
+    this.states[this.state].forEach((stf: StateChangeHandler) => {
+      let match: RegExpExecArray | null = null;
       if (this.state === startState) {
         while ((match = stf.re.exec(input)) !== null) {
           last = match.index + match[0].length;
@@ -110,17 +162,17 @@ export class SclangIO extends EventEmitter {
     }
   }
 
-  makeStates(): object {
+  makeStates(): StateChangeHandlers {
     return {
       booting: [
         {
           re: /^compiling class library/m,
-          fn: (match: RegExMatchType, text: string) => {
+          fn: (match, text: string) => {
             this.reset();
             this.setState(State.COMPILING);
             this.pushOutputText(text);
-          }
-        }
+          },
+        },
       ],
       compiling: [
         {
@@ -128,73 +180,73 @@ export class SclangIO extends EventEmitter {
           fn: () => {
             this.processOutput();
             this.setState(State.COMPILED);
-          }
+          },
         },
         {
           re: /^Library has not been compiled successfully/m,
-          fn: (match: RegExMatchType, text: string) => {
+          fn: (match, text: string) => {
             this.pushOutputText(text);
             this.processOutput();
             this.setState(State.COMPILE_ERROR);
-          }
+          },
         },
         {
           re: /^ERROR: There is a discrepancy\./m,
           fn: (/*match*/) => {
             this.processOutput();
             this.setState(State.COMPILE_ERROR);
-          }
+          },
         },
         {
           // it may go directly into initClasses without posting compile done
           re: /Welcome to SuperCollider ([0-9A-Za-z\-.]+)\. /m,
-          fn: (match: RegExMatchType) => {
+          fn: match => {
             this.result.version = match[1];
             this.processOutput();
             this.setState(State.READY);
-          }
+          },
         },
         {
           // it sometimes posts this sc3> even when compile failed
           re: /^[\s]*sc3>[\s]*$/m,
-          fn: (match: RegExMatchType, text: string) => {
+          fn: (match, text: string) => {
             this.pushOutputText(text);
             this.processOutput();
             this.setState(State.COMPILE_ERROR);
-          }
+          },
         },
         {
           // another case of just trailing off
           re: /^error parsing/m,
-          fn: (match: RegExMatchType, text: string) => {
+          fn: (match, text: string) => {
             this.pushOutputText(text);
             this.processOutput();
             this.setState(State.COMPILE_ERROR);
-          }
+          },
         },
         {
           // collect all output
           re: /(.+)/m,
-          fn: (match: RegExMatchType, text: string) => {
+          fn: (match, text: string) => {
             this.pushOutputText(text);
-          }
-        }
+          },
+        },
       ],
       compileError: [],
       compiled: [
         {
           re: /Welcome to SuperCollider ([0-9A-Za-z\-.]+)\. /m,
-          fn: (match: RegExMatchType) => {
+          fn: match => {
             this.result.version = match[1];
             this.setState(State.READY);
-          }
+          },
         },
         {
           re: /^[\s]*sc3>[\s]*$/m,
           fn: (/*match:RegExMatchType, text*/) => {
             this.setState(State.READY);
-          }
-        }
+          },
+        },
       ],
       // REPL is now active
       ready: [
@@ -204,7 +256,7 @@ export class SclangIO extends EventEmitter {
           // This fn is called for each of them with a different match each time
           // but the same text body.
           re: /^SUPERCOLLIDERJS:([0-9A-Za-z-]+):([A-Za-z]+):(.*)$/gm,
-          fn: (match: RegExMatchType, text: string) => {
+          fn: (match, text: string) => {
             var guid = match[1],
               type = match[2],
               body = match[3],
@@ -222,13 +274,9 @@ export class SclangIO extends EventEmitter {
                   lines = [];
                   // yuck
                   _.each(text.split("\n"), (l: string) => {
-                    if (
-                      l.match(/SUPERCOLLIDERJS:([0-9A-Za-z-]+):CAPTURE:START/)
-                    ) {
+                    if (l.match(/SUPERCOLLIDERJS:([0-9A-Za-z-]+):CAPTURE:START/)) {
                       started = true;
-                    } else if (
-                      l.match(/SUPERCOLLIDERJS:([0-9A-Za-z-]+):CAPTURE:END/)
-                    ) {
+                    } else if (l.match(/SUPERCOLLIDERJS:([0-9A-Za-z-]+):CAPTURE:END/)) {
                       stopped = true;
                     } else {
                       if (started && !stopped) {
@@ -243,7 +291,7 @@ export class SclangIO extends EventEmitter {
               case "START":
                 this.responseCollectors[guid] = {
                   type: body,
-                  chunks: []
+                  chunks: [],
                 };
                 return true;
 
@@ -272,13 +320,7 @@ export class SclangIO extends EventEmitter {
                       obj = this.parseSyntaxErrors(stdout);
                       delete this.capturing[guid];
                     }
-                    this.calls[guid].reject(
-                      new SCLangError(
-                        `Interpret error: ${obj.errorString}`,
-                        response.type,
-                        obj
-                      )
-                    );
+                    this.calls[guid].reject(new SCLangError(`Interpret error: ${obj.errorString}`, response.type, obj));
                   }
                   delete this.calls[guid];
                 } else {
@@ -293,39 +335,39 @@ export class SclangIO extends EventEmitter {
 
               default:
             }
-          }
+          },
         },
         {
           re: /^SUPERCOLLIDERJS.interpreted$/gm,
-          fn: (match: RegExMatchType, text: string) => {
+          fn: (match, text: string) => {
             let rest = text.substr(match.index + 28);
             // remove the prompt ->
             rest = rest.replace(/-> \r?\n?/, "");
             this.emit("stdout", rest);
             return true;
-          }
+          },
         },
         {
           // user compiled programmatically eg. with Quarks.gui button
           re: /^compiling class library/m,
-          fn: (match: RegExMatchType, text: string) => {
+          fn: (match, text: string) => {
             this.reset();
             this.setState(State.COMPILING);
             this.pushOutputText(text);
-          }
-        }
-      ]
+          },
+        },
+      ],
     };
   }
 
   /**
-   * Register a Promise for a block of code that is being sent
+   * Register resolve and reject callbacks for a block of code that is being sent
    * to sclang to be interpreted.
    *
-   * @param {object} promise - a Promise or an object with reject, resolve
+   * callbacks - an object with reject, resolve
    */
-  registerCall(guid: string, promise: Promise<any> | object) {
-    this.calls[guid] = promise;
+  registerCall(guid: string, callbacks: ResolveReject) {
+    this.calls[guid] = callbacks;
   }
 
   /**
@@ -350,7 +392,7 @@ export class SclangIO extends EventEmitter {
       file: file && file[1],
       line: line && parseInt(line[1], 10),
       charPos: line && parseInt(line[2], 10),
-      code: code
+      code: code,
     };
   }
 
@@ -387,19 +429,13 @@ export class SclangIO extends EventEmitter {
    * collected from sclang STDOUT.
    */
   parseCompileOutput(text: string): SclangCompileResult {
-    const errors: SclangCompileResult = {
-      stdout: text,
-      errors: [],
-      extensionErrors: [],
-      duplicateClasses: [],
-      dirs: []
-    };
+    const errors = new SclangCompileResult();
 
     // NumPrimitives = 688
     // multiple:
     // compiling dir: ''
     let dirsRe = /^[\s]+compiling dir:[\s]+'(.+)'$/gm;
-    let match;
+    let match: RegExpExecArray | null = null;
     let end = 0;
 
     while ((match = dirsRe.exec(text))) {
@@ -428,21 +464,21 @@ export class SclangIO extends EventEmitter {
         msg: match[1],
         file: file,
         line: parseInt(match[3], 10),
-        char: parseInt(match[4], 10)
+        char: parseInt(match[4], 10),
       });
     }
 
     while ((match = nonExistentRe.exec(text))) {
       errors.extensionErrors.push({
         forClass: match[1],
-        file: match[2]
+        file: match[2],
       });
     }
 
     while ((match = duplicateRe.exec(text)) !== null) {
       errors.duplicateClasses.push({
         forClass: match[1],
-        files: [match[2], match[3]]
+        files: [match[2], match[3]],
       });
     }
 
