@@ -1,10 +1,12 @@
-import _ from "lodash";
-import path from "path";
-import fs from "fs";
+import { ChildProcess } from "child_process";
 import { EventEmitter } from "events";
-// import {State} from '../internals/sclang-io';
+import fs from "fs";
+import * as _ from "lodash";
+import path from "path";
+
 import SCLang from "../sclang";
 
+// import {State} from '../internals/sclang-io';
 class MockProcess extends EventEmitter {
   stdout: EventEmitter;
   stderr: EventEmitter;
@@ -27,7 +29,7 @@ describe("sclang", function() {
   describe("sclangConfigOptions", function() {
     it("should include supercollider-js", function() {
       var sclang = new SCLang();
-      var opts = sclang.sclangConfigOptions();
+      var opts = sclang.sclangConfigOptions(sclang.options);
       expect(opts.includePaths.length).toEqual(1);
       var isIn = _.some(opts.includePaths, function(p) {
         // and that directory should really exist
@@ -37,22 +39,25 @@ describe("sclang", function() {
     });
 
     it("should read a supplied sclang_conf", function() {
-      var sclang = new SCLang({});
-      var opts = sclang.sclangConfigOptions({
-        sclang_conf: path.join(__dirname, "fixtures", "sclang_test_conf.yaml")
+      var sclang = new SCLang({
+        sclang_conf: path.join(__dirname, "fixtures", "sclang_test_conf.yaml"),
       });
+      var opts = sclang.sclangConfigOptions(sclang.options);
       // as well as supercollider-js
       expect(opts.includePaths.length).toEqual(2 + 1);
       expect(opts.excludePaths.length).toEqual(1);
     });
 
     it("should merge sclang_conf with supplied includePaths", function() {
-      var sclang = new SCLang({});
-      var opts = sclang.sclangConfigOptions({
+      var sclang = new SCLang({
         sclang_conf: path.join(__dirname, "fixtures", "sclang_test_conf.yaml"),
-        includePaths: ["/custom/one", "/path/include/one"],
-        excludePaths: ["/custom/two"]
+        conf: {
+          includePaths: ["/custom/one", "/path/include/one"],
+          excludePaths: ["/custom/two"],
+          postInlineWarnings: true,
+        },
       });
+      var opts = sclang.sclangConfigOptions(sclang.options);
       expect(opts.includePaths.length).toEqual(3 + 1);
       expect(opts.excludePaths.length).toEqual(2);
     });
@@ -76,36 +81,37 @@ describe("sclang", function() {
       return sclang
         .boot()
         .then(result => expect(result).toEqual(SPAWNED))
-        .catch(err => this.fail(err));
+        .catch(err => {
+          throw err;
+        });
     });
   });
 
   describe("makeSclangConfig", function() {
     it("should write a yaml file and resolve with a path", function() {
-      var sclang = new SCLang();
-      var fail = err => this.fail(err);
+      var sclang = new SCLang({ conf: { includePaths: [], excludePaths: [], postInlineWarnings: false } });
       return sclang
-        .makeSclangConfig({ includePaths: [], excludePaths: [] })
+        .makeSclangConfig(sclang.options.conf)
         .then(tmpPath => expect(tmpPath).toBeTruthy())
-        .error(fail);
+        .catch(err => {
+          throw err;
+        });
     });
   });
 
   describe("sclangConfigOptions", function() {
     it("should include supercollider-js", function() {
       var sclang = new SCLang();
-      var config = sclang.sclangConfigOptions();
+      var config = sclang.sclangConfigOptions(sclang.options);
       expect(config.includePaths.length).toEqual(1);
       expect(config.includePaths[0].match(/supercollider-js/)).toBeTruthy();
     });
 
+    // not really possible now
     it("postInlineWarning should not be undefined", function() {
       var sclang = new SCLang();
-      var config = sclang.sclangConfigOptions({});
-      expect(config.postInlineWarning).toBeDefined();
-
-      config = sclang.sclangConfigOptions({ postInlineWarning: undefined });
-      expect(config.postInlineWarning).toEqual(false);
+      var config = sclang.sclangConfigOptions(sclang.options);
+      expect(config.postInlineWarnings).toBeDefined();
     });
   });
 
@@ -127,7 +133,7 @@ describe("sclang", function() {
       var subprocess = new MockProcess();
       var sclang = new SCLang();
       // don't listen to stdin or tests will hang
-      sclang.installListeners(subprocess, false);
+      sclang.installListeners(subprocess as ChildProcess, false);
     });
 
     // the test runner jest-cli is getting these and breaking
@@ -155,7 +161,7 @@ describe("sclang", function() {
     it("should spawnProcess", function() {
       var sclang = new SCLang();
       spyOn(sclang, "_spawnProcess").and.returnValue({
-        pid: 1
+        pid: 1,
       });
       spyOn(sclang, "installListeners");
       var promise = sclang.spawnProcess("/tmp/fake/path", {});
@@ -176,7 +182,7 @@ describe("sclang", function() {
     it("should call this.write", function() {
       var sclang = new SCLang();
       spyOn(sclang, "write").and.returnValue(null);
-      sclang.executeFile("/tmp/source.scd", false, true, true);
+      sclang.executeFile("/tmp/source.scd");
       expect(sclang.write).toHaveBeenCalled();
     });
   });
@@ -189,7 +195,8 @@ describe("sclang", function() {
 
     it("should quit process", function() {
       var sclang = new SCLang();
-      sclang.process = new MockProcess();
+      const process = new MockProcess();
+      sclang.process = process as ChildProcess;
       spyOn(sclang.process, "kill").and.returnValue(null);
       var p = sclang.quit().then(() => {
         expect(sclang.process).toEqual(null);

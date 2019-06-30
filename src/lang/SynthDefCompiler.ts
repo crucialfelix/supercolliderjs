@@ -1,9 +1,9 @@
 import fs from "fs";
-import _ from "lodash";
+import * as _ from "lodash";
 import path from "path";
 
 import { SCLangError } from "../Errors";
-import { defRecv } from "../server/osc/msg.js";
+import { defRecv } from "../server/osc/msg";
 import Server from "../server/server";
 import {
   CallAndResponse,

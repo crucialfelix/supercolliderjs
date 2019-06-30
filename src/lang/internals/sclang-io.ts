@@ -1,4 +1,4 @@
-import EventEmitter from "events";
+import { EventEmitter } from "events";
 import * as _ from "lodash";
 
 import { SCLangError } from "../../Errors";
@@ -12,7 +12,7 @@ export enum State {
   READY = "ready",
 }
 
-class SclangCompileResult {
+export class SclangCompileResult {
   version: string = "";
   stdout: string = "";
   errors: CompileError[] = [];
