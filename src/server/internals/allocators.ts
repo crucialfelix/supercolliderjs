@@ -17,10 +17,7 @@ type BlockMapType = Immutable.Map<string, Immutable.List<number>>;
  * @param {int} initial
  * @returns {Array} [next {int}, state {int}]
  */
-export function increment(
-  state: number,
-  initial: number = 0
-): [number, number] {
+export function increment(state: number, initial: number = 0): [number, number] {
   let next = (state || initial) + 1;
   return [next, next];
 }
@@ -42,30 +39,26 @@ export function initialBlockState(initialSize: number): BlockMapType {
  * @param {int} blockSize       - number of numbers eg. numChannels
  * @returns {Array}             - [start number {int}, mutated state {Immutable.Map}]
  */
-export function allocBlock(
-  state: BlockMapType,
-  blockSize: number
-): [number, BlockMapType] {
-  let keys = state
-    .keySeq()
-    .sortBy((value, key) => parseInt(value, 10) > parseInt(key, 10));
+export function allocBlock(state: BlockMapType, blockSize: number): [number, BlockMapType] {
+  let keys = state.keySeq().sortBy((value, key) => parseInt(value || "0", 10) > (key || 0));
   var ret: [number, BlockMapType] | undefined;
-  keys.forEach(sizeKey => {
+  keys.forEach((sizeKey): void | false => {
+    if (typeof sizeKey === "undefined") {
+      // they are all string, but the typing says they may be undefined
+      return;
+    }
     let size = parseInt(sizeKey, 10);
     if (size >= blockSize) {
       let blocks = state.get(sizeKey);
       if (blocks && blocks.size) {
         if (size === blockSize) {
           // pop the last free one
-          ret = [blocks.last(), state.set(sizeKey, blocks.butLast())];
+          ret = [blocks.last(), state.set(sizeKey, blocks.butLast().toList())];
           return false; // break
         } else {
           // its larger, split off what you need
           let lastBlock = blocks.last();
-          ret = [
-            lastBlock,
-            splitFreeBlock(state, lastBlock, size, lastBlock, blockSize)
-          ];
+          ret = [lastBlock, splitFreeBlock(state, lastBlock, size, lastBlock, blockSize)];
           return false; // break
         }
       }
@@ -88,11 +81,7 @@ export function allocBlock(
  * @param {int} blockSize
  * @returns {Immutable.Map} state
  */
-export function freeBlock(
-  state: BlockMapType,
-  addr: number,
-  blockSize: number
-) {
+export function freeBlock(state: BlockMapType, addr: number, blockSize: number) {
   state = pushFreeBlock(state, addr, blockSize);
   return mergeNeighbors(state, addr, blockSize);
 }
@@ -106,22 +95,16 @@ export function freeBlock(
  * @returns {Immutable.Map} state
  * @throws - Block is already allocated
  */
-export function reserveBlock(
-  state: BlockMapType,
-  addr: number,
-  blockSize: number
-): BlockMapType {
+export function reserveBlock(state: BlockMapType, addr: number, blockSize: number): BlockMapType {
   // check if exact match is on free list
-  var removed = state.update(String(blockSize), blks =>
-    blks ? blks.filter(x => x !== addr) : blks
-  );
+  var removed = state.update(String(blockSize), blks => (blks ? blks.filter(x => x !== addr) : blks).toList());
   if (removed !== state) {
     return removed;
   }
 
   var enc = findEnclosingFreeBlock(state, addr, blockSize);
   if (enc === NOT_FOUND) {
-    throw Error("Block is already allocated", addr, blockSize, state);
+    throw new Error(`Block is already allocated: ${addr} ${blockSize} ${state}`);
   }
 
   return splitFreeBlock(state, enc[0], enc[1], addr, blockSize);
@@ -133,12 +116,16 @@ export function reserveBlock(
  * @param {Immutable.Map} state
  * @returns {Array} - [[addr, size], ...]
  */
-export function freeBlockList(state: BlockMapType): Array<[number]> {
-  var list = [];
+export function freeBlockList(state: BlockMapType): Array<number[]> {
+  var list: [number, number][] = [];
   state.forEach((blks, sizeKey) => {
-    blks.forEach(addr => {
-      list.push([addr, parseInt(sizeKey, 10)]);
-    });
+    if (blks) {
+      blks.forEach(addr => {
+        if (addr) {
+          list.push([addr, parseInt(sizeKey || "0", 10)]);
+        }
+      });
+    }
   });
   // sort by addr
   list.sort((a, b) => a[0] - b[0]);
@@ -156,23 +143,21 @@ const NOT_FOUND: FreeBlock = [-1, -1];
  * @param {int} blockSize
  * @returns {Array} - [blockAddr, blockSize] or NOT_FOUND
  */
-function findEnclosingFreeBlock(
-  state: BlockMapType,
-  addr: number,
-  blockSize: number
-): FreeBlock {
+function findEnclosingFreeBlock(state: BlockMapType, addr: number, blockSize: number): FreeBlock {
   // let end = addr + blockSize;
   let found = NOT_FOUND;
-  state.forEach((blks, sizeKey) => {
-    let freeBlockSize = parseInt(sizeKey, 10);
-    blks.forEach(fblock => {
-      if (blockEncloses(addr, blockSize, fblock, freeBlockSize)) {
-        found = [fblock, freeBlockSize];
+  state.forEach((blks, sizeKey): void | false => {
+    if (blks && sizeKey) {
+      let freeBlockSize = parseInt(sizeKey, 10);
+      blks.forEach((fblock): void | false => {
+        if (fblock && blockEncloses(addr, blockSize, fblock, freeBlockSize)) {
+          found = [fblock, freeBlockSize];
+          return false; // break
+        }
+      });
+      if (found !== NOT_FOUND) {
         return false; // break
       }
-    });
-    if (found !== NOT_FOUND) {
-      return false; // break
     }
   });
   return found;
@@ -194,7 +179,7 @@ function blockEncloses(
   // address of the potentially enclosing block being tested
   encBlock: number,
   // size of the potentially enclosing block being tested
-  encSize: number
+  encSize: number,
 ): boolean {
   return addr >= encBlock && addr + size <= encBlock + encSize;
 }
@@ -205,14 +190,8 @@ function blockEncloses(
  * @param {int} blockSize
  * @returns {Immutable.Map} state
  */
-function popFreeBlock(
-  state: BlockMapType,
-  addr: number,
-  blockSize: number
-): BlockMapType {
-  return state.update(String(blockSize), blks =>
-    blks ? blks.filter(x => x !== addr) : blks
-  );
+function popFreeBlock(state: BlockMapType, addr: number, blockSize: number): BlockMapType {
+  return state.update(String(blockSize), blks => (blks ? blks.filter(x => x !== addr).toList() : blks));
 }
 
 /**
@@ -221,14 +200,8 @@ function popFreeBlock(
  * @param {int} blockSize
  * @returns {Immutable.Map} state
  */
-function pushFreeBlock(
-  state: BlockMapType,
-  addr: number,
-  blockSize: number
-): BlockMapType {
-  return state.update(String(blockSize), blks =>
-    (blks || Immutable.List()).push(addr)
-  );
+function pushFreeBlock(state: BlockMapType, addr: number, blockSize: number): BlockMapType {
+  return state.update(String(blockSize), blks => (blks || Immutable.List()).push(addr));
 }
 
 /**
@@ -253,7 +226,7 @@ function splitFreeBlock(
   addr: number,
   blockSize: number,
   splitAddr: number,
-  splitSize: number
+  splitSize: number,
 ): BlockMapType {
   var bottomGap = splitAddr - addr;
   var topGap = endAddr(addr, blockSize) - endAddr(splitAddr, splitSize);
@@ -261,13 +234,7 @@ function splitFreeBlock(
     return resizeFreeBlock(state, addr, blockSize, addr, bottomGap);
   }
   if (topGap > 0 && bottomGap === 0) {
-    return resizeFreeBlock(
-      state,
-      addr,
-      blockSize,
-      endAddr(addr, blockSize) - topGap,
-      topGap
-    );
+    return resizeFreeBlock(state, addr, blockSize, endAddr(addr, blockSize) - topGap, topGap);
   }
   if (topGap > 0 && bottomGap > 0) {
     state = popFreeBlock(state, addr, blockSize);
@@ -283,7 +250,7 @@ function resizeFreeBlock(
   addr: number,
   blockSize: number,
   newAddr: number,
-  newSize: number
+  newSize: number,
 ): BlockMapType {
   state = popFreeBlock(state, addr, blockSize);
   state = pushFreeBlock(state, newAddr, newSize);
@@ -294,11 +261,7 @@ function endAddr(addr: number, blockSize: number): number {
   return addr + blockSize;
 }
 
-function mergeNeighbors(
-  state: BlockMapType,
-  addr: number,
-  blockSize: number
-): BlockMapType {
+function mergeNeighbors(state: BlockMapType, addr: number, blockSize: number): BlockMapType {
   var blockEnd = endAddr(addr, blockSize);
   let nextState = state;
   freeBlockList(state).forEach(fb => {
