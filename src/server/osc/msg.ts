@@ -26,7 +26,7 @@ import { CallAndResponse, CompletionMsg, MsgType, OscType, OscValues } from "../
 type PairsType = Params | ParamList;
 
 // {name: value, ...}
-interface Params {
+export interface Params {
   [name: string]: OscType;
 }
 // [[name, value], [name2, value2], ...]

@@ -27,7 +27,7 @@ export default class Store {
    * Fetch the object at keys
    * pass it to the function which mutates it and returns new sub state.
    */
-  mutateState(keys: string[], fn: Function) {
+  mutateState(keys: string[], fn: (value: any) => any) {
     this.state = this.state.updateIn(keys, fn);
   }
 

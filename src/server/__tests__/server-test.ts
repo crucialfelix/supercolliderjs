@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { EventEmitter } from "events";
 import Server from "../server";
+import { CallAndResponse } from "Types";
 
 describe("Server", function() {
   describe("default constructor", function() {
@@ -20,7 +21,7 @@ describe("Server", function() {
       // make a fake this.process.stdout / stderr
       server.process = {
         stdout: new EventEmitter(),
-        stderr: new EventEmitter()
+        stderr: new EventEmitter(),
       };
 
       return new Promise(resolve => {
@@ -38,14 +39,16 @@ describe("Server", function() {
     it("should fullfill", function() {
       var s = new Server();
 
-      s.send.msg = jest.fn();
+      const spy = jest.spyOn(s.send, "msg");
+      spy.mockImplementation(() => null);
 
       var p = s.oscOnce(["/done", "/notify"]).then(rest => {
         // p is now fulfilled
         // console.log(rest);
         expect(_.isEqual(rest, [15])).toBe(true);
       });
-      expect(s.send.msg.mock.calls.length).toBe(0);
+      expect(spy).toHaveBeenCalledTimes(0);
+      //  s.send.msg.mock.calls.length).toBe(0);
 
       // server responds
       s.receive.onNext(["/done", "/notify", 15]);
@@ -66,18 +69,20 @@ describe("Server", function() {
     it("should call and get response", function() {
       var s = new Server();
 
-      var car = {
+      var car: CallAndResponse = {
         call: ["/notify"],
-        response: ["/done", "/notify"]
+        response: ["/done", "/notify"],
       };
 
       s.send.msg = jest.fn();
+      const spy = jest.spyOn(s.send, "msg");
+      spy.mockImplementation(() => null);
 
       var p = s.callAndResponse(car).then(response => {
         expect(_.isEqual(response, [15])).toBe(true);
       });
       // console.log('sender', s.send);
-      expect(s.send.msg.mock.calls.length).toBe(1);
+      expect(spy).toHaveBeenCalledTimes(1);
 
       // server responds
       s.receive.onNext(["/done", "/notify", 15]);

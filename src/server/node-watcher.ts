@@ -15,13 +15,14 @@ import _ from "lodash";
 import { Disposable } from "rx";
 import Server from "./server";
 import { NodeStateType } from "../Types";
+import { State } from "./internals/Store";
 
 enum Key {
   NODE_WATCHER = "NODE_WATCHER",
   NODES = "NODES",
   CALLBACKS = "CALLBACKS",
   ON_NODE_GO = "ON_NODE_GO",
-  ON_NODE_END = "ON_NODE_END"
+  ON_NODE_END = "ON_NODE_END",
 }
 
 /**
@@ -54,7 +55,7 @@ export function watchNodeNotifications(server: Server): Disposable {
   // n_move
   // n_info
   const re = /^\/n_(go|end|on|off|move|info)$/;
-  const stream = server.receive.filter(msg => msg[0].match(re));
+  const stream = server.receive.filter(msg => !!msg[0].match(re));
   const dispose = stream.subscribe(msg => {
     const cmd = msg[0];
     const r = _responders[cmd];
@@ -76,12 +77,7 @@ export function watchNodeNotifications(server: Server): Disposable {
  * @param {Function} handler
  * @returns {Function} - cancel function
  */
-export function onNodeGo(
-  server: Server,
-  id: string,
-  nodeID: number,
-  handler: Function
-): Function {
+export function onNodeGo(server: Server, id: string, nodeID: number, handler: Function): Function {
   return _registerHandler(Key.ON_NODE_GO, server, id, nodeID, handler);
 }
 
@@ -97,11 +93,7 @@ export function onNodeGo(
  * @param {int} nodeID
  * @returns {Promise} - resolves with nodeID
  */
-export function whenNodeGo(
-  server: Server,
-  id: string,
-  nodeID: number
-): Promise<number> {
+export function whenNodeGo(server: Server, id: string, nodeID: number): Promise<number> {
   return new Promise(resolve => {
     onNodeGo(server, id, nodeID, () => resolve(nodeID));
   });
@@ -117,12 +109,7 @@ export function whenNodeGo(
  * @param {Function} handler
  * @returns {Function} - cancel function
  */
-export function onNodeEnd(
-  server: Server,
-  id: string,
-  nodeID: number,
-  handler: Function
-): Function {
+export function onNodeEnd(server: Server, id: string, nodeID: number, handler: Function): Function {
   return _registerHandler(Key.ON_NODE_END, server, id, nodeID, handler);
 }
 
@@ -131,11 +118,7 @@ export function onNodeEnd(
  *
  * The id is usually a context id but could be a random guid
  */
-export function whenNodeEnd(
-  server: Server,
-  id: string,
-  nodeID: number
-): Promise<number> {
+export function whenNodeEnd(server: Server, id: string, nodeID: number): Promise<number> {
   return new Promise(resolve => {
     onNodeEnd(server, id, nodeID, () => resolve(nodeID));
   });
@@ -151,13 +134,9 @@ export function whenNodeEnd(
  *
  * This is for internal use.
  */
-export function updateNodeState(
-  server: Server,
-  nodeID: number,
-  nodeState: NodeStateType
-) {
+export function updateNodeState(server: Server, nodeID: number, nodeState: NodeStateType) {
   // unless its n_end then delete
-  server.state.mutate(Key.NODE_WATCHER, (state: object) => {
+  server.state.mutate(Key.NODE_WATCHER, (state: State) => {
     return state.mergeIn([Key.NODES, String(nodeID)], Map(), nodeState);
   });
 }
@@ -165,13 +144,7 @@ export function updateNodeState(
 /**
  * @private
  */
-function _registerHandler(
-  type: Key,
-  server: Server,
-  id: string,
-  nodeID: number,
-  handler: Function
-): Function {
+function _registerHandler(type: Key, server: Server, id: string, nodeID: number, handler: Function): Function {
   var dispose = () => {
     _disposeHandler(type, server, id, nodeID);
   };
@@ -186,9 +159,9 @@ function _registerHandler(
             if (type === Key.ON_NODE_GO || type === Key.ON_NODE_END) {
               dispose();
             }
-            handler.apply(this, args);
-          }
-        }
+            handler.apply(null, args);
+          },
+        },
       })
       .updateIn([type, String(nodeID)], List(), list => list.push(handlerId));
   });
@@ -211,9 +184,7 @@ function _disposeHandler(type, server: Server, id, nodeID: number) {
 
     return state
       .deleteIn([Key.CALLBACKS, handlerId])
-      .updateIn([type, String(nodeID)], List(), list =>
-        list.filter(hid => hid !== handlerId)
-      );
+      .updateIn([type, String(nodeID)], List(), list => list.filter(hid => hid !== handlerId));
   });
 }
 
@@ -221,11 +192,9 @@ function _disposeHandler(type, server: Server, id, nodeID: number) {
  * @private
  */
 function _handlersFor(server: Server, type, nodeID: number) {
-  return server.state
-    .getIn([Key.NODE_WATCHER, type, String(nodeID)], List())
-    .map(handlerId => {
-      return server.state.getIn([Key.NODE_WATCHER, Key.CALLBACKS, handlerId]);
-    });
+  return server.state.getIn([Key.NODE_WATCHER, type, String(nodeID)], List()).map(handlerId => {
+    return server.state.getIn([Key.NODE_WATCHER, Key.CALLBACKS, handlerId], null);
+  });
 }
 
 /**
@@ -240,7 +209,7 @@ function _saveNodeState(server: Server, set, msg) {
     next: msg[3],
     isGroup: isGroup,
     head: isGroup ? msg[5] : null,
-    tail: isGroup ? msg[6] : null
+    tail: isGroup ? msg[6] : null,
   };
   nodeState = _.assign(nodeState, set);
   updateNodeState(server, nodeID, nodeState);
@@ -264,9 +233,9 @@ const _responders = {
       server,
       {
         isPlaying: true,
-        isRunning: true
+        isRunning: true,
       },
-      args
+      args,
     );
 
     _callNodeHandlers(server, Key.ON_NODE_GO, args[0]);
@@ -282,18 +251,18 @@ const _responders = {
     _saveNodeState(
       server,
       {
-        isRunning: true
+        isRunning: true,
       },
-      args
+      args,
     );
   },
   "/n_off": (server: Server, args) => {
     _saveNodeState(
       server,
       {
-        isRunning: false
+        isRunning: false,
       },
-      args
+      args,
     );
   },
   "/n_info": (server: Server, args) => {
@@ -301,5 +270,5 @@ const _responders = {
   },
   "/n_move": (server: Server, args) => {
     _saveNodeState(server, {}, args);
-  }
+  },
 };

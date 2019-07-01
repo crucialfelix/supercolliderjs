@@ -67,7 +67,7 @@ export default class ServerState {
    * @param {String} key - top level key eg. nodeAllocator, controlBufAllocator
    * @param {Function} fn - will receive current state or an empty Map, returns the altered state.
    */
-  mutate(key: string, fn: Function) {
+  mutate(key: string, fn: (value: any) => any) {
     this.store.mutateState(this._keys([key]), fn);
   }
 

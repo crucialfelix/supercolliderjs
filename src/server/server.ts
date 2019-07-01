@@ -48,7 +48,7 @@ export default class Server extends EventEmitter {
   /**
    * The process id that nodejs spawn() returns
    */
-  private process: any;
+  process: any;
 
   isRunning: boolean;
 
@@ -167,16 +167,19 @@ export default class Server extends EventEmitter {
   }
 
   /**
-   * Emit signals are deprecated and will be removed in 1.0
-   *
-   * Instead use ```server.{channel}.subscribe((event) => { })```
-   *
    * Event Emitter emits:
    *    'out'   - stdout text from the server
    *    'error' - stderr text from the server or OSC error messages
    *    'exit'  - when server exits
    *    'close' - when server closes the UDP connection
    *    'OSC'   - OSC responses from the server
+   *
+   * Emit signals are deprecated and will be removed in 1.0
+   *
+   * @deprecated
+   *
+   * Instead use ```server.{channel}.subscribe((event) => { })```
+   *
    */
   private _initEmitter() {
     this.receive.subscribe(msg => {

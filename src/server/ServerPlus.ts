@@ -14,6 +14,7 @@ import * as msg from "./osc/msg";
 import Server from "./server";
 import { ServerArgs, defaults } from "./options";
 import Store from "./internals/Store";
+import { Params } from "./osc/msg";
 
 /**
  * scsynth Group
@@ -49,7 +50,7 @@ class Group {
    * For a Group it sends the set message to all children Synths
    * in the Group.
    */
-  set(settings: object) {
+  set(settings: Params) {
     this.server.send.msg(msg.nodeSet(this.id, settings));
   }
   // moveAfter
@@ -219,7 +220,7 @@ export default class ServerPlus extends Server {
   /**
    * Create a Synth on the server
    */
-  synth(synthDef: SynthDef, args: object = {}, group?: Group, addAction: number = msg.AddActions.TAIL): Promise<Synth> {
+  synth(synthDef: SynthDef, args: Params = {}, group?: Group, addAction: number = msg.AddActions.TAIL): Promise<Synth> {
     return Promise.all([Promise.resolve(synthDef), Promise.resolve(group)]).then(([def, g]) => {
       let nodeId = this.state.nextNodeID();
       let sn = msg.synthNew(def.name, nodeId, addAction, g ? g.id : 0, args);
