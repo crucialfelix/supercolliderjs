@@ -68,7 +68,7 @@ describe("sclang-io", function() {
     expect(io.result.duplicateClasses.length).toEqual(1);
     expect(io.result.duplicateClasses[0].forClass).toEqual("Crucial");
     expect(io.result.duplicateClasses[0].files[0]).toEqual(
-      "/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc"
+      "/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc",
     );
   });
 
@@ -83,23 +83,19 @@ describe("sclang-io", function() {
       expect(errors.duplicateClasses.length).toEqual(1);
       expect(errors.duplicateClasses[0].forClass).toEqual("Crucial");
       expect(errors.duplicateClasses[0].files[0]).toEqual(
-        "/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc"
+        "/Users/crucial/Library/Application Support/SuperCollider/downloaded-quarks/crucial-library/Crucial.sc",
       );
     });
 
     it("should parse extension for non-existent class", function() {
       var io = new SclangIO();
       io.setState(State.BOOTING);
-      var errors = io.parseCompileOutput(
-        readFile("io-extension-for-non-existent-class.txt")
-      );
+      var errors = io.parseCompileOutput(readFile("io-extension-for-non-existent-class.txt"));
 
       expect(errors).toBeDefined();
       expect(errors.extensionErrors).toBeDefined();
       expect(errors.extensionErrors[0].forClass).toEqual("Document");
-      expect(errors.extensionErrors[0].file).toEqual(
-        "/deprecated/3.7/deprecated-3.7.sc"
-      );
+      expect(errors.extensionErrors[0].file).toEqual("/deprecated/3.7/deprecated-3.7.sc");
     });
 
     // other errors:
@@ -152,7 +148,7 @@ describe("sclang-io", function() {
       // parse the response. Must be the same id as in the fixture.
       io.registerCall("citjy45o00002xpxp9dapi2tt", {
         resolve: () => {},
-        reject: () => {}
+        reject: () => {},
       });
 
       return new Promise(resolve => {
@@ -174,7 +170,7 @@ describe("sclang-io", function() {
     it("should capture any immediate postln from end of CAPTURE", function() {
       var io = new SclangIO();
       io.setState(State.READY);
-      let output = [];
+      let output: string[] = [];
       io.on("stdout", o => output.push(o));
 
       feedIt("routine-postln.txt", io);

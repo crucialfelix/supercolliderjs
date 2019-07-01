@@ -2,6 +2,7 @@ import { EventEmitter } from "events";
 import * as _ from "lodash";
 
 import { SCLangError } from "../../Errors";
+import { JSONObjectType } from "Types";
 
 export enum State {
   NULL = "null",
@@ -35,6 +36,13 @@ interface DuplicateClass {
   forClass: string;
   files: string[];
 }
+interface SCSyntaxError {
+  msg: string | null;
+  file: string | null;
+  line: number | null;
+  charPos: number | null;
+  code: string;
+}
 
 interface StateChangeHandlers {
   [name: string]: StateChangeHandler[];
@@ -45,11 +53,12 @@ interface StateChangeHandler {
   fn: (match: RegExpExecArray, text: string) => void | true;
 }
 
+interface Response {
+  type: string;
+  chunks: string[];
+}
 interface ResponseCollectors {
-  [guid: string]: {
-    type: string;
-    chunks: string[];
-  };
+  [guid: string]: Response;
 }
 
 /**
@@ -256,14 +265,14 @@ export class SclangIO extends EventEmitter {
           // This fn is called for each of them with a different match each time
           // but the same text body.
           re: /^SUPERCOLLIDERJS:([0-9A-Za-z-]+):([A-Za-z]+):(.*)$/gm,
-          fn: (match, text: string) => {
+          fn: (match, text: string): void | true => {
             var guid = match[1],
               type = match[2],
               body = match[3],
-              response,
-              stdout,
-              obj,
-              lines,
+              response: Response,
+              stdout: string,
+              obj: JSONObjectType,
+              lines: string[],
               started = false,
               stopped = false;
 
@@ -315,12 +324,15 @@ export class SclangIO extends EventEmitter {
                     }
                     this.calls[guid].resolve(obj);
                   } else {
+                    let err: SCSyntaxError | undefined = undefined;
                     if (response.type === "SyntaxError") {
                       stdout = this.capturing[guid].join("\n");
-                      obj = this.parseSyntaxErrors(stdout);
+                      err = this.parseSyntaxErrors(stdout);
                       delete this.capturing[guid];
                     }
-                    this.calls[guid].reject(new SCLangError(`Interpret error: ${obj.errorString}`, response.type, obj));
+                    this.calls[guid].reject(
+                      new SCLangError(`Interpret error: ${obj.errorString}`, response.type, err || obj),
+                    );
                   }
                   delete this.calls[guid];
                 } else {
@@ -373,7 +385,7 @@ export class SclangIO extends EventEmitter {
   /**
    * Parse syntax error from STDOUT runtime errors.
    */
-  parseSyntaxErrors(text: string): object {
+  parseSyntaxErrors(text: string): SCSyntaxError {
     var msgRe = /^ERROR: syntax error, (.+)$/m,
       msgRe2 = /^ERROR: (.+)$/m,
       fileRe = /in file '(.+)'/m,

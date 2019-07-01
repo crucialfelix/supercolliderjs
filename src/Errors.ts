@@ -68,7 +68,7 @@ export class SCLangError extends SCError {
   type: string;
   error: object;
 
-  constructor(message: string, type: string, error: object, data: object = {}) {
+  constructor(message: string, type: string, error: object, data: any = {}) {
     super(message, data);
     this.type = type;
     this.error = error;
