@@ -28,7 +28,7 @@ function defaultOptions(): ServerOptions {
   let opts: ServerOptions = {
     debug: false,
     echo: true,
-    stdin: true,
+    // stdin: true,
     websocketPort: 4040,
     ...defaults,
   };
@@ -80,12 +80,20 @@ function filterUndefs(opts: object): object {
  *            eg. supplied command line options --sclang=/some/path/to/sclang
  *
  */
-export default function resolveOptions(configPath: string | null, commandLineOptions: object): Promise<ServerOptions> {
+export default function resolveOptions(
+  configPath?: string | null,
+  commandLineOptions?: object,
+): Promise<ServerOptions> {
   return new Promise((resolve, reject) => {
     function ok(opts, aPath): void {
-      var options: ServerOptions = _.extend(defaultOptions(), filterUndefs(opts), filterUndefs(commandLineOptions), {
-        configPath: aPath,
-      });
+      var options: ServerOptions = _.extend(
+        defaultOptions(),
+        filterUndefs(opts),
+        filterUndefs(commandLineOptions || {}),
+        {
+          configPath: aPath,
+        },
+      );
 
       if (options.sclang) {
         options.sclang = path.resolve(untildify(options.sclang));
