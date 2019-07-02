@@ -1,10 +1,38 @@
+import { EventStream } from "baconjs";
+import { Dryad, DryadPlayer } from "dryadic";
 import _ from "lodash";
-import { Dryad } from "dryadic";
-import { DryadPlayer } from "dryadic";
+import { MsgType } from "Types";
+
+import { AddActions, nodeFree, Params, synthNew } from "../server/osc/msg.js";
+import Server from "../server/server";
 import Group from "./Group";
-import { synthNew, nodeFree, AddActions } from "../server/osc/msg.js";
 
 const LATENCY = 0.03;
+
+interface Properties {
+  stream: EventStream<any, Event>;
+  defaultParams: Params;
+}
+
+interface Context {
+  id: string;
+  nodeID?: number;
+  out?: number;
+  group?: number;
+  scserver: Server;
+
+  subscription?: any;
+  nodeIDs: {
+    [key: string]: number;
+  };
+}
+
+interface Event {
+  defName: string;
+  args: Params;
+  key?: string;
+  type?: string;
+}
 
 /**
  * Given a Bacon.js stream that returns objects, this spawns a series of Synths.
@@ -28,7 +56,7 @@ const LATENCY = 0.03;
 export default class SynthStream extends Dryad {
   add(player: DryadPlayer): object {
     return {
-      run: (context: object, properties: object) => {
+      run: (context: Context, properties: Properties) => {
         let subscription = properties.stream.subscribe(event => {
           // This assumes a Bacon event.
           // Should validate that event.value is object
@@ -37,7 +65,7 @@ export default class SynthStream extends Dryad {
           this.handleEvent(event.value(), context, properties, player);
         });
         player.updateContext(context, { subscription });
-      }
+      },
       // initial event
       // scserver: {
       //   bundle: ()
@@ -45,11 +73,11 @@ export default class SynthStream extends Dryad {
     };
   }
 
-  commandsForEvent(event: object, context: object, properties: object): object {
-    const msgs = [];
+  commandsForEvent(event: Event, context: Context, properties: Properties): object {
+    const msgs: MsgType[] = [];
     let updateContext;
     let nodeIDs = context.nodeIDs || {};
-    let key = event.key ? String(event.key) : undefined;
+    let key = event.key ? String(event.key) : "undefined";
 
     switch (event.type) {
       case "noteOff": {
@@ -57,17 +85,15 @@ export default class SynthStream extends Dryad {
         // other than sending to the group
         let nodeID: number = nodeIDs[key];
         if (nodeID) {
-          msgs.push(nodeFree(nodeID));
+          msgs.push(nodeFree(nodeID || -1));
           // TODO: if synthDef hasGate else just free it
           // msgs.push(nodeSet(nodeID, [event.gate || 'gate', 0]));
           // remove from nodeIDs
           updateContext = {
-            nodeIDs: _.omit(nodeIDs, [key])
+            nodeIDs: _.omit(nodeIDs, [key]),
           };
         } else {
-          throw new Error(
-            `NodeID was not registered for event key ${key || "undefined"}`
-          );
+          throw new Error(`NodeID was not registered for event key ${key || "undefined"}`);
         }
         break;
       }
@@ -75,12 +101,8 @@ export default class SynthStream extends Dryad {
       default: {
         // noteOn
         let defaultParams = properties.defaultParams || {};
-        const args = _.assign(
-          { out: context.out || 0 },
-          defaultParams.args,
-          event.args
-        );
-        const defName = event.defName || properties.defaultParams.defName;
+        const args = _.assign({ out: context.out || 0 }, defaultParams.args, event.args);
+        const defName = event.defName || (properties.defaultParams.defName as string);
         // if ev.id then create a nodeID and store it
         // otherwise it is anonymous
         let nodeID = -1;
@@ -89,17 +111,11 @@ export default class SynthStream extends Dryad {
           // store the nodeID
           updateContext = {
             nodeIDs: _.assign({}, nodeIDs, {
-              [key]: nodeID
-            })
+              [key]: nodeID,
+            }),
           };
         }
-        const synth = synthNew(
-          defName,
-          nodeID,
-          AddActions.TAIL,
-          context.group,
-          args
-        );
+        const synth = synthNew(defName, nodeID, AddActions.TAIL, context.group, args);
         msgs.push(synth);
       }
     }
@@ -108,28 +124,20 @@ export default class SynthStream extends Dryad {
       scserver: {
         bundle: {
           time: LATENCY,
-          packets: msgs
-        }
+          packets: msgs,
+        },
       },
-      updateContext
+      updateContext,
     };
   }
 
-  handleEvent(
-    event: object,
-    context: object,
-    properties: object,
-    player: DryadPlayer
-  ) {
-    player.callCommand(
-      context.id,
-      this.commandsForEvent(event, context, properties)
-    );
+  handleEvent(event: Event, context: Context, properties: Properties, player: DryadPlayer) {
+    player.callCommand(context.id, this.commandsForEvent(event, context, properties));
   }
 
   remove(): object {
     return {
-      run: (context: object) => {
+      run: (context: Context) => {
         if (context.subscription) {
           if (_.isFunction(context.subscription)) {
             // baconjs style
@@ -139,7 +147,7 @@ export default class SynthStream extends Dryad {
             context.subscription.dispose();
           }
         }
-      }
+      },
     };
   }
 

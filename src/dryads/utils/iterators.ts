@@ -3,12 +3,22 @@
  * @ temp off - memberof dryads
  */
 import _ from "lodash";
+import { MsgType } from "Types";
 
-export function sortEvents(events: Array<object>) {
+interface Memo {
+  i: number;
+}
+
+export interface EventOSC {
+  time: number;
+  msgs: MsgType[];
+}
+
+export function sortEvents(events: EventOSC[]) {
   return events.sort((a, b) => a.time - b.time);
 }
 
-export function clipTime(events: Array<object>, start: number, end: number) {
+export function clipTime(events: EventOSC[], start: number, end: number) {
   return events.filter(e => e.time >= start && e.time <= end);
 }
 
@@ -25,11 +35,11 @@ export function clipTime(events: Array<object>, start: number, end: number) {
  *                         returns {object} event - Which has .event (the original event) and .memo which is
  *                              used by OSCSched the next time this function is called.
  */
-export function eventListIterator(events: Array<object>): Function {
+export function eventListIterator(events: EventOSC[]): Function {
   const sorted = sortEvents(events);
   const length = sorted.length;
 
-  return (now: number, memo?: object): object | void => {
+  return (now: number, memo?: Memo): object | void => {
     if (length === 0) {
       return;
     }
@@ -40,7 +50,7 @@ export function eventListIterator(events: Array<object>): Function {
       if (event) {
         return {
           event,
-          memo: { i: memo.i + 1 }
+          memo: { i: memo.i + 1 },
         };
       }
     } else {
@@ -51,7 +61,7 @@ export function eventListIterator(events: Array<object>): Function {
         if (delta >= 0) {
           return {
             event,
-            memo: { i: i + 1 }
+            memo: { i: i + 1 },
           };
         }
       }
@@ -75,14 +85,11 @@ export function eventListIterator(events: Array<object>): Function {
  *   returns {object} item - Which has .event (the original event) and .memo which is
  *                              used by OSCSched the next time this function is called.
  */
-export function loopedEventListIterator(
-  events: Array<object>,
-  loopTime: number
-): Function {
+export function loopedEventListIterator(events: EventOSC[], loopTime: number): Function {
   const sorted = clipTime(sortEvents(events), 0, loopTime);
   const length = sorted.length;
 
-  return (now: number, memo?: object): object | void => {
+  return (now: number, memo?: Memo): object | void => {
     if (length === 0) {
       return;
     }
@@ -99,7 +106,7 @@ export function loopedEventListIterator(
 
         return {
           event: _.assign({}, event, { time: timeBase + event.time }),
-          memo: { i: memo.i + 1 }
+          memo: { i: memo.i + 1 },
         };
       }
     } else {
@@ -122,7 +129,7 @@ export function loopedEventListIterator(
         if (delta >= 0) {
           return {
             event: _.assign({}, event, { time }),
-            memo: { i: iteration * length + i + 1 }
+            memo: { i: iteration * length + i + 1 },
           };
         }
       }

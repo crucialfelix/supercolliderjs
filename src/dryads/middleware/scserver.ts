@@ -1,6 +1,21 @@
 import _ from "lodash";
 import OSCSched from "./OSCSched";
-import { MsgType } from "../../Types";
+import { MsgType, CallAndResponse } from "../../Types";
+import Server from "../../server/server";
+
+interface Properties {}
+interface Context {
+  oscSched?: any;
+  epoch: number;
+  scserver: Server;
+}
+interface Command {
+  scserver?: any;
+  msg?: any;
+  bundle?: any;
+  schedLoop?: any;
+  callAndResponse?: CallAndResponse;
+}
 
 /**
  * Command middlware that sends OSC to the SuperCollider server (scsynth).
@@ -73,11 +88,7 @@ import { MsgType } from "../../Types";
  * @param {object} properties
  * @return Promise is only returned when using .callAndResponse
  */
-export default function scserver(
-  command: object,
-  context: object,
-  properties: object
-): Promise<MsgType> | void {
+export default function scserver(command: Command, context: Context, properties: Properties): Promise<MsgType> | void {
   if (command.scserver) {
     let cmds = resolveFuncs(command.scserver, context, properties);
 
@@ -97,8 +108,7 @@ export default function scserver(
     if (cmds.schedLoop) {
       // initialize the scheduler on first use
       if (!context.oscSched) {
-        const sendFn = (time, packets) =>
-          context.scserver.send.bundle(time, packets);
+        const sendFn = (time, packets) => context.scserver.send.bundle(time, packets);
         context.oscSched = new OSCSched(sendFn);
       }
 
@@ -123,11 +133,7 @@ export default function scserver(
  *
  * Non-functions are passed through.
  */
-export function resolveFuncs(
-  command: object,
-  context: object,
-  properties: object
-): object {
+export function resolveFuncs(command: Command, context: Context, properties: Properties): Command {
   return _.mapValues(command, value => _callIfFn(value, context, properties));
 }
 
@@ -135,6 +141,8 @@ export function resolveFuncs(
  * If its a Function then call it with context and properties
  * @private
  */
-function _callIfFn(thing, context, properties) {
+function _callIfFn<T = any>(thing: T | Function, context: Context, properties: Properties): T {
   return _.isFunction(thing) ? thing(context, properties) : thing;
 }
+
+// T | (context: Context, properties: Properties) => T;

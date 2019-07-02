@@ -92,4 +92,5 @@ export interface NodeStateType {
   isGroup: boolean;
   head?: number;
   tail?: number;
+  synthDef?: string;
 }

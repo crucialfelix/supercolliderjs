@@ -1,13 +1,34 @@
+import { Dryad, DryadPlayer } from "dryadic";
+import _ from "lodash";
 
-import _ from 'lodash';
+import { AddActions, synthNew, Params } from "../server/osc/msg";
+import Group from "./Group";
+import { eventListIterator, loopedEventListIterator, EventOSC } from "./utils/iterators";
+import { OscType } from "Types";
 
-import { Dryad } from 'dryadic';
-import Group from './Group';
-import { DryadPlayer } from 'dryadic';
+interface Event {
+  defName: string;
+  args: {
+    [name: string]: OscType;
+  };
+  time: number;
+}
 
-import { synthNew, AddActions } from '../server/osc/msg';
+interface Properties {
+  events: Event[];
+  loopTime?: number;
+  defaultParams?: Params;
+  // @deprecated
+  updateStream?: any;
+}
 
-import { loopedEventListIterator, eventListIterator } from './utils/iterators';
+interface Context {
+  epoch: number;
+  subscription: any; // Bacon or RxJs
+  id: string;
+  group: number;
+  out: number;
+}
 
 /**
  * Takes a list of synth event objects with relative times and schedules them.
@@ -63,6 +84,7 @@ import { loopedEventListIterator, eventListIterator } from './utils/iterators';
  * __loopTime:__ Play the events continuously in a loop.
  */
 export default class SynthEventList extends Dryad {
+  properties: Properties = { events: [] };
   /**
    * @param  {DryadPlayer} player
    * @return {object}      Command object
@@ -70,82 +92,65 @@ export default class SynthEventList extends Dryad {
   add(player: DryadPlayer): object {
     let commands = {
       scserver: {
-        schedLoop: (context, properties) => {
+        schedLoop: (context: Context, properties: Properties) => {
           // temporary: we need to know the play time of the whole document
           const epoch = context.epoch || _.now() + 200;
           if (epoch !== context.epoch) {
             context = player.updateContext(context, { epoch });
           }
 
-          return this._makeSchedLoop(
-            properties.events || [],
-            properties.loopTime,
-            epoch,
-            context
-          );
-        }
-      }
+          // epoch, was 3rd arg
+          return this._makeSchedLoop(properties.events || [], properties.loopTime, context);
+        },
+      },
     };
 
     // built-in stream support will be added to Dryadic
     // for now it is hard to detect Bacon.Bus as being an object,
     if (this.properties.updateStream) {
       commands = _.assign(commands, {
-        run: (context, properties) => {
+        run: (context: Context, properties: Properties) => {
           let subscription = properties.updateStream.subscribe(streamEvent => {
             let ee = streamEvent.value();
-            const loopTime = _.isUndefined(ee.loopTime)
-              ? properties.loopTime
-              : ee.loopTime;
+            const loopTime = _.isUndefined(ee.loopTime) ? properties.loopTime : ee.loopTime;
             let epoch = ee.epoch || context.epoch || _.now() + 200;
             if (epoch !== context.epoch) {
               context = player.updateContext(context, {
-                epoch
+                epoch,
               });
             }
 
             player.callCommand(context.id, {
               scserver: {
                 // need to set epoch as well because OSCSched uses that for relative times
-                schedLoop: (ctx /*, props*/) =>
-                  this._makeSchedLoop(ee.events || [], loopTime, ctx)
-              }
+                schedLoop: (ctx: Context /*, props*/) => this._makeSchedLoop(ee.events || [], loopTime, ctx),
+              },
             });
           });
 
           player.updateContext(context, { subscription });
-        }
+        },
       });
     }
 
     return commands;
   }
 
-  _makeSchedLoop(
-    events: Array<object>,
-    loopTime?:number,
-    context: object
-  ): Function {
+  _makeSchedLoop(events: Event[], loopTime: number | undefined, context: Context): Function {
     const synthEvents = this._makeMsgs(events, context);
-    return loopTime
-      ? loopedEventListIterator(synthEvents, loopTime)
-      : eventListIterator(synthEvents);
+    return loopTime ? loopedEventListIterator(synthEvents, loopTime) : eventListIterator(synthEvents);
   }
 
-  _makeMsgs(events: Array<object>, context: object): [object] {
+  _makeMsgs(events: Event[], context: Context): EventOSC[] {
     const defaultParams = this.properties.defaultParams || {};
     return events.map(event => {
       // TODO: do this a jit time in the schedLoop
       const defName = event.defName || defaultParams.defName;
-      const args = _.assign(
-        { out: context.out || 0 },
-        defaultParams.args,
-        event.args
-      );
-      const msg = synthNew(defName, -1, AddActions.TAIL, context.group, args);
+      const args = _.assign({ out: context.out || 0 }, defaultParams.args, event.args);
+      const msg = synthNew(defName as string, -1, AddActions.TAIL, context.group, args);
       return {
         time: event.time,
-        msgs: [msg]
+        msgs: [msg],
       };
     });
   }
@@ -155,7 +160,7 @@ export default class SynthEventList extends Dryad {
    */
   remove(): object {
     return {
-      run: (context: object) => {
+      run: (context: Context) => {
         if (context.subscription) {
           if (_.isFunction(context.subscription)) {
             // baconjs style
@@ -167,11 +172,11 @@ export default class SynthEventList extends Dryad {
         }
       },
       scserver: {
-        sched: (context: object) => {
+        sched: (context: Context) => {
           // unschedAll
-          return this._makeSchedLoop([], context.epoch, context);
-        }
-      }
+          return this._makeSchedLoop([], undefined, context);
+        },
+      },
     };
   }
 
@@ -179,6 +184,7 @@ export default class SynthEventList extends Dryad {
    * @return {Dryad}  Wraps itself in a Group so all child Synth events will be removed on removal of the Group.
    */
   subgraph(): Dryad {
+    // Dryad needs to typed properly
     return new Group({}, [this]);
   }
 }

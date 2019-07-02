@@ -32,7 +32,7 @@ interface SCLangOptions {
 }
 
 // import resolveOptions from "../utils/resolveOptions";
-type SCLangArgs = Optional<SCLangOptions>;
+export type SCLangArgs = Optional<SCLangOptions>;
 
 const defaults: SCLangOptions = {
   debug: false,

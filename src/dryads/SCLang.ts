@@ -1,13 +1,23 @@
+import { Dryad } from "dryadic";
+import _ from "lodash";
 
-import { Dryad } from 'dryadic';
-import { boot } from '../lang/sclang';
-import _ from 'lodash';
+import LanguageServer, { boot, SCLangArgs } from "../lang/sclang";
+import Logger from "../utils/logger";
 
-const defaultOptions = {
+const defaultOptions: SCLangArgs = {
   debug: true,
   echo: false,
-  stdin: false
+  stdin: false,
 };
+
+interface Properties {
+  options: SCLangArgs;
+}
+
+interface Context {
+  sclang?: LanguageServer;
+  log?: Logger;
+}
 
 /**
  * Boots a new SuperCollider language interpreter (sclang) making it available for all children as context.sclang
@@ -21,26 +31,26 @@ const defaultOptions = {
  * This Dryad class is just a simple wrapper around that.
  */
 export default class SCLang extends Dryad {
-  defaultProperties() {
+  defaultProperties(): Properties {
     return {
-      options: defaultOptions
+      options: defaultOptions,
     };
   }
 
   prepareForAdd(): object {
     return {
-      callOrder: 'SELF_THEN_CHILDREN',
-      updateContext: (context, properties) => ({
-        sclang: boot(_.defaults(properties.options, { log: context.log }))
-      })
+      callOrder: "SELF_THEN_CHILDREN",
+      updateContext: (context: Context, properties: Properties) => ({
+        sclang: boot(_.defaults(properties.options, { log: context.log })),
+      }),
     };
   }
 
   remove(): object {
     return {
-      run: (context: object) => {
-        return context.sclang.quit();
-      }
+      run: (context: Context) => {
+        return context.sclang && context.sclang.quit();
+      },
     };
   }
 }

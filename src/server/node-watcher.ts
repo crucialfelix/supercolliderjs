@@ -134,7 +134,7 @@ export function whenNodeEnd(server: Server, id: string, nodeID: number): Promise
  *
  * This is for internal use.
  */
-export function updateNodeState(server: Server, nodeID: number, nodeState: NodeStateType) {
+export function updateNodeState(server: Server, nodeID: number, nodeState: Partial<NodeStateType>) {
   // unless its n_end then delete
   server.state.mutate(Key.NODE_WATCHER, (state: State) => {
     return state.mergeIn([Key.NODES, String(nodeID)], Map(), nodeState);

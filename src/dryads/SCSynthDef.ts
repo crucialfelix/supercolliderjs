@@ -7,6 +7,7 @@ import { SCLangError } from "../Errors";
 import SCLang from "../lang/sclang";
 import { defFree, defLoad, defRecv } from "../server/osc/msg.js";
 import Server from "../server/server";
+import { MsgType } from "Types";
 
 const StateKeys = {
   SYNTH_DEFS: "SYNTH_DEFS",
@@ -25,6 +26,8 @@ interface CompiledSynthDef {
 interface LoadedSynthDef {
   name: string;
 }
+export type SynthDef = CompiledSynthDef | LoadedSynthDef;
+
 // Metadata for SynthDef
 export type SynthDesc = object;
 
@@ -210,7 +213,7 @@ export default class SCSynthDef extends Dryad {
     return {
       scserver: {
         // no need to do this if server has gone away
-        msg: (context: Context) => {
+        msg: (context: Context): void | MsgType => {
           if (context.synthDef) {
             return defFree(context.synthDef.name);
           }
@@ -236,7 +239,7 @@ export default class SCSynthDef extends Dryad {
    * Return the value of this object, which is the synthDef: {name, bytes, synthDesc}
    * for use in /s_new.
    */
-  value(context: Context): CompiledSynthDef {
+  value(context: Context): SynthDef {
     if (!context.synthDef) {
       throw new Error("No synthDef in context for SCSynthDef");
     }

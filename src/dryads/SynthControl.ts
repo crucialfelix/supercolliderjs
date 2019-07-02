@@ -1,8 +1,18 @@
-import { Dryad } from "dryadic";
-import { DryadPlayer } from "dryadic";
-import { nodeSet } from "../server/osc/msg";
+import { EventStream } from "baconjs";
+import { Dryad, DryadPlayer } from "dryadic";
 import _ from "lodash";
 
+import { nodeSet, Params } from "../server/osc/msg";
+
+interface Properties {
+  stream: EventStream<any, Params>;
+}
+
+interface Context {
+  id: string;
+  nodeID?: number;
+  subscription?: any;
+}
 /**
  * Sends nodeSet messages to the Synth in the parent context.
  *
@@ -23,30 +33,30 @@ export default class SynthControl extends Dryad {
 
   add(player: DryadPlayer): object {
     return {
-      run: (context, properties) => {
+      run: (context: Context, properties: Properties) => {
         if (properties.stream) {
           let subscription = properties.stream.subscribe(event => {
             // This assumes a Bacon event.
             // Should validate that event.value is object
-            let msg = nodeSet(context.nodeID, event.value());
+            let msg = nodeSet(context.nodeID || -1, event.value());
             player.callCommand(context, {
               scserver: {
                 bundle: {
                   time: 0.03,
-                  packets: [msg]
-                }
-              }
+                  packets: [msg],
+                },
+              },
             });
           });
           player.updateContext(context, { subscription });
         }
-      }
+      },
     };
   }
 
   remove(): object {
     return {
-      run: context => {
+      run: (context: Context) => {
         if (context.subscription) {
           if (_.isFunction(context.subscription)) {
             // baconjs style
@@ -56,7 +66,7 @@ export default class SynthControl extends Dryad {
             context.subscription.dispose();
           }
         }
-      }
+      },
     };
   }
 }

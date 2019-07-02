@@ -1,7 +1,15 @@
+import { EventOSC } from "dryads/utils/iterators";
+import _ from "lodash";
 
-import _ from 'lodash';
-import { deltaTimeTag } from '../../server/osc/utils';
+import { deltaTimeTag } from "../../server/osc/utils";
 
+type Memo = any;
+
+interface Next {
+  event: EventOSC;
+  memo: Memo;
+}
+type GetNextFn = (now: number, memo: Memo) => Next | undefined;
 /**
  * Just in time osc scheduler used by scserver middleware
  * to send OSC messages.
@@ -15,9 +23,9 @@ export default class OSCSched {
   latency: number;
   setTimeout: Function;
   clearTimeout: Function;
-  getNextFn: Function;
+  getNextFn: GetNextFn;
   epoch: number;
-  timerId?:number;
+  timerId?: number;
 
   /**
    * constructor -
@@ -34,14 +42,14 @@ export default class OSCSched {
     sendFn: Function,
     latency: number = 0.05,
     setTimeoutFn: Function = setTimeout,
-    clearTimeoutFn: Function = clearTimeout
+    clearTimeoutFn: Function = clearTimeout,
   ) {
     this.sendFn = sendFn;
     this.latency = latency;
     this.setTimeout = setTimeoutFn;
     this.clearTimeout = clearTimeoutFn;
 
-    this.getNextFn = () => undefined;
+    this.getNextFn = (now, memo) => undefined;
     this.epoch = _.now();
     this.timerId = undefined;
   }
@@ -67,10 +75,10 @@ export default class OSCSched {
    *
    * @param  {float} epoch     Javascript timestamp (milliseconds since 1970 UTC)
    */
-  schedLoop(getNextFn: Function, epoch?:number) {
+  schedLoop(getNextFn: GetNextFn, epoch?: number) {
     this.getNextFn = getNextFn;
     if (!this.getNextFn) {
-      throw new Error('getNextFn is null');
+      throw new Error("getNextFn is null");
     }
 
     if (epoch) {
@@ -84,7 +92,7 @@ export default class OSCSched {
     this._schedNext();
   }
 
-  _schedNext(memo?:object, logicalNow?:number) {
+  _schedNext(memo?: Memo, logicalNow?: number) {
     if (this.timerId) {
       this.clearTimeout(this.timerId);
       this.timerId = undefined;
@@ -95,9 +103,7 @@ export default class OSCSched {
       logicalNow = now;
     }
 
-    const next = memo
-      ? this.getNextFn(logicalNow, memo)
-      : this.getNextFn(logicalNow);
+    const next = memo ? this.getNextFn(logicalNow, memo) : this.getNextFn(logicalNow, {});
     if (next) {
       const delta = next.event.time - now;
       if (delta <= this.latency) {
@@ -106,10 +112,7 @@ export default class OSCSched {
         } else {
           /* eslint no-console: 0 */
           // TODO: throw EventPastDue and catch that, log it with context.log
-          console.warn(
-            'Event is past due. Skipping.',
-            JSON.stringify({ delta, now, event: next.event })
-          );
+          console.warn("Event is past due. Skipping.", JSON.stringify({ delta, now, event: next.event }));
         }
 
         // this steps by logical time
@@ -129,15 +132,12 @@ export default class OSCSched {
    * @param  {object} event With .msgs .time and optional .memo
    *                        to be passed to the next call to getNextFn
    */
-  _jitSend(now: number, delta: number, next: object) {
-    this.timerId = this.setTimeout(
-      () => {
-        this.timerId = null;
-        this._send(next.event);
-        this._schedNext(next.memo, next.event.time);
-      },
-      (delta - this.latency) * 1000
-    );
+  _jitSend(now: number, delta: number, next: Next) {
+    this.timerId = this.setTimeout(() => {
+      this.timerId = undefined;
+      this._send(next.event);
+      this._schedNext(next.memo, next.event.time);
+    }, (delta - this.latency) * 1000);
   }
 
   /**
@@ -145,7 +145,7 @@ export default class OSCSched {
    *
    * @param  {object} event
    */
-  _send(event: object) {
+  _send(event: EventOSC) {
     this.sendFn(deltaTimeTag(event.time, this.epoch), event.msgs);
   }
 }
