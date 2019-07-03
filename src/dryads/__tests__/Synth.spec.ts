@@ -1,27 +1,23 @@
+import Synth from "../Synth";
+import { Dryad } from "dryadic";
+import { expectPlayGraphToEqual } from "../utils/test-utils";
 
-import Synth from '../Synth';
-import { Dryad } from 'dryadic';
-import { expectPlayGraphToEqual } from '../utils/test-utils';
-
-describe('Synth', function() {
-  describe('simple', function() {
+describe("Synth", function() {
+  describe("simple", function() {
     let s = new Synth({
-      def: 'saw',
+      def: "saw",
       args: {
-        freq: 440
-      }
+        freq: 440,
+      },
     });
 
-    it('should compile', function() {
+    it("should compile", function() {
       expect(s);
     });
 
-    it('should make playgraph', function() {
-      let h = [
-        'SCServer',
-        { options: { debug: false } },
-        [['Synth', { def: 'saw', args: { freq: 440 } }, []]]
-      ];
+    it("should make playgraph", function() {
+      // JSON type doesn't handle mixed arrays yet
+      const h: any = ["SCServer", { options: { debug: false } }, [["Synth", { def: "saw", args: { freq: 440 } }, []]]];
       expectPlayGraphToEqual(s, h);
     });
 
@@ -35,11 +31,11 @@ describe('Synth', function() {
     // });
   });
 
-  describe('Synth', function() {
-    describe('with properties', function() {
+  describe("Synth", function() {
+    describe("with properties", function() {
       class FakeDef extends Dryad {
         value() {
-          return 'fake-saw';
+          return "fake-saw";
         }
       }
 
@@ -52,52 +48,52 @@ describe('Synth', function() {
       let s = new Synth({
         def: new FakeDef(),
         args: {
-          freq: new FakeSlider()
-        }
+          freq: new FakeSlider(),
+        },
       });
 
-      it('should compile', function() {
+      it("should compile", function() {
         expect(s);
       });
 
-      it('should make playgraph', function() {
+      it("should make playgraph", function() {
         let h = [
-          'SCServer',
+          "SCServer",
           {
             options: {
-              debug: false
-            }
+              debug: false,
+            },
           },
           [
             [
-              'Properties',
+              "Properties",
               {},
               [
-                ['FakeDef', {}, []],
-                ['FakeSlider', {}, []],
+                ["FakeDef", {}, []],
+                ["FakeSlider", {}, []],
                 [
-                  'PropertiesOwner',
+                  "PropertiesOwner",
                   {},
                   [
                     [
-                      'Synth',
+                      "Synth",
                       {
                         args: {
-                          freq: function() {}
+                          freq: function() {},
                         },
-                        def: function() {}
+                        def: function() {},
                       },
-                      []
-                    ]
-                  ]
-                ]
-              ]
-            ]
-          ]
+                      [],
+                    ],
+                  ],
+                ],
+              ],
+            ],
+          ],
         ];
 
         // Ignore the property accessor functions when comparing
-        expectPlayGraphToEqual(s, h, g => {
+        expectPlayGraphToEqual(s, h as any, g => {
           // console.log(JSON.stringify(g, null, 2));
           let propOwner = g[2][0][2][2];
           // console.log('propOwner', propOwner);

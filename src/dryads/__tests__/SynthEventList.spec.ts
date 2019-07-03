@@ -1,6 +1,7 @@
+import Bacon from "baconjs";
+import * as _ from "lodash";
+
 import SynthEventList from "../SynthEventList";
-import _ from "lodash";
-import { Bacon } from "baconjs";
 
 describe("SynthEventList", function() {
   let events = [{ defName: "blip", args: { freq: 440 }, time: 1.0 }];
@@ -8,6 +9,7 @@ describe("SynthEventList", function() {
     group: 0,
     out: 0,
     epoch: 1460987712857,
+    id: "id",
   };
 
   // bad to mock this, it's fragile
@@ -35,7 +37,7 @@ describe("SynthEventList", function() {
   describe("spawn events in supplied list on .add", function() {
     let props = { events };
     let sel = new SynthEventList(props);
-    let commands = sel.add(player);
+    let commands: any = sel.add(player as any);
     it("should contain a function", function() {
       expect(typeof commands.scserver.schedLoop).toBe("function");
     });

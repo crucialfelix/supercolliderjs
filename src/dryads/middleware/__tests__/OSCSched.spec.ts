@@ -1,9 +1,9 @@
-import _ from 'lodash';
+import * as _ from "lodash";
 
-import OSCSched from '../OSCSched';
+import OSCSched from "../OSCSched";
 
-describe('OSCSched', function() {
-  var sched, sent, didClearTimeout, didSetTimeout;
+describe("OSCSched", function() {
+  var sched: OSCSched, sent, didClearTimeout, didSetTimeout;
   const timeoutId = 1;
 
   beforeEach(() => {
@@ -23,66 +23,58 @@ describe('OSCSched', function() {
       },
       tid => {
         didClearTimeout = tid;
-      }
+      },
     );
   });
 
-  const schedOne = time => {
-    sched.schedLoop(
-      (now, memo = { i: 0 }) => {
-        if (memo.i === 0) {
-          return {
-            event: {
-              time,
-              msgs: []
-            },
-            memo: { i: memo.i + 1 }
-          };
-        }
-      },
-      _.now()
-    );
+  const schedOne = (time): object | void => {
+    sched.schedLoop((now, memo = { i: 0 }) => {
+      if (memo.i === 0) {
+        return {
+          event: {
+            time,
+            msgs: [],
+          },
+          memo: { i: memo.i + 1 },
+        };
+      }
+      return undefined;
+    }, _.now());
   };
 
-  describe('empty sched', function() {
-    it('should not have sent nothing', function() {
-      sched.schedLoop(
-        () => {
-          return;
-        },
-        _.now()
-      );
+  describe("empty sched", function() {
+    it("should not have sent nothing", function() {
+      sched.schedLoop(() => {
+        return undefined;
+      }, _.now());
       expect(sent).toBe(null);
     });
 
-    it('should not have set timeout', function() {
-      sched.schedLoop(
-        () => {
-          return;
-        },
-        _.now()
-      );
+    it("should not have set timeout", function() {
+      sched.schedLoop(() => {
+        return undefined;
+      }, _.now());
       expect(didSetTimeout).toBe(false);
     });
   });
 
-  describe('sched at 1', function() {
-    it('should have set timeout', function() {
+  describe("sched at 1", function() {
+    it("should have set timeout", function() {
       schedOne(1);
       expect(didSetTimeout).toBe(true);
     });
   });
 
-  describe('sched less than latency', function() {
-    it('should have called send right away', function() {
+  describe("sched less than latency", function() {
+    it("should have called send right away", function() {
       schedOne(0.01);
       expect(didSetTimeout).toBe(false);
       expect(sent).toBeTruthy();
     });
   });
 
-  describe('sched twice', function() {
-    it('should have cleared timeout', function() {
+  describe("sched twice", function() {
+    it("should have cleared timeout", function() {
       schedOne(1);
       schedOne(0.5);
 

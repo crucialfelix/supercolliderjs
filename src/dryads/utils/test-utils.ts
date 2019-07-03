@@ -7,11 +7,7 @@ export function makePlayer(dryad: Dryad): DryadPlayer {
   return dryadic(dryad);
 }
 
-export function expectPlayGraphToEqual(
-  dryad: Dryad,
-  expected: JSONType,
-  ignoreFn: Function
-): JSONType {
+export function expectPlayGraphToEqual(dryad: Dryad, expected: JSONType, ignoreFn?: Function): JSONType {
   let p = makePlayer(dryad);
   let g = p.tree.hyperscript();
 
@@ -44,11 +40,7 @@ export function expectPlayGraphToEqual(
  *                               top level.
  * @return Command object
  */
-export function getCommand(
-  player: DryadPlayer,
-  commandName: string,
-  childAt: [number] = []
-): object {
+export function getCommand(player: DryadPlayer, commandName: string, childAt: number[] = []): object {
   let cmd = player._collectCommands(commandName);
   // specify which child you want to get the command for with indices:
   // null top

@@ -1,5 +1,5 @@
 import { Dryad } from "dryadic";
-import _ from "lodash";
+import * as _ from "lodash";
 
 import LanguageServer, { boot, SCLangArgs } from "../lang/sclang";
 import Logger from "../utils/logger";

@@ -15,7 +15,7 @@ describe("resolveOptions", function() {
     var badPath = "/---~no-way-do-you-have-this-path-on-your-computer~---/bad/path.yaml";
     return resolveOptions(badPath, {}).then(
       () => {
-        this.fail("should not have resolved");
+        throw new Error("should not have resolved");
       },
       function(err) {
         expect(err.message).toBeTruthy();

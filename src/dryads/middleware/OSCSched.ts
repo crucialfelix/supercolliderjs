@@ -1,5 +1,5 @@
 import { EventOSC } from "dryads/utils/iterators";
-import _ from "lodash";
+import * as _ from "lodash";
 
 import { deltaTimeTag } from "../../server/osc/utils";
 

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import * as _ from "lodash";
 import OSCSched from "./OSCSched";
 import { MsgType, CallAndResponse } from "../../Types";
 import Server from "../../server/server";
@@ -6,7 +6,7 @@ import Server from "../../server/server";
 interface Properties {}
 interface Context {
   oscSched?: any;
-  epoch: number;
+  epoch?: number;
   scserver: Server;
 }
 interface Command {
@@ -52,7 +52,7 @@ interface Command {
  * __callAndResponse:__
  *
  *  Returns a Promise. Only used in preparation, not for play / update.
- *  Call and response object creator functions can be found in `osc/msg.js`
+ *  Call and response object creator functions can be found in `osc/msg`
  *
  *     callAndResponse: {
  *       call: oscMessage,

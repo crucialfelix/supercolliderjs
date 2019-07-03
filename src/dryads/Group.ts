@@ -1,7 +1,7 @@
 import { Dryad } from "dryadic";
 
 import { whenNodeEnd, whenNodeGo } from "../server/node-watcher";
-import { AddActions, groupNew, nodeFree } from "../server/osc/msg.js";
+import { AddActions, groupNew, nodeFree } from "../server/osc/msg";
 import Server from "../server/server.js";
 
 interface Context {

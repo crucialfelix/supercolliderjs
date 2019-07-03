@@ -1,6 +1,6 @@
 import { EventStream } from "baconjs";
 import { Dryad, DryadPlayer } from "dryadic";
-import _ from "lodash";
+import * as _ from "lodash";
 
 import { nodeSet, Params } from "../server/osc/msg";
 
@@ -39,7 +39,7 @@ export default class SynthControl extends Dryad {
             // This assumes a Bacon event.
             // Should validate that event.value is object
             let msg = nodeSet(context.nodeID || -1, event.value());
-            player.callCommand(context, {
+            player.callCommand(context.id, {
               scserver: {
                 bundle: {
                   time: 0.03,

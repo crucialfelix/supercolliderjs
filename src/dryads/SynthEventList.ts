@@ -1,5 +1,5 @@
 import { Dryad, DryadPlayer } from "dryadic";
-import _ from "lodash";
+import * as _ from "lodash";
 
 import { AddActions, synthNew, Params } from "../server/osc/msg";
 import Group from "./Group";
@@ -23,11 +23,11 @@ interface Properties {
 }
 
 interface Context {
-  epoch: number;
-  subscription: any; // Bacon or RxJs
-  id: string;
   group: number;
   out: number;
+  epoch: number;
+  subscription?: any; // Bacon or RxJs
+  id: string;
 }
 
 /**

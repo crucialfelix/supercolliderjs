@@ -5,7 +5,7 @@ import path from "path";
 
 import { SCLangError } from "../Errors";
 import SCLang from "../lang/sclang";
-import { defFree, defLoad, defRecv } from "../server/osc/msg.js";
+import { defFree, defLoad, defRecv } from "../server/osc/msg";
 import Server from "../server/server";
 import { MsgType } from "Types";
 

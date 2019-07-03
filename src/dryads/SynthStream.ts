@@ -1,9 +1,9 @@
 import { EventStream } from "baconjs";
 import { Dryad, DryadPlayer } from "dryadic";
-import _ from "lodash";
+import * as _ from "lodash";
 import { MsgType } from "Types";
 
-import { AddActions, nodeFree, Params, synthNew } from "../server/osc/msg.js";
+import { AddActions, nodeFree, Params, synthNew } from "../server/osc/msg";
 import Server from "../server/server";
 import Group from "./Group";
 

@@ -2,7 +2,7 @@
  * @module iterators
  * @ temp off - memberof dryads
  */
-import _ from "lodash";
+import * as _ from "lodash";
 import { MsgType } from "Types";
 
 interface Memo {

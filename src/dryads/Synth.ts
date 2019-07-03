@@ -1,5 +1,5 @@
 import { Dryad } from "dryadic";
-import _ from "lodash";
+import * as _ from "lodash";
 
 import { updateNodeState, whenNodeEnd, whenNodeGo } from "../server/node-watcher";
 import { AddActions, nodeFree, Params, synthNew } from "../server/osc/msg";

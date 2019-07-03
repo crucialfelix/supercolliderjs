@@ -1,5 +1,5 @@
 import { Dryad } from "dryadic";
-import _ from "lodash";
+import * as _ from "lodash";
 
 import { ServerArgs } from "../server/options";
 import Server, { boot } from "../server/server";
