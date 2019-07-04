@@ -168,7 +168,7 @@ export default class ServerState {
     this.mutate(key, state => alloc.freeBlock(state, index, numChannels));
   }
 
-  _keys(more: string[] = []): string[] {
-    return [StateKeys.SERVERS, this.server.address].concat(more);
+  _keys(keys: string[] = []): string[] {
+    return [StateKeys.SERVERS, this.server.address, ...keys];
   }
 }

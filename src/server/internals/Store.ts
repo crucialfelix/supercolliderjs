@@ -16,7 +16,7 @@ export default class Store {
   state: State;
 
   constructor() {
-    this.state = Map();
+    this.state = Map<string, any>();
   }
 
   getIn(keys: string[], notSetValue: any): any {
@@ -28,7 +28,7 @@ export default class Store {
    * pass it to the function which mutates it and returns new sub state.
    */
   mutateState(keys: string[], fn: (value: any) => any) {
-    this.state = this.state.updateIn(keys, fn);
+    this.state = this.state.updateIn(keys, Map<string, any>(), fn);
   }
 
   /**
@@ -40,7 +40,7 @@ export default class Store {
    * @returns {any} result
    */
   mutateStateAndReturn(keys: string[], fn: Function): any {
-    var [result, subState] = fn(this.state.getIn(keys, Map()));
+    var [result, subState] = fn(this.state.getIn(keys, Map<string, any>()));
     this.state = this.state.setIn(keys, subState);
     return result;
   }
