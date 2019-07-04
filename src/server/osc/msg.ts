@@ -6,7 +6,7 @@
  *
  * @module msg
  */
-import _ from "lodash";
+import * as _ from "lodash";
 
 import { CallAndResponse, CompletionMsg, MsgType, OscType, OscValues } from "../../Types";
 

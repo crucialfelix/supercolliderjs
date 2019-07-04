@@ -1,4 +1,4 @@
-import _ from "lodash";
+import * as _ from "lodash";
 
 import Server from "../server";
 import * as nw from "../node-watcher";

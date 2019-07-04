@@ -10,7 +10,7 @@
  *
  */
 import { Map, List } from "immutable";
-import _ from "lodash";
+import * as _ from "lodash";
 
 import { Disposable } from "rx";
 import Server from "./server";

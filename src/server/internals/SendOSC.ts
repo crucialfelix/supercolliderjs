@@ -1,4 +1,4 @@
-import EventEmitter from "events";
+import { EventEmitter } from "events";
 import { Observable } from "rx";
 import { makeBundle, makeMessage, deltaTimeTag } from "../osc/utils";
 import { MsgType, OSCTimeType } from "../../Types";

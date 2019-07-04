@@ -33,6 +33,7 @@ describe("block allocator", function() {
       var state = alloc.initialBlockState(16);
       var fb = alloc.freeBlockList(state);
       expect(fb).toEqual([[0, 16]]);
+      // but is  []
     });
   });
 
