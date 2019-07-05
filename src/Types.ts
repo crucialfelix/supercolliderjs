@@ -21,8 +21,10 @@ export type SclangResultType = JSONType;
 export interface SynthDefResultType {
   name: string;
   bytes: Buffer;
-  synthDesc: JSONObjectType;
-  // sourceCode
+  synthDesc: {
+    sourceCode?: string;
+    // TODO: define the other values of synthDesc
+  };
 }
 export interface SynthDefResultMapType {
   [defName: string]: SynthDefResultType;

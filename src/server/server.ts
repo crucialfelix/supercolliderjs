@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import * as osc from "osc-min";
 import { IDisposable, Observable, Subject } from "rx";
 
-import { CallAndResponse, MsgType } from "../Types";
+import { CallAndResponse, MsgType, OscType } from "../Types";
 import Logger from "../utils/logger";
 import resolveOptions from "../utils/resolveOptions";
 import SendOSC from "./internals/SendOSC";
@@ -490,7 +490,7 @@ export default class Server extends EventEmitter {
    * @param {String} address - OSC command string eg. `/s_new` which is referred to in OSC as the address
    * @param {Array} args
    */
-  sendMsg(address: string, args: Array<string | number>) {
+  sendMsg(address: string, args: OscType[]) {
     this.send.msg([address, ...args]);
   }
 
