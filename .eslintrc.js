@@ -13,7 +13,8 @@ module.exports = {
     "@typescript-eslint/indent": ["error", 2],
     "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
     "@typescript-eslint/camelcase": ["warn"],
-    //{ "accessibility": "explicit" }
+    "@typescript-eslint/no-empty-interface": ["warn"],
+    "@typescript-eslint/no-use-before-define": ["warn"],
 
     // indent: ["error", 2]
     // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
