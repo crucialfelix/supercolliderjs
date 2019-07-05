@@ -27,7 +27,7 @@ describe("OSCSched", function() {
     );
   });
 
-  const schedOne = (time): object | void => {
+  const schedOne = (time: number): object | void => {
     sched.schedLoop((now, memo = { i: 0 }) => {
       if (memo.i === 0) {
         return {

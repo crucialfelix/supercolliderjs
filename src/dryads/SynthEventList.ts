@@ -30,6 +30,13 @@ interface Context {
   id: string;
 }
 
+interface AddCommand {
+  scserver: {
+    schedLoop: (context: Context, properties: Properties) => Function;
+  };
+  run?: (context: Context, properties: Properties) => void;
+}
+
 /**
  * Takes a list of synth event objects with relative times and schedules them.
  *
@@ -83,13 +90,12 @@ interface Context {
  *
  * __loopTime:__ Play the events continuously in a loop.
  */
-export default class SynthEventList extends Dryad {
-  properties: Properties = { events: [] };
-  /**
-   * @param  {DryadPlayer} player
-   * @return {object}      Command object
-   */
-  add(player: DryadPlayer): object {
+export default class SynthEventList extends Dryad<Properties> {
+  defaultProperties(): Properties {
+    return { events: [] };
+  }
+
+  add(player: DryadPlayer): AddCommand {
     let commands = {
       scserver: {
         schedLoop: (context: Context, properties: Properties) => {

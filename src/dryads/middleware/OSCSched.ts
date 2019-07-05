@@ -3,7 +3,9 @@ import * as _ from "lodash";
 
 import { deltaTimeTag } from "../../server/osc/utils";
 
-type Memo = any;
+interface Memo {
+  i: number;
+}
 
 interface Next {
   event: EventOSC;
@@ -83,9 +85,7 @@ export default class OSCSched {
 
     if (epoch) {
       this.epoch = epoch;
-    }
-
-    if (!this.epoch) {
+    } else {
       throw new Error(`Epoch not set: ${this.epoch}`);
     }
 
@@ -103,8 +103,9 @@ export default class OSCSched {
       logicalNow = now;
     }
 
-    const next = memo ? this.getNextFn(logicalNow, memo) : this.getNextFn(logicalNow, {});
-    if (next) {
+    const next = this.getNextFn(logicalNow, memo || { i: 0 });
+
+    if (typeof next !== "undefined") {
       const delta = next.event.time - now;
       if (delta <= this.latency) {
         if (delta > 0) {
@@ -118,6 +119,7 @@ export default class OSCSched {
         // this steps by logical time
         this._schedNext(next.memo, next.event.time);
       } else {
+        // TODO but there is no next!?
         this._jitSend(now, delta, next);
       }
     }

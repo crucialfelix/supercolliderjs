@@ -49,7 +49,7 @@ describe("SynthEventList", function() {
   });
 
   describe("pass in updateStream", function() {
-    var bus, sel, dp, updated, called, properties;
+    var bus, sel: SynthEventList, dp, updated, called, properties;
     beforeEach(function() {
       bus = new Bacon.Bus();
       properties = { updateStream: bus };
@@ -65,27 +65,31 @@ describe("SynthEventList", function() {
       };
     });
 
-    it("should set updateStream", function() {
-      expect(sel.properties.updateStream).toBeDefined();
-    });
-
     it("should subscribe to stream on .add", function() {
       spyOn(player, "updateContext");
 
       let commands = sel.add(dp);
-      commands.run(context, properties);
-      expect(updated).toBeTruthy(); // {subscription: bacon subscription}
+      if (commands.run) {
+        commands.run(context, properties);
+        expect(updated).toBeTruthy(); // {subscription: bacon subscription}
+      } else {
+        throw new Error("command does not have 'run' defined");
+      }
     });
 
     it("should get a new event when pushed to bus", function() {
       spyOn(player, "callCommand");
       let commands = sel.add(dp);
-      commands.run(context, properties);
-      bus.push({
-        events: [{ defName: "nuevo-blip", args: { freq: 441 }, time: 2.0 }],
-      });
-      expect(called).toBeDefined();
-      expect(called.scserver).toBeTruthy(); // scserver command
+      if (commands.run) {
+        commands.run(context, properties);
+        bus.push({
+          events: [{ defName: "nuevo-blip", args: { freq: 441 }, time: 2.0 }],
+        });
+        expect(called).toBeDefined();
+        expect(called.scserver).toBeTruthy(); // scserver command
+      } else {
+        throw new Error("command does not have 'run' defined");
+      }
     });
   });
 });

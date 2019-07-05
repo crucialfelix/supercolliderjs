@@ -2,9 +2,14 @@ declare module "dryadic" {
   interface Properties {
     [key: string]: any;
   }
-  export class Dryad {
-    constructor(properties?: Properties, children?: Dryad[]);
+
+  export class Dryad<P = Properties> {
+    properties: P;
+    children: Dryad[];
+    constructor(properties?: P, children?: Dryad[]);
+    defaultProperties(): P;
   }
+
   export class DryadPlayer {
     tree: any;
     play: () => DryadPlayer;
@@ -13,5 +18,6 @@ declare module "dryadic" {
     callCommand(id: string, command: any);
     h: (hgraph: any) => Dryad;
   }
+
   export function dryadic(rootDryad?: Dryad, moreLayers?: any, rootContext?: any): DryadPlayer;
 }

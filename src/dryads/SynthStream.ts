@@ -11,7 +11,7 @@ const LATENCY = 0.03;
 
 interface Properties {
   stream: EventStream<any, Event>;
-  defaultParams: Params;
+  defaultParams?: Params;
 }
 
 interface Context {
@@ -19,21 +19,37 @@ interface Context {
   nodeID?: number;
   out?: number;
   group?: number;
+  // parent context
   scserver: Server;
 
+  // state
   subscription?: any;
-  nodeIDs: {
+  nodeIDs?: {
     [key: string]: number;
   };
 }
 
-interface Event {
+export interface Event {
   defName: string;
-  args: Params;
-  key?: string;
-  type?: string;
+  args?: Params;
+  // midinote
+  key?: number;
+  type?: string; // "noteOn" | "noteOff";
 }
 
+interface SynthStreamEventCommand {
+  scserver: {
+    bundle: {
+      time: number;
+      packets: MsgType[];
+    };
+  };
+  updateContext: {
+    nodeIDs: {
+      [key: string]: number;
+    };
+  };
+}
 /**
  * Given a Bacon.js stream that returns objects, this spawns a series of Synths.
  *
@@ -73,7 +89,7 @@ export default class SynthStream extends Dryad {
     };
   }
 
-  commandsForEvent(event: Event, context: Context, properties: Properties): object {
+  commandsForEvent(event: Event, context: Context, properties: Properties): SynthStreamEventCommand {
     const msgs: MsgType[] = [];
     let updateContext;
     let nodeIDs = context.nodeIDs || {};
@@ -102,7 +118,7 @@ export default class SynthStream extends Dryad {
         // noteOn
         let defaultParams = properties.defaultParams || {};
         const args = _.assign({ out: context.out || 0 }, defaultParams.args, event.args);
-        const defName = event.defName || (properties.defaultParams.defName as string);
+        const defName = event.defName || (defaultParams.defName as string);
         // if ev.id then create a nodeID and store it
         // otherwise it is anonymous
         let nodeID = -1;

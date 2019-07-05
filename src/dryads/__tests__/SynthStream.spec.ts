@@ -1,64 +1,70 @@
-import _ from 'lodash';
-const SynthStream = require('../SynthStream').default;
+import { Bus } from "baconjs";
+import _ from "lodash";
 
-describe('SynthStream', function() {
-  let properties = {};
+import Server from "../../server/server";
+import SynthStream, { Event } from "../SynthStream";
+
+describe("SynthStream", function() {
+  const stream = new Bus<any, Event>();
+  let properties = {
+    stream,
+  };
   let ss = new SynthStream(properties);
 
-  it('should construct', function() {
+  it("should construct", function() {
     expect(ss).toBeTruthy();
   });
 
-  describe('commandsForEvent', function() {
-    it('has 1 message with no event.id supplied', function() {
+  describe("commandsForEvent", function() {
+    it("has 1 message with no event.id supplied", function() {
       let event = {
-        type: 'noteOn',
-        defName: 'sin'
+        type: "noteOn",
+        defName: "sin",
+        args: {},
+      };
+      let context = {
+        id: "ss",
+        scserver: new Server(),
       };
 
-      let cmds = ss.commandsForEvent(event, {}, properties);
+      // cannot read state  of undefined
+      let cmds = ss.commandsForEvent(event, context, properties);
       expect(cmds.scserver.bundle.packets.length).toBe(1);
     });
 
-    it('noteOn with event.key should updateContext and s_new', function() {
+    it("noteOn with event.key should updateContext and s_new", function() {
       let event = {
-        type: 'noteOn',
-        defName: 'sin',
-        key: 1
+        type: "noteOn",
+        defName: "sin",
+        key: 1,
       };
       let context = {
-        scserver: {
-          state: {
-            nextNodeID: jest.fn(() => 1001)
-          }
-        }
+        id: "ss",
+        scserver: new Server(),
       };
 
       let cmds = ss.commandsForEvent(event, context, properties);
       expect(cmds.updateContext).toBeTruthy();
-      expect(cmds.scserver.bundle.packets).toEqual([
-        ['/s_new', 'sin', 1001, 1, 0, 'out', 0]
-      ]);
+      // assumes that Server nextNode returned 1000
+      expect(cmds.scserver.bundle.packets).toEqual([["/s_new", "sin", 1000, 1, 0, "out", 0]]);
     });
 
-    it('noteOff with event.key should updateContext and s_', function() {
+    it("noteOff with event.key should updateContext and s_", function() {
       let noteOn = {
-        type: 'noteOn',
-        defName: 'sin',
-        key: 1
+        type: "noteOn",
+        defName: "sin",
+        key: 1,
       };
 
       let noteOff = {
-        type: 'noteOff',
-        key: 1
+        type: "noteOff",
+        defName: "sin",
+        key: 1,
       };
 
       let context = {
-        scserver: {
-          state: {
-            nextNodeID: jest.fn(() => 1001)
-          }
-        }
+        id: "ss",
+        scserver: new Server(),
       };
 
       // call noteOn and update the context
@@ -68,7 +74,8 @@ describe('SynthStream', function() {
       // now call noteOff
       let cmds2 = ss.commandsForEvent(noteOff, context, properties);
       expect(cmds2.updateContext).toBeTruthy();
-      expect(cmds2.scserver.bundle.packets).toEqual([['/n_free', 1001]]);
+      // assumes that Server nextNode returned 1000
+      expect(cmds2.scserver.bundle.packets).toEqual([["/n_free", 1000]]);
     });
 
     // no defName in event or default should not return anything

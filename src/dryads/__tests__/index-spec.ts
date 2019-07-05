@@ -1,12 +1,12 @@
-var dryads = require('../index');
-var SCServer = require('../SCServer').default;
+import * as dryads from "../index";
+import SCServer from "../SCServer";
 
-describe('SCServer', function() {
-  it('should load SCServer', function() {
+describe("SCServer", function() {
+  it("should load SCServer", function() {
     expect(dryads.SCServer).toBeTruthy();
   });
 
-  it('should set default options of SCServer', function() {
+  it("should set default options of SCServer", function() {
     let s = new SCServer();
     expect(s.properties).toEqual({ options: { debug: false } });
   });
