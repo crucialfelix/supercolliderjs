@@ -67,9 +67,9 @@ describe("sclang", function() {
     it("should format args correctly", function() {
       var sclang = new SCLang();
       var args = sclang.args({ langPort: 4 });
-      // [ '-i', 'supercolliderjs', '-u', 4 ]
+      // [ '-i', 'supercolliderjs', '-u', '4' ]
       expect(args.length).toEqual(4);
-      expect(args[3]).toEqual(4);
+      expect(args[3]).toEqual("4");
     });
   });
 
@@ -199,7 +199,7 @@ describe("sclang", function() {
       sclang.process = process as ChildProcess;
       spyOn(sclang.process, "kill").and.returnValue(null);
       var p = sclang.quit().then(() => {
-        expect(sclang.process).toEqual(null);
+        expect(sclang.process).toEqual(undefined);
       });
       sclang.process.emit("exit");
       return p;
