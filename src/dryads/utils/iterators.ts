@@ -2,7 +2,7 @@
  * @module iterators
  * @ temp off - memberof dryads
  */
-import * as _ from "lodash";
+import _ from "lodash";
 
 interface Memo {
   i: number;

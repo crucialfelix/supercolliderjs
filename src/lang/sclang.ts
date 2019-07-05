@@ -3,7 +3,7 @@ import cuid from "cuid";
 import { EventEmitter } from "events";
 import fs from "fs";
 import yaml from "js-yaml";
-import * as _ from "lodash";
+import _ from "lodash";
 import path from "path";
 import temp from "temp";
 import untildify from "untildify";

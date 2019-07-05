@@ -1,6 +1,6 @@
 import { EventStream } from "baconjs";
 import { Dryad, DryadPlayer } from "dryadic";
-import * as _ from "lodash";
+import _ from "lodash";
 
 import { nodeSet, Params } from "../server/osc/msg";
 

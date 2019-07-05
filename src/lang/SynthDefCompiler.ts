@@ -1,5 +1,5 @@
 import fs from "fs";
-import * as _ from "lodash";
+import _ from "lodash";
 import path from "path";
 
 import { SCLangError } from "../Errors";

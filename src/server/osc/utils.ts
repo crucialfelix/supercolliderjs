@@ -8,7 +8,7 @@
  * Wrappers for functions in node-osc-min.
  */
 
-import * as _ from "lodash";
+import _ from "lodash";
 import * as osc from "osc-min";
 import { MsgType, OscType, OSCTimeType } from "../../Types";
 

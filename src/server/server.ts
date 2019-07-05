@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import * as dgram from "dgram";
 import { EventEmitter } from "events";
-import * as _ from "lodash";
+import _ from "lodash";
 import * as osc from "osc-min";
 import { IDisposable, Observable, Subject } from "rx";
 

@@ -4,7 +4,7 @@
  *
  * status: ALPHA
  */
-import * as _ from "lodash";
+import _ from "lodash";
 
 import SynthDefCompiler from "../lang/SynthDefCompiler";
 import { SynthDefResultType, SynthDefCompileRequest } from "../Types";

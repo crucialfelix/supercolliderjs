@@ -1,7 +1,7 @@
 import { ChildProcess } from "child_process";
 import { EventEmitter } from "events";
 import fs from "fs";
-import * as _ from "lodash";
+import _ from "lodash";
 import path from "path";
 
 import SCLang from "../sclang";

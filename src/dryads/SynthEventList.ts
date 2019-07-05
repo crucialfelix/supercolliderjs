@@ -1,5 +1,5 @@
 import { Dryad, DryadPlayer } from "dryadic";
-import * as _ from "lodash";
+import _ from "lodash";
 
 import { AddActions, Params, synthNew } from "../server/osc/msg";
 import { OscType } from "../Types";

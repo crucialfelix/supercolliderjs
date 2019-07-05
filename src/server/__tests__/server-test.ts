@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import _ from "lodash";
 import { EventEmitter } from "events";
 import Server from "../server";
 import { CallAndResponse } from "Types";

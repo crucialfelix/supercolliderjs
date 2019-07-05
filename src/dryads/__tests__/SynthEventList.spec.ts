@@ -1,5 +1,5 @@
 import Bacon from "baconjs";
-import * as _ from "lodash";
+import _ from "lodash";
 
 import SynthEventList from "../SynthEventList";
 

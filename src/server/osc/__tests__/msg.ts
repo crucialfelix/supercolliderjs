@@ -1,5 +1,5 @@
 import * as msg from "../msg";
-import * as _ from "lodash";
+import _ from "lodash";
 // import { CallAndResponse } from "Types";
 
 describe("msg", function() {
