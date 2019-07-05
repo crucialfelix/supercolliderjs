@@ -71,8 +71,10 @@
     "test": "jest && npm run lint",
     "lint": "eslint --ext .ts src/",
     "jest": "npm run build && jest --watch",
-    "build": "tsc",
-    "prepublish": "npm run build"
+    "build": "tsc && npm run copy",
+    "prepublish": "npm run build",
+    "copy": "cp -R src/supercollider-js lib/",
+    "postinstall": "node -e \"require('fs').stat('lib', function (e, s) { process.exit(e || !s.isDirectory() ? 1 : 0) })\" || npm run build"
   },
   "jest": {
     "roots": [
