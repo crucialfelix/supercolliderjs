@@ -18,6 +18,7 @@ type BlockMapType = Immutable.Map<string, Immutable.List<number>>;
  * @returns {Array} [next {int}, state {int}]
  */
 export function increment(state: number, initial: number = 0): [number, number] {
+  // let next = (typeof state === "undefined" ? initial : state) + 1;
   let next = (state || initial) + 1;
   return [next, next];
 }
@@ -43,23 +44,21 @@ export function allocBlock(state: BlockMapType, blockSize: number): [number, Blo
   let keys = state.keySeq().sortBy((value, key) => parseInt(value || "0", 10) > (key || 0));
   var ret: [number, BlockMapType] | undefined;
   keys.forEach((sizeKey): void | false => {
-    if (typeof sizeKey === "undefined") {
-      // they are all string, but the typing says they may be undefined
-      return;
-    }
-    let size = parseInt(sizeKey, 10);
-    if (size >= blockSize) {
-      let blocks = state.get(sizeKey);
-      if (blocks && blocks.size) {
-        if (size === blockSize) {
-          // pop the last free one
-          ret = [blocks.last(), state.set(sizeKey, blocks.butLast().toList())];
-          return false; // break
-        } else {
-          // its larger, split off what you need
-          let lastBlock = blocks.last();
-          ret = [lastBlock, splitFreeBlock(state, lastBlock, size, lastBlock, blockSize)];
-          return false; // break
+    if (typeof sizeKey !== "undefined") {
+      let size = parseInt(sizeKey, 10);
+      if (size >= blockSize) {
+        let blocks = state.get(sizeKey);
+        if (blocks.size) {
+          if (size === blockSize) {
+            // pop the last free one
+            ret = [blocks.last(), state.set(sizeKey, blocks.butLast().toList())];
+            return false; // break
+          } else {
+            // its larger, split off what you need
+            let lastBlock = blocks.last();
+            ret = [lastBlock, splitFreeBlock(state, lastBlock, size, lastBlock, blockSize)];
+            return false; // break
+          }
         }
       }
     }
@@ -116,19 +115,22 @@ export function reserveBlock(state: BlockMapType, addr: number, blockSize: numbe
  * @param {Immutable.Map} state
  * @returns {Array} - [[addr, size], ...]
  */
-export function freeBlockList(state: BlockMapType): Array<number[]> {
-  var list: [number, number][] = [];
+export function freeBlockList(state: BlockMapType): FreeBlock[] {
+  var list: FreeBlock[] = [];
+
   state.forEach((blks, sizeKey) => {
-    if (blks) {
+    if (blks !== undefined) {
       blks.forEach(addr => {
-        if (addr) {
+        if (addr !== undefined) {
           list.push([addr, parseInt(sizeKey || "0", 10)]);
         }
       });
     }
   });
+
   // sort by addr
   list.sort((a, b) => a[0] - b[0]);
+
   return list;
 }
 
