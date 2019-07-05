@@ -2,15 +2,14 @@ import fs from "fs";
 import _ from "lodash";
 import path from "path";
 
-import { SCLangError } from "../Errors";
 import { defRecv } from "../server/osc/msg";
 import Server from "../server/server";
 import {
   CallAndResponse,
-  SclangResultType,
   SynthDefCompileRequest,
   SynthDefResultMapType,
   SynthDefResultType,
+  SclangResultType,
 } from "../Types";
 import SCLang, { boot } from "./sclang";
 
@@ -31,14 +30,11 @@ export default class SynthDefCompiler {
     this.store = new Map();
   }
 
-  boot() {
+  async boot() {
     if (!this.lang) {
-      return boot().then(lang => {
-        this.lang = lang;
-        return this.lang;
-      });
+      this.lang = await boot();
     }
-    return Promise.resolve(this.lang);
+    return this.lang;
   }
 
   /**
@@ -56,11 +52,13 @@ export default class SynthDefCompiler {
    *
    * @returns a Promise for {defName: SynthDefResult, ...}
    */
-  compileAndSend(defs: object, server: Server): Promise<SynthDefResultMapType> {
-    return this.compile(defs).then(compiledDefs => {
-      let commands = _.map(compiledDefs, ({ name }) => this.sendCommand(name));
-      return Promise.all(commands.map(cmd => server.callAndResponse(cmd))).then(() => compiledDefs);
-    });
+  async compileAndSend(defs: object, server: Server): Promise<SynthDefResultMapType> {
+    // compile...
+    const compiledDefs = await this.compile(defs);
+    // send...
+    let commands = _.map(compiledDefs, ({ name }) => this.sendCommand(name));
+    await Promise.all(commands.map(cmd => server.callAndResponse(cmd)));
+    return compiledDefs;
   }
 
   set(defName: string, data: SynthDefResultType) {
@@ -128,7 +126,7 @@ export default class SynthDefCompiler {
   /**
    * Returns a Promise for a SynthDef result object: name, bytes, synthDesc
    */
-  compileSource(sourceCode: string, pathName?: string): Promise<SynthDefResultType> {
+  async compileSource(sourceCode: string, pathName?: string): Promise<SynthDefResultType> {
     const wrappedCode = `{
       var def = { ${sourceCode} }.value.asSynthDef;
       (
@@ -138,20 +136,18 @@ export default class SynthDefCompiler {
       )
     }.value;`;
     if (this.lang) {
-      return this.lang.interpret(wrappedCode, undefined, false, false, true).then(
-        (result: SclangResultType) => {
-          // force casting it to the expected type
-          return (result as unknown) as SynthDefResultType;
-        },
-        (error: SCLangError) => {
-          error.annotate(`Failed to compile SynthDef  ${error.message} ${pathName || ""}`, {
-            sourceCode,
-          });
-          return Promise.reject(error);
-        },
-      );
+      try {
+        const result: SclangResultType = await this.lang.interpret(wrappedCode, undefined, false, false, true);
+        // force casting it to the expected type
+        return (result as unknown) as SynthDefResultType;
+      } catch (error) {
+        error.annotate(`Failed to compile SynthDef  ${error.message} ${pathName || ""}`, {
+          sourceCode,
+        });
+        throw error;
+      }
     }
-    return Promise.reject(new Error(`sclang interpreter is not present: ${this.lang}`));
+    throw new Error(`sclang interpreter is not present: ${this.lang}`);
   }
 
   /**

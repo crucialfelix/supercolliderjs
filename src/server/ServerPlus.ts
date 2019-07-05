@@ -140,10 +140,9 @@ class Buffer {
   /**
    * Deallocate the Buffer, freeing memory on the server.
    */
-  free(): Promise<void> {
-    return this.server.callAndResponse(msg.bufferFree(this.id)).then(() => {
-      this.server.state.freeBuffer(this.id, this.numChannels);
-    });
+  async free(): Promise<void> {
+    await this.server.callAndResponse(msg.bufferFree(this.id));
+    this.server.state.freeBuffer(this.id, this.numChannels);
   }
 
   // read
@@ -220,14 +219,18 @@ export default class ServerPlus extends Server {
   /**
    * Create a Synth on the server
    */
-  synth(synthDef: SynthDef, args: Params = {}, group?: Group, addAction: number = msg.AddActions.TAIL): Promise<Synth> {
-    return Promise.all([Promise.resolve(synthDef), Promise.resolve(group)]).then(([def, g]) => {
-      let nodeId = this.state.nextNodeID();
-      let sn = msg.synthNew(def.name, nodeId, addAction, g ? g.id : 0, args);
-      this.send.msg(sn);
-      // unique string for callback registration
-      return whenNodeGo(this, String(nodeId), nodeId).then(() => new Synth(this, nodeId));
-    });
+  async synth(
+    synthDef: SynthDef,
+    args: Params = {},
+    group?: Group,
+    addAction: number = msg.AddActions.TAIL,
+  ): Promise<Synth> {
+    const [def, g] = await Promise.all([Promise.resolve(synthDef), Promise.resolve(group)]);
+    let nodeId = this.state.nextNodeID();
+    let sn = msg.synthNew(def.name, nodeId, addAction, g ? g.id : 0, args);
+    this.send.msg(sn);
+    await whenNodeGo(this, String(nodeId), nodeId);
+    return new Synth(this, nodeId);
   }
 
   // grainSynth with no id

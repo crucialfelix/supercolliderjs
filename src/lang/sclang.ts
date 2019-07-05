@@ -13,7 +13,6 @@ import { SclangResultType } from "../Types";
 import Logger from "../utils/logger";
 import { SclangCompileResult, SclangIO, State } from "./internals/sclang-io";
 
-
 interface SCLangOptions {
   debug: boolean;
   echo: boolean;
@@ -395,14 +394,13 @@ export default class SCLang extends EventEmitter {
    * so that it can be accessed by the modified Quarks methods
    * to store into the correct conf file.
    */
-  storeSclangConf(): Promise<SCLang> {
+  async storeSclangConf(): Promise<SCLang> {
     if (this.options.sclang_conf) {
       var confPath = path.resolve(untildify(this.options.sclang_conf));
       var setConfigPath = 'SuperColliderJS.sclangConf = "' + confPath + '";\n\n';
-      return this.interpret(setConfigPath, undefined, true, true, true).then(() => this);
-    } else {
-      return Promise.resolve(this);
+      await this.interpret(setConfigPath, undefined, true, true, true);
     }
+    return this;
   }
 
   /**

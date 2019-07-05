@@ -20,7 +20,7 @@ export default function checkInstall(checkSclang = true, checkScsynth = true) {
       console.log("Default options:");
       console.log(JSON.stringify(options, null, 2));
 
-      function check(binName): Promise<string> {
+      function check(binName: string): Promise<string> {
         return new Promise((resolve, reject) => {
           let binPath = options[binName];
           fs.stat(binPath, err => {
