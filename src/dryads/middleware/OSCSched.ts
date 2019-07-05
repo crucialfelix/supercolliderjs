@@ -1,14 +1,19 @@
-import { EventOSC } from "dryads/utils/iterators";
+import { Event } from "dryads/utils/iterators";
 import * as _ from "lodash";
 
 import { deltaTimeTag } from "../../server/osc/utils";
+import { MsgType } from "../../Types";
+
+export interface OSCEvent extends Event {
+  msgs: MsgType[];
+}
 
 interface Memo {
   i: number;
 }
 
 interface Next {
-  event: EventOSC;
+  event: OSCEvent;
   memo: Memo;
 }
 type GetNextFn = (now: number, memo: Memo) => Next | undefined;
@@ -147,7 +152,7 @@ export default class OSCSched {
    *
    * @param  {object} event
    */
-  _send(event: EventOSC) {
+  _send(event: OSCEvent) {
     this.sendFn(deltaTimeTag(event.time, this.epoch), event.msgs);
   }
 }

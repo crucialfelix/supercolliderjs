@@ -1,21 +1,21 @@
 import { Dryad, DryadPlayer } from "dryadic";
 import * as _ from "lodash";
 
-import { AddActions, synthNew, Params } from "../server/osc/msg";
+import { AddActions, Params, synthNew } from "../server/osc/msg";
+import { OscType } from "../Types";
 import Group from "./Group";
-import { eventListIterator, loopedEventListIterator, EventOSC } from "./utils/iterators";
-import { OscType } from "Types";
+import { OSCEvent } from "./middleware/OSCSched";
+import { Event, eventListIterator, loopedEventListIterator } from "./utils/iterators";
 
-interface Event {
+interface SynthEvent extends Event {
   defName: string;
   args: {
     [name: string]: OscType;
   };
-  time: number;
 }
 
 interface Properties {
-  events: Event[];
+  events: SynthEvent[];
   loopTime?: number;
   defaultParams?: Params;
   // @deprecated
@@ -142,12 +142,12 @@ export default class SynthEventList extends Dryad<Properties> {
     return commands;
   }
 
-  _makeSchedLoop(events: Event[], loopTime: number | undefined, context: Context): Function {
+  _makeSchedLoop(events: SynthEvent[], loopTime: number | undefined, context: Context): Function {
     const synthEvents = this._makeMsgs(events, context);
     return loopTime ? loopedEventListIterator(synthEvents, loopTime) : eventListIterator(synthEvents);
   }
 
-  _makeMsgs(events: Event[], context: Context): EventOSC[] {
+  _makeMsgs(events: SynthEvent[], context: Context): OSCEvent[] {
     const defaultParams = this.properties.defaultParams || {};
     return events.map(event => {
       // TODO: do this a jit time in the schedLoop
