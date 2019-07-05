@@ -13,9 +13,6 @@ import { SclangResultType } from "../Types";
 import Logger from "../utils/logger";
 import { SclangCompileResult, SclangIO, State } from "./internals/sclang-io";
 
-type Optional<T> = {
-  [P in keyof T]?: T[P];
-};
 
 interface SCLangOptions {
   debug: boolean;
@@ -32,7 +29,7 @@ interface SCLangOptions {
 }
 
 // import resolveOptions from "../utils/resolveOptions";
-export type SCLangArgs = Optional<SCLangOptions>;
+export type SCLangArgs = Partial<SCLangOptions>;
 
 const defaults: SCLangOptions = {
   debug: false,

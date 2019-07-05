@@ -139,14 +139,8 @@ export interface ServerSettings {
  */
 export type ServerOptions = ScsynthArgs & ServerSettings;
 
-// https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-1.html
-// Make all arguments optional
-type Optional<T> = {
-  [P in keyof T]?: T[P];
-};
-
 // All args are optional
-export type ServerArgs = Optional<ScsynthArgs> & Optional<ServerSettings>;
+export type ServerArgs = Partial<ScsynthArgs> & Partial<ServerSettings>;
 
 export const defaults: ServerOptions = {
   // Server
