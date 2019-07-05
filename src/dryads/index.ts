@@ -25,21 +25,21 @@ type Middleware = Function;
 
 const middleware: Middleware[] = [scserver];
 
-const classes: Dryad[] = [
-  SCServer,
-  SCLang,
-  Group,
-  Synth,
-  AudioBus,
-  SCSynthDef,
-  SynthControl,
-  SynthStream,
-  SynthEventList,
-];
+type DryadClass =
+  | typeof SCServer
+  | typeof SCLang
+  | typeof Group
+  | typeof Synth
+  | typeof AudioBus
+  | typeof SCSynthDef
+  | typeof SynthControl
+  | typeof SynthStream
+  | typeof SynthEventList;
+const classes = [SCServer, SCLang, Group, Synth, AudioBus, SCSynthDef, SynthControl, SynthStream, SynthEventList];
 
 interface Layer {
   middleware: Middleware[];
-  classes: Dryad[];
+  classes: DryadClass[];
 }
 
 export const layer: Layer = {
