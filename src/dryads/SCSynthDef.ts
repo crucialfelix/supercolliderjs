@@ -1,6 +1,6 @@
 /* eslint no-console: 0 */
 import { Dryad } from "dryadic";
-import fs from "fs";
+import fs, { promises as fsp } from "fs";
 import path from "path";
 
 import { SCLangError } from "../Errors";
@@ -129,21 +129,13 @@ export default class SCSynthDef extends Dryad {
     return result;
   }
 
-  _writeSynthDef(name: string, buffer: Buffer, synthDesc: SynthDesc, saveToDir: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      let dir = path.resolve(saveToDir);
-      let pathname = path.join(dir, name + ".scsyndef");
-      fs.writeFile(pathname, buffer, err => {
-        if (err) {
-          reject(err);
-        } else {
-          let descpath = path.join(dir, name + ".json");
-          fs.writeFile(descpath, JSON.stringify(synthDesc, null, 2), err2 => {
-            err2 ? reject(err2) : resolve();
-          });
-        }
-      });
-    });
+  async _writeSynthDef(name: string, buffer: Buffer, synthDesc: SynthDesc, saveToDir: string): Promise<void> {
+    let dir = path.resolve(saveToDir);
+    let pathname = path.join(dir, name + ".scsyndef");
+    await fsp.writeFile(pathname, buffer);
+
+    let descpath = path.join(dir, name + ".json");
+    await fsp.writeFile(descpath, JSON.stringify(synthDesc, null, 2));
   }
 
   /**
@@ -180,16 +172,10 @@ export default class SCSynthDef extends Dryad {
   /**
    * Returns a Promise for a SynthDef result object: name, bytes, synthDesc
    */
-  compileFrom(context: Context, sourcePath: string): Promise<CompiledSynthDef> {
-    return new Promise((resolve, reject) => {
-      fs.readFile(path.resolve(sourcePath), (err, fileBuf) => {
-        if (err) {
-          reject(err);
-        } else {
-          this.compileSource(context, fileBuf.toString("ascii"), sourcePath).then(resolve, reject);
-        }
-      });
-    });
+  async compileFrom(context: Context, sourcePath: string): Promise<CompiledSynthDef> {
+    // TODO: utf-8, no?
+    const source = (await fsp.readFile(path.resolve(sourcePath))).toString("ascii");
+    return this.compileSource(context, source, sourcePath);
   }
 
   add(): object {
