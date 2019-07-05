@@ -1,11 +1,9 @@
 /* jslint node: true */
-
-var events = require("events"),
-  dgram = require("dgram"),
-  osc = require("osc-min"),
-  cuid = require("cuid"),
-  _ = require("lodash"),
-  Promise = require("bluebird");
+import cuid from "cuid";
+import dgram from "dgram";
+import events from "events";
+import _ from "lodash";
+import osc from "osc-min";
 
 import { SCError } from "./Errors";
 import Logger from "./utils/logger";
@@ -47,10 +45,10 @@ export default class SCAPI extends events.EventEmitter {
   log: Logger;
   udp: any; // dgram socket, like EvenEmitter
 
-  constructor(schost, scport) {
+  constructor(schost: string = "localhost", scport: number = 57120) {
     super();
-    this.schost = schost ? schost : "localhost";
-    this.scport = scport ? scport : 57120;
+    this.schost = schost;
+    this.scport = scport;
     this.requests = {};
     this.log = new Logger(true, false);
   }
