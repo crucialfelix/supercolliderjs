@@ -28,7 +28,7 @@ interface Context {
  * `options` are the command line options supplied to scsynth (note: not all options are passed through yet)
  * see {@link Server}
  */
-export default class SCServer extends Dryad {
+export default class SCServer extends Dryad<Properties> {
   defaultProperties(): Properties {
     return {
       options: defaultOptions,

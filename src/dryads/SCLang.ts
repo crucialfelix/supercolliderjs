@@ -30,7 +30,7 @@ interface Context {
  * Not to be confused with the other class named SCLang which does all the hard work.
  * This Dryad class is just a simple wrapper around that.
  */
-export default class SCLang extends Dryad {
+export default class SCLang extends Dryad<Properties> {
   defaultProperties(): Properties {
     return {
       options: defaultOptions,

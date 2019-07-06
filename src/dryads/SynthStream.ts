@@ -69,7 +69,7 @@ interface SynthStreamEventCommand {
  *
  * defaultParams is a fixed object into which the event value is merged.
  */
-export default class SynthStream extends Dryad {
+export default class SynthStream extends Dryad<Properties> {
   add(player: DryadPlayer): object {
     return {
       run: (context: Context, properties: Properties) => {

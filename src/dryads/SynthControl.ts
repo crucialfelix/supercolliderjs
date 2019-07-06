@@ -22,7 +22,7 @@ interface Context {
  * SynthControl should be a child of a Synth, Group or other Dryad that
  * sets context.nodeID
  */
-export default class SynthControl extends Dryad {
+export default class SynthControl extends Dryad<Properties> {
   /**
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer

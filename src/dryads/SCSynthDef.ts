@@ -57,7 +57,7 @@ interface Context {
  * Note that the synthDefName is not known until after the source code is compiled.
  *
  */
-export default class SCSynthDef extends Dryad {
+export default class SCSynthDef extends Dryad<Properties> {
   properties: Properties = { watch: false };
   /**
    * If there is no SCLang in the parent context,
