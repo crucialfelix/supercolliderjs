@@ -30,7 +30,15 @@ interface SCLangOptions {
 }
 
 // import resolveOptions from "../utils/resolveOptions";
-export type SCLangArgs = Partial<SCLangOptions>;
+/**
+ * These were at the options root. Moving them to .conf
+ */
+interface BackwardCompatArgs {
+  includePaths?: string[];
+  excludePaths?: string[];
+  postInlineWarnings?: boolean;
+}
+export type SCLangArgs = Partial<SCLangOptions> & BackwardCompatArgs;
 
 const defaults: SCLangOptions = {
   debug: false,
@@ -77,6 +85,17 @@ export default class SCLang extends EventEmitter {
   constructor(options?: SCLangArgs) {
     super();
     this.options = _.defaults(options, defaults);
+
+    // bwd compat
+    if (options) {
+      // Move these from root of options into .conf
+      let deprec = ["includePaths", "excludePaths", "postInlineWarnings"];
+      this.options.conf = _.defaults(_.pick(options, deprec), this.options.conf);
+      for (const d of deprec) {
+        delete this.options[d];
+      }
+    }
+
     this.log = new Logger(this.options.debug, this.options.echo, this.options.log);
     this.log.dbug(this.options);
     this.stateWatcher = this.makeStateWatcher();
