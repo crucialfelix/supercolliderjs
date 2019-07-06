@@ -2,13 +2,18 @@ import { Dryad } from "dryadic";
 import _ from "lodash";
 
 import { updateNodeState, whenNodeEnd, whenNodeGo } from "../server/node-watcher";
-import { AddActions, nodeFree, Params, synthNew } from "../server/osc/msg";
+import { AddActions, nodeFree, synthNew } from "../server/osc/msg";
 import Server from "../server/server";
+import { OscType } from "../Types";
 import { SynthDef } from "./SCSynthDef";
 
+interface SynthParams {
+  [name: string]: OscType | Dryad;
+}
+
 interface Properties {
-  args: Params;
-  def: SynthDef;
+  args: SynthParams;
+  def: SynthDef | string;
 }
 interface Context {
   id: string;
@@ -52,6 +57,7 @@ export default class Synth extends Dryad<Properties> {
   // }
 
   add(): object {
+    const defName = def => (typeof def === "string" ? def : def.name);
     return {
       scserver: {
         msg: (context: Context, properties: Properties) => {
@@ -63,15 +69,15 @@ export default class Synth extends Dryad<Properties> {
             args.out = context.out;
           }
 
-          let defName = this._checkOscType(properties.def && properties.def.name, "def.name", context.id);
-          return synthNew(defName, context.nodeID, AddActions.TAIL, context.group, args);
+          let dn = this._checkOscType(defName(properties.def), "def.name", context.id);
+          return synthNew(dn, context.nodeID, AddActions.TAIL, context.group, args);
         },
       },
       run: (context: Context, properties: Properties): void | Promise<number> => {
         return whenNodeGo(context.scserver, context.id, context.nodeID || -1).then(nodeID => {
           // TODO: call a method instead so its testable
           updateNodeState(context.scserver, nodeID, {
-            synthDef: properties.def.name,
+            synthDef: defName(properties.def),
           });
           return nodeID;
         });

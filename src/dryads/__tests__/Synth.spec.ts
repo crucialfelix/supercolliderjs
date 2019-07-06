@@ -34,8 +34,9 @@ describe("Synth", function() {
   describe("Synth", function() {
     describe("with properties", function() {
       class FakeDef extends Dryad {
+        name = "fake-saw";
         value() {
-          return "fake-saw";
+          return this.name;
         }
       }
 
