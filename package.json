@@ -10,7 +10,6 @@
     }
   ],
   "dependencies": {
-    "bluebird": "^3.5.0",
     "chalk": "^2.4.2",
     "commander": "^2.9.0",
     "cuid": "^2.1.6",
@@ -22,20 +21,26 @@
     "osc-min": "^1.1.1",
     "rx": "^4.1.0",
     "temp": "~0.9.0",
+    "tslib": "1.10.0",
     "untildify": "^4.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "7.4.4",
-    "@babel/core": "7.4.5",
-    "@babel/preset-env": "7.4.5",
-    "babel-eslint": "^10.0.1",
-    "babel-jest": "^24.8.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "@types/baconjs": "0.7.33",
+    "@types/jest": "24.0.15",
+    "@types/js-yaml": "3.12.1",
+    "@types/lodash": "4.14.134",
+    "@types/rx": "4.1.1",
+    "@types/temp": "0.8.34",
+    "@typescript-eslint/eslint-plugin": "1.10.2",
+    "@typescript-eslint/parser": "1.10.2",
     "baconjs": "^0.7.93",
     "eslint": "^5.16.0",
-    "eslint-plugin-flowtype": "^3.9.1",
-    "jest": "^24.8.0"
+    "eslint-config-prettier": "5.0.0",
+    "eslint-plugin-prettier": "3.1.0",
+    "jest": "^24.8.0",
+    "prettier": "1.18.2",
+    "ts-jest": "24.0.2",
+    "typescript": "3.5.2"
   },
   "license": "MIT",
   "keywords": [
@@ -51,6 +56,11 @@
     "url": "git://github.com/crucialfelix/supercolliderjs"
   },
   "main": "lib/index",
+  "types": "lib/index.d.ts",
+  "files": [
+    "/lib",
+    "/src"
+  ],
   "bin": {
     "supercollider-server": "./bin/scsynth.js",
     "supercollider": "./bin/sclang.js",
@@ -59,29 +69,28 @@
   },
   "scripts": {
     "test": "jest && npm run lint",
-    "lint": "eslint -c .eslintrc src bin",
+    "lint": "eslint --ext .ts src/",
     "jest": "npm run build && jest --watch",
-    "compile": "babel --source-maps --out-dir=./lib src",
-    "watch": "babel --watch --source-maps --out-dir=./lib src",
-    "copy": "cp -R src/supercollider-js lib/",
-    "build": "npm run compile && npm run copy",
+    "build": "tsc && npm run copy",
     "prepublish": "npm run build",
+    "copy": "cp -R src/supercollider-js lib/",
     "postinstall": "node -e \"require('fs').stat('lib', function (e, s) { process.exit(e || !s.isDirectory() ? 1 : 0) })\" || npm run build"
   },
   "jest": {
-    "transform": {
-      ".*": "<rootDir>/node_modules/babel-jest"
-    },
     "roots": [
-      "src"
+      "<rootDir>/src"
     ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
     "moduleFileExtensions": [
       "js",
+      "ts",
       "json"
     ],
     "collectCoverage": true
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=10"
   }
 }
