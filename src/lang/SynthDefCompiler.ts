@@ -4,14 +4,29 @@ import path from "path";
 
 import { defRecv } from "../server/osc/msg";
 import Server from "../server/server";
-import {
-  CallAndResponse,
-  SynthDefCompileRequest,
-  SynthDefResultMapType,
-  SynthDefResultType,
-  SclangResultType,
-} from "../Types";
-import SCLang, { boot } from "./sclang";
+import { CallAndResponse } from "../Types";
+import SCLang, { boot, SclangResultType } from "./sclang";
+
+export interface SynthDefResultType {
+  name: string;
+  bytes: Buffer;
+  synthDesc: {
+    sourceCode?: string;
+    // TODO: define the other values of synthDesc
+  };
+}
+
+interface SynthDefResultMapType {
+  [defName: string]: SynthDefResultType;
+}
+
+interface SynthDefCompileRequestWithSource {
+  source: string;
+}
+interface SynthDefCompileRequestWithPath {
+  path: string;
+}
+export type SynthDefCompileRequest = SynthDefCompileRequestWithSource | SynthDefCompileRequestWithPath;
 
 /**
  * Utility class to compile SynthDefs either from source code or by loading a path.

@@ -14,8 +14,17 @@ import _ from "lodash";
 
 import { Disposable } from "rx";
 import Server from "./server";
-import { NodeStateType } from "../Types";
 import { State } from "./internals/Store";
+
+interface NodeStateType {
+  parent?: number;
+  previous?: number;
+  next?: number;
+  isGroup: boolean;
+  head?: number;
+  tail?: number;
+  synthDef?: string;
+}
 
 enum Key {
   NODE_WATCHER = "NODE_WATCHER",

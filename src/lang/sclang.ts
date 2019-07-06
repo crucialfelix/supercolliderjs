@@ -9,9 +9,11 @@ import temp from "temp";
 import untildify from "untildify";
 
 import { SCError } from "../Errors";
-import { SclangResultType } from "../Types";
+import { JSONType } from "../Types";
 import Logger from "../utils/logger";
 import { SclangCompileResult, SclangIO, State } from "./internals/sclang-io";
+
+export type SclangResultType = JSONType;
 
 interface SCLangOptions {
   debug: boolean;

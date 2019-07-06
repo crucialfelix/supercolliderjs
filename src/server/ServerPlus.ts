@@ -6,8 +6,7 @@
  */
 import _ from "lodash";
 
-import SynthDefCompiler from "../lang/SynthDefCompiler";
-import { SynthDefResultType, SynthDefCompileRequest } from "../Types";
+import SynthDefCompiler, { SynthDefResultType, SynthDefCompileRequest } from "../lang/SynthDefCompiler";
 import resolveOptions from "../utils/resolveOptions";
 import { whenNodeEnd, whenNodeGo } from "./node-watcher";
 import * as msg from "./osc/msg";
