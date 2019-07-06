@@ -39,8 +39,8 @@ interface RequestHandlers {
  *  See examples/call-api-from-node.js
  */
 export default class SCAPI extends events.EventEmitter {
-  schost: string = "localhost";
-  scport: number = 57120;
+  schost: string;
+  scport: number;
   requests: RequestHandlers = {};
   log: Logger;
   udp: any; // dgram socket, like EvenEmitter
