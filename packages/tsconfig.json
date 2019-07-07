@@ -27,5 +27,5 @@
       "path": "logger"
     }
   ],
-  "exclude": ["**/__tests__", "**/node_modules"]
+  "exclude": ["**/__tests__", "**/node_modules", "**/lib"]
 }
