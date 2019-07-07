@@ -2,9 +2,7 @@ import fs from "fs";
 import _ from "lodash";
 import path from "path";
 
-import { defRecv } from "../server/osc/msg";
-import Server from "../server/server";
-import { CallAndResponse } from "../Types";
+import { Server, msg } from "@supercollider.js/server";
 import SCLang, { boot, SclangResultType } from "./sclang";
 
 export interface SynthDefResultType {
@@ -86,7 +84,7 @@ export default class SynthDefCompiler {
   }
 
   allSendCommands() {
-    let commands: CallAndResponse[] = [];
+    let commands: msg.CallAndResponse[] = [];
     this.store.forEach((value, defName) => {
       commands.push(this.sendCommand(defName));
     });
@@ -99,7 +97,7 @@ export default class SynthDefCompiler {
       throw new Error(`SynthDef not in store: ${defName}`);
     }
     let buffer = new Buffer(data.bytes);
-    return defRecv(buffer);
+    return msg.defRecv(buffer);
   }
 
   // sendAll(server) {

@@ -8,7 +8,17 @@
  */
 import _ from "lodash";
 
-import { CallAndResponse, CompletionMsg, MsgType, OscType, OscValues } from "../osc-types";
+import { CompletionMsg, MsgType, OscType, OscValues } from "../osc-types";
+
+/**
+ * Call and response is where an OSC command is sent to the
+ * server which later responds with a message whose first items
+ * match 'response', followed by the contents of the response.
+ */
+export interface CallAndResponse {
+  call: MsgType;
+  response: MsgType;
+}
 
 /**
  * Many scsynth OSC commands accept lists of params:

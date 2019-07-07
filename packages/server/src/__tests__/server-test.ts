@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { EventEmitter } from "events";
 import Server from "../server";
-import { CallAndResponse } from "../osc-types";
+import { CallAndResponse } from "../osc/msg";
 
 describe("Server", function() {
   describe("default constructor", function() {

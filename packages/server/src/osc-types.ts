@@ -46,12 +46,3 @@ export interface BundleType {
   timetag: OSCTimeType;
   packets: MsgType[] | BundleType[];
 }
-
-/**
- * Call and response is where an OSC command is sent to the
- * server which later responds with a message matching 'response'.
- */
-export interface CallAndResponse {
-  call: MsgType;
-  response: MsgType;
-}
