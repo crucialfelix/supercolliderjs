@@ -25,6 +25,12 @@
   "references": [
     {
       "path": "logger"
+    },
+    {
+      "path": "server"
+    },
+    {
+      "path": "lang"
     }
   ],
   "exclude": ["**/__tests__", "**/node_modules", "**/lib"]
