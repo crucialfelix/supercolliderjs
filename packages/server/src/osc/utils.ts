@@ -10,7 +10,7 @@
 
 import _ from "lodash";
 import * as osc from "osc-min";
-import { MsgType, OscType, OSCTimeType } from "../../Types";
+import { MsgType, OscType, OSCTimeType } from "../osc-types";
 
 // For osc-min library
 

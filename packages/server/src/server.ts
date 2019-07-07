@@ -5,8 +5,8 @@ import _ from "lodash";
 import * as osc from "osc-min";
 import { IDisposable, Observable, Subject } from "rx";
 
-import { CallAndResponse, MsgType, OscType } from "../Types";
 import Logger from "../utils/logger";
+import { CallAndResponse, MsgType, OscType } from "./osc-types";
 import resolveOptions from "./resolveOptions";
 import SendOSC from "./internals/SendOSC";
 import Store from "./internals/Store";

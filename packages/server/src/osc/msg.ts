@@ -8,7 +8,7 @@
  */
 import _ from "lodash";
 
-import { CallAndResponse, CompletionMsg, MsgType, OscType, OscValues } from "../../Types";
+import { CallAndResponse, CompletionMsg, MsgType, OscType, OscValues } from "../osc-types";
 
 /**
  * Many scsynth OSC commands accept lists of params:

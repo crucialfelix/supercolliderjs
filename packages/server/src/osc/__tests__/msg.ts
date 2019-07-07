@@ -1,6 +1,6 @@
 import * as msg from "../msg";
 import _ from "lodash";
-// import { CallAndResponse } from "Types";
+// import { CallAndResponse } from "../../osc-types";
 
 describe("msg", function() {
   it("should evaluate each one without error", function() {

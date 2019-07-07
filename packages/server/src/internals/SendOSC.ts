@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import { Observable } from "rx";
 import { makeBundle, makeMessage, deltaTimeTag } from "../osc/utils";
-import { MsgType, OSCTimeType } from "../../Types";
+import { MsgType, OSCTimeType } from "../osc-types";
 import { Disposable } from "rx";
 
 /**
