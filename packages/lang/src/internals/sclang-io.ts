@@ -1,8 +1,9 @@
 import { EventEmitter } from "events";
 import _ from "lodash";
 
-import { SCLangError } from "../../Errors";
-import { JSONObjectType } from "Types";
+import { SCLangError } from "../Errors";
+
+type JSONObjectType = object;
 
 export enum State {
   NULL = "null",
@@ -324,6 +325,7 @@ export class SclangIO extends EventEmitter {
                     }
                     this.calls[guid].resolve(obj);
                   } else {
+                    // response.type === "Error"
                     let err: SCSyntaxError | undefined = undefined;
                     if (response.type === "SyntaxError") {
                       stdout = this.capturing[guid].join("\n");
@@ -331,7 +333,7 @@ export class SclangIO extends EventEmitter {
                       delete this.capturing[guid];
                     }
                     this.calls[guid].reject(
-                      new SCLangError(`Interpret error: ${obj.errorString}`, response.type, err || obj),
+                      new SCLangError(`Interpret error: ${obj["errorString"]}`, response.type, err || obj),
                     );
                   }
                   delete this.calls[guid];

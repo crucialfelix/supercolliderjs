@@ -8,12 +8,15 @@ import path from "path";
 import temp from "temp";
 import untildify from "untildify";
 
-import { SCError } from "../Errors";
-import { JSONType } from "../Types";
-import Logger from "../utils/logger";
+import { SCError } from "./Errors";
+import Logger from "@supercollider.js/logger";
 import { SclangCompileResult, SclangIO, State } from "./internals/sclang-io";
 
-export type SclangResultType = JSONType;
+/**
+ * TODO: type this better
+ * but really it could be just about anything
+ */
+export type SclangResultType = any;
 
 interface SCLangOptions {
   debug: boolean;
