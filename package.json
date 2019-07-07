@@ -38,6 +38,7 @@
     "eslint-config-prettier": "6.0.0",
     "eslint-plugin-prettier": "3.1.0",
     "jest": "^24.8.0",
+    "lerna": "^3.15.0",
     "prettier": "1.18.2",
     "ts-jest": "24.0.2",
     "typescript": "3.5.2"
@@ -68,13 +69,10 @@
     "compile-synthdefs": "./bin/compile-synthdefs.js"
   },
   "scripts": {
-    "test": "jest && npm run lint",
-    "lint": "eslint --ext .ts src/",
-    "jest": "npm run build && jest --watch",
-    "build": "tsc && npm run copy",
-    "prepublish": "npm run build",
-    "copy": "cp -R src/supercollider-js lib/",
-    "postinstall": "node -e \"require('fs').stat('lib', function (e, s) { process.exit(e || !s.isDirectory() ? 1 : 0) })\" || npm run build"
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
+    "test": "lerna run test",
+    "lint": "lerna run lint"
   },
   "jest": {
     "roots": [
