@@ -7,7 +7,7 @@ import { IDisposable, Observable, Subject } from "rx";
 
 import { CallAndResponse, MsgType, OscType } from "../Types";
 import Logger from "../utils/logger";
-import resolveOptions from "../utils/resolveOptions";
+import resolveOptions from "./resolveOptions";
 import SendOSC from "./internals/SendOSC";
 import Store from "./internals/Store";
 import { defaults, ServerArgs, ServerOptions } from "./options";
