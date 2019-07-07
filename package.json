@@ -10,7 +10,6 @@
     }
   ],
   "dependencies": {
-    "chalk": "^2.4.2",
     "commander": "^2.9.0",
     "cuid": "^2.1.6",
     "dryadic": "^0.3.2",

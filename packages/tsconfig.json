@@ -22,5 +22,10 @@
     "strictNullChecks": true,
     "target": "es5"
   },
-  "references": []
+  "references": [
+    {
+      "path": "logger"
+    }
+  ],
+  "exclude": ["**/__tests__", "**/node_modules"]
 }
