@@ -19,7 +19,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@supercollider.js/logger": "1.0.0"
+  },
   "devDependencies": {
     "typescript": "3.5.2",
     "jest": "^24.8.0"

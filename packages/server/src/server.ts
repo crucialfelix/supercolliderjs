@@ -1,3 +1,4 @@
+import Logger from "@supercollider.js/logger";
 import { spawn } from "child_process";
 import * as dgram from "dgram";
 import { EventEmitter } from "events";
@@ -5,14 +6,13 @@ import _ from "lodash";
 import * as osc from "osc-min";
 import { IDisposable, Observable, Subject } from "rx";
 
-import Logger from "../utils/logger";
-import { CallAndResponse, MsgType, OscType } from "./osc-types";
-import resolveOptions from "./resolveOptions";
 import SendOSC from "./internals/SendOSC";
 import Store from "./internals/Store";
 import { defaults, ServerArgs, ServerOptions } from "./options";
+import { CallAndResponse, MsgType, OscType } from "./osc-types";
 import { notify } from "./osc/msg";
 import { parseMessage } from "./osc/utils";
+import resolveOptions from "./resolveOptions";
 import ServerState from "./ServerState";
 
 interface ServerObservers {

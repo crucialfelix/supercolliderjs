@@ -1,15 +1,15 @@
 // jest.autoMockOff();
 
-import Logger from "../logger";
+import Logger from "../";
 
-describe('Logger', function() {
+describe("Logger", function() {
   var l = new Logger(true, false);
 
-  it('dbug', function() {
-    l.dbug('testing dbug');
+  it("dbug", function() {
+    l.dbug("testing dbug");
   });
 
-  it('should handle JSON type object', function() {
-    l.dbug({ testing: { object: ['dbug', 3] } });
+  it("should handle JSON type object", function() {
+    l.dbug({ testing: { object: ["dbug", 3] } });
   });
 });
