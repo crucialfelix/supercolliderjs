@@ -33,7 +33,8 @@
   },
   "scripts": {
     "test": "jest --rootDir=. --config=../jest.config.json",
-    "build": "tsc -b ."
+    "build": "tsc -b . && npm run copy",
+    "copy": "cp -R src/supercollider-js lib/supercollider-js"
   },
   "bugs": {
     "url": "https://github.com/crucialfelix/supercolliderjs/issues"

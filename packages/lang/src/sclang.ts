@@ -301,7 +301,7 @@ export default class SCLang extends EventEmitter {
    * throws error if conf cannot be read
    */
   sclangConfigOptions(options: SCLangOptions): SCLangConf {
-    let runtimeIncludePaths = [path.resolve(__dirname, "../../lib/supercollider-js")];
+    let runtimeIncludePaths = [path.resolve(__dirname, "./supercollider-js")];
     let defaultConf: SCLangConf = {
       postInlineWarnings: false,
       includePaths: [],
