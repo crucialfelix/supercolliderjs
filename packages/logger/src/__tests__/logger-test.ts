@@ -1,6 +1,6 @@
 // jest.autoMockOff();
 
-var Logger = require('../logger').default;
+import Logger from "../logger";
 
 describe('Logger', function() {
   var l = new Logger(true, false);
