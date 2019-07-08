@@ -39,6 +39,7 @@
     "jest": "^24.8.0",
     "lerna": "^3.15.0",
     "prettier": "1.18.2",
+    "rimraf": "2.6.3",
     "ts-jest": "24.0.2",
     "typescript": "3.5.2"
   },
@@ -68,25 +69,16 @@
     "compile-synthdefs": "./bin/compile-synthdefs.js"
   },
   "scripts": {
-    "bootstrap": "lerna bootstrap",
+    "bootstrap": "lerna bootstrap --hoist",
     "build": "lerna run build",
-    "test": "lerna run test",
-    "lint": "lerna run lint"
+    "test": "lerna run test && npm run lint",
+    "lint": "eslint --ext .ts packages/",
+    "clean": "lerna exec -- rimraf lib"
   },
-  "jest": {
-    "roots": [
-      "<rootDir>/src"
-    ],
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "moduleFileExtensions": [
-      "js",
-      "ts",
-      "json"
-    ],
-    "collectCoverage": true
-  },
+  "eslintIgnore": [
+    "node_modules",
+    "lib"
+  ],
   "engines": {
     "node": ">=10"
   }
