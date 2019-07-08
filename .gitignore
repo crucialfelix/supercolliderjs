@@ -1,10 +1,12 @@
 *.sh
-/node_modules
-/lib
+lib
 coverage
 .node-version
 .tags1
 docs/_site
 documentation.yml
-**/node_modules
+node_modules
 lerna-debug.log
+tsconfig.tsbuildinfo
+.vscode
+*.off
