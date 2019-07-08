@@ -1,11 +1,13 @@
 import { Dryad } from "dryadic";
-import Server from "../server/server";
+import Server from "@supercollider.js/server";
 
 interface Properties {
   numChannels: number;
 }
 interface Context {
+  // parent
   scserver: Server;
+  // state
   out: number;
 }
 

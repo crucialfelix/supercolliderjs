@@ -1,8 +1,8 @@
 import { Dryad } from "dryadic";
 import _ from "lodash";
 
-import LanguageServer, { boot, SCLangArgs } from "../lang/sclang";
-import Logger from "../utils/logger";
+import LanguageServer, { boot, SCLangArgs } from "@supercollider.js/lang";
+import Logger from "@supercollider.js/logger";
 
 const defaultOptions: SCLangArgs = {
   debug: true,

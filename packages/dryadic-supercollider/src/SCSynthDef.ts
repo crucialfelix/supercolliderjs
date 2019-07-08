@@ -3,11 +3,9 @@ import { Dryad } from "dryadic";
 import fs, { promises as fsp } from "fs";
 import path from "path";
 
-import { SCLangError } from "../Errors";
-import SCLang from "../lang/sclang";
-import { defFree, defLoad, defRecv } from "../server/osc/msg";
-import Server from "../server/server";
-import { MsgType } from "Types";
+import SCLang, { SCLangError } from "@supercollider.js/lang";
+import Server, { msg, MsgType } from "@supercollider.js/server";
+const { defFree, defLoad, defRecv } = msg;
 
 const StateKeys = {
   SYNTH_DEFS: "SYNTH_DEFS",

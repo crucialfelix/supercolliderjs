@@ -1,8 +1,13 @@
+import { msg, OscType } from "@supercollider.js/server";
 import { EventStream } from "baconjs";
 import { Dryad, DryadPlayer } from "dryadic";
 import _ from "lodash";
 
-import { nodeSet, Params } from "../server/osc/msg";
+const { nodeSet } = msg;
+
+interface Params {
+  [name: string]: OscType;
+}
 
 interface Properties {
   stream: EventStream<any, Params>;

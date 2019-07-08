@@ -1,8 +1,7 @@
-import { Event } from "dryads/utils/iterators";
-import _ from "lodash";
+import { deltaTimeTag, MsgType } from "@supercollider.js/server";
+import { now as _now } from "lodash";
 
-import { deltaTimeTag } from "../../server/osc/utils";
-import { MsgType } from "../../Types";
+import { Event } from "../utils/iterators";
 
 export interface OSCEvent extends Event {
   msgs: MsgType[];
@@ -57,7 +56,7 @@ export default class OSCSched {
     this.clearTimeout = clearTimeoutFn;
 
     this.getNextFn = (now, memo) => undefined;
-    this.epoch = _.now();
+    this.epoch = _now();
     this.timerId = undefined;
   }
 
@@ -103,7 +102,7 @@ export default class OSCSched {
       this.timerId = undefined;
     }
 
-    const now = (_.now() - this.epoch) / 1000;
+    const now = (_now() - this.epoch) / 1000;
     if (!logicalNow) {
       logicalNow = now;
     }

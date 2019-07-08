@@ -1,8 +1,8 @@
 import { Dryad } from "dryadic";
 
-import { whenNodeEnd, whenNodeGo } from "../server/node-watcher";
-import { AddActions, groupNew, nodeFree } from "../server/osc/msg";
-import Server from "../server/server.js";
+import Server, { msg, whenNodeEnd, whenNodeGo } from "@supercollider.js/server";
+
+const { AddActions, groupNew, nodeFree } = msg;
 
 interface Context {
   nodeID: number;

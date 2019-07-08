@@ -1,11 +1,16 @@
+import { msg, OscType } from "@supercollider.js/server";
 import { Dryad, DryadPlayer } from "dryadic";
 import _ from "lodash";
 
-import { AddActions, Params, synthNew } from "../server/osc/msg";
-import { OscType } from "../Types";
 import Group from "./Group";
 import { OSCEvent } from "./middleware/OSCSched";
 import { Event, eventListIterator, loopedEventListIterator } from "./utils/iterators";
+
+const { AddActions, synthNew } = msg;
+
+interface Params {
+  [name: string]: OscType;
+}
 
 interface SynthEvent extends Event {
   defName: string;

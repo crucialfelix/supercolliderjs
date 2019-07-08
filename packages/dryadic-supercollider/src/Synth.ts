@@ -1,11 +1,10 @@
 import { Dryad } from "dryadic";
 import _ from "lodash";
 
-import { updateNodeState, whenNodeEnd, whenNodeGo } from "../server/node-watcher";
-import { AddActions, nodeFree, synthNew } from "../server/osc/msg";
-import Server from "../server/server";
-import { OscType } from "../Types";
+import Server, { OscType, updateNodeState, whenNodeEnd, whenNodeGo, msg } from "@supercollider.js/server";
 import { SynthDef } from "./SCSynthDef";
+
+const { AddActions, nodeFree, synthNew } = msg;
 
 interface SynthParams {
   [name: string]: OscType | Dryad;

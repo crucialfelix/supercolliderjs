@@ -1,13 +1,17 @@
+import Server, { msg, OscType, MsgType } from "@supercollider.js/server";
 import { EventStream } from "baconjs";
 import { Dryad, DryadPlayer } from "dryadic";
 import _ from "lodash";
-import { MsgType } from "Types";
 
-import { AddActions, nodeFree, Params, synthNew } from "../server/osc/msg";
-import Server from "../server/server";
 import Group from "./Group";
 
+const { AddActions, nodeFree, synthNew } = msg;
+
 const LATENCY = 0.03;
+
+interface Params {
+  [name: string]: OscType;
+}
 
 interface Properties {
   stream: EventStream<any, Event>;

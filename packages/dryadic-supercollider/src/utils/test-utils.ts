@@ -1,7 +1,8 @@
 import each from "lodash/each";
 import { dryadic } from "../index";
 import { Dryad, DryadPlayer } from "dryadic";
-import { JSONType } from "../../Types";
+
+type JSONType = any;
 
 export function makePlayer(dryad: Dryad): DryadPlayer {
   return dryadic(dryad);

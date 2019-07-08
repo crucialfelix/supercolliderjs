@@ -1,7 +1,6 @@
 import _ from "lodash";
 import OSCSched from "./OSCSched";
-import { MsgType, CallAndResponse } from "../../Types";
-import Server from "../../server/server";
+import Server, { msg, MsgType } from "@supercollider.js/server";
 
 interface Properties {}
 interface Context {
@@ -14,7 +13,7 @@ interface Command {
   msg?: any;
   bundle?: any;
   schedLoop?: any;
-  callAndResponse?: CallAndResponse;
+  callAndResponse?: msg.CallAndResponse;
 }
 
 /**

@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "@supercollider.js/lang": "1.0.0",
-    "@supercollider.js/server": "1.0.0"
+    "@supercollider.js/server": "1.0.0",
+    "@supercollider.js/logger": "1.0.0"
   },
   "devDependencies": {
     "typescript": "3.5.2",

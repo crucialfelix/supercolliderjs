@@ -1,7 +1,7 @@
 import { Bus } from "baconjs";
 import _ from "lodash";
 
-import Server from "../../server/server";
+import Server from "@supercollider.js/server";
 import SynthStream, { Event } from "../SynthStream";
 
 describe("SynthStream", function() {
