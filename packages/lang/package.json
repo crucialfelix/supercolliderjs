@@ -21,7 +21,13 @@
   },
   "dependencies": {
     "@supercollider.js/logger": "1.0.0",
-    "@supercollider.js/server": "1.0.0"
+    "@supercollider.js/server": "1.0.0",
+    "cuid": "^2.1.6",
+    "js-yaml": "3.13.1",
+    "lodash": "^4.17.2",
+    "temp": "~0.9.0",
+    "tslib": "1.10.0",
+    "untildify": "^4.0.0"
   },
   "devDependencies": {
     "typescript": "3.5.2",
@@ -32,9 +38,8 @@
     "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
   },
   "scripts": {
-    "test": "jest --rootDir=. --config=../jest.config.json",
     "build": "tsc -b . && npm run copy",
-    "copy": "cp -R src/supercollider-js lib/supercollider-js"
+    "copy": "cp -R src/supercollider-js lib/"
   },
   "bugs": {
     "url": "https://github.com/crucialfelix/supercolliderjs/issues"

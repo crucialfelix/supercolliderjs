@@ -23,7 +23,10 @@
   "dependencies": {
     "@supercollider.js/lang": "1.0.0",
     "@supercollider.js/server": "1.0.0",
-    "@supercollider.js/logger": "1.0.0"
+    "@supercollider.js/logger": "1.0.0",
+    "dryadic": "^0.3.2",
+    "lodash": "^4.17.2",
+    "baconjs": "^0.7.93"
   },
   "devDependencies": {
     "typescript": "3.5.2",
@@ -32,10 +35,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
-  },
-  "scripts": {
-    "test": "jest --rootDir=. --config=../jest.config.json",
-    "build": "tsc -b ."
   },
   "bugs": {
     "url": "https://github.com/crucialfelix/supercolliderjs/issues"

@@ -37,6 +37,9 @@
     },
     {
       "path": "supercolliderjs"
+    },
+    {
+      "path": "scapi"
     }
   ],
   "exclude": ["**/__tests__", "**/node_modules", "**/lib"]

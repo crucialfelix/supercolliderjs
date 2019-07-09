@@ -10,18 +10,7 @@
     }
   ],
   "dependencies": {
-    "commander": "^2.9.0",
-    "cuid": "^2.1.6",
-    "dryadic": "^0.3.2",
-    "immutable": "^3.8.1",
-    "js-yaml": "3.13.1",
-    "lodash": "^4.17.2",
-    "ncp": "^2.0.0",
-    "osc-min": "^1.1.1",
-    "rx": "^4.1.0",
-    "temp": "~0.9.0",
-    "tslib": "1.10.0",
-    "untildify": "^4.0.0"
+    "commander": "^2.9.0"
   },
   "devDependencies": {
     "@types/baconjs": "0.7.33",
@@ -32,7 +21,6 @@
     "@types/temp": "0.8.34",
     "@typescript-eslint/eslint-plugin": "1.11.0",
     "@typescript-eslint/parser": "1.11.0",
-    "baconjs": "^0.7.93",
     "eslint": "6.0.1",
     "eslint-config-prettier": "6.0.0",
     "eslint-plugin-prettier": "3.1.0",
@@ -41,7 +29,8 @@
     "prettier": "1.18.2",
     "rimraf": "2.6.3",
     "ts-jest": "24.0.2",
-    "typescript": "3.5.2"
+    "typescript": "3.5.2",
+    "ncp": "^2.0.0"
   },
   "license": "MIT",
   "keywords": [
@@ -70,8 +59,9 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
-    "build": "lerna run build",
-    "test": "lerna run test && npm run lint",
+    "build": "lerna exec -- tsc -b .",
+    "test": "npm run jest && npm run lint",
+    "jest": "lerna exec -- jest --rootDir=. --config=../jest.config.json --passWithNoTests",
     "lint": "eslint --ext .ts packages/",
     "clean": "lerna exec -- rimraf lib"
   },

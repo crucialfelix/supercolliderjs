@@ -30,10 +30,6 @@
     "type": "git",
     "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
   },
-  "scripts": {
-    "test": "jest --rootDir=. --config=../jest.config.json",
-    "build": "tsc -b ."
-  },
   "bugs": {
     "url": "https://github.com/crucialfelix/supercolliderjs/issues"
   }

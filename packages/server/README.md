@@ -1,4 +1,4 @@
-# `@supercolliderjs/server`
+# `@supercollider.js/server`
 
 Client library for the SuperCollider scsynth audio engine.
 

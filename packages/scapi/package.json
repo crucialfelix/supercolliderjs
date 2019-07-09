@@ -23,7 +23,8 @@
     "@supercollider.js/logger": "1.0.0",
     "cuid": "^2.1.6",
     "lodash": "^4.17.2",
-    "osc-min": "^1.1.1"
+    "osc-min": "^1.1.1",
+    "tslib": "1.10.0"
   },
   "devDependencies": {
     "typescript": "3.5.2",
@@ -32,10 +33,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
-  },
-  "scripts": {
-    "test": "jest --rootDir=. --config=../jest.config.json",
-    "build": "tsc -b ."
   },
   "bugs": {
     "url": "https://github.com/crucialfelix/supercolliderjs/issues"

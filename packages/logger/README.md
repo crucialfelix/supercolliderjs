@@ -1,4 +1,4 @@
-# `@supercolliderjs/logger`
+# `@supercollider.js/logger`
 
 Console logging utility for supercollider.js with colors
 
