@@ -31,6 +31,12 @@
     },
     {
       "path": "lang"
+    },
+    {
+      "path": "dryadic-supercollider"
+    },
+    {
+      "path": "supercolliderjs"
     }
   ],
   "exclude": ["**/__tests__", "**/node_modules", "**/lib"]
