@@ -58,6 +58,7 @@
     "compile-synthdefs": "./bin/compile-synthdefs.js"
   },
   "scripts": {
+    "postinstall": "npm run bootstrap && npm run build",
     "bootstrap": "lerna bootstrap --hoist",
     "build": "lerna exec -- tsc -b .",
     "test": "npm run jest && npm run lint",
