@@ -2,7 +2,7 @@ import fs from "fs";
 import _ from "lodash";
 import path from "path";
 
-import { Server, msg } from "@supercollider.js/server";
+import Server, { msg } from "@supercollider.js/server";
 import SCLang, { boot, SclangResultType } from "./sclang";
 
 export interface SynthDefResultType {

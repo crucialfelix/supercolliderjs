@@ -2,6 +2,6 @@
  * @module lang
  */
 
-export { default as SCLang } from './sclang';
-export { boot } from './sclang';
-export { default as SynthDefCompiler } from './SynthDefCompiler';
+export { default, boot, SCLangArgs } from "./sclang";
+export { default as SynthDefCompiler } from "./SynthDefCompiler";
+export { SCLangError } from "./Errors";
