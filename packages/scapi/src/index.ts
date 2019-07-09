@@ -1,16 +1,13 @@
-/* jslint node: true */
+import Logger from "@supercollider.js/logger";
 import cuid from "cuid";
 import dgram from "dgram";
 import events from "events";
 import _ from "lodash";
 import osc from "osc-min";
 
-import { SCError } from "./Errors";
-import Logger from "./utils/logger";
-
 interface RequestHandler {
   resolve: (result: any) => void;
-  reject: (error: SCError) => void;
+  reject: (error: Error) => void;
 }
 interface RequestHandlers {
   [guid: string]: RequestHandler;
@@ -164,7 +161,7 @@ export default class SCAPI extends events.EventEmitter {
     if (signal === "reply") {
       request.resolve(response);
     } else {
-      request.reject(new SCError("API Error response", response));
+      request.reject(new Error(`API Error response ${response}`));
     }
     delete this.requests[requestId];
   }

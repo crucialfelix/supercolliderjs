@@ -1,0 +1,43 @@
+{
+  "name": "@supercollider.js/scapi",
+  "version": "1.0.0",
+  "description": "Node to SuperCollider communication using OSC and the API quark.",
+  "keywords": [
+    "supercollider"
+  ],
+  "author": "Chris Sattinger <crucialfelix@gmail.com>",
+  "homepage": "https://crucialfelix.github.io/supercolliderjs/",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@supercollider.js/logger": "1.0.0",
+    "cuid": "^2.1.6",
+    "lodash": "^4.17.2",
+    "osc-min": "^1.1.1"
+  },
+  "devDependencies": {
+    "typescript": "3.5.2",
+    "jest": "^24.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
+  },
+  "scripts": {
+    "test": "jest --rootDir=. --config=../jest.config.json",
+    "build": "tsc -b ."
+  },
+  "bugs": {
+    "url": "https://github.com/crucialfelix/supercolliderjs/issues"
+  }
+}
