@@ -1,6 +1,5 @@
 /* eslint no-console: 0 */
-
-import resolveOptions from "./resolveOptions";
+import { resolveOptions } from "@supercollider.js/server";
 import fs from "fs";
 
 /**
