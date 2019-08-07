@@ -25,6 +25,3 @@ export { default as resolveOptions } from "./resolveOptions";
 export * from "./osc-types";
 export * from "./node-watcher";
 export { deltaTimeTag } from "./osc/utils";
-
-// TODO: move this to it's own package
-// export { boot } from './ServerPlus';
