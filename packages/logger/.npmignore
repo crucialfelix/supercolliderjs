@@ -1,6 +1,8 @@
 *
 !src/**/*
+src/**/__tests__/**/*
 !lib/**/*
-lib/**/*-test.*
 !package.json
 !README.md
+!CHANGELOG.md
+!LICENSE
