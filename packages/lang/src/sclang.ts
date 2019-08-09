@@ -11,6 +11,7 @@ import untildify from "untildify";
 import { SCError } from "./Errors";
 import Logger from "@supercollider.js/logger";
 import { SclangCompileResult, SclangIO, State } from "./internals/sclang-io";
+import { resolveOptions, SCLangConf, SCLangOptions} from "./options";
 
 /**
  * TODO: type this better
@@ -18,53 +19,8 @@ import { SclangCompileResult, SclangIO, State } from "./internals/sclang-io";
  */
 export type SclangResultType = any;
 
-interface SCLangOptions {
-  debug: boolean;
-  echo: boolean;
-  log?: Console;
-  // path to sclang executable
-  sclang: string;
-  // path to existing conf file
-  sclang_conf?: string;
-
-  stdin: boolean;
-  failIfSclangConfIsMissing: boolean;
-  conf: SCLangConf;
-}
-
-// import resolveOptions from "../utils/resolveOptions";
-/**
- * These were at the options root. Moving them to .conf
- */
-interface BackwardCompatArgs {
-  includePaths?: string[];
-  excludePaths?: string[];
-  postInlineWarnings?: boolean;
-}
-export type SCLangArgs = Partial<SCLangOptions> & BackwardCompatArgs;
-
-const defaults: SCLangOptions = {
-  debug: false,
-  echo: true,
-  // TODO resolve executable
-  sclang: "sclang",
-  failIfSclangConfIsMissing: false,
-  stdin: false,
-  conf: {
-    includePaths: [],
-    excludePaths: [],
-    postInlineWarnings: false,
-  },
-};
-
-/**
- * sclang_conf.yaml format
- */
-interface SCLangConf {
-  includePaths: string[];
-  excludePaths: string[];
-  postInlineWarnings: boolean;
-}
+/** Args for constructor */
+export type SCLangArgs = Partial<SCLangOptions>;
 
 /**
  * This class manages a supercollider language interpreter process
@@ -87,17 +43,7 @@ export default class SCLang extends EventEmitter {
    */
   constructor(options?: SCLangArgs) {
     super();
-    this.options = _.defaults(options, defaults);
-
-    // bwd compat
-    if (options) {
-      // Move these from root of options into .conf
-      let deprec = ["includePaths", "excludePaths", "postInlineWarnings"];
-      this.options.conf = _.defaults(_.pick(options, deprec), this.options.conf);
-      for (const d of deprec) {
-        delete this.options[d];
-      }
-    }
+    this.options = resolveOptions(options);
 
     this.log = new Logger(this.options.debug, this.options.echo, this.options.log);
     this.log.dbug(this.options);
@@ -532,25 +478,12 @@ export default class SCLang extends EventEmitter {
  *
  * @memberof lang
  *
- * commandLineOptions.config - Explicit path to a yaml config file
- * If undefined then it will look for config files in:
+ * For values not supplied in options, it will load for config files in:
  *    - .supercollider.yaml
  *    - ~/.supercollider.yaml
  */
 export async function boot(options?: SCLangArgs): Promise<SCLang> {
-  let opts = _.defaults(options, defaults);
-
-  // TODO this looks for a .supercollider.yaml file
-  // but it's designed for Server
-  // you just want to load a default config from the file
-  // and it should be done by the SCLang, not here
-  // return resolveOptions(opts.sclang_conf, opts).then(resolvedOptions => {
-  //   var sclang = new SCLang(resolvedOptions);
-  //   return sclang.boot().then(() => {
-  //     return sclang.storeSclangConf().then(() => sclang);
-  //   });
-  // });
-  const sclang = new SCLang(opts);
+  const sclang = new SCLang(options);
   await sclang.boot();
   await sclang.storeSclangConf();
   return sclang;
