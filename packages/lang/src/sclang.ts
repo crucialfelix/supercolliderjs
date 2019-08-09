@@ -194,7 +194,9 @@ export default class SCLang extends EventEmitter {
 
       this.process = this._spawnProcess(execPath, this.args(commandLineOptions));
       if (!(this.process && this.process.pid)) {
-        reject(new Error(`Failed to spawn process: ${execPath}`));
+        // check if path exists
+        const exists = fs.existsSync(execPath);
+        reject(new Error(`Failed to spawn process! ${exists ? "" : " Executable not found."} path: ${execPath}`));
         return;
       }
 
