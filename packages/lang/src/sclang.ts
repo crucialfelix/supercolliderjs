@@ -86,7 +86,9 @@ export default class SCLang extends EventEmitter {
     if (options.executeFile) {
       o.push(options.executeFile);
     }
-    o.push("-u", String(options.langPort));
+    if(options.langPort) {
+      o.push("-u", String(options.langPort));
+    }
     if (options.conf) {
       o.push("-l", options.conf);
     }
