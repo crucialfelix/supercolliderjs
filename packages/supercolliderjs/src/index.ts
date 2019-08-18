@@ -13,7 +13,6 @@ module.exports = {
   map: server.mapping,
   msg: server.msg,
   resolveOptions: server.resolveOptions,
-  checkInstall,
   SCLangError: lang.SCLangError,
   // Moved to @supercollider.js/scapi
   // scapi: SCAPI,

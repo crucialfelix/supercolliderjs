@@ -16,6 +16,10 @@
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "post-install": "npm run check-install",
+    "check-install": "node ./lib/checkInstall.js"
+  },
   "dependencies": {
     "@supercollider.js/logger": "1.0.0",
     "immutable": "^3.8.1",
