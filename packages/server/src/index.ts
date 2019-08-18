@@ -3,7 +3,7 @@
  */
 
 export { default, boot } from "./server";
-export { ServerArgs } from "./options";
+export { ServerArgs, resolveOptions } from "./options";
 
 /**
  * OSC message construction
@@ -21,7 +21,6 @@ export { mapping };
  * Node allocators
  */
 export { default as ServerState } from "./ServerState";
-export { default as resolveOptions } from "./resolveOptions";
 export * from "./osc-types";
 export * from "./node-watcher";
 export { deltaTimeTag } from "./osc/utils";

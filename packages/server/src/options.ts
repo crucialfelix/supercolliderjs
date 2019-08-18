@@ -1,3 +1,10 @@
+import fs from "fs";
+import yaml from "js-yaml";
+import _ from "lodash";
+import os from "os";
+import path from "path";
+import untildify from "untildify";
+
 interface ScsynthArgs {
   numPrivateAudioBusChannels: number;
   /**
@@ -98,23 +105,9 @@ export interface ServerSettings {
 
   log?: Console;
   /**
-   * For websocket support with SC API
-   * @deprecated will move elsewhere
-   */
-  websocketPort?: number;
-  /**
-   * Path to sclang executable
-   * TODO should get it from sclang
-   */
-  sclang?: string;
-  /**
    * Path to scsynth executable
    */
   scsynth?: string;
-  /**
-   * Path to a config file.
-   */
-  sclang_conf?: string;
 
   /**
    *  env - Environment variables that will be set for the scsynth process.
@@ -125,7 +118,9 @@ export interface ServerSettings {
    */
   env?: NodeJS.ProcessEnv;
 
-  // ?
+  /**
+   * Working directory for starting the scsynth process
+   */
   cwd?: string;
 
   /**
@@ -142,8 +137,20 @@ export type ServerOptions = ScsynthArgs & ServerSettings;
 // All args are optional
 export type ServerArgs = Partial<ScsynthArgs> & Partial<ServerSettings>;
 
+function defaultScsynthPath(): string {
+  switch (os.platform()) {
+    case "win32":
+      return "C:\\Program Files (x86)\\SuperCollider\\scsynth.exe";
+    case "darwin":
+      return "/Applications/SuperCollider/SuperCollider.app/Contents/Resources/scsynth";
+    default:
+      return "/usr/local/bin/scsynth";
+  }
+}
+
 export const defaults: ServerOptions = {
   // Server
+  scsynth: defaultScsynthPath(),
   host: "127.0.0.1",
   serverPort: "57110",
   protocol: "udp",
@@ -189,3 +196,40 @@ export const defaults: ServerOptions = {
 
   zeroConf: false,
 };
+
+function loadConfig(aPath: string): Partial<ServerArgs> {
+  try {
+    return yaml.safeLoad(fs.readFileSync(aPath, "utf8"));
+  } catch (error) {
+    throw new Error(`Error reading config file ${aPath}: ${error.mesage} configPath: ${aPath}`);
+  }
+}
+
+function loadDotSupercolliderYaml(): Partial<ServerArgs> {
+  let paths = [
+    ".supercollider.yaml",
+    path.join(os.homedir(), ".supercollider.yaml")
+  ];
+  for (const cpath of paths) {
+    if(cpath) {
+      let resolvedPath = path.resolve(untildify(cpath));
+      let checked = fs.existsSync(resolvedPath) ? resolvedPath : null;
+      if(checked) {
+        console.log(`Loading config: ${checked}`);
+        return loadConfig(cpath);
+      }
+    }
+  }
+  // No config file found
+  return {};
+}
+
+export function resolveOptions(options: ServerArgs = {}): ServerOptions {
+  const opts = _.defaults({}, options, loadDotSupercolliderYaml(), defaults);
+
+  if (opts.scsynth) {
+    opts.scsynth = path.resolve(untildify(opts.scsynth));
+  }
+  return opts;
+}
+

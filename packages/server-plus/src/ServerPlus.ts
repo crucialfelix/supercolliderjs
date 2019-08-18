@@ -9,7 +9,7 @@ import _ from "lodash";
 // this means server needs to import lang
 import { SynthDefCompiler, SynthDefResultType, SynthDefCompileRequest } from "@supercollider.js/lang";
 
-import Server, { resolveOptions, whenNodeEnd, whenNodeGo, ServerArgs, msg } from "@supercollider.js/server";
+import Server, { whenNodeEnd, whenNodeGo, ServerArgs, msg } from "@supercollider.js/server";
 
 // Store
 // import  resolveOptions  from "../server/src/resolveOptions";
@@ -386,23 +386,8 @@ export default class ServerPlus extends Server {
  * @param store - optional external Store to hold Server state
  */
 export async function boot(options?: ServerArgs, store?: Store): Promise<ServerPlus> {
-  const opts = await resolveOptions(null, _.defaults(options, defaults));
-  const s = new ServerPlus(opts, store);
+  const s = new ServerPlus(options, store);
   await s.boot();
   await s.connect();
   return s;
 }
-
-const defaults = {
-  debug: false,
-  echo: true,
-  // TODO resolve executable
-  sclang: "sclang",
-  failIfSclangConfIsMissing: false,
-  stdin: false,
-  conf: {
-    includePaths: [],
-    excludePaths: [],
-    postInlineWarnings: false,
-  },
-};

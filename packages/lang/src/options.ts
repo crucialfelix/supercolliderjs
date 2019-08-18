@@ -4,6 +4,7 @@ import _ from "lodash";
 import os from "os";
 import path from "path";
 import untildify from "untildify";
+import { SCLangArgs } from './sclang';
 
 
 /**
@@ -29,19 +30,6 @@ export interface SCLangOptions {
   conf: SCLangConf;
 }
 
-function getUserHome(): string {
-  const home = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
-  if (!home) {
-    throw new Error("Failed to find user home directory");
-  }
-  return home;
-}
-
-function checkPath(aPath: string): string | null {
-  let resolvedPath = path.resolve(untildify(aPath));
-  return fs.existsSync(resolvedPath) ? resolvedPath : null;
-}
-
 function loadConfig(aPath: string): Partial<SCLangOptions> {
   try {
     return yaml.safeLoad(fs.readFileSync(aPath, "utf8"));
@@ -50,15 +38,15 @@ function loadConfig(aPath: string): Partial<SCLangOptions> {
   }
 }
 
-
-function loadDotSupercolliderYaml(): Partial<SCLangOptions> {
+function loadDotSupercolliderYaml(): Partial<SCLangArgs> {
   let paths = [
     ".supercollider.yaml",
-    path.join(getUserHome(), ".supercollider.yaml")
+    path.join(os.homedir(), ".supercollider.yaml")
   ];
   for (const cpath of paths) {
     if(cpath) {
-      let checked = checkPath(cpath);
+      let resolvedPath = path.resolve(untildify(cpath));
+      let checked = fs.existsSync(resolvedPath) ? resolvedPath : null;
       if(checked) {
         console.log(`Loading config: ${checked}`);
         return loadConfig(cpath);
@@ -95,7 +83,7 @@ function defaultOptions(): SCLangOptions {
     case "darwin": {
       opts.sclang = "/Applications/SuperCollider/SuperCollider.app/Contents/MacOS/sclang";
       // eslint-disable-next-line @typescript-eslint/camelcase
-      opts.sclang_conf = `${getUserHome()}/Library/Application Support/SuperCollider/sclang_conf.yaml`;
+      opts.sclang_conf = `${os.homedir()}/Library/Application Support/SuperCollider/sclang_conf.yaml`;
       break;
     }
     default: {
@@ -111,7 +99,7 @@ function defaultOptions(): SCLangOptions {
 
 const defaults = defaultOptions();
 
-export function resolveOptions(options): SCLangOptions {
+export function resolveOptions(options: SCLangArgs = {}): SCLangOptions {
   const opts = _.defaults({}, options, loadDotSupercolliderYaml(), defaults);
 
   if (opts.sclang) {

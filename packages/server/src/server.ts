@@ -8,11 +8,10 @@ import { IDisposable, Observable, Subject } from "rx";
 
 import SendOSC from "./internals/SendOSC";
 import Store from "./internals/Store";
-import { defaults, ServerArgs, ServerOptions } from "./options";
+import { defaults, ServerArgs, ServerOptions, resolveOptions } from "./options";
 import { MsgType, OscType } from "./osc-types";
 import { notify, CallAndResponse } from "./osc/msg";
 import { parseMessage } from "./osc/utils";
-import resolveOptions from "./resolveOptions";
 import ServerState from "./ServerState";
 
 interface ServerObservers {
@@ -96,9 +95,9 @@ export default class Server extends EventEmitter {
   /**
    * @param stateStore - optional parent Store for allocators and node watchers
    */
-  constructor(options: ServerArgs = defaults, stateStore?: Store) {
+  constructor(options: ServerArgs = {}, stateStore?: Store) {
     super();
-    this.options = _.defaults(options, defaults);
+    this.options = resolveOptions(options);
     this.address = this.options.host + ":" + this.options.serverPort;
     this.process = null;
     this.isRunning = false;
@@ -563,9 +562,8 @@ export default class Server extends EventEmitter {
  * @param {Store} store - optional external Store to hold Server state
  * @returns {Promise} - resolves with the Server
  */
-export async function boot(options: ServerArgs = defaults, store: any = null): Promise<Server> {
-  const opts: ServerOptions = await resolveOptions(null, options);
-  const s: Server = new Server(opts, store);
+export async function boot(options: ServerArgs = {}, store: any = null): Promise<Server> {
+  const s: Server = new Server(options, store);
   await s.boot();
   await s.connect();
   return s;
