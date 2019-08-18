@@ -1,13 +1,16 @@
 /**
  * @module supercolliderjs
  */
-import * as server from "@supercollider.js/server";
 import * as lang from "@supercollider.js/lang";
+import * as server from "@supercollider.js/server";
+import ServerPlus from "@supercollider.js/server-plus";
 
-import checkInstall from "./checkInstall";
 
 module.exports = {
-  server,
+  server: {
+    ...server,
+    Server: ServerPlus
+  },
   lang,
 
   map: server.mapping,
