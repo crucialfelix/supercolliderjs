@@ -22,6 +22,8 @@ export interface SCLangOptions {
   log?: Console;
   // path to sclang executable
   sclang: string;
+  // To start sclang and immediately execute one file
+  executeFile?: string;
   // path to existing conf file
   sclang_conf?: string;
 

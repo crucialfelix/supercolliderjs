@@ -47,12 +47,6 @@
   },
   "main": "lib/index",
   "types": "lib/index.d.ts",
-  "bin": {
-    "supercollider-server": "./bin/scsynth.js",
-    "supercollider": "./bin/sclang.js",
-    "export-supercollider": "./bin/export-supercollider.js",
-    "compile-synthdefs": "./bin/compile-synthdefs.js"
-  },
   "scripts": {
     "postinstall": "npm run bootstrap && npm run build",
     "bootstrap": "lerna bootstrap --hoist",
