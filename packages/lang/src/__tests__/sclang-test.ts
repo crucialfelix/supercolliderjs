@@ -26,16 +26,17 @@ describe("sclang", function() {
     });
   });
 
+  const checkQuarkPath = (includePaths: string[]): boolean =>
+    _.some(includePaths, function(p) {
+      // and that directory should really exist
+      return p.match(/supercollider-js$/) && fs.statSync(p);
+    });
+
   describe("sclangConfigOptions", function() {
     it("should include supercollider-js", function() {
       var sclang = new SCLang();
       var opts = sclang.sclangConfigOptions(sclang.options);
-      expect(opts.includePaths.length).toEqual(1);
-      var isIn = _.some(opts.includePaths, function(p) {
-        // and that directory should really exist
-        return p.match(/supercollider-js$/) && fs.statSync(p);
-      });
-      expect(isIn).toBeTruthy();
+      expect(checkQuarkPath(opts.includePaths)).toBeTruthy();
     });
 
     it("should read a supplied sclang_conf", function() {
@@ -43,7 +44,8 @@ describe("sclang", function() {
         sclang_conf: path.join(__dirname, "fixtures", "sclang_test_conf.yaml"),
       });
       var opts = sclang.sclangConfigOptions(sclang.options);
-      // as well as supercollider-js
+      expect(checkQuarkPath(opts.includePaths)).toBeTruthy();
+      // 2 includes + supercollider-js
       expect(opts.includePaths.length).toEqual(2 + 1);
       expect(opts.excludePaths.length).toEqual(1);
     });
@@ -103,8 +105,7 @@ describe("sclang", function() {
     it("should include supercollider-js", function() {
       var sclang = new SCLang();
       var config = sclang.sclangConfigOptions(sclang.options);
-      expect(config.includePaths.length).toEqual(1);
-      expect(config.includePaths[0].match(/supercollider-js/)).toBeTruthy();
+      expect(checkQuarkPath(config.includePaths)).toBeTruthy();
     });
 
     // not really possible now

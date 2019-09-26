@@ -251,24 +251,25 @@ export default class SCLang extends EventEmitter {
    * throws error if conf cannot be read
    */
   sclangConfigOptions(options: SCLangOptions): SCLangConf {
-    let runtimeIncludePaths = [path.resolve(__dirname, "./supercollider-js")];
+    const runtimeIncludePaths = [path.resolve(__dirname, "./supercollider-js")];
+
     let defaultConf: SCLangConf = {
       postInlineWarnings: false,
       includePaths: [],
       excludePaths: [],
     };
-    let sclang_conf = defaultConf;
+    let conf = defaultConf;
 
     if (options.sclang_conf) {
       try {
-        sclang_conf = yaml.safeLoad(fs.readFileSync(untildify(options.sclang_conf), "utf8"));
+        conf = yaml.safeLoad(fs.readFileSync(untildify(options.sclang_conf), "utf8"));
       } catch (e) {
         // By default allow a missing sclang_conf file
         // so that the language can create it on demand if you use Quarks or LanguageConfig.
         if (!options.failIfSclangConfIsMissing) {
           // Was the sclang_conf just in the defaults or was it explicitly set ?
           this.log.dbug(e);
-          sclang_conf = defaultConf;
+          conf = defaultConf;
         } else {
           throw new Error("Cannot open or read specified sclang_conf " + options.sclang_conf);
         }
@@ -276,11 +277,11 @@ export default class SCLang extends EventEmitter {
     }
 
     return {
-      includePaths: _.union(sclang_conf.includePaths, options.conf.includePaths, runtimeIncludePaths),
-      excludePaths: _.union(sclang_conf.excludePaths, options.conf.excludePaths),
+      includePaths: _.union<string>(conf.includePaths, options.conf.includePaths, runtimeIncludePaths),
+      excludePaths: _.union<string>(conf.excludePaths, options.conf.excludePaths),
       postInlineWarnings: _.isUndefined(options.conf.postInlineWarnings)
-        ? sclang_conf.postInlineWarnings
-        : Boolean(options.conf.postInlineWarnings),
+        ? conf.postInlineWarnings
+        : !!options.conf.postInlineWarnings,
     };
   }
 
