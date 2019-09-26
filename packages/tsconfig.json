@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "lib": ["es2018", "dom"],
+    "module": "commonjs",
+    "target": "es2018",
     "allowSyntheticDefaultImports": true,
     "baseUrl": "src",
     "composite": true,
@@ -9,8 +12,6 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
-    "lib": ["es5", "es6", "es7", "es2017", "dom"],
-    "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": false,
     "noImplicitReturns": true,
@@ -19,8 +20,7 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "strict": true,
-    "strictNullChecks": true,
-    "target": "es5"
+    "strictNullChecks": true
   },
   "references": [
     {
