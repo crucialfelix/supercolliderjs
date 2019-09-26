@@ -1,3 +1,4 @@
+import Logger from "@supercollider.js/logger";
 import { ChildProcess, spawn } from "child_process";
 import cuid from "cuid";
 import { EventEmitter } from "events";
@@ -9,9 +10,8 @@ import temp from "temp";
 import untildify from "untildify";
 
 import { SCError } from "./Errors";
-import Logger from "@supercollider.js/logger";
 import { SclangCompileResult, SclangIO, State } from "./internals/sclang-io";
-import { resolveOptions, SCLangConf, SCLangOptions} from "./options";
+import { resolveOptions, SCLangConf, SCLangOptions } from "./options";
 
 /**
  * TODO: type this better
@@ -86,7 +86,7 @@ export default class SCLang extends EventEmitter {
     if (options.executeFile) {
       o.push(options.executeFile);
     }
-    if(options.langPort) {
+    if (options.langPort) {
       o.push("-u", String(options.langPort));
     }
     if (options.conf) {
@@ -135,7 +135,7 @@ export default class SCLang extends EventEmitter {
     });
   }
 
-  isReady() {
+  isReady(): boolean {
     return this.stateWatcher.state === State.READY;
   }
 
@@ -200,7 +200,7 @@ export default class SCLang extends EventEmitter {
         return;
       }
 
-      var bootListener = (state: State) => {
+      var bootListener = (state: State): void => {
         if (state === State.READY) {
           done = true;
           this.removeListener("state", bootListener);
@@ -219,12 +219,14 @@ export default class SCLang extends EventEmitter {
 
       setTimeout(() => {
         if (!done) {
-          this.log.err("Timeout waiting for sclang to boot");
+          let err = `Timeout waiting for sclang to boot pid:${this.process && this.process.pid}`;
+          this.log.err(err);
           // force it to finalize
           this.stateWatcher.processOutput();
           // bootListener above will reject the promise
           this.stateWatcher.setState(State.COMPILE_ERROR);
           this.removeListener("state", bootListener);
+          reject(new Error(err));
         }
       }, 10000);
 
@@ -298,7 +300,7 @@ export default class SCLang extends EventEmitter {
   /**
    * listen to events from process and pipe stdio to the stateWatcher
    */
-  installListeners(subprocess: ChildProcess, listenToStdin: boolean = false) {
+  installListeners(subprocess: ChildProcess, listenToStdin: boolean = false): void {
     if (listenToStdin) {
       // stdin of the global top level nodejs process
       process.stdin.setEncoding("utf8");
@@ -349,7 +351,7 @@ export default class SCLang extends EventEmitter {
    * Send a raw string to sclang to be interpreted
    * callback is called after write is complete.
    */
-  write(chunk: string, noEcho: boolean) {
+  write(chunk: string, noEcho: boolean): void {
     if (!noEcho) {
       this.log.stdin(chunk);
     }
@@ -404,7 +406,7 @@ export default class SCLang extends EventEmitter {
     postErrors: boolean = true,
     getBacktrace: boolean = true,
   ): Promise<SclangResultType> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject): void => {
       var escaped = code
         .replace(/[\n\r]/g, "__NL__")
         .replace(/\\/g, "__SLASH__")
@@ -428,15 +430,15 @@ export default class SCLang extends EventEmitter {
   /**
    * executeFile
    */
-  executeFile(filename: string) {
-    return new Promise((resolve, reject) => {
+  executeFile(filename: string): Promise<any> {
+    return new Promise((resolve, reject): void => {
       var guid = cuid();
       this.stateWatcher.registerCall(guid, { resolve, reject });
       this.write(`SuperColliderJS.executeFile("${guid}", "${filename}")`, true);
     });
   }
 
-  private setState(state: State) {
+  private setState(state: State): void {
     this.stateWatcher.setState(state);
   }
 
@@ -445,8 +447,8 @@ export default class SCLang extends EventEmitter {
   }
 
   quit(): Promise<SCLang> {
-    return new Promise(resolve => {
-      var cleanup = () => {
+    return new Promise((resolve): void => {
+      var cleanup = (): void => {
         this.process = undefined;
         this.setState(State.NULL);
         resolve(this);
@@ -455,7 +457,7 @@ export default class SCLang extends EventEmitter {
         this.process.once("exit", cleanup);
         // request a polite shutdown
         this.process.kill("SIGINT");
-        setTimeout(() => {
+        setTimeout((): void => {
           // 3.6.6 doesn't fully respond to SIGINT
           // but SIGTERM causes it to crash
           if (this.process) {

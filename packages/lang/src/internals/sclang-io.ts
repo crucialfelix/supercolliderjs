@@ -109,7 +109,7 @@ export class SclangIO extends EventEmitter {
     this.reset();
   }
 
-  reset() {
+  reset(): void {
     this.responseCollectors = {};
     this.capturing = {};
     this.calls = {};
@@ -123,11 +123,12 @@ export class SclangIO extends EventEmitter {
   /**
    * @param {string} input - parse the stdout of supercollider
    */
-  parse(input: string) {
+  parse(input: string): void {
     let echo = true,
       startState = this.state,
       last = 0;
-    this.states[this.state].forEach((stf: StateChangeHandler) => {
+
+    this.states[this.state].forEach((stf: StateChangeHandler): void => {
       let match: RegExpExecArray | null = null;
       if (this.state === startState) {
         while ((match = stf.re.exec(input)) !== null) {
@@ -165,7 +166,7 @@ export class SclangIO extends EventEmitter {
     }
   }
 
-  setState(newState: State) {
+  setState(newState: State): void {
     if (newState !== this.state) {
       this.state = newState;
       this.emit("state", this.state);
@@ -177,7 +178,7 @@ export class SclangIO extends EventEmitter {
       booting: [
         {
           re: /^compiling class library/m,
-          fn: (match, text: string) => {
+          fn: (match, text: string): void =>  {
             this.reset();
             this.setState(State.COMPILING);
             this.pushOutputText(text);
@@ -187,14 +188,14 @@ export class SclangIO extends EventEmitter {
       compiling: [
         {
           re: /^compile done/m,
-          fn: () => {
+          fn: (): void => {
             this.processOutput();
             this.setState(State.COMPILED);
           },
         },
         {
           re: /^Library has not been compiled successfully/m,
-          fn: (match, text: string) => {
+          fn: (match, text: string): void => {
             this.pushOutputText(text);
             this.processOutput();
             this.setState(State.COMPILE_ERROR);
@@ -202,7 +203,7 @@ export class SclangIO extends EventEmitter {
         },
         {
           re: /^ERROR: There is a discrepancy\./m,
-          fn: (/*match*/) => {
+          fn: (/*match*/): void => {
             this.processOutput();
             this.setState(State.COMPILE_ERROR);
           },
@@ -210,7 +211,7 @@ export class SclangIO extends EventEmitter {
         {
           // it may go directly into initClasses without posting compile done
           re: /Welcome to SuperCollider ([0-9A-Za-z\-.]+)\. /m,
-          fn: match => {
+          fn: (match): void => {
             this.result.version = match[1];
             this.processOutput();
             this.setState(State.READY);
@@ -219,7 +220,7 @@ export class SclangIO extends EventEmitter {
         {
           // it sometimes posts this sc3> even when compile failed
           re: /^[\s]*sc3>[\s]*$/m,
-          fn: (match, text: string) => {
+          fn: (match, text: string): void => {
             this.pushOutputText(text);
             this.processOutput();
             this.setState(State.COMPILE_ERROR);
@@ -228,7 +229,7 @@ export class SclangIO extends EventEmitter {
         {
           // another case of just trailing off
           re: /^error parsing/m,
-          fn: (match, text: string) => {
+          fn: (match, text: string): void => {
             this.pushOutputText(text);
             this.processOutput();
             this.setState(State.COMPILE_ERROR);
@@ -237,7 +238,7 @@ export class SclangIO extends EventEmitter {
         {
           // collect all output
           re: /(.+)/m,
-          fn: (match, text: string) => {
+          fn: (match, text: string): void => {
             this.pushOutputText(text);
           },
         },
@@ -246,14 +247,14 @@ export class SclangIO extends EventEmitter {
       compiled: [
         {
           re: /Welcome to SuperCollider ([0-9A-Za-z\-.]+)\. /m,
-          fn: match => {
+          fn: (match): void => {
             this.result.version = match[1];
             this.setState(State.READY);
           },
         },
         {
           re: /^[\s]*sc3>[\s]*$/m,
-          fn: (/*match:RegExMatchType, text*/) => {
+          fn: (/*match:RegExMatchType, text*/): void => {
             this.setState(State.READY);
           },
         },
@@ -283,7 +284,7 @@ export class SclangIO extends EventEmitter {
                   this.capturing[guid] = [];
                   lines = [];
                   // yuck
-                  _.each(text.split("\n"), (l: string) => {
+                  _.each(text.split("\n"), (l: string): void => {
                     if (l.match(/SUPERCOLLIDERJS:([0-9A-Za-z-]+):CAPTURE:START/)) {
                       started = true;
                     } else if (l.match(/SUPERCOLLIDERJS:([0-9A-Za-z-]+):CAPTURE:END/)) {
@@ -353,7 +354,7 @@ export class SclangIO extends EventEmitter {
         },
         {
           re: /^SUPERCOLLIDERJS.interpreted$/gm,
-          fn: (match, text: string) => {
+          fn: (match, text: string): true => {
             let rest = text.substr(match.index + 28);
             // remove the prompt ->
             rest = rest.replace(/-> \r?\n?/, "");
@@ -364,7 +365,7 @@ export class SclangIO extends EventEmitter {
         {
           // user compiled programmatically eg. with Quarks.gui button
           re: /^compiling class library/m,
-          fn: (match, text: string) => {
+          fn: (match, text: string): void => {
             this.reset();
             this.setState(State.COMPILING);
             this.pushOutputText(text);
@@ -380,7 +381,7 @@ export class SclangIO extends EventEmitter {
    *
    * callbacks - an object with reject, resolve
    */
-  registerCall(guid: string, callbacks: ResolveReject) {
+  registerCall(guid: string, callbacks: ResolveReject): void {
     this.calls[guid] = callbacks;
   }
 
@@ -414,7 +415,7 @@ export class SclangIO extends EventEmitter {
    * Push text posted by sclang during library compilation
    * to the .output stack for later procesing
    */
-  pushOutputText(text: string) {
+  pushOutputText(text: string): void {
     this.output.push(text);
   }
 
@@ -422,11 +423,11 @@ export class SclangIO extends EventEmitter {
    * Consume the compilation output stack, merging any results
    * into this.result and resetting the stack.
    */
-  processOutput() {
+  processOutput(): void {
     let parsed = this.parseCompileOutput((this.output || []).join("\n"));
 
     // merge with any previously processed
-    _.each(parsed, (value, key) => {
+    _.each(parsed, (value, key): void => {
       if (_.isArray(value)) {
         this.result[key] = (this.result[key] || []).concat(value);
       }

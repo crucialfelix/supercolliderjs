@@ -180,7 +180,7 @@ export default class Server extends EventEmitter {
    * Instead use ```server.{channel}.subscribe((event) => { })```
    *
    */
-  private _initEmitter() {
+  private _initEmitter(): void {
     this.receive.subscribe(msg => {
       this.emit("OSC", msg);
     });
@@ -188,7 +188,7 @@ export default class Server extends EventEmitter {
     this.stdout.subscribe(out => this.emit("out", out), out => this.emit("stderr", out));
   }
 
-  private _initSender() {
+  private _initSender(): void {
     this.send.on("msg", msg => {
       if (this.osc) {
         var buf = osc.toBuffer(msg);
@@ -331,7 +331,7 @@ export default class Server extends EventEmitter {
 
       this._serverObservers.stdout = Observable.fromEvent(this.process.stdout, "data", data => String(data));
       this._serverObservers.stdout.subscribe(e => this.stdout.onNext(e));
-      this._serverObservers.stderr = Observable.fromEvent(this.process.stderr, "data").subscribe(out => {
+      this._serverObservers.stderr = Observable.fromEvent(this.process.stderr, "data").subscribe((out) => {
         // just pipe it into the stdout object's error stream
         this.stdout.onError(out);
       });
@@ -359,7 +359,7 @@ export default class Server extends EventEmitter {
     });
   }
 
-  _spawnProcess() {
+  _spawnProcess(): void {
     var execPath = this.options.scsynth,
       args = this.args();
 
@@ -389,7 +389,7 @@ export default class Server extends EventEmitter {
     this.processEvents.onNext("pid: " + this.process.pid);
 
     // when this parent process dies, kill child process
-    let killChild = () => {
+    let killChild = (): void => {
       if (this.process) {
         this.process.kill("SIGTERM");
         this.process = null;
@@ -398,17 +398,17 @@ export default class Server extends EventEmitter {
 
     process.on("exit", killChild);
 
-    this.process.on("error", err => {
+    this.process.on("error", (err: Error) => {
       this.processEvents.onError(err);
       this.isRunning = false;
       // this.disconnect()
     });
-    this.process.on("close", (code, signal) => {
+    this.process.on("close", (code: number | null, signal: string | null) => {
       this.processEvents.onError("Server closed. Exit code: " + code + " signal: " + signal);
       this.isRunning = false;
       // this.disconnect()
     });
-    this.process.on("exit", (code, signal) => {
+    this.process.on("exit", (code: number | null, signal: string | null) => {
       this.processEvents.onError("Server exited. Exit code: " + code + " signal: " + signal);
       this.isRunning = false;
       // this.disconnect()
@@ -421,7 +421,7 @@ export default class Server extends EventEmitter {
    * kill scsynth process
    * TODO: should send /quit first for shutting files
    */
-  quit() {
+  quit(): void {
     if (this.process) {
       this.disconnect();
       this.process.kill("SIGTERM");
@@ -467,7 +467,7 @@ export default class Server extends EventEmitter {
     });
   }
 
-  private disconnect() {
+  private disconnect(): void {
     if (this.osc) {
       this.osc.close();
       delete this.osc;
@@ -489,7 +489,7 @@ export default class Server extends EventEmitter {
    * @param {String} address - OSC command string eg. `/s_new` which is referred to in OSC as the address
    * @param {Array} args
    */
-  sendMsg(address: string, args: OscType[]) {
+  sendMsg(address: string, args: OscType[]): void {
     this.send.msg([address, ...args]);
   }
 
@@ -508,8 +508,8 @@ export default class Server extends EventEmitter {
    */
   oscOnce(matchArgs: MsgType, timeout: number = 4000): Promise<MsgType> {
     return new Promise((resolve: Function, reject: Function) => {
-      var subscription = this.receive.subscribe(msg => {
-        var command = msg.slice(0, matchArgs.length);
+      const subscription = this.receive.subscribe(msg => {
+        const command = msg.slice(0, matchArgs.length);
         if (_.isEqual(command, matchArgs)) {
           var payload = msg.slice(matchArgs.length);
           resolve(payload);
@@ -518,12 +518,12 @@ export default class Server extends EventEmitter {
       });
 
       // if timeout then reject and dispose
-      var tid = setTimeout(() => {
+      const tid = setTimeout(() => {
         dispose();
         reject(new Error(`Timed out waiting for OSC response: ${JSON.stringify(matchArgs)}`));
       }, timeout);
 
-      function dispose() {
+      function dispose(): void {
         subscription.dispose();
         clearTimeout(tid);
       }
