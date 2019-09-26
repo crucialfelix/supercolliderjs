@@ -22,12 +22,12 @@
     "@supercollider.js/server": "1.0.0",
     "@supercollider.js/logger": "1.0.0",
     "dryadic": "^0.3.2",
-    "lodash": "^4.17.2",
+    "lodash": "^4.17.15",
     "baconjs": "^0.7.93"
   },
   "devDependencies": {
-    "typescript": "3.5.2",
-    "jest": "^24.8.0"
+    "typescript": "3.6.3",
+    "jest": "^24.9.0"
   },
   "repository": {
     "type": "git",
