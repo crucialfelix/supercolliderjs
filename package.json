@@ -54,7 +54,7 @@
     "test": "npm run jest && npm run lint",
     "jest": "lerna exec -- jest --rootDir=. --config=../jest.config.json --passWithNoTests",
     "lint": "eslint --ext .ts packages/",
-    "clean": "lerna exec -- rimraf lib && lerna exec -- rm -f tsconfig.tsbuildinfo",
+    "clean": "lerna exec -- rimraf lib && lerna exec -- rm -f tsconfig.tsbuildinfo"
   },
   "eslintIgnore": [
     "node_modules",
