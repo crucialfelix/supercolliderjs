@@ -14,8 +14,7 @@ This library provides functionality for working with:
 
 ## Documentation
 
-[API](https://crucialfelix.github.io/supercolliderjs/api/)
-[Guide](https://crucialfelix.gitbooks.io/supercollider-js-guide/content/)
+https://crucialfelix.github.io/supercolliderjs
 
 ## Features
 
