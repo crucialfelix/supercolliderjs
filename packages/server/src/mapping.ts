@@ -15,7 +15,7 @@ export function midiToFreq(midiNote: number): number {
  * Convert frequency to MIDI note (1..127).
  */
 export function freqToMidi(freq: number): number {
-  let mult = Math.log(freq / 400.0) / Math.log(2);
+  const mult = Math.log(freq / 400.0) / Math.log(2);
   return Math.round(12.0 * mult + 69);
 }
 
@@ -99,7 +99,7 @@ export function dbToAmp(db: number): number {
  * Returns a function that maps 0..1 input to the spec's minval..maxval with a linear curve.
  */
 export function linear(spec: Spec): Function {
-  let range = spec.maxval - spec.minval;
+  const range = spec.maxval - spec.minval;
   return function(value) {
     return value * range + spec.minval;
   };
@@ -109,7 +109,7 @@ export function linear(spec: Spec): Function {
  * Returns a function that maps 0..1 input to the spec's minval..maxval with an exponential curve. minval/maxval must not have oppositive signs -- ie. the output range must not cross zero.
  */
 export function exp(spec: Spec): Function {
-  let ratio = spec.maxval / spec.minval;
+  const ratio = spec.maxval / spec.minval;
   return function(value) {
     return Math.pow(ratio, value) * spec.minval;
   };
@@ -119,8 +119,8 @@ export function exp(spec: Spec): Function {
  * Returns dB mapping function (DbFaderWarp)
  */
 export function dB(spec: Spec): Function {
-  let minval = dbToAmp(spec.minval);
-  let range = dbToAmp(spec.maxval) - minval;
+  const minval = dbToAmp(spec.minval);
+  const range = dbToAmp(spec.maxval) - minval;
   return function(value) {
     return ampToDb(Math.pow(value, 2) * range - minval);
   };
@@ -130,7 +130,7 @@ export function dB(spec: Spec): Function {
  * Returns amp mapping function (FaderWarp)
  */
 export function fader(spec: Spec): Function {
-  let range = spec.maxval - spec.minval;
+  const range = spec.maxval - spec.minval;
   return function(value) {
     return Math.pow(value, 2) * range - spec.minval;
   };
@@ -140,7 +140,7 @@ export function fader(spec: Spec): Function {
  * Returns inverse of linear mapping function
  */
 export function unmapLinear(spec: Spec): Function {
-  let range = spec.maxval - spec.minval;
+  const range = spec.maxval - spec.minval;
   return function(value) {
     return (value - spec.minval) / range;
   };
@@ -150,7 +150,7 @@ export function unmapLinear(spec: Spec): Function {
  * Returns inverse of exponential mapping function
  */
 export function unmapExp(spec: Spec): Function {
-  let ratio = Math.log(spec.maxval / spec.minval);
+  const ratio = Math.log(spec.maxval / spec.minval);
   return function(value) {
     return Math.log(value / spec.minval) / ratio;
   };
@@ -160,8 +160,8 @@ export function unmapExp(spec: Spec): Function {
  * Returns inverse of dB mapping function (DbFaderWarp)
  */
 export function unmapDb(spec: Spec): Function {
-  let minval = dbToAmp(spec.minval);
-  let range = dbToAmp(spec.maxval) - minval;
+  const minval = dbToAmp(spec.minval);
+  const range = dbToAmp(spec.maxval) - minval;
   return function(value) {
     return (dbToAmp(value) - minval) / Math.sqrt(range);
   };
@@ -171,7 +171,7 @@ export function unmapDb(spec: Spec): Function {
  * Returns inverse of amp mapping function (FaderWarp)
  */
 export function unmapFader(spec: Spec): Function {
-  let range = spec.maxval - spec.minval;
+  const range = spec.maxval - spec.minval;
   return function(value) {
     return Math.sqrt((value - spec.minval) / range);
   };

@@ -67,19 +67,19 @@ export default class SendOSC extends EventEmitter {
     onError?: (value: { type: string; payload: any }) => void,
     onComplete?: () => void,
   ): Disposable {
-    var msgs = Observable.fromEvent(this, "msg", msg => {
+    const msgs = Observable.fromEvent(this, "msg", msg => {
       return {
         type: "msg",
         payload: msg,
       };
     });
-    var bundles = Observable.fromEvent(this, "bundle", bundle => {
+    const bundles = Observable.fromEvent(this, "bundle", bundle => {
       return {
         type: "bundle",
         payload: bundle,
       };
     });
-    var combo = msgs.merge(bundles);
+    const combo = msgs.merge(bundles);
     return combo.subscribe(onNext, onError, onComplete);
   }
 }

@@ -7,7 +7,7 @@ describe("SCServer", function() {
   });
 
   it("should set default options of SCServer", function() {
-    let s = new SCServer();
+    const s = new SCServer();
     expect(s.properties).toEqual({ options: { debug: false } });
   });
 

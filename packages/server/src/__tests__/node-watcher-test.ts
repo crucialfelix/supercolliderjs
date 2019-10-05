@@ -4,13 +4,13 @@ import Server from "../server";
 import * as nw from "../node-watcher";
 
 describe("node-watcher", function() {
-  var nodeID = 1000;
-  var id = "0.1.2";
-  var id2 = "0.1.3";
+  const nodeID = 1000;
+  const id = "0.1.2";
+  const id2 = "0.1.3";
 
   function expectEqualState(s, object) {
-    var cs = s.state.getIn(["NODE_WATCHER"]).toJS();
-    var is = _.isEqual(cs, object);
+    const cs = s.state.getIn(["NODE_WATCHER"]).toJS();
+    const is = _.isEqual(cs, object);
     if (!is) {
       // as long as callbacks have the same keys list
       // the functions were copied and aren't the same ones now
@@ -27,7 +27,7 @@ describe("node-watcher", function() {
   describe("onNodeGo", function() {
     it("should register a callback", function() {
       function fn() {}
-      var s = new Server();
+      const s = new Server();
       nw.onNodeGo(s, id, nodeID, fn);
 
       expectEqualState(s, {
@@ -42,7 +42,7 @@ describe("node-watcher", function() {
 
     it("should add another callback on same node", function() {
       function fn() {}
-      var s = new Server();
+      const s = new Server();
       nw.onNodeGo(s, id, nodeID, fn);
       nw.onNodeGo(s, id2, nodeID, fn);
 
@@ -59,8 +59,8 @@ describe("node-watcher", function() {
 
     it("should dispose of callback", function() {
       function fn() {}
-      var s = new Server();
-      var dispose = nw.onNodeGo(s, id, nodeID, fn);
+      const s = new Server();
+      const dispose = nw.onNodeGo(s, id, nodeID, fn);
       expect(dispose).toBeTruthy();
       dispose();
 
@@ -75,7 +75,7 @@ describe("node-watcher", function() {
 
   describe("watchNodeNotifications", function() {
     it("should fire a onNodeGo handler when server receives", function() {
-      var s = new Server();
+      const s = new Server();
 
       return new Promise(resolve => {
         nw.onNodeGo(s, id, nodeID, nid => {

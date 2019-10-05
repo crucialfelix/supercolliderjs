@@ -4,7 +4,7 @@ import { expectPlayGraphToEqual } from "../utils/test-utils";
 
 describe("Synth", function() {
   describe("simple", function() {
-    let s = new Synth({
+    const s = new Synth({
       def: "saw",
       args: {
         freq: 440,
@@ -46,7 +46,7 @@ describe("Synth", function() {
         }
       }
 
-      let s = new Synth({
+      const s = new Synth({
         def: new FakeDef(),
         args: {
           freq: new FakeSlider(),
@@ -58,7 +58,7 @@ describe("Synth", function() {
       });
 
       it("should make playgraph", function() {
-        let h = [
+        const h = [
           "SCServer",
           {
             options: {
@@ -96,9 +96,9 @@ describe("Synth", function() {
         // Ignore the property accessor functions when comparing
         expectPlayGraphToEqual(s, h as any, g => {
           // console.log(JSON.stringify(g, null, 2));
-          let propOwner = g[2][0][2][2];
+          const propOwner = g[2][0][2][2];
           // console.log('propOwner', propOwner);
-          let synth = propOwner[2][0];
+          const synth = propOwner[2][0];
           // console.log('synth', synth);
           synth[1].args.freq = undefined;
           synth[1].def = undefined;

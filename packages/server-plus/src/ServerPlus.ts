@@ -230,8 +230,8 @@ export default class ServerPlus extends Server {
     addAction: number = msg.AddActions.TAIL,
   ): Promise<Synth> {
     const [def, g] = await Promise.all([Promise.resolve(synthDef), Promise.resolve(group)]);
-    let nodeId = this.state.nextNodeID();
-    let sn = msg.synthNew(def.name, nodeId, addAction, g ? g.id : 0, args);
+    const nodeId = this.state.nextNodeID();
+    const sn = msg.synthNew(def.name, nodeId, addAction, g ? g.id : 0, args);
     this.send.msg(sn);
     await whenNodeGo(this, String(nodeId), nodeId);
     return new Synth(this, nodeId);
@@ -244,8 +244,8 @@ export default class ServerPlus extends Server {
    */
   async group(group?: Group, addAction: number = msg.AddActions.TAIL): Promise<Group> {
     const g = await Promise.resolve(group);
-    let nodeId = this.state.nextNodeID();
-    let sn = msg.groupNew(nodeId, addAction, g ? g.id : 0);
+    const nodeId = this.state.nextNodeID();
+    const sn = msg.groupNew(nodeId, addAction, g ? g.id : 0);
     this.send.msg(sn);
     await whenNodeGo(this, String(nodeId), nodeId);
     return new Group(this, nodeId);
@@ -273,21 +273,21 @@ export default class ServerPlus extends Server {
    *                    Each Promises can be supplied directly to `server.synth()`
    */
   synthDefs(defs: { [defName: string]: SynthDefCompileRequest }): { [defName: string]: Promise<SynthDef> } {
-    let compiling = this.synthDefCompiler.boot().then(() => {
+    const compiling = this.synthDefCompiler.boot().then(() => {
       return this.synthDefCompiler.compileAndSend(defs, this);
     });
 
     return _.mapValues(defs, async (requested, name) => {
       // for each def await the same promise which returns a dict
       const defsMap = await compiling;
-      let result: SynthDefResultType = defsMap[name];
+      const result: SynthDefResultType = defsMap[name];
       if (!result) {
         new Error(`${name} not found in compiled SynthDefs`);
       }
       if (result.name !== name) {
         throw new Error(`SynthDef compiled as ${result.name} but server.synthDefs was called with: ${name}`);
       }
-      let sourceCode = result.synthDesc.sourceCode;
+      const sourceCode = result.synthDesc.sourceCode;
 
       const synthDef = new SynthDef(
         this,
@@ -309,7 +309,7 @@ export default class ServerPlus extends Server {
       this,
     );
     // what if defName does not match synthDefResult.name ?
-    let synthDefResult = defs[defName];
+    const synthDefResult = defs[defName];
     if (!synthDefResult) {
       throw new Error(`SynthDefResult not found ${defName} in compile return values`);
     }
@@ -333,8 +333,8 @@ export default class ServerPlus extends Server {
   /**
    * Allocate a Buffer on the server.
    */
-  async buffer(numFrames: number, numChannels: number = 1): Promise<Buffer> {
-    let id = this.state.allocBufferID(numChannels);
+  async buffer(numFrames: number, numChannels = 1): Promise<Buffer> {
+    const id = this.state.allocBufferID(numChannels);
     await this.callAndResponse(msg.bufferAlloc(id, numFrames, numChannels));
     return new Buffer(this, id, numFrames, numChannels);
   }
@@ -347,11 +347,11 @@ export default class ServerPlus extends Server {
    */
   async readBuffer(
     path: string,
-    numChannels: number = 2,
-    startFrame: number = 0,
-    numFramesToRead: number = -1,
+    numChannels = 2,
+    startFrame = 0,
+    numFramesToRead = -1,
   ): Promise<Buffer> {
-    let id = this.state.allocBufferID(numChannels);
+    const id = this.state.allocBufferID(numChannels);
     await this.callAndResponse(msg.bufferAllocRead(id, path, startFrame, numFramesToRead));
     return new Buffer(this, id, numFramesToRead, numChannels);
   }
@@ -359,16 +359,16 @@ export default class ServerPlus extends Server {
   /**
    * Allocate an audio bus.
    */
-  audioBus(numChannels: number = 1): AudioBus {
-    let id = this.state.allocAudioBus(numChannels);
+  audioBus(numChannels = 1): AudioBus {
+    const id = this.state.allocAudioBus(numChannels);
     return new AudioBus(this, id, numChannels);
   }
 
   /**
    * Allocate a control bus.
    */
-  controlBus(numChannels: number = 1): ControlBus {
-    let id = this.state.allocControlBus(numChannels);
+  controlBus(numChannels = 1): ControlBus {
+    const id = this.state.allocControlBus(numChannels);
     return new ControlBus(this, id, numChannels);
   }
 }

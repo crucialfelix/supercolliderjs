@@ -4,8 +4,8 @@ import _ from "lodash";
 import SynthEventList from "../SynthEventList";
 
 describe("SynthEventList", function() {
-  let events = [{ defName: "blip", args: { freq: 440 }, time: 1.0 }];
-  let context = {
+  const events = [{ defName: "blip", args: { freq: 440 }, time: 1.0 }];
+  const context = {
     group: 0,
     out: 0,
     epoch: 1460987712857,
@@ -13,16 +13,16 @@ describe("SynthEventList", function() {
   };
 
   // bad to mock this, it's fragile
-  let player = {
+  const player = {
     updateContext: (ctx, update) => _.assign({}, ctx, update),
     callCommand: function(/*id, command*/) {},
   };
 
   describe("_makeMsgs", function() {
     // context group epoch
-    let sel = new SynthEventList();
-    let scheded = sel._makeMsgs(events, context);
-    let first = scheded[0];
+    const sel = new SynthEventList();
+    const scheded = sel._makeMsgs(events, context);
+    const first = scheded[0];
 
     it("should have events in the packet", function() {
       expect(scheded.length).toEqual(1);
@@ -35,21 +35,21 @@ describe("SynthEventList", function() {
   });
 
   describe("spawn events in supplied list on .add", function() {
-    let props = { events };
-    let sel = new SynthEventList(props);
-    let commands: any = sel.add(player as any);
+    const props = { events };
+    const sel = new SynthEventList(props);
+    const commands: any = sel.add(player as any);
     it("should contain a function", function() {
       expect(typeof commands.scserver.schedLoop).toBe("function");
     });
     it("should schedule 1 event", function() {
-      let fn = commands.scserver.schedLoop(context, props);
-      let e = fn(0);
+      const fn = commands.scserver.schedLoop(context, props);
+      const e = fn(0);
       expect(e.event.time).toEqual(1);
     });
   });
 
   describe("pass in updateStream", function() {
-    var bus, sel: SynthEventList, dp, updated, called, properties;
+    let bus, sel: SynthEventList, dp, updated, called, properties;
     beforeEach(function() {
       bus = new Bacon.Bus();
       properties = { updateStream: bus };
@@ -68,7 +68,7 @@ describe("SynthEventList", function() {
     it("should subscribe to stream on .add", function() {
       spyOn(player, "updateContext");
 
-      let commands = sel.add(dp);
+      const commands = sel.add(dp);
       if (commands.run) {
         commands.run(context, properties);
         expect(updated).toBeTruthy(); // {subscription: bacon subscription}
@@ -79,7 +79,7 @@ describe("SynthEventList", function() {
 
     it("should get a new event when pushed to bus", function() {
       spyOn(player, "callCommand");
-      let commands = sel.add(dp);
+      const commands = sel.add(dp);
       if (commands.run) {
         commands.run(context, properties);
         bus.push({

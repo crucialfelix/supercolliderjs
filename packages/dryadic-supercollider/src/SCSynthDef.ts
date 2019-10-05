@@ -79,23 +79,23 @@ export default class SCSynthDef extends Dryad<Properties> {
 
   async _prepareForAdd(context: Context, properties: Properties): Promise<CompiledSynthDef | LoadedSynthDef> {
     if (properties.source) {
-      let result = await this.compileSource(context, properties.source);
+      const result = await this.compileSource(context, properties.source);
       await this._sendSynthDef(context, properties, result);
       return result;
     }
 
     if (properties.compileFrom) {
-      let result = await this.compileFrom(context, properties.compileFrom);
+      const result = await this.compileFrom(context, properties.compileFrom);
 
       await this._sendSynthDef(context, properties, result);
       return result;
     }
 
-    let lf = properties.loadFrom;
+    const lf = properties.loadFrom;
     if (lf) {
       // TODO: this is a bad assumption
       // Should allow to read .json metadata files and/or to set the name
-      let result: LoadedSynthDef = {
+      const result: LoadedSynthDef = {
         name: path.basename(lf, path.extname(lf)),
       };
       if (context.scserver) {
@@ -118,8 +118,8 @@ export default class SCSynthDef extends Dryad<Properties> {
     // you need to use a setter
     context.synthDef = result;
     // context.synthDefName = result.name;
-    let buffer = new Buffer(result.bytes);
-    let promises: Promise<any>[] = [context.scserver.callAndResponse(defRecv(buffer))];
+    const buffer = new Buffer(result.bytes);
+    const promises: Promise<any>[] = [context.scserver.callAndResponse(defRecv(buffer))];
     if (properties.saveToDir) {
       promises.push(this._writeSynthDef(result.name, buffer, result.synthDesc, properties.saveToDir));
     }
@@ -128,11 +128,11 @@ export default class SCSynthDef extends Dryad<Properties> {
   }
 
   async _writeSynthDef(name: string, buffer: Buffer, synthDesc: SynthDesc, saveToDir: string): Promise<void> {
-    let dir = path.resolve(saveToDir);
-    let pathname = path.join(dir, name + ".scsyndef");
+    const dir = path.resolve(saveToDir);
+    const pathname = path.join(dir, name + ".scsyndef");
     await fsp.writeFile(pathname, buffer);
 
-    let descpath = path.join(dir, name + ".json");
+    const descpath = path.join(dir, name + ".json");
     await fsp.writeFile(descpath, JSON.stringify(synthDesc, null, 2));
   }
 

@@ -89,7 +89,7 @@ interface Command {
  */
 export default function scserver(command: Command, context: Context, properties: Properties): Promise<MsgType> | void {
   if (command.scserver) {
-    let cmds = resolveFuncs(command.scserver, context, properties);
+    const cmds = resolveFuncs(command.scserver, context, properties);
 
     // send a single OSC message
     if (cmds.msg) {

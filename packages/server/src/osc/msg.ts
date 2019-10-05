@@ -94,7 +94,7 @@ export function quit(): MsgType {
     If argument is 1, server will remember your return address and send you notifications. 0 will stop sending notifications.
   * @return {Array} - OSC message
   */
-export function notify(on: number = 1): CallAndResponse {
+export function notify(on = 1): CallAndResponse {
   return {
     call: ["/notify", on],
     response: ["/done", "/notify"], // => clientID
@@ -133,7 +133,7 @@ export function cmd(command: number, args: OscValues = []): MsgType {
  * 3 print both the parsed and hexadecimal representations of the contents.
  * @return {Array} - OSC message
  */
-export function dumpOSC(code: number = 1): MsgType {
+export function dumpOSC(code = 1): MsgType {
   return ["/dumpOSC", code];
 }
 
@@ -168,7 +168,7 @@ export function clearSched(): MsgType {
  * @param {int} on
  * @return {Array} - OSC message
  */
-export function error(on: number = 1): MsgType {
+export function error(on = 1): MsgType {
   return ["/error", on];
 }
 
@@ -256,7 +256,7 @@ export function nodeFree(nodeID: number): MsgType {
  * @param {int} on - binary boolean
  * @return {Array} - OSC message
  */
-export function nodeRun(nodeID: number, on: number = 1): MsgType {
+export function nodeRun(nodeID: number, on = 1): MsgType {
   return ["/n_run", nodeID, on];
 }
 
@@ -461,9 +461,9 @@ export function nodeOrder(addAction: number, targetID: number, nodeIDs: [number]
   */
 export function synthNew(
   defName: string,
-  nodeID: number = -1,
+  nodeID = -1,
   addAction: number = AddActions.TAIL,
-  targetID: number = 0,
+  targetID = 0,
   args: PairsType = [],
 ): MsgType {
   return ["/s_new", defName, nodeID, addAction, targetID, ...flattenPairs(args)];
@@ -527,7 +527,7 @@ export function synthNoid(synthIDs: [number]): MsgType {
   * @param {int} targetID
   * @return {Array} - OSC message
   */
-export function groupNew(nodeID: number, addAction: number = AddActions.HEAD, targetID: number = 0): MsgType {
+export function groupNew(nodeID: number, addAction: number = AddActions.HEAD, targetID = 0): MsgType {
   return ["/g_new", nodeID, _.isUndefined(addAction) ? AddActions.HEAD : addAction, targetID || 0];
 }
 
@@ -544,7 +544,7 @@ export function groupNew(nodeID: number, addAction: number = AddActions.HEAD, ta
   * @param {int} targetID
   * @return {Array} - OSC message
   */
-export function parallelGroupNew(groupID: number, addAction: number = AddActions.HEAD, targetID: number = 0): MsgType {
+export function parallelGroupNew(groupID: number, addAction: number = AddActions.HEAD, targetID = 0): MsgType {
   return ["/p_new", groupID, addAction, targetID];
 }
 
@@ -604,7 +604,7 @@ export function groupDeepFree(groupID: number): MsgType {
   * @return {Array} - OSC message
   *
   */
-export function groupDumpTree(groupID: number, dumpControlValues: number = 0): MsgType {
+export function groupDumpTree(groupID: number, dumpControlValues = 0): MsgType {
   return ["/g_dumpTree", groupID, dumpControlValues];
 }
 
@@ -635,7 +635,7 @@ export function groupDumpTree(groupID: number, dumpControlValues: number = 0): M
   * @param {int} dumpControlValues -  if not 0 the current control (arg) values for synths will be included
   * @return {Array} - OSC message
   */
-export function groupQueryTree(groupID: number, dumpControlValues: number = 0): CallAndResponse {
+export function groupQueryTree(groupID: number, dumpControlValues = 0): CallAndResponse {
   return {
     call: ["/g_queryTree", groupID, dumpControlValues],
     response: ["/g_queryTree.reply", groupID],
@@ -702,8 +702,8 @@ export function bufferAlloc(
 export function bufferAllocRead(
   bufferID: number,
   path: string,
-  startFrame: number = 0,
-  numFramesToRead: number = -1,
+  startFrame = 0,
+  numFramesToRead = -1,
   completionMsg: CompletionMsg | null = null,
 ): CallAndResponse {
   return {
@@ -766,10 +766,10 @@ export function bufferAllocReadChannel(
 export function bufferRead(
   bufferID: number,
   path: string,
-  startFrame: number = 0,
-  numFramesToRead: number = -1,
-  startFrameInBuffer: number = 0,
-  leaveFileOpen: number = 0,
+  startFrame = 0,
+  numFramesToRead = -1,
+  startFrameInBuffer = 0,
+  leaveFileOpen = 0,
   completionMsg: CompletionMsg | null = null,
 ): CallAndResponse {
   return {
@@ -798,10 +798,10 @@ export function bufferRead(
 export function bufferReadChannel(
   bufferID: number,
   path: string,
-  startFrame: number = 0,
-  numFramesToRead: number = -1,
-  startFrameInBuffer: number = 0,
-  leaveFileOpen: number = 0,
+  startFrame = 0,
+  numFramesToRead = -1,
+  startFrameInBuffer = 0,
+  leaveFileOpen = 0,
   channels: number[] = [],
   completionMsg: CompletionMsg | null = null,
 ): CallAndResponse {
@@ -847,11 +847,11 @@ export function bufferReadChannel(
 export function bufferWrite(
   bufferID: number,
   path: string,
-  headerFormat: string = "aiff",
-  sampleFormat: string = "float",
-  numFramesToWrite: number = -1,
-  startFrameInBuffer: number = 0,
-  leaveFileOpen: number = 0,
+  headerFormat = "aiff",
+  sampleFormat = "float",
+  numFramesToWrite = -1,
+  startFrameInBuffer = 0,
+  leaveFileOpen = 0,
   completionMsg: CompletionMsg | null = null,
 ): CallAndResponse {
   return {

@@ -44,13 +44,13 @@ export default class ServerState {
   resetState() {
     this.store.mutateState(this._keys([]), () => {
       const options = this.server.options;
-      var numAudioChannels =
+      const numAudioChannels =
         options.numPrivateAudioBusChannels + options.numInputBusChannels + options.numOutputBusChannels;
 
-      var ab = alloc.initialBlockState(numAudioChannels);
+      let ab = alloc.initialBlockState(numAudioChannels);
       ab = alloc.reserveBlock(ab, 0, options.numInputBusChannels + options.numOutputBusChannels);
-      var cb = alloc.initialBlockState(options.numControlBusChannels);
-      var bb = alloc.initialBlockState(options.numBuffers);
+      const cb = alloc.initialBlockState(options.numControlBusChannels);
+      const bb = alloc.initialBlockState(options.numBuffers);
 
       return Immutable.Map({
         [StateKeys.NODE_IDS]: options.initialNodeID - 1,
@@ -96,7 +96,7 @@ export default class ServerState {
    *
    * @returns {int} bus number
    */
-  allocAudioBus(numChannels: number = 1): number {
+  allocAudioBus(numChannels = 1): number {
     return this._allocBlock(StateKeys.AUDIO_BUSSES, numChannels);
   }
 
@@ -105,7 +105,7 @@ export default class ServerState {
    *
    * @returns {int} bus number
    */
-  allocControlBus(numChannels: number = 1): number {
+  allocControlBus(numChannels = 1): number {
     return this._allocBlock(StateKeys.CONTROL_BUSSES, numChannels);
   }
 
@@ -144,7 +144,7 @@ export default class ServerState {
    * @param {int} numConsecutive - consecutively numbered buffers are needed by VOsc and VOsc3.
    * @returns {int} - buffer id
    */
-  allocBufferID(numConsecutive: number = 1): number {
+  allocBufferID(numConsecutive = 1): number {
     return this._allocBlock(StateKeys.BUFFERS, numConsecutive);
   }
 

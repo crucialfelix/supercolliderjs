@@ -110,6 +110,6 @@ export function play(rootDryad: Dryad): DryadPlayer {
  * and creates an instance with properties and children.
  */
 export function h(hgraph: any): Dryad {
-  let player = dryadic();
+  const player = dryadic();
   return player.h(hgraph);
 }

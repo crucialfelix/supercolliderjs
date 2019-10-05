@@ -4,7 +4,7 @@ import * as utils from "../utils";
 
 describe("parseMessage", function() {
   it("should parse a message", function() {
-    var msg = {
+    const msg = {
       address: "/n_go",
       // this may be how osc min responds
       // in which case MsgType is wrong
@@ -17,7 +17,7 @@ describe("parseMessage", function() {
       ],
       oscType: utils.OSC_TYPE_MESSAGE,
     };
-    var p = utils.parseMessage(msg);
+    const p = utils.parseMessage(msg);
     expect(_.isArray(p)).toBe(true);
     expect(p).toEqual(["/n_go", 1000, 0, -1, 3, 0]);
     expect(p.length).toBe(6);
@@ -26,24 +26,24 @@ describe("parseMessage", function() {
 
 describe("makeMessage", function() {
   it("should format a message", function() {
-    var msg = utils.makeMessage(["/n_go", 1000, 0, -1, 3, 0]);
+    const msg = utils.makeMessage(["/n_go", 1000, 0, -1, 3, 0]);
     expect(msg).toBeTruthy();
   });
 });
 
 describe("makeBundle", function() {
   it("should format a bundle", function() {
-    var b = utils.makeBundle(0, [["/n_go", 1000, 0, -1, 3, 0]]);
+    const b = utils.makeBundle(0, [["/n_go", 1000, 0, -1, 3, 0]]);
     expect(b).toBeTruthy();
   });
 });
 
 describe("asPacket", function() {
-  var address = "/n_go";
-  var args = [1000, 0, -1, 3, 0];
+  const address = "/n_go";
+  const args = [1000, 0, -1, 3, 0];
 
   it("should convert one array message to object style", function() {
-    var obj = utils.asPacket([address, ...args]);
+    const obj = utils.asPacket([address, ...args]);
     expect(_.isObject(obj)).toBe(true);
     expect(obj.address).toBe(address);
     expect(obj.args).toEqual(args);
@@ -79,26 +79,26 @@ describe("asPacket", function() {
 
 describe("timetag", function() {
   it("should make an NTP timetag array with no args", function() {
-    var ntp = utils.deltaTimeTag();
+    const ntp = utils.deltaTimeTag();
     expect(_.isArray(ntp)).toBe(true);
     expect(ntp.length).toBe(2);
   });
 
   it("should make an NTP timetag array from a number", function() {
-    var ntp = utils.deltaTimeTag(100);
+    const ntp = utils.deltaTimeTag(100);
     expect(_.isArray(ntp)).toBe(true);
     expect(ntp.length).toBe(2);
   });
 
   it("should make an NTP timetag array from a date", function() {
-    var ntp = utils.deltaTimeTag(new Date());
+    const ntp = utils.deltaTimeTag(new Date());
     expect(_.isArray(ntp)).toBe(true);
     expect(ntp.length).toBe(2);
   });
 
   it("should return ntp tag for UTC 1970", function() {
-    var epoch = new Date(Date.UTC(1970, 1, 1, 0, 0, 0));
-    var ntp = utils.dateToTimetag(epoch);
+    const epoch = new Date(Date.UTC(1970, 1, 1, 0, 0, 0));
+    const ntp = utils.dateToTimetag(epoch);
     expect(ntp).toEqual([2211667200, 0]);
   });
 });

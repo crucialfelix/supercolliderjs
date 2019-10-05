@@ -55,8 +55,8 @@ export default class SynthDefCompiler {
    * as a SynthDefResultType.
    */
   async compile(defs: object): Promise<SynthDefResultMapType> {
-    let defsList = _.toPairs(defs);
-    let compiledDefs = await Promise.all(_.map(defsList, ([defName, spec]) => this._compileOne(defName, spec)));
+    const defsList = _.toPairs(defs);
+    const compiledDefs = await Promise.all(_.map(defsList, ([defName, spec]) => this._compileOne(defName, spec)));
     return _.fromPairs(_.map(compiledDefs, result => [result.name, result]));
   }
 
@@ -69,7 +69,7 @@ export default class SynthDefCompiler {
     // compile...
     const compiledDefs = await this.compile(defs);
     // send...
-    let commands = _.map(compiledDefs, ({ name }) => this.sendCommand(name));
+    const commands = _.map(compiledDefs, ({ name }) => this.sendCommand(name));
     await Promise.all(commands.map(cmd => server.callAndResponse(cmd)));
     return compiledDefs;
   }
@@ -84,7 +84,7 @@ export default class SynthDefCompiler {
   }
 
   allSendCommands() {
-    let commands: msg.CallAndResponse[] = [];
+    const commands: msg.CallAndResponse[] = [];
     this.store.forEach((value, defName) => {
       commands.push(this.sendCommand(defName));
     });
@@ -92,11 +92,11 @@ export default class SynthDefCompiler {
   }
 
   sendCommand(defName: string) {
-    let data = this.get(defName);
+    const data = this.get(defName);
     if (!data) {
       throw new Error(`SynthDef not in store: ${defName}`);
     }
-    let buffer = new Buffer(data.bytes);
+    const buffer = new Buffer(data.bytes);
     return msg.defRecv(buffer);
   }
 

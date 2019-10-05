@@ -17,9 +17,9 @@ type BlockMapType = Map<string, List<number>>;
  * @param {int} initial
  * @returns {Array} [next {int}, state {int}]
  */
-export function increment(state: number, initial: number = 0): [number, number] {
+export function increment(state: number, initial = 0): [number, number] {
   // let next = (typeof state === "undefined" ? initial : state) + 1;
-  let next = (state || initial) + 1;
+  const next = (state || initial) + 1;
   return [next, next];
 }
 
@@ -42,13 +42,13 @@ export function initialBlockState(initialSize: number): BlockMapType {
  * @returns {Array}             - [start number {int}, mutated state {Immutable.Map}]
  */
 export function allocBlock(state: BlockMapType, blockSize: number): [number, BlockMapType] {
-  let keys = state.keySeq().sortBy((value, key) => parseInt(value || "0", 10) > (key || 0));
-  var ret: [number, BlockMapType] | undefined;
+  const keys = state.keySeq().sortBy((value, key) => parseInt(value || "0", 10) > (key || 0));
+  let ret: [number, BlockMapType] | undefined;
   keys.forEach((sizeKey): void | false => {
     if (typeof sizeKey !== "undefined") {
-      let size = parseInt(sizeKey, 10);
+      const size = parseInt(sizeKey, 10);
       if (size >= blockSize) {
-        let blocks = state.get(sizeKey);
+        const blocks = state.get(sizeKey);
         if (blocks.size) {
           if (size === blockSize) {
             // pop the last free one
@@ -56,7 +56,7 @@ export function allocBlock(state: BlockMapType, blockSize: number): [number, Blo
             return false; // break
           } else {
             // its larger, split off what you need
-            let lastBlock = blocks.last();
+            const lastBlock = blocks.last();
             ret = [lastBlock, splitFreeBlock(state, lastBlock, size, lastBlock, blockSize)];
             return false; // break
           }
@@ -98,7 +98,7 @@ export function reserveBlock(state: BlockMapType, addr: number, blockSize: numbe
     return removed;
   }
 
-  var enc = findEnclosingFreeBlock(state, addr, blockSize);
+  const enc = findEnclosingFreeBlock(state, addr, blockSize);
   if (enc === NOT_FOUND) {
     throw new Error(`Block is already allocated! addr:${addr} blockSize:${blockSize} state:${state}`);
   }
@@ -113,7 +113,7 @@ export function reserveBlock(state: BlockMapType, addr: number, blockSize: numbe
  * @returns {Array} - [[addr, size], ...]
  */
 export function freeBlockList(state: BlockMapType): FreeBlock[] {
-  var list: FreeBlock[] = [];
+  const list: FreeBlock[] = [];
   state.forEach((blks, sizeKey) => {
     if (blks !== undefined) {
       blks.forEach(addr => {
@@ -146,7 +146,7 @@ function findEnclosingFreeBlock(state: BlockMapType, addr: number, blockSize: nu
   let found = NOT_FOUND;
   state.forEach((blks, sizeKey): void | false => {
     if (blks !== undefined && sizeKey) {
-      let freeBlockSize = parseInt(sizeKey, 10);
+      const freeBlockSize = parseInt(sizeKey, 10);
       blks.forEach((fblock): void | false => {
         if (fblock !== undefined && blockEncloses(addr, blockSize, fblock, freeBlockSize)) {
           found = [fblock, freeBlockSize];
@@ -226,8 +226,8 @@ function splitFreeBlock(
   splitAddr: number,
   splitSize: number,
 ): BlockMapType {
-  var bottomGap = splitAddr - addr;
-  var topGap = endAddr(addr, blockSize) - endAddr(splitAddr, splitSize);
+  const bottomGap = splitAddr - addr;
+  const topGap = endAddr(addr, blockSize) - endAddr(splitAddr, splitSize);
   if (bottomGap > 0 && topGap === 0) {
     return resizeFreeBlock(state, addr, blockSize, addr, bottomGap);
   }
@@ -260,7 +260,7 @@ function endAddr(addr: number, blockSize: number): number {
 }
 
 function mergeNeighbors(state: BlockMapType, addr: number, blockSize: number): BlockMapType {
-  var blockEnd = endAddr(addr, blockSize);
+  const blockEnd = endAddr(addr, blockSize);
   let nextState = state;
   freeBlockList(state).forEach(fb => {
     if (endAddr(fb[0], fb[1]) === addr) {

@@ -44,7 +44,7 @@ export function eventListIterator(events: Event[]): Function {
 
     if (memo) {
       // memo, get next event
-      let event = sorted[memo.i];
+      const event = sorted[memo.i];
       if (event) {
         return {
           event,
@@ -54,8 +54,8 @@ export function eventListIterator(events: Event[]): Function {
     } else {
       // search for first positive delta
       for (let i = 0; i < length; i += 1) {
-        let event = sorted[i];
-        let delta = event.time - now;
+        const event = sorted[i];
+        const delta = event.time - now;
         if (delta >= 0) {
           return {
             event,
@@ -93,9 +93,9 @@ export function loopedEventListIterator(events: Event[], loopTime: number): Func
     }
 
     if (memo) {
-      let event = sorted[memo.i % length];
-      let iteration = Math.floor(memo.i / length);
-      let timeBase = iteration * loopTime;
+      const event = sorted[memo.i % length];
+      const iteration = Math.floor(memo.i / length);
+      const timeBase = iteration * loopTime;
 
       if (event) {
         // if (now > timeBase + event.time) {
@@ -109,10 +109,10 @@ export function loopedEventListIterator(events: Event[], loopTime: number): Func
       }
     } else {
       // search for first positive delta
-      let iteration = Math.max(Math.floor(now / loopTime), 0);
+      const iteration = Math.max(Math.floor(now / loopTime), 0);
 
       let timeBase = iteration * loopTime;
-      let lastEventTime = sorted[length - 1].time;
+      const lastEventTime = sorted[length - 1].time;
       if (now > timeBase + lastEventTime && now < timeBase + loopTime) {
         // play position is between lastEvent and loopTime
         // so start search in next loop, not at start of current one
@@ -120,9 +120,9 @@ export function loopedEventListIterator(events: Event[], loopTime: number): Func
       }
 
       for (let i = 0; i < length; i += 1) {
-        let event = sorted[i];
-        let time = timeBase + event.time;
-        let delta = time - now;
+        const event = sorted[i];
+        const time = timeBase + event.time;
+        const delta = time - now;
 
         if (delta >= 0) {
           return {

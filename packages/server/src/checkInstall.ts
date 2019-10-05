@@ -20,7 +20,7 @@ export default function checkInstall(): Promise<boolean> {
 
   function check(binName: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      let binPath = options[binName];
+      const binPath = options[binName];
       fs.stat(binPath, (err) => {
         err ? reject(err) : resolve(binPath);
       });

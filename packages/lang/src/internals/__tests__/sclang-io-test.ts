@@ -5,7 +5,7 @@ import { SclangIO, State } from "../sclang-io";
 
 // parse a series of output files with the option to break into chunks
 function readFile(filename) {
-  let abs = join(__dirname, "fixtures", filename);
+  const abs = join(__dirname, "fixtures", filename);
   return fs.readFileSync(abs, { encoding: "utf8" });
 }
 
@@ -16,35 +16,35 @@ function feedIt(filename, io) {
 describe("sclang-io", function() {
   describe("constructor", function() {
     it("should construct", function() {
-      var io = new SclangIO();
+      const io = new SclangIO();
       expect(io).toBeTruthy();
     });
   });
 
   describe("setState", function() {
     it("should setState", function() {
-      var io = new SclangIO();
+      const io = new SclangIO();
       io.setState(State.BOOTING);
       expect(io.state).toEqual(State.BOOTING);
     });
   });
 
   it("should ignore simple text", function() {
-    var io = new SclangIO();
+    const io = new SclangIO();
     io.setState(State.BOOTING);
     feedIt("io-na.txt", io);
     expect(io.state).toEqual(State.BOOTING);
   });
 
   it("should detect succesful compile", function() {
-    var io = new SclangIO();
+    const io = new SclangIO();
     io.setState(State.BOOTING);
     feedIt("io-compile-success.txt", io);
     expect(io.state).toEqual(State.READY);
   });
 
   it("should detect succesful compile despite errors in startup", function() {
-    var io = new SclangIO();
+    const io = new SclangIO();
     io.setState(State.BOOTING);
     feedIt("errors-but-did-compile.txt", io);
     // its COMPILED but didn't go to READY on sc3>
@@ -52,14 +52,14 @@ describe("sclang-io", function() {
   });
 
   it("should detect programmatic compiling", function() {
-    var io = new SclangIO();
+    const io = new SclangIO();
     io.setState(State.READY);
     feedIt("io-programmatic-compile.txt", io);
     expect(io.state).toEqual(State.COMPILING);
   });
 
   it("should detect a duplicate class compile failure", function() {
-    var io = new SclangIO();
+    const io = new SclangIO();
     io.setState(State.BOOTING);
     feedIt("io-duplicate-class.txt", io);
     expect(io.state).toEqual(State.COMPILE_ERROR);
@@ -74,9 +74,9 @@ describe("sclang-io", function() {
 
   describe("parseCompileErrors", () => {
     it("should parse Duplicate class errors", function() {
-      var io = new SclangIO();
+      const io = new SclangIO();
       io.setState(State.BOOTING);
-      var errors = io.parseCompileOutput(readFile("io-duplicate-class.txt"));
+      const errors = io.parseCompileOutput(readFile("io-duplicate-class.txt"));
 
       expect(errors).toBeDefined();
       expect(errors.duplicateClasses).toBeDefined();
@@ -88,9 +88,9 @@ describe("sclang-io", function() {
     });
 
     it("should parse extension for non-existent class", function() {
-      var io = new SclangIO();
+      const io = new SclangIO();
       io.setState(State.BOOTING);
-      var errors = io.parseCompileOutput(readFile("io-extension-for-non-existent-class.txt"));
+      const errors = io.parseCompileOutput(readFile("io-extension-for-non-existent-class.txt"));
 
       expect(errors).toBeDefined();
       expect(errors.extensionErrors).toBeDefined();
@@ -127,11 +127,11 @@ describe("sclang-io", function() {
 
   describe("SyntaxErrors", function() {
     it("should parse a SyntaxError from stdout", function() {
-      var io = new SclangIO();
+      const io = new SclangIO();
       io.setState(State.READY);
 
-      var text = readFile("trig-not-defined.txt");
-      var error = io.parseSyntaxErrors(text);
+      const text = readFile("trig-not-defined.txt");
+      const error = io.parseSyntaxErrors(text);
 
       expect(error).toBeTruthy();
       expect(error.msg).toBe("Variable 'trig' not defined.");
@@ -141,7 +141,7 @@ describe("sclang-io", function() {
     });
 
     it("on successful interpret, should still post output to stdout", function() {
-      var io = new SclangIO();
+      const io = new SclangIO();
       io.setState(State.READY);
 
       // Stick a blank Promise into register so it will
@@ -168,9 +168,9 @@ describe("sclang-io", function() {
 
   describe("capture", function() {
     it("should capture any immediate postln from end of CAPTURE", function() {
-      var io = new SclangIO();
+      const io = new SclangIO();
       io.setState(State.READY);
-      let output: string[] = [];
+      const output: string[] = [];
       io.on("stdout", o => output.push(o));
 
       feedIt("routine-postln.txt", io);

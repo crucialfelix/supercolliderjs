@@ -6,17 +6,17 @@ import { CallAndResponse } from "../osc/msg";
 describe("Server", function() {
   describe("default constructor", function() {
     it("should exist", function() {
-      var server = new Server();
+      const server = new Server();
       expect(server).toBeDefined();
     });
   });
 
   describe("boot sequence", function() {
     it('should detect "server ready" even if the output is broken into chunks', function() {
-      var one = "SuperCollider 3 se";
-      var two = "rver ready.";
+      const one = "SuperCollider 3 se";
+      const two = "rver ready.";
 
-      var server = new Server();
+      const server = new Server();
       spyOn(server, "_spawnProcess").and.returnValue(null);
       // make a fake this.process.stdout / stderr
       server.process = {
@@ -37,12 +37,12 @@ describe("Server", function() {
 
   describe("oscOnce", function() {
     it("should fullfill", function() {
-      var s = new Server();
+      const s = new Server();
 
       const spy = jest.spyOn(s.send, "msg");
       spy.mockImplementation(() => null);
 
-      var p = s.oscOnce(["/done", "/notify"]).then(rest => {
+      const p = s.oscOnce(["/done", "/notify"]).then(rest => {
         // p is now fulfilled
         // console.log(rest);
         expect(_.isEqual(rest, [15])).toBe(true);
@@ -67,9 +67,9 @@ describe("Server", function() {
 
   describe("callAndResponse", function() {
     it("should call and get response", function() {
-      var s = new Server();
+      const s = new Server();
 
-      var car: CallAndResponse = {
+      const car: CallAndResponse = {
         call: ["/notify"],
         response: ["/done", "/notify"],
       };
@@ -78,7 +78,7 @@ describe("Server", function() {
       const spy = jest.spyOn(s.send, "msg");
       spy.mockImplementation(() => null);
 
-      var p = s.callAndResponse(car).then(response => {
+      const p = s.callAndResponse(car).then(response => {
         expect(_.isEqual(response, [15])).toBe(true);
       });
       // console.log('sender', s.send);

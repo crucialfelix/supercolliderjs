@@ -1,7 +1,7 @@
 // http://www.2ality.com/2011/12/subtyping-builtins.html
 function copyOwnFrom(target: object, source: object): object {
   Object.getOwnPropertyNames(source).forEach(function(propName: string) {
-    let prop = Object.getOwnPropertyDescriptor(source, propName);
+    const prop = Object.getOwnPropertyDescriptor(source, propName);
     if (prop !== undefined) {
       Object.defineProperty(target, propName, prop);
     }
@@ -10,11 +10,11 @@ function copyOwnFrom(target: object, source: object): object {
 }
 
 class ExtendableError {
-  message: string = "";
-  stack: string = "";
+  message = "";
+  stack = "";
 
   constructor(message: string) {
-    let superInstance = new Error(message);
+    const superInstance = new Error(message);
     copyOwnFrom(this, superInstance);
     if (typeof Error.captureStackTrace === "function") {
       Error.captureStackTrace(this, this.constructor);

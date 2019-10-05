@@ -81,7 +81,7 @@ export default class SCLang extends EventEmitter {
      */
     executeFile?: string;
   }): string[] {
-    let o: string[] = [];
+    const o: string[] = [];
     o.push("-i", "supercolliderjs");
     if (options.executeFile) {
       o.push(options.executeFile);
@@ -111,7 +111,7 @@ export default class SCLang extends EventEmitter {
       write options as yaml to a temp file
       and return the path
     **/
-    let str = yaml.safeDump(conf, { indent: 4 });
+    const str = yaml.safeDump(conf, { indent: 4 });
     return new Promise((resolve, reject) => {
       temp.open("sclang-conf", function(err, info) {
         if (err) {
@@ -190,7 +190,7 @@ export default class SCLang extends EventEmitter {
    */
   spawnProcess(execPath: string, commandLineOptions: object): Promise<SclangCompileResult> {
     return new Promise((resolve, reject) => {
-      var done = false;
+      let done = false;
 
       this.process = this._spawnProcess(execPath, this.args(commandLineOptions));
       if (!(this.process && this.process.pid)) {
@@ -219,7 +219,7 @@ export default class SCLang extends EventEmitter {
 
       setTimeout(() => {
         if (!done) {
-          let err = `Timeout waiting for sclang to boot pid:${this.process && this.process.pid}`;
+          const err = `Timeout waiting for sclang to boot pid:${this.process && this.process.pid}`;
           this.log.err(err);
           // force it to finalize
           this.stateWatcher.processOutput();
@@ -255,7 +255,7 @@ export default class SCLang extends EventEmitter {
   sclangConfigOptions(options: SCLangOptions): SCLangConf {
     const runtimeIncludePaths = [path.resolve(__dirname, "./supercollider-js")];
 
-    let defaultConf: SCLangConf = {
+    const defaultConf: SCLangConf = {
       postInlineWarnings: false,
       includePaths: [],
       excludePaths: [],
@@ -288,8 +288,8 @@ export default class SCLang extends EventEmitter {
   }
 
   makeStateWatcher(): SclangIO {
-    let stateWatcher = new SclangIO();
-    for (let name of ["interpreterLoaded", "error", "stdout", "state"]) {
+    const stateWatcher = new SclangIO();
+    for (const name of ["interpreterLoaded", "error", "stdout", "state"]) {
       stateWatcher.on(name, (...args) => {
         this.emit(name, ...args);
       });
@@ -300,7 +300,7 @@ export default class SCLang extends EventEmitter {
   /**
    * listen to events from process and pipe stdio to the stateWatcher
    */
-  installListeners(subprocess: ChildProcess, listenToStdin: boolean = false): void {
+  installListeners(subprocess: ChildProcess, listenToStdin = false): void {
     if (listenToStdin) {
       // stdin of the global top level nodejs process
       process.stdin.setEncoding("utf8");
@@ -312,14 +312,14 @@ export default class SCLang extends EventEmitter {
     }
     if (subprocess.stdout) {
       subprocess.stdout.on("data", data => {
-        var ds = String(data);
+        const ds = String(data);
         this.log.dbug(ds);
         this.stateWatcher.parse(ds);
       });
     }
     if (subprocess.stderr) {
       subprocess.stderr.on("data", data => {
-        var error = String(data);
+        const error = String(data);
         this.log.stderr(error);
         this.emit("stderr", error);
       });
@@ -373,8 +373,8 @@ export default class SCLang extends EventEmitter {
    */
   async storeSclangConf(): Promise<SCLang> {
     if (this.options.sclang_conf) {
-      var confPath = path.resolve(untildify(this.options.sclang_conf));
-      var setConfigPath = 'SuperColliderJS.sclangConf = "' + confPath + '";\n\n';
+      const confPath = path.resolve(untildify(this.options.sclang_conf));
+      const setConfigPath = 'SuperColliderJS.sclangConf = "' + confPath + '";\n\n';
       await this.interpret(setConfigPath, undefined, true, true, true);
     }
     return this;
@@ -402,18 +402,18 @@ export default class SCLang extends EventEmitter {
   interpret(
     code: string,
     nowExecutingPath?: string,
-    asString: boolean = false,
-    postErrors: boolean = true,
-    getBacktrace: boolean = true,
+    asString = false,
+    postErrors = true,
+    getBacktrace = true,
   ): Promise<SclangResultType> {
     return new Promise((resolve, reject): void => {
-      var escaped = code
+      const escaped = code
         .replace(/[\n\r]/g, "__NL__")
         .replace(/\\/g, "__SLASH__")
         .replace(/"/g, '\\"');
-      var guid = cuid();
+      const guid = cuid();
 
-      var args = [
+      const args = [
         '"' + guid + '"',
         '"' + escaped + '"',
         nowExecutingPath ? '"' + nowExecutingPath + '"' : "nil",
@@ -432,7 +432,7 @@ export default class SCLang extends EventEmitter {
    */
   executeFile(filename: string): Promise<any> {
     return new Promise((resolve, reject): void => {
-      var guid = cuid();
+      const guid = cuid();
       this.stateWatcher.registerCall(guid, { resolve, reject });
       this.write(`SuperColliderJS.executeFile("${guid}", "${filename}")`, true);
     });
@@ -448,7 +448,7 @@ export default class SCLang extends EventEmitter {
 
   quit(): Promise<SCLang> {
     return new Promise((resolve): void => {
-      var cleanup = (): void => {
+      const cleanup = (): void => {
         this.process = undefined;
         this.setState(State.NULL);
         resolve(this);

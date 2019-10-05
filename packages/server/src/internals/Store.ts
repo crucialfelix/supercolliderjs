@@ -40,7 +40,7 @@ export default class Store {
    * @returns {any} result
    */
   mutateStateAndReturn(keys: string[], fn: Function): any {
-    var [result, subState] = fn(this.state.getIn(keys, Map<string, any>()));
+    const [result, subState] = fn(this.state.getIn(keys, Map<string, any>()));
     this.state = this.state.setIn(keys, subState);
     return result;
   }

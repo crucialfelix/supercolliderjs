@@ -122,7 +122,7 @@ export default class Server extends EventEmitter {
     this.send.subscribe(event => {
       // will be a type:msg or type:bundle
       // if args has a type: Buffer in it then compress that
-      var out = JSON.stringify(
+      let out = JSON.stringify(
         event.payload || event,
         (k: string, v: any): any => {
           if (k === "data" && _.isArray(v)) {
@@ -191,13 +191,13 @@ export default class Server extends EventEmitter {
   private _initSender(): void {
     this.send.on("msg", msg => {
       if (this.osc) {
-        var buf = osc.toBuffer(msg);
+        const buf = osc.toBuffer(msg);
         this.osc.send(buf, 0, buf.length, parseInt(this.options.serverPort), this.options.host);
       }
     });
     this.send.on("bundle", bundle => {
       if (this.osc) {
-        var buf = osc.toBuffer(bundle);
+        const buf = osc.toBuffer(bundle);
         this.osc.send(buf, 0, buf.length, parseInt(this.options.serverPort), this.options.host);
       }
     });
@@ -286,7 +286,7 @@ export default class Server extends EventEmitter {
     }
 
     _.forEach(this.options, (option, argName) => {
-      let flag = flagMap[argName];
+      const flag = flagMap[argName];
       if (flag) {
         if (option !== defaults[argName]) {
           opts.push(flag);
@@ -337,7 +337,7 @@ export default class Server extends EventEmitter {
       });
 
       // Keep a local buffer of the stdout text because on Windows it can be split into odd chunks.
-      var stdoutBuffer = "";
+      let stdoutBuffer = "";
       // watch for ready message
       this._serverObservers.stdout
         .takeWhile((text: string): boolean => {
@@ -360,7 +360,7 @@ export default class Server extends EventEmitter {
   }
 
   _spawnProcess(): void {
-    var execPath = this.options.scsynth,
+    const execPath = this.options.scsynth,
       args = this.args();
 
     if (!execPath) {
@@ -381,7 +381,7 @@ export default class Server extends EventEmitter {
     this.process = spawn(execPath, args, options);
 
     if (!this.process.pid) {
-      let error = `Failed to boot ${execPath}`;
+      const error = `Failed to boot ${execPath}`;
       this.processEvents.onError(error);
       throw new Error(error);
     }
@@ -389,7 +389,7 @@ export default class Server extends EventEmitter {
     this.processEvents.onNext("pid: " + this.process.pid);
 
     // when this parent process dies, kill child process
-    let killChild = (): void => {
+    const killChild = (): void => {
       if (this.process) {
         this.process.kill("SIGTERM");
         this.process = null;
@@ -506,12 +506,12 @@ export default class Server extends EventEmitter {
    * @param {int} timeout - in milliseconds before the Promise is rejected
    * @returns {Promise}
    */
-  oscOnce(matchArgs: MsgType, timeout: number = 4000): Promise<MsgType> {
+  oscOnce(matchArgs: MsgType, timeout = 4000): Promise<MsgType> {
     return new Promise((resolve: Function, reject: Function) => {
       const subscription = this.receive.subscribe(msg => {
         const command = msg.slice(0, matchArgs.length);
         if (_.isEqual(command, matchArgs)) {
-          var payload = msg.slice(matchArgs.length);
+          const payload = msg.slice(matchArgs.length);
           resolve(payload);
           dispose();
         }
@@ -546,8 +546,8 @@ export default class Server extends EventEmitter {
    * @param {int} timeout - in milliseconds before rejecting the `Promise`
    * @returns {Promise} - resolves with all values the server responsed with after the matched response.
    */
-  callAndResponse(callAndResponse: CallAndResponse, timeout: number = 4000): Promise<MsgType> {
-    var promise = this.oscOnce(callAndResponse.response, timeout);
+  callAndResponse(callAndResponse: CallAndResponse, timeout = 4000): Promise<MsgType> {
+    const promise = this.oscOnce(callAndResponse.response, timeout);
     // if it's valid to send a msg with an array on the end,
     // then change the definition of Msg
     this.send.msg(callAndResponse.call);

@@ -60,7 +60,7 @@ export default class Synth extends Dryad<Properties> {
     return {
       scserver: {
         msg: (context: Context, properties: Properties) => {
-          let args = _.mapValues(properties.args, (value, key) => this._checkOscType(value, key, context.id));
+          const args = _.mapValues(properties.args, (value, key) => this._checkOscType(value, key, context.id));
           // if out is not set in args and out is in synthdef
           // then set it from context
           // TODO: check that synthDef has an arg named out
@@ -68,7 +68,7 @@ export default class Synth extends Dryad<Properties> {
             args.out = context.out;
           }
 
-          let dn = this._checkOscType(defName(properties.def), "def.name", context.id);
+          const dn = this._checkOscType(defName(properties.def), "def.name", context.id);
           return synthNew(dn, context.nodeID, AddActions.TAIL, context.group, args);
         },
       },

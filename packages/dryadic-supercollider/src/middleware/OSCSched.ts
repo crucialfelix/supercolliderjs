@@ -46,7 +46,7 @@ export default class OSCSched {
    */
   constructor(
     sendFn: Function,
-    latency: number = 0.05,
+    latency = 0.05,
     setTimeoutFn: Function = setTimeout,
     clearTimeoutFn: Function = clearTimeout,
   ) {

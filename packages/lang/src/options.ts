@@ -41,14 +41,14 @@ function loadConfig(aPath: string): Partial<SCLangOptions> {
 }
 
 function loadDotSupercolliderYaml(): Partial<SCLangArgs> {
-  let paths = [
+  const paths = [
     ".supercollider.yaml",
     path.join(os.homedir(), ".supercollider.yaml")
   ];
   for (const cpath of paths) {
     if(cpath) {
-      let resolvedPath = path.resolve(untildify(cpath));
-      let checked = fs.existsSync(resolvedPath) ? resolvedPath : null;
+      const resolvedPath = path.resolve(untildify(cpath));
+      const checked = fs.existsSync(resolvedPath) ? resolvedPath : null;
       if(checked) {
         console.log(`Loading config: ${checked}`);
         return loadConfig(cpath);
@@ -61,7 +61,7 @@ function loadDotSupercolliderYaml(): Partial<SCLangArgs> {
 
 
 function defaultOptions(): SCLangOptions {
-  let opts: SCLangOptions = {
+  const opts: SCLangOptions = {
     debug: false,
     echo: true,
     stdin: false,
@@ -76,7 +76,7 @@ function defaultOptions(): SCLangOptions {
 
   switch (os.platform()) {
     case "win32": {
-      let defaultRoot = "C:\\Program Files (x86)\\SuperCollider";
+      const defaultRoot = "C:\\Program Files (x86)\\SuperCollider";
       opts.sclang = path.join(defaultRoot, "sclang.exe");
       // eslint-disable-next-line @typescript-eslint/camelcase
       opts.sclang_conf = path.join(defaultRoot, "sclang_conf.yaml");
@@ -89,7 +89,7 @@ function defaultOptions(): SCLangOptions {
       break;
     }
     default: {
-      let defaultRoot = "/usr/local/bin";
+      const defaultRoot = "/usr/local/bin";
       opts.sclang = path.join(defaultRoot, "sclang");
       // eslint-disable-next-line @typescript-eslint/camelcase
       opts.sclang_conf = "/usr/local/share/SuperCollider/sclang_conf.yaml";

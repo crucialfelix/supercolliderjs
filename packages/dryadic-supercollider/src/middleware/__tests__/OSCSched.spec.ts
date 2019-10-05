@@ -3,7 +3,7 @@ import _ from "lodash";
 import OSCSched from "../OSCSched";
 
 describe("OSCSched", function() {
-  var sched: OSCSched, sent, didClearTimeout, didSetTimeout;
+  let sched: OSCSched, sent, didClearTimeout, didSetTimeout;
   const timeoutId = 1;
 
   beforeEach(() => {

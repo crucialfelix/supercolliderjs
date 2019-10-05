@@ -9,7 +9,7 @@ import { JSONObjectType } from "@supercollider.js/server";
 /* eslint @typescript-eslint/no-var-requires: 0 */
 const pkg = require(path.join(__dirname, "../../package.json"));
 
-var help = [];
+const help = [];
 
 program.on("--help", function() {
   help.forEach(function(line) {

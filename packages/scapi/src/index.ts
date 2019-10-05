@@ -42,7 +42,7 @@ export default class SCAPI extends events.EventEmitter {
   log: Logger;
   udp: any; // dgram socket, like EvenEmitter
 
-  constructor(schost: string = "localhost", scport: number = 57120) {
+  constructor(schost = "localhost", scport = 57120) {
     super();
     this.schost = schost;
     this.scport = scport;
@@ -54,7 +54,7 @@ export default class SCAPI extends events.EventEmitter {
     this.udp = dgram.createSocket("udp4");
 
     this.udp.on("message", msgbuf => {
-      var msg = osc.fromBuffer(msgbuf);
+      const msg = osc.fromBuffer(msgbuf);
       if (msg.address === "/API/reply") {
         return this.receive("reply", msg);
       }
@@ -75,8 +75,8 @@ export default class SCAPI extends events.EventEmitter {
   }
 
   call(requestId, oscpath, args, ok, err) {
-    var promise = new Promise((resolve, reject) => {
-      var clientId = 0, // no longer needed
+    const promise = new Promise((resolve, reject) => {
+      let clientId = 0, // no longer needed
         clumps;
 
       requestId = _.isUndefined(requestId) ? cuid() : requestId;
@@ -87,7 +87,7 @@ export default class SCAPI extends events.EventEmitter {
       }
 
       const sender = (rid, oscArgs) => {
-        var buf = osc.toBuffer({
+        const buf = osc.toBuffer({
           address: "/API/call",
           args: [clientId, rid, oscpath].concat(oscArgs),
         });
@@ -115,7 +115,7 @@ export default class SCAPI extends events.EventEmitter {
       if (_.some(args, isNotOsc)) {
         clumps = JSON.stringify(args).match(/.{1,7168}/g);
         _.each(clumps, function(clump, i) {
-          var rid = "" + (i + 1) + "," + clumps.length + ":" + requestId;
+          const rid = "" + (i + 1) + "," + clumps.length + ":" + requestId;
           sender(rid, [clump]);
         });
       } else {
@@ -130,7 +130,7 @@ export default class SCAPI extends events.EventEmitter {
   }
 
   receive(signal, msg) {
-    var // clientId = msg.args[0].value,
+    let // clientId = msg.args[0].value,
       requestId = msg.args[1].value,
       result = msg.args[2].value,
       request = this.requests[requestId];
@@ -152,7 +152,7 @@ export default class SCAPI extends events.EventEmitter {
       }
     }
 
-    var response = {
+    const response = {
       signal: signal,
       request_id: requestId,
       result: result,

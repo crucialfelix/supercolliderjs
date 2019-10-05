@@ -77,7 +77,7 @@ export default class SynthStream extends Dryad<Properties> {
   add(player: DryadPlayer): object {
     return {
       run: (context: Context, properties: Properties) => {
-        let subscription = properties.stream.subscribe(event => {
+        const subscription = properties.stream.subscribe(event => {
           // This assumes a Bacon event.
           // Should validate that event.value is object
           // assumes context has not been updated and is the same event
@@ -96,14 +96,14 @@ export default class SynthStream extends Dryad<Properties> {
   commandsForEvent(event: Event, context: Context, properties: Properties): SynthStreamEventCommand {
     const msgs: MsgType[] = [];
     let updateContext;
-    let nodeIDs = context.nodeIDs || {};
-    let key = event.key ? String(event.key) : "undefined";
+    const nodeIDs = context.nodeIDs || {};
+    const key = event.key ? String(event.key) : "undefined";
 
     switch (event.type) {
       case "noteOff": {
         // if no key then there is no way to shut off notes
         // other than sending to the group
-        let nodeID: number = nodeIDs[key];
+        const nodeID: number = nodeIDs[key];
         if (nodeID) {
           msgs.push(nodeFree(nodeID || -1));
           // TODO: if synthDef hasGate else just free it
@@ -120,7 +120,7 @@ export default class SynthStream extends Dryad<Properties> {
 
       default: {
         // noteOn
-        let defaultParams = properties.defaultParams || {};
+        const defaultParams = properties.defaultParams || {};
         const args = _.assign({ out: context.out || 0 }, defaultParams.args, event.args);
         const defName = event.defName || (defaultParams.defName as string);
         // if ev.id then create a nodeID and store it

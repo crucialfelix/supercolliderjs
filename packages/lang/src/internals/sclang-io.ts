@@ -15,8 +15,8 @@ export enum State {
 }
 
 export class SclangCompileResult {
-  version: string = "";
-  stdout: string = "";
+  version = "";
+  stdout = "";
   errors: CompileError[] = [];
   extensionErrors: ExtensionError[] = [];
   duplicateClasses: DuplicateClass[] = [];
@@ -268,7 +268,7 @@ export class SclangIO extends EventEmitter {
           // but the same text body.
           re: /^SUPERCOLLIDERJS:([0-9A-Za-z-]+):([A-Za-z]+):(.*)$/gm,
           fn: (match, text: string): void | true => {
-            var guid = match[1],
+            let guid = match[1],
               type = match[2],
               body = match[3],
               response: Response,
@@ -389,12 +389,12 @@ export class SclangIO extends EventEmitter {
    * Parse syntax error from STDOUT runtime errors.
    */
   parseSyntaxErrors(text: string): SCSyntaxError {
-    var msgRe = /^ERROR: syntax error, (.+)$/m,
+    const msgRe = /^ERROR: syntax error, (.+)$/m,
       msgRe2 = /^ERROR: (.+)$/m,
       fileRe = /in file '(.+)'/m,
       lineRe = /line ([0-9]+) char ([0-9]+):$/m;
 
-    var msg = msgRe.exec(text) || msgRe2.exec(text),
+    const msg = msgRe.exec(text) || msgRe2.exec(text),
       line = lineRe.exec(text),
       file = fileRe.exec(text),
       code = text
@@ -424,7 +424,7 @@ export class SclangIO extends EventEmitter {
    * into this.result and resetting the stack.
    */
   processOutput(): void {
-    let parsed = this.parseCompileOutput((this.output || []).join("\n"));
+    const parsed = this.parseCompileOutput((this.output || []).join("\n"));
 
     // merge with any previously processed
     _.each(parsed, (value, key): void => {
@@ -449,7 +449,7 @@ export class SclangIO extends EventEmitter {
     // NumPrimitives = 688
     // multiple:
     // compiling dir: ''
-    let dirsRe = /^[\s]+compiling dir:[\s]+'(.+)'$/gm;
+    const dirsRe = /^[\s]+compiling dir:[\s]+'(.+)'$/gm;
     let match: RegExpExecArray | null = null;
     let end = 0;
 
@@ -459,7 +459,7 @@ export class SclangIO extends EventEmitter {
     }
 
     // the rest are the error blocks
-    var rest = text.substr(end),
+    const rest = text.substr(end),
       // split on ---------------------
       // blocks = rest.split(/^\-+$/m),
       // message
@@ -470,7 +470,7 @@ export class SclangIO extends EventEmitter {
       commonPath = /^\/Common/;
 
     while ((match = errRe.exec(rest))) {
-      var file = match[2];
+      let file = match[2];
       // errors in Common library are posted as '/Common/...'
       if (commonPath.exec(file)) {
         file = errors.dirs[0] + file;

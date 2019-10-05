@@ -154,7 +154,7 @@ export function updateNodeState(server: Server, nodeID: number, nodeState: Parti
  * @private
  */
 function _registerHandler(type: Key, server: Server, id: string, nodeID: number, handler: Function): Function {
-  var dispose = () => {
+  const dispose = () => {
     _disposeHandler(type, server, id, nodeID);
   };
 
@@ -212,7 +212,7 @@ function _handlersFor(server: Server, type, nodeID: number) {
 function _saveNodeState(server: Server, set, msg) {
   const nodeID = msg[0];
   const isGroup = msg[4] > 0;
-  var nodeState: NodeStateType = {
+  let nodeState: NodeStateType = {
     parent: msg[1],
     previous: msg[2],
     next: msg[3],

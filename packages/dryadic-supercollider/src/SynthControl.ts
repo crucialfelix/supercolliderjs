@@ -40,10 +40,10 @@ export default class SynthControl extends Dryad<Properties> {
     return {
       run: (context: Context, properties: Properties) => {
         if (properties.stream) {
-          let subscription = properties.stream.subscribe(event => {
+          const subscription = properties.stream.subscribe(event => {
             // This assumes a Bacon event.
             // Should validate that event.value is object
-            let msg = nodeSet(context.nodeID || -1, event.value());
+            const msg = nodeSet(context.nodeID || -1, event.value());
             player.callCommand(context.id, {
               scserver: {
                 bundle: {

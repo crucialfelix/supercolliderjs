@@ -6,7 +6,7 @@ import scserver from "../scserver";
  */
 describe("scserver", function() {
   // TODO use real objects
-  let context = {
+  const context = {
     scserver: {
       callAndResponse: jest.fn(),
       send: {
@@ -14,11 +14,11 @@ describe("scserver", function() {
       },
     },
   };
-  let properties = {};
+  const properties = {};
 
   describe("msg", function() {
     it("should send msg", function() {
-      let cmd = {
+      const cmd = {
         scserver: {
           msg: ["/s_new", "sin", 1000, 0, 1],
         },

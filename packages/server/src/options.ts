@@ -206,14 +206,14 @@ function loadConfig(aPath: string): Partial<ServerArgs> {
 }
 
 function loadDotSupercolliderYaml(): Partial<ServerArgs> {
-  let paths = [
+  const paths = [
     ".supercollider.yaml",
     path.join(os.homedir(), ".supercollider.yaml")
   ];
   for (const cpath of paths) {
     if(cpath) {
-      let resolvedPath = path.resolve(untildify(cpath));
-      let checked = fs.existsSync(resolvedPath) ? resolvedPath : null;
+      const resolvedPath = path.resolve(untildify(cpath));
+      const checked = fs.existsSync(resolvedPath) ? resolvedPath : null;
       if(checked) {
         console.log(`Loading config: ${checked}`);
         return loadConfig(cpath);

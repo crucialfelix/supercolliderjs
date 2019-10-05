@@ -3,7 +3,7 @@
 import Logger from "../";
 
 describe("Logger", function() {
-  var l = new Logger(true, false);
+  const l = new Logger(true, false);
 
   it("dbug", function() {
     l.dbug("testing dbug");
