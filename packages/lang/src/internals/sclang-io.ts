@@ -125,8 +125,8 @@ export class SclangIO extends EventEmitter {
    */
   parse(input: string): void {
     let echo = true,
-      startState = this.state,
       last = 0;
+    const startState = this.state;
 
     this.states[this.state].forEach((stf: StateChangeHandler): void => {
       let match: RegExpExecArray | null = null;
@@ -178,7 +178,7 @@ export class SclangIO extends EventEmitter {
       booting: [
         {
           re: /^compiling class library/m,
-          fn: (match, text: string): void =>  {
+          fn: (match, text: string): void => {
             this.reset();
             this.setState(State.COMPILING);
             this.pushOutputText(text);
@@ -268,10 +268,10 @@ export class SclangIO extends EventEmitter {
           // but the same text body.
           re: /^SUPERCOLLIDERJS:([0-9A-Za-z-]+):([A-Za-z]+):(.*)$/gm,
           fn: (match, text: string): void | true => {
-            let guid = match[1],
+            const guid = match[1],
               type = match[2],
-              body = match[3],
-              response: Response,
+              body = match[3];
+            let response: Response,
               stdout: string,
               obj: JSONObjectType,
               lines: string[],

@@ -200,7 +200,7 @@ export default class SCLang extends EventEmitter {
         return;
       }
 
-      var bootListener = (state: State): void => {
+      const bootListener = (state: State): void => {
         if (state === State.READY) {
           done = true;
           this.removeListener("state", bootListener);

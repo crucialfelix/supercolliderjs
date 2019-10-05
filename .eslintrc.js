@@ -15,6 +15,7 @@ module.exports = {
     "@typescript-eslint/camelcase": ["warn"],
     "@typescript-eslint/no-empty-interface": ["warn"],
     "@typescript-eslint/no-use-before-define": ["warn"],
+    "@typescript-eslint/no-empty-function": ["warn"],
 
     // indent: ["error", 2]
     // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs

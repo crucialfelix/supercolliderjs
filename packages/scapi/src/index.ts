@@ -76,8 +76,8 @@ export default class SCAPI extends events.EventEmitter {
 
   call(requestId, oscpath, args, ok, err) {
     const promise = new Promise((resolve, reject) => {
-      let clientId = 0, // no longer needed
-        clumps;
+      const clientId = 0; // no longer needed
+      let clumps: RegExpMatchArray | null = null;
 
       requestId = _.isUndefined(requestId) ? cuid() : requestId;
       args = args ? args : [];
@@ -115,8 +115,10 @@ export default class SCAPI extends events.EventEmitter {
       if (_.some(args, isNotOsc)) {
         clumps = JSON.stringify(args).match(/.{1,7168}/g);
         _.each(clumps, function(clump, i) {
-          const rid = "" + (i + 1) + "," + clumps.length + ":" + requestId;
-          sender(rid, [clump]);
+          if (clumps) {
+            const rid = "" + (i + 1) + "," + clumps.length + ":" + requestId;
+            sender(rid, [clump]);
+          }
         });
       } else {
         sender(requestId, args);
@@ -130,10 +132,9 @@ export default class SCAPI extends events.EventEmitter {
   }
 
   receive(signal, msg) {
-    let // clientId = msg.args[0].value,
-      requestId = msg.args[1].value,
-      result = msg.args[2].value,
-      request = this.requests[requestId];
+    const requestId = msg.args[1].value;
+    let result = msg.args[2].value;
+    const request = this.requests[requestId];
     if (!request) {
       this.emit("error", "Unknown request " + requestId);
       this.log.err("Unknown request " + requestId);

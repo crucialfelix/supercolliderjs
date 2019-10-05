@@ -32,11 +32,11 @@ describe("node-watcher", function() {
 
       expectEqualState(s, {
         ON_NODE_GO: {
-          "1000": ["0.1.2:1000"]
+          "1000": ["0.1.2:1000"],
         },
         CALLBACKS: {
-          "0.1.2:1000": fn
-        }
+          "0.1.2:1000": fn,
+        },
       });
     });
 
@@ -48,12 +48,12 @@ describe("node-watcher", function() {
 
       expectEqualState(s, {
         ON_NODE_GO: {
-          "1000": ["0.1.2:1000", "0.1.3:1000"]
+          "1000": ["0.1.2:1000", "0.1.3:1000"],
         },
         CALLBACKS: {
           "0.1.2:1000": fn,
-          "0.1.3:1000": fn
-        }
+          "0.1.3:1000": fn,
+        },
       });
     });
 
@@ -66,9 +66,9 @@ describe("node-watcher", function() {
 
       expectEqualState(s, {
         ON_NODE_GO: {
-          "1000": []
+          "1000": [],
         },
-        CALLBACKS: {}
+        CALLBACKS: {},
       });
     });
   });

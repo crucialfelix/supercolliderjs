@@ -110,6 +110,7 @@ describe("block allocator", function() {
 
   describe("freeBlock", function() {
     it("should free a 2 chan", function() {
+      // eslint-disable-next-line prefer-const
       let [addr, state] = alloc.allocBlock(is, 2);
       state = alloc.freeBlock(state, addr, 2);
       expectFreeToBe(state, [[0, 8]]);

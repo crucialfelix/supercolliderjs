@@ -168,7 +168,7 @@ function _registerHandler(type: Key, server: Server, id: string, nodeID: number,
             if (type === Key.ON_NODE_GO || type === Key.ON_NODE_END) {
               dispose();
             }
-            handler.apply(null, args);
+            handler(...args);
           },
         },
       })
