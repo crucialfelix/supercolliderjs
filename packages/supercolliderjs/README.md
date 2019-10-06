@@ -15,6 +15,7 @@ This library provides functionality for working with:
 ## Documentation
 
 [API](https://crucialfelix.github.io/supercolliderjs/api/)
+
 [Guide](https://crucialfelix.gitbooks.io/supercollider-js-guide/content/)
 
 ## Features
@@ -39,7 +40,7 @@ See also the [Examples Repository](https://github.com/crucialfelix/supercollider
 Interpret SuperCollider language code.
 
 ```javascript
-var sc = require('supercolliderjs');
+const sc = require('supercolliderjs');
 
 sc.lang.boot().then(function(sclang) {
 
@@ -64,27 +65,27 @@ sc.lang.boot().then(function(sclang) {
 ### server
 
 ```javascript
-let sc = require('supercolliderjs');
+const sc = require('supercolliderjs');
 
 sc.server.boot().then((server) => {
 
   // Compile synthDef from a file
   // Will recompile and send to server if the file changes.
-  let def = server.loadSynthDef('formant', './formant.scd');
+  const def = server.loadSynthDef('formant', './formant.scd');
 
   // Create group at the root
-  let group = server.group();
+  const group = server.group();
 
-  let freqSpec = {
+  const freqSpec = {
     minval: 100,
     maxval: 8000,
     warp: 'exp'
   };
 
   // Map 0..1 to an exponential frequency range from 100..8000
-  let randFreq = () => sc.map.mapWithSpec(Math.random(), freqSpec);
+  const randFreq = () => sc.map.mapWithSpec(Math.random(), freqSpec);
 
-  let spawn = (dur) => {
+  const spawn = (dur) => {
     server.synth(def, {
       fundfreq: randFreq(),
       formantfreq: randFreq(),
@@ -93,7 +94,7 @@ sc.server.boot().then((server) => {
       timeScale: dur
     }, group);
 
-    let next = Math.random() * 0.25;
+    const next = Math.random() * 0.25;
     // Schedule this function again:
     setTimeout(() => spawn(next), next * 1000);
   };
@@ -107,9 +108,9 @@ sc.server.boot().then((server) => {
 Compatibility
 -------------
 
-Works on Node 4+
+Works on Node 10+
 
-Source code is written in ES2015 with Flow type annotations.
+Source code is written in TypeScript
 
 
 Contribute

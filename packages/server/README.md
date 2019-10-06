@@ -22,7 +22,7 @@ Manages allocation of node and buffer resources.
 ## Usage
 
 ```js
-import server from "@supercollider.js/server";
+import Server from "@supercollider.js/server";
 
 let s = new Server();
 
