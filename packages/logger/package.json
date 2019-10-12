@@ -18,12 +18,10 @@
     "access": "public"
   },
   "dependencies": {
-    "chalk": "^2.4.2"
+    "chalk": "^2.4.2",
+    "tslib": "1.10.0"
   },
-  "devDependencies": {
-    "typescript": "3.6.3",
-    "jest": "^24.9.0"
-  },
+  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/crucialfelix/supercolliderjs.git"

@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@supercollider.js/logger": "1.0.0",
+    "commander": "^2.9.0",
     "immutable": "^3.8.1",
     "js-yaml": "3.13.1",
     "lodash": "^4.17.15",
@@ -34,10 +35,7 @@
     "tslib": "1.10.0",
     "untildify": "^4.0.0"
   },
-  "devDependencies": {
-    "typescript": "3.6.3",
-    "jest": "^24.9.0"
-  },
+  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/crucialfelix/supercolliderjs.git"

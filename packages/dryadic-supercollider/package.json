@@ -26,8 +26,7 @@
     "baconjs": "^0.7.93"
   },
   "devDependencies": {
-    "typescript": "3.6.3",
-    "jest": "^24.9.0"
+    "@types/baconjs": "0.7.33"
   },
   "repository": {
     "type": "git",

@@ -23,10 +23,7 @@
     "osc-min": "^1.1.1",
     "tslib": "1.10.0"
   },
-  "devDependencies": {
-    "typescript": "3.6.3",
-    "jest": "^24.9.0"
-  },
+  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
