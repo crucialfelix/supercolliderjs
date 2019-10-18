@@ -1,11 +1,13 @@
 /* eslint no-console: 0 */
 import { Dryad } from "dryadic";
-import fs, { promises as fsp } from "fs";
+import fs from "fs";
 import path from "path";
 
 import SCLang, { SCLangError } from "@supercollider.js/lang";
 import Server, { msg, MsgType } from "@supercollider.js/server";
 const { defFree, defLoad, defRecv } = msg;
+
+const fsp = fs.promises;
 
 const StateKeys = {
   SYNTH_DEFS: "SYNTH_DEFS",
@@ -56,7 +58,9 @@ interface Context {
  *
  */
 export default class SCSynthDef extends Dryad<Properties> {
-  properties: Properties = { watch: false };
+  defaultProperties(): Properties {
+    return { watch: false };
+  }
   /**
    * If there is no SCLang in the parent context,
    * then this will wrap itself in an SCLang (language interpreter).
@@ -104,7 +108,9 @@ export default class SCSynthDef extends Dryad<Properties> {
       return result;
     }
 
-    throw new Error("Nothing specified for SCSynthDef: source|compileFrom|loadFrom");
+    throw new Error(
+      "Nothing specified for SCSynthDef: source|compileFrom|loadFrom Properties:" + JSON.stringify(properties),
+    );
   }
 
   async _sendSynthDef(context: Context, properties: Properties, result: CompiledSynthDef): Promise<CompiledSynthDef> {
