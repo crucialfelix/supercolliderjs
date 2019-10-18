@@ -16,7 +16,7 @@ import { Disposable } from "rx";
 import Server from "./server";
 import { State } from "./internals/Store";
 
-interface NodeStateType {
+export interface NodeState {
   parent?: number;
   previous?: number;
   next?: number;
@@ -143,7 +143,7 @@ export function whenNodeEnd(server: Server, id: string, nodeID: number): Promise
  *
  * This is for internal use.
  */
-export function updateNodeState(server: Server, nodeID: number, nodeState: Partial<NodeStateType>) {
+export function updateNodeState(server: Server, nodeID: number, nodeState: Partial<NodeState>) {
   // unless its n_end then delete
   server.state.mutate(Key.NODE_WATCHER, (state: State) => {
     return state.mergeIn([Key.NODES, String(nodeID)], Map(), nodeState);
@@ -212,7 +212,7 @@ function _handlersFor(server: Server, type, nodeID: number) {
 function _saveNodeState(server: Server, set, msg) {
   const nodeID = msg[0];
   const isGroup = msg[4] > 0;
-  let nodeState: NodeStateType = {
+  let nodeState: NodeState = {
     parent: msg[1],
     previous: msg[2],
     next: msg[3],

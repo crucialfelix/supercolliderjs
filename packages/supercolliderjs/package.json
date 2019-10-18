@@ -13,6 +13,9 @@
   "directories": {
     "lib": "lib"
   },
+  "bin": {
+    "export-supercollider": "./lib/bin/export-supercollider.js"
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -21,6 +24,7 @@
     "@supercollider.js/lang": "1.0.0",
     "@supercollider.js/server": "1.0.0",
     "@supercollider.js/server-plus": "1.0.0",
+    "@supercollider.js/dryads": "1.0.0",
     "commander": "^2.9.0",
     "ncp": "^2.0.0",
     "tslib": "1.10.0"

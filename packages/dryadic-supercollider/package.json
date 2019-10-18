@@ -1,7 +1,7 @@
 {
-  "name": "@dryadic/supercollider",
+  "name": "@supercollider.js/dryads",
   "version": "1.0.0",
-  "description": "SuperCollider components for dryadic",
+  "description": "Dryadic components for SuperCollider",
   "keywords": [
     "supercollider",
     "dryadic"

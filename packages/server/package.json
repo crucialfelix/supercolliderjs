@@ -21,8 +21,7 @@
     "check-install": "node ./lib/checkInstall.js"
   },
   "bin": {
-    "supercollider-server": "node ./lib/bin/scsynth",
-    "export-supercollider": "node ./lib/bin/export-supercollider"
+    "supercollider-server": "./lib/bin/scsynth.js"
   },
   "dependencies": {
     "@supercollider.js/logger": "1.0.0",
