@@ -14,8 +14,17 @@ module.exports = {
     "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
     "@typescript-eslint/camelcase": ["warn"],
     "@typescript-eslint/no-empty-interface": ["warn"],
-    "@typescript-eslint/no-use-before-define": ["warn"],
+    "@typescript-eslint/no-use-before-define": [0],
     "@typescript-eslint/no-empty-function": ["warn"],
+    "@typescript-eslint/no-var-requires": ["warn"],
+    "@typescript-eslint/camelcase": [0],
+    "@typescript-eslint/explicit-function-return-type": ["warn", { allowExpressions: true }],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        args: "none",
+      },
+    ],
 
     // indent: ["error", 2]
     // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
