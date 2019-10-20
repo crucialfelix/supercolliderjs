@@ -94,10 +94,10 @@ export function quit(): MsgType {
     If argument is 1, server will remember your return address and send you notifications. 0 will stop sending notifications.
   * @return {Array} - OSC message
   */
-export function notify(on = 1): CallAndResponse {
+export function notify(on = 1, clientId = 0): CallAndResponse {
   return {
-    call: ["/notify", on],
-    response: ["/done", "/notify"], // => clientID
+    call: ["/notify", on, clientId],
+    response: ["/done", "/notify"], // => clientID, maxLogins
   };
 }
 
