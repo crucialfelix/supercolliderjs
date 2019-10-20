@@ -96,7 +96,7 @@ export default class SynthDefCompiler {
     if (!data) {
       throw new Error(`SynthDef not in store: ${defName}`);
     }
-    const buffer = new Buffer(data.bytes);
+    const buffer = Buffer.from(data.bytes);
     return msg.defRecv(buffer);
   }
 

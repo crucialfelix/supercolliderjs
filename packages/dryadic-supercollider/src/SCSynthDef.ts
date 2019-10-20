@@ -124,7 +124,7 @@ export default class SCSynthDef extends Dryad<Properties> {
     // you need to use a setter
     context.synthDef = result;
     // context.synthDefName = result.name;
-    const buffer = new Buffer(result.bytes);
+    const buffer = Buffer.from(result.bytes);
     const promises: Promise<any>[] = [context.scserver.callAndResponse(defRecv(buffer))];
     if (properties.saveToDir) {
       promises.push(this._writeSynthDef(result.name, buffer, result.synthDesc, properties.saveToDir));
