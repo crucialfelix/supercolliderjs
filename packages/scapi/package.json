@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@supercollider.js/logger": "1.0.0",
+    "@supercollider.js/osc": "1.0.0",
     "cuid": "^2.1.6",
     "lodash": "^4.17.15",
-    "osc-min": "^1.1.1",
     "tslib": "1.10.0"
   },
   "devDependencies": {},

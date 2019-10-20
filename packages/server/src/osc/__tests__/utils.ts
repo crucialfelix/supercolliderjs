@@ -8,14 +8,8 @@ describe("parseMessage", function() {
       address: "/n_go",
       // this may be how osc min responds
       // in which case MsgType is wrong
-      args: [
-        { type: utils.OSC_TYPE.INTEGER, value: 1000 },
-        { type: utils.OSC_TYPE.INTEGER, value: 0 },
-        { type: utils.OSC_TYPE.INTEGER, value: -1 },
-        { type: utils.OSC_TYPE.INTEGER, value: 3 },
-        { type: utils.OSC_TYPE.INTEGER, value: 0 },
-      ],
-      oscType: utils.OSC_TYPE_MESSAGE,
+      args: [1000, 0, -1, 3, 0],
+      oscType: "message",
     };
     const p = utils.parseMessage(msg);
     expect(_.isArray(p)).toBe(true);
@@ -75,30 +69,4 @@ describe("asPacket", function() {
   //   console.log(objs);
   //   expect(objs[0].args).toEqual(args);
   // });
-});
-
-describe("timetag", function() {
-  it("should make an NTP timetag array with no args", function() {
-    const ntp = utils.deltaTimeTag();
-    expect(_.isArray(ntp)).toBe(true);
-    expect(ntp.length).toBe(2);
-  });
-
-  it("should make an NTP timetag array from a number", function() {
-    const ntp = utils.deltaTimeTag(100);
-    expect(_.isArray(ntp)).toBe(true);
-    expect(ntp.length).toBe(2);
-  });
-
-  it("should make an NTP timetag array from a date", function() {
-    const ntp = utils.deltaTimeTag(new Date());
-    expect(_.isArray(ntp)).toBe(true);
-    expect(ntp.length).toBe(2);
-  });
-
-  it("should return ntp tag for UTC 1970", function() {
-    const epoch = new Date(Date.UTC(1970, 1, 1, 0, 0, 0));
-    const ntp = utils.dateToTimetag(epoch);
-    expect(ntp).toEqual([2211667200, 0]);
-  });
 });

@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import { Observable } from "rx";
-import { makeBundle, makeMessage, deltaTimeTag } from "../osc/utils";
-import { MsgType, OSCTimeType } from "../osc-types";
+import { makeBundle, makeMessage } from "../osc/utils";
+import { deltaTimeTag, OSCTimeType, MsgType } from "@supercollider.js/osc";
 import { Disposable } from "rx";
 
 /**
@@ -45,7 +45,7 @@ export default class SendOSC extends EventEmitter {
    *
    * @example:
    *
-   *    server.send.bundle(server.send.deltaTimetag(1.0), [ ... msgs ]);
+   *    server.send.bundle(server.send.deltaTimeTag(1.0), [ ... msgs ]);
    *
    * @param {Number} delta
    * @param {Date} now - optional, default new Date

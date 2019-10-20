@@ -1,9 +1,9 @@
 import Logger from "@supercollider.js/logger";
+import { packMessage, unpackMessage } from "@supercollider.js/osc";
 import cuid from "cuid";
 import dgram from "dgram";
 import events from "events";
 import _ from "lodash";
-import osc from "osc-min";
 
 interface RequestHandler {
   resolve: (result: any) => void;
@@ -40,7 +40,7 @@ export default class SCAPI extends events.EventEmitter {
   scport: number;
   requests: RequestHandlers = {};
   log: Logger;
-  udp: any; // dgram socket, like EvenEmitter
+  udp?: dgram.Socket;
 
   constructor(schost = "localhost", scport = 57120) {
     super();
@@ -50,11 +50,11 @@ export default class SCAPI extends events.EventEmitter {
     this.log = new Logger(true, false);
   }
 
-  connect() {
+  connect(): void {
     this.udp = dgram.createSocket("udp4");
 
-    this.udp.on("message", msgbuf => {
-      const msg = osc.fromBuffer(msgbuf);
+    this.udp.on("message", (msgbuf: Buffer) => {
+      const msg = unpackMessage(msgbuf);
       if (msg.address === "/API/reply") {
         return this.receive("reply", msg);
       }
@@ -67,7 +67,7 @@ export default class SCAPI extends events.EventEmitter {
     });
   }
 
-  disconnect() {
+  disconnect(): void {
     if (this.udp) {
       this.udp.close();
       delete this.udp;
@@ -87,17 +87,18 @@ export default class SCAPI extends events.EventEmitter {
       }
 
       const sender = (rid, oscArgs) => {
-        const buf = osc.toBuffer({
+        const buf = packMessage({
           address: "/API/call",
           args: [clientId, rid, oscpath].concat(oscArgs),
         });
-        this.udp.send(buf, 0, buf.length, this.scport, this.schost, err2 => {
-          // this will get DNS errors
-          // but not packet-too-big errors
-          if (err2) {
-            this.log.err(err2);
-          }
-        });
+        this.udp &&
+          this.udp.send(buf, 0, buf.length, this.scport, this.schost, err2 => {
+            // this will get DNS errors
+            // but not packet-too-big errors
+            if (err2) {
+              this.log.err(err2);
+            }
+          });
       };
 
       this.requests[requestId] = { resolve: resolve, reject: reject };
@@ -131,7 +132,7 @@ export default class SCAPI extends events.EventEmitter {
     }
   }
 
-  receive(signal, msg) {
+  receive(signal, msg): void {
     const requestId = msg.args[1].value;
     let result = msg.args[2].value;
     const request = this.requests[requestId];

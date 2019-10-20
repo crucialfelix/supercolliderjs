@@ -1,16 +1,16 @@
 import Logger from "@supercollider.js/logger";
+import { packBundle, packMessage, unpackMessage } from "@supercollider.js/osc";
 import { spawn } from "child_process";
 import * as dgram from "dgram";
 import { EventEmitter } from "events";
 import _ from "lodash";
-import * as osc from "osc-min";
 import { IDisposable, Observable, Subject } from "rx";
 
 import SendOSC from "./internals/SendOSC";
 import Store from "./internals/Store";
-import { defaults, ServerArgs, ServerOptions, resolveOptions } from "./options";
+import { defaults, resolveOptions, ServerArgs, ServerOptions } from "./options";
 import { MsgType, OscType } from "./osc-types";
-import { notify, CallAndResponse } from "./osc/msg";
+import { CallAndResponse, notify } from "./osc/msg";
 import { parseMessage } from "./osc/utils";
 import ServerState from "./ServerState";
 
@@ -191,13 +191,13 @@ export default class Server extends EventEmitter {
   private _initSender(): void {
     this.send.on("msg", msg => {
       if (this.osc) {
-        const buf = osc.toBuffer(msg);
+        const buf = packMessage(msg);
         this.osc.send(buf, 0, buf.length, parseInt(this.options.serverPort), this.options.host);
       }
     });
     this.send.on("bundle", bundle => {
       if (this.osc) {
-        const buf = osc.toBuffer(bundle);
+        const buf = packBundle(bundle);
         this.osc.send(buf, 0, buf.length, parseInt(this.options.serverPort), this.options.host);
       }
     });
@@ -331,7 +331,7 @@ export default class Server extends EventEmitter {
 
       this._serverObservers.stdout = Observable.fromEvent(this.process.stdout, "data", data => String(data));
       this._serverObservers.stdout.subscribe(e => this.stdout.onNext(e));
-      this._serverObservers.stderr = Observable.fromEvent(this.process.stderr, "data").subscribe((out) => {
+      this._serverObservers.stderr = Observable.fromEvent(this.process.stderr, "data").subscribe(out => {
         // just pipe it into the stdout object's error stream
         this.stdout.onError(out);
       });
@@ -449,7 +449,7 @@ export default class Server extends EventEmitter {
       });
 
       // pipe events to this.receive
-      this._serverObservers.oscMessage = Observable.fromEvent(this.osc, "message", msgbuf => osc.fromBuffer(msgbuf));
+      this._serverObservers.oscMessage = Observable.fromEvent(this.osc, "message", msgbuf => unpackMessage(msgbuf));
       this._serverObservers.oscMessage.subscribe(e => this.receive.onNext(parseMessage(e)));
 
       this._serverObservers.oscError = Observable.fromEvent(this.osc, "error");
