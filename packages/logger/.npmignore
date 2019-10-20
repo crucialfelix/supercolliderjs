@@ -1,0 +1,8 @@
+*
+!src/**/*
+src/**/__tests__/**/*
+!lib/**/*
+!package.json
+!README.md
+!CHANGELOG.md
+!LICENSE

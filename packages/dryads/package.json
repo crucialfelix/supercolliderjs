@@ -1,0 +1,38 @@
+{
+  "name": "@supercollider/dryads",
+  "version": "1.0.0",
+  "description": "Dryadic components for SuperCollider",
+  "keywords": [
+    "supercollider",
+    "dryadic"
+  ],
+  "author": "Chris Sattinger <crucialfelix@gmail.com>",
+  "homepage": "https://crucialfelix.github.io/supercolliderjs/",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@supercollider/lang": "1.0.0",
+    "@supercollider/server": "1.0.0",
+    "@supercollider/logger": "1.0.0",
+    "dryadic": "^0.3.2",
+    "lodash": "^4.17.15",
+    "baconjs": "^0.7.93"
+  },
+  "devDependencies": {
+    "@types/baconjs": "0.7.33"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/crucialfelix/supercolliderjs/issues"
+  }
+}

@@ -9,38 +9,24 @@
       "email": "crucialfelix@gmail.com"
     }
   ],
-  "dependencies": {
-    "chalk": "^2.4.2",
-    "commander": "^2.9.0",
-    "cuid": "^2.1.6",
-    "dryadic": "^0.3.2",
-    "immutable": "^3.8.1",
-    "js-yaml": "3.13.1",
-    "lodash": "^4.17.2",
-    "ncp": "^2.0.0",
-    "osc-min": "^1.1.1",
-    "rx": "^4.1.0",
-    "temp": "~0.9.0",
-    "tslib": "1.10.0",
-    "untildify": "^4.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@types/baconjs": "0.7.33",
-    "@types/jest": "24.0.15",
+    "@types/jest": "24.0.19",
     "@types/js-yaml": "3.12.1",
-    "@types/lodash": "4.14.135",
+    "@types/lodash": "4.14.139",
     "@types/rx": "4.1.1",
     "@types/temp": "0.8.34",
-    "@typescript-eslint/eslint-plugin": "1.11.0",
-    "@typescript-eslint/parser": "1.11.0",
-    "baconjs": "^0.7.93",
-    "eslint": "6.0.1",
-    "eslint-config-prettier": "6.0.0",
-    "eslint-plugin-prettier": "3.1.0",
-    "jest": "^24.8.0",
+    "@typescript-eslint/eslint-plugin": "2.4.0",
+    "@typescript-eslint/parser": "2.4.0",
+    "eslint": "6.5.1",
+    "eslint-config-prettier": "6.4.0",
+    "eslint-plugin-prettier": "3.1.1",
+    "jest": "^24.9.0",
+    "lerna": "^3.18.1",
     "prettier": "1.18.2",
-    "ts-jest": "24.0.2",
-    "typescript": "3.5.2"
+    "rimraf": "3.0.0",
+    "ts-jest": "24.1.0",
+    "typescript": "3.6.4"
   },
   "license": "MIT",
   "keywords": [
@@ -57,39 +43,19 @@
   },
   "main": "lib/index",
   "types": "lib/index.d.ts",
-  "files": [
-    "/lib",
-    "/src"
-  ],
-  "bin": {
-    "supercollider-server": "./bin/scsynth.js",
-    "supercollider": "./bin/sclang.js",
-    "export-supercollider": "./bin/export-supercollider.js",
-    "compile-synthdefs": "./bin/compile-synthdefs.js"
-  },
   "scripts": {
-    "test": "jest && npm run lint",
-    "lint": "eslint --ext .ts src/",
-    "jest": "npm run build && jest --watch",
-    "build": "tsc && npm run copy",
-    "prepublish": "npm run build",
-    "copy": "cp -R src/supercollider-js lib/",
-    "postinstall": "node -e \"require('fs').stat('lib', function (e, s) { process.exit(e || !s.isDirectory() ? 1 : 0) })\" || npm run build"
+    "postinstall": "npm run bootstrap && npm run build",
+    "bootstrap": "lerna bootstrap --hoist",
+    "build": "lerna exec -- tsc -b .",
+    "test": "npm run jest && npm run lint",
+    "jest": "lerna exec -- jest --rootDir=. --config=../jest.config.json --passWithNoTests",
+    "lint": "eslint --ext .ts packages/",
+    "clean": "lerna exec -- rimraf lib && lerna exec -- rm -f tsconfig.tsbuildinfo"
   },
-  "jest": {
-    "roots": [
-      "<rootDir>/src"
-    ],
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "moduleFileExtensions": [
-      "js",
-      "ts",
-      "json"
-    ],
-    "collectCoverage": true
-  },
+  "eslintIgnore": [
+    "node_modules",
+    "lib"
+  ],
   "engines": {
     "node": ">=10"
   }

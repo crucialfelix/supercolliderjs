@@ -1,0 +1,48 @@
+{
+  "name": "@supercollider/lang",
+  "version": "1.0.0",
+  "description": "Client library for the SuperCollider language: sclang",
+  "keywords": [
+    "supercollider"
+  ],
+  "author": "Chris Sattinger <crucialfelix@gmail.com>",
+  "homepage": "https://crucialfelix.github.io/supercolliderjs/",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@supercollider/logger": "1.0.0",
+    "@supercollider/server": "1.0.0",
+    "commander": "^2.9.0",
+    "cuid": "^2.1.6",
+    "js-yaml": "3.13.1",
+    "lodash": "^4.17.15",
+    "temp": "~0.9.0",
+    "tslib": "1.10.0",
+    "untildify": "^4.0.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
+  },
+  "bin": {
+    "supercollider": "node ./lib/bin/sclang.js",
+    "compile-synthdefs": "node ./lib/bin/compile-synthdefs.js"
+  },
+  "scripts": {
+    "build": "tsc -b . && npm run copy",
+    "copy": "cp -R src/supercollider-js lib/",
+    "post-install": "npm run check-install",
+    "check-install": "node ./lib/checkInstall.js"
+  },
+  "bugs": {
+    "url": "https://github.com/crucialfelix/supercolliderjs/issues"
+  }
+}

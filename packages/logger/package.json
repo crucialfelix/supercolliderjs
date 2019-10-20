@@ -1,0 +1,32 @@
+{
+  "name": "@supercollider/logger",
+  "version": "1.0.0",
+  "description": "Console logging utility for supercollider.js with colors",
+  "keywords": [
+    "supercollider"
+  ],
+  "author": "Chris Sattinger <crucialfelix@gmail.com>",
+  "homepage": "https://crucialfelix.github.io/supercolliderjs/",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "./lib",
+    "src": "./src"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "tslib": "1.10.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/crucialfelix/supercolliderjs/issues"
+  }
+}

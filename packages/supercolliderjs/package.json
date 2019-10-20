@@ -1,0 +1,40 @@
+{
+  "name": "supercolliderjs",
+  "version": "1.0.0",
+  "description": "JavaScript library for the SuperCollider music language and synthesis server",
+  "keywords": [
+    "supercollider"
+  ],
+  "author": "Chris Sattinger <crucialfelix@gmail.com>",
+  "homepage": "https://crucialfelix.github.io/supercolliderjs/",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "bin": {
+    "export-supercollider": "./lib/bin/export-supercollider.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@supercollider/logger": "1.0.0",
+    "@supercollider/lang": "1.0.0",
+    "@supercollider/server": "1.0.0",
+    "@supercollider/server-plus": "1.0.0",
+    "@supercollider/dryads": "1.0.0",
+    "commander": "^2.9.0",
+    "ncp": "^2.0.0",
+    "tslib": "1.10.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/crucialfelix/supercolliderjs/issues"
+  }
+}
