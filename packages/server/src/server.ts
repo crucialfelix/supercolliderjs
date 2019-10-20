@@ -4,6 +4,7 @@ import { spawn } from "child_process";
 import * as dgram from "dgram";
 import { EventEmitter } from "events";
 import _ from "lodash";
+import path from "path";
 import { IDisposable, Observable, Subject } from "rx";
 
 import SendOSC from "./internals/SendOSC";
@@ -371,13 +372,14 @@ export default class Server extends EventEmitter {
     this.processEvents.onNext(logMsg);
 
     const options = {
-      cwd: this.options.cwd,
+      cwd: this.options.cwd || path.dirname(execPath),
       detached: false,
       // Environment variables to set for server process
       // eg. SC_JACK_DEFAULT_INPUTS: "system:capture_1,system:capture_2"
       env: this.options.env ? (this.options.env as NodeJS.ProcessEnv) : undefined,
     };
 
+    this.log.dbug({ execPath, args, options });
     this.process = spawn(execPath, args, options);
 
     if (!this.process.pid) {
