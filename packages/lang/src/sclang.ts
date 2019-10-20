@@ -1,4 +1,4 @@
-import Logger from "@supercollider.js/logger";
+import Logger from "@supercollider/logger";
 import { ChildProcess, spawn } from "child_process";
 import cuid from "cuid";
 import { EventEmitter } from "events";

@@ -8,4 +8,4 @@ export interface JSONObjectType {
 }
 
 // Exporting to avoid changing the API
-export { OscType, CompletionMsg, OscValues, OSCTimeType, MsgType } from "@supercollider.js/osc";
+export { OscType, CompletionMsg, OscValues, OSCTimeType, MsgType } from "@supercollider/osc";

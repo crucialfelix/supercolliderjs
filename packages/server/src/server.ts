@@ -1,5 +1,5 @@
-import Logger from "@supercollider.js/logger";
-import { packBundle, packMessage, unpackMessage } from "@supercollider.js/osc";
+import Logger from "@supercollider/logger";
+import { packBundle, packMessage, unpackMessage } from "@supercollider/osc";
 import { spawn } from "child_process";
 import * as dgram from "dgram";
 import { EventEmitter } from "events";

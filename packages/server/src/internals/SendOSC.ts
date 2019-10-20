@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import { Observable } from "rx";
 import { makeBundle, makeMessage } from "../osc/utils";
-import { deltaTimeTag, OSCTimeType, MsgType } from "@supercollider.js/osc";
+import { deltaTimeTag, OSCTimeType, MsgType } from "@supercollider/osc";
 import { Disposable } from "rx";
 
 /**

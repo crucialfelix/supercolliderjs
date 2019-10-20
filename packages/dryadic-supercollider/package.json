@@ -1,5 +1,5 @@
 {
-  "name": "@supercollider.js/dryads",
+  "name": "@supercollider/dryads",
   "version": "1.0.0",
   "description": "Dryadic components for SuperCollider",
   "keywords": [
@@ -18,9 +18,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@supercollider.js/lang": "1.0.0",
-    "@supercollider.js/server": "1.0.0",
-    "@supercollider.js/logger": "1.0.0",
+    "@supercollider/lang": "1.0.0",
+    "@supercollider/server": "1.0.0",
+    "@supercollider/logger": "1.0.0",
     "dryadic": "^0.3.2",
     "lodash": "^4.17.15",
     "baconjs": "^0.7.93"

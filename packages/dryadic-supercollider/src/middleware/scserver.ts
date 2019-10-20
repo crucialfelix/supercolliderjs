@@ -1,6 +1,6 @@
 import _ from "lodash";
 import OSCSched from "./OSCSched";
-import Server, { msg, MsgType } from "@supercollider.js/server";
+import Server, { msg, MsgType } from "@supercollider/server";
 
 interface Properties {}
 interface Context {

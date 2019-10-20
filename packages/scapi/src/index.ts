@@ -1,5 +1,5 @@
-import Logger from "@supercollider.js/logger";
-import { packMessage, unpackMessage } from "@supercollider.js/osc";
+import Logger from "@supercollider/logger";
+import { packMessage, unpackMessage } from "@supercollider/osc";
 import cuid from "cuid";
 import dgram from "dgram";
 import events from "events";

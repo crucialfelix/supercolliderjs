@@ -1,7 +1,7 @@
 import { Dryad } from "dryadic";
 import _ from "lodash";
 
-import Server, { OscType, updateNodeState, whenNodeEnd, whenNodeGo, msg } from "@supercollider.js/server";
+import Server, { OscType, updateNodeState, whenNodeEnd, whenNodeGo, msg } from "@supercollider/server";
 import { SynthDef } from "./SCSynthDef";
 
 const { AddActions, nodeFree, synthNew } = msg;

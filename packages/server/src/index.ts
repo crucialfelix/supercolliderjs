@@ -23,4 +23,4 @@ export { mapping };
 export { default as ServerState } from "./ServerState";
 export * from "./osc-types";
 export * from "./node-watcher";
-export { deltaTimeTag } from "@supercollider.js/osc";
+export { deltaTimeTag } from "@supercollider/osc";

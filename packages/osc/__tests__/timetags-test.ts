@@ -2,7 +2,7 @@ const { asNTPTimeTag, deltaTimeTag } = require("../lib/timetags");
 
 const SECONDS_FROM_1900_to_1970 = 2208988800;
 
-describe("@supercollider.js/osc", () => {
+describe("@supercollider/osc", () => {
   describe("asNTPTimeTag", () => {
     it("NTP epoch", () => {
       const d = new Date(Date.UTC(1970, 0));

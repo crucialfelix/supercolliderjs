@@ -3,8 +3,8 @@ import { Dryad } from "dryadic";
 import fs from "fs";
 import path from "path";
 
-import SCLang, { SCLangError } from "@supercollider.js/lang";
-import Server, { msg, MsgType } from "@supercollider.js/server";
+import SCLang, { SCLangError } from "@supercollider/lang";
+import Server, { msg, MsgType } from "@supercollider/server";
 const { defFree, defLoad, defRecv } = msg;
 
 const fsp = fs.promises;

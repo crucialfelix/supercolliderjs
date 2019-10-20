@@ -1,4 +1,4 @@
-import Server, { msg, OscType, MsgType } from "@supercollider.js/server";
+import Server, { msg, OscType, MsgType } from "@supercollider/server";
 import { EventStream } from "baconjs";
 import { Dryad, DryadPlayer } from "dryadic";
 import _ from "lodash";

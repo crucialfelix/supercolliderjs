@@ -7,15 +7,15 @@
 import _ from "lodash";
 
 // this means server needs to import lang
-import { SynthDefCompiler, SynthDefResultType, SynthDefCompileRequest } from "@supercollider.js/lang";
+import { SynthDefCompiler, SynthDefResultType, SynthDefCompileRequest } from "@supercollider/lang";
 
-import Server, { whenNodeEnd, whenNodeGo, ServerArgs, msg } from "@supercollider.js/server";
+import Server, { whenNodeEnd, whenNodeGo, ServerArgs, msg } from "@supercollider/server";
 
 // Store
 // import  resolveOptions  from "../server/src/resolveOptions";
 // import { whenNodeEnd, whenNodeGo} from "../server/src/node-watcher";
 // import { ServerArgs, defaults } from "../server/src/options";
-import Store from "@supercollider.js/server/lib/internals/Store";
+import Store from "@supercollider/server/lib/internals/Store";
 // import * as msg from "../server/src/osc/msg";
 
 type Params = msg.Params;

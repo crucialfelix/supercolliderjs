@@ -1,6 +1,6 @@
 import { Dryad } from "dryadic";
 
-import Server, { msg, whenNodeEnd, whenNodeGo } from "@supercollider.js/server";
+import Server, { msg, whenNodeEnd, whenNodeGo } from "@supercollider/server";
 
 const { AddActions, groupNew, nodeFree } = msg;
 

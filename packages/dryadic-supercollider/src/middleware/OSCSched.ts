@@ -1,4 +1,4 @@
-import { deltaTimeTag, MsgType } from "@supercollider.js/server";
+import { deltaTimeTag, MsgType } from "@supercollider/server";
 import { now as _now } from "lodash";
 
 import { Event } from "../utils/iterators";

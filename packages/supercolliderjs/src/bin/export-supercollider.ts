@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* eslint no-console: 0 */
-import { resolveOptions } from "@supercollider.js/server";
+import { resolveOptions } from "@supercollider/server";
 import program from "commander";
 import { promises as fs } from "fs";
 import { ncp } from "ncp";

@@ -12,7 +12,7 @@ describe("SCServer", function() {
   });
 
   // it('should pass context.scserver to child Group', function() {
-  //   // mock import {boot} from '@supercollider.js/server';
+  //   // mock import {boot} from '@supercollider/server';
   //
   //   let g = new dryads.Group();
   //   let s = new dryads.SCSynth({}, [g]);

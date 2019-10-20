@@ -1,8 +1,8 @@
 import { Dryad } from "dryadic";
 import _ from "lodash";
 
-import Server, { boot, ServerArgs } from "@supercollider.js/server";
-import Logger from "@supercollider.js/logger";
+import Server, { boot, ServerArgs } from "@supercollider/server";
+import Logger from "@supercollider/logger";
 
 const defaultOptions = {
   debug: false,

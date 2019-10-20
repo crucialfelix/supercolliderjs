@@ -1,5 +1,5 @@
 import { Dryad } from "dryadic";
-import Server from "@supercollider.js/server";
+import Server from "@supercollider/server";
 
 interface Properties {
   numChannels: number;

@@ -4,7 +4,7 @@ import path from "path";
 import { boot } from "../index";
 import program from "commander";
 import { promises as fs } from "fs";
-import { JSONObjectType } from "@supercollider.js/server";
+import { JSONObjectType } from "@supercollider/server";
 
 /* eslint @typescript-eslint/no-var-requires: 0 */
 const pkg = require(path.join(__dirname, "../../package.json"));

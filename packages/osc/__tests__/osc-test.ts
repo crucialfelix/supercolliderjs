@@ -21,7 +21,7 @@ const bundle = {
   oscType: "bundle",
 };
 
-describe("@supercollider.js/osc", () => {
+describe("@supercollider/osc", () => {
   describe("Should Pack+Unpack", () => {
     it("OSCMessage msg", () => {
       const b = packMessage(msg);

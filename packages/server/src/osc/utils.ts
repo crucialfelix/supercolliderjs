@@ -1,7 +1,7 @@
 /**
  * OSC utilities
  */
-import { MsgType, OSCBundle, OSCMessage, OSCTimeType } from "@supercollider.js/osc";
+import { MsgType, OSCBundle, OSCMessage, OSCTimeType } from "@supercollider/osc";
 
 /**
  * Converts a message received from scsynth:
@@ -70,4 +70,4 @@ export function asPacket(thing: MsgType): OSCMessage {
   return makeMessage(thing);
 }
 
-export { dateToTimetag, deltaTimeTag } from "@supercollider.js/osc";
+export { dateToTimetag, deltaTimeTag } from "@supercollider/osc";
