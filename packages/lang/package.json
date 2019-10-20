@@ -1,6 +1,6 @@
 {
   "name": "@supercollider/lang",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "Client library for the SuperCollider language: sclang",
   "keywords": [
     "supercollider"
@@ -17,8 +17,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@supercollider/logger": "1.0.0",
-    "@supercollider/server": "1.0.0",
+    "@supercollider/logger": "^1.0.0-alpha.0",
+    "@supercollider/server": "^1.0.0-alpha.0",
     "commander": "^2.9.0",
     "cuid": "^2.1.6",
     "js-yaml": "3.13.1",
@@ -27,7 +27,6 @@
     "tslib": "1.10.0",
     "untildify": "^4.0.0"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/crucialfelix/supercolliderjs.git"

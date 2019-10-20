@@ -1,6 +1,6 @@
 {
   "name": "supercolliderjs",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "JavaScript library for the SuperCollider music language and synthesis server",
   "keywords": [
     "supercollider"
@@ -20,16 +20,15 @@
     "access": "public"
   },
   "dependencies": {
-    "@supercollider/logger": "1.0.0",
-    "@supercollider/lang": "1.0.0",
-    "@supercollider/server": "1.0.0",
-    "@supercollider/server-plus": "1.0.0",
-    "@supercollider/dryads": "1.0.0",
+    "@supercollider/dryads": "^1.0.0-alpha.0",
+    "@supercollider/lang": "^1.0.0-alpha.0",
+    "@supercollider/logger": "^1.0.0-alpha.0",
+    "@supercollider/server": "^1.0.0-alpha.0",
+    "@supercollider/server-plus": "^1.0.0-alpha.0",
     "commander": "^2.9.0",
     "ncp": "^2.0.0",
     "tslib": "1.10.0"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
