@@ -1,4 +1,4 @@
-# `@supercollider.js/scapi`
+# `@supercollider/scapi`
 
 This works together with the 'API' quark to implement a simple two-way communication protocol for node <-> SuperCollider.
 
@@ -13,7 +13,7 @@ Sent messages return a promise, the responses are received here from sclang and 
 
 This requires writing named handlers in SuperCollider and registering them with the API. From the node side, you make a call using that name and pass it some args and get back your response.
 
-This was an older solution. Probably just using `@supercollider.js/lang` is easier now.
+This was an older solution. Probably just using `@supercollider/lang` is easier now.
 
 Start SuperCollider
 Install the API quark ( > 2.0 )

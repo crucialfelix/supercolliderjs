@@ -1,4 +1,4 @@
-# `@supercollider.js/server`
+# `@supercollider/server`
 
 Client library for the SuperCollider scsynth audio engine.
 
@@ -22,7 +22,7 @@ Manages allocation of node and buffer resources.
 ## Usage
 
 ```js
-import Server from "@supercollider.js/server";
+import Server from "@supercollider/server";
 
 let s = new Server();
 

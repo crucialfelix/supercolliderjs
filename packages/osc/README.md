@@ -1,11 +1,11 @@
-# `@supercollider.js/osc`
+# `@supercollider/osc`
 
 > TODO: description
 
 ## Usage
 
 ```
-const osc = require('@supercollider.js/osc');
+const osc = require('@supercollider/osc');
 
 // TODO: DEMONSTRATE API
 ```

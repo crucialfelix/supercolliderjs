@@ -1,4 +1,4 @@
-# `@supercollider.js/lang`
+# `@supercollider/lang`
 
 Client library for the SuperCollider language: sclang.
 
@@ -10,7 +10,7 @@ Client library for the SuperCollider language: sclang.
 ## Usage
 
 ```js
-import SCLang from "@supercollider.js/lang";
+import SCLang from "@supercollider/lang";
 
 const l = new SCLang();
 ```

@@ -1,11 +1,11 @@
-# `@supercollider.js/server-plus`
+# `@supercollider/server-plus`
 
 > TODO: description
 
 ## Usage
 
 ```
-const serverPlus = require('@supercollider.js/server-plus');
+const serverPlus = require('@supercollider/server-plus');
 
 // TODO: DEMONSTRATE API
 ```

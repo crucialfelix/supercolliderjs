@@ -107,9 +107,9 @@ sc.server.boot().then((server) => {
 Compatibility
 -------------
 
-Works on Node 4+
+Works on Node 10+
 
-Source code is written in ES2015 with Flow type annotations.
+Source code is written in TypeScript and published for usage in with either JavaScript or TypeScript.
 
 
 Contribute
