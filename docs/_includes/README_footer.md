@@ -1,17 +1,3 @@
-[![NPM downloads][npm-downloads-image]][npm-url] [![MIT License][license-image]][license-url] [![Dependency Status](https://david-dm.org/@supercollider/server-plus.svg)](https://david-dm.org/@supercollider/server-plus)
-
-# @supercollider/server-plus
-
-> TODO: description
-
-## Usage
-
-```
-const serverPlus = require('@supercollider/server-plus');
-
-// TODO: DEMONSTRATE API
-```
-
 Compatibility
 -------------
 
@@ -33,9 +19,9 @@ MIT license
 [license-image]: http://img.shields.io/badge/license-MIT-blue.svg?style=flat
 [license-url]: LICENSE
 
-[npm-url]: https://npmjs.org/package/@supercollider/server-plus
-[npm-version-image]: http://img.shields.io/npm/v/@supercollider/server-plus.svg?style=flat
-[npm-downloads-image]: http://img.shields.io/npm/dm/@supercollider/server-plus.svg?style=flat
+[npm-url]: https://npmjs.org/package/${SCOPEPACKAGE}
+[npm-version-image]: http://img.shields.io/npm/v/${SCOPEPACKAGE}.svg?style=flat
+[npm-downloads-image]: http://img.shields.io/npm/dm/${SCOPEPACKAGE}.svg?style=flat
 
 [travis-url]: http://travis-ci.org/crucialfelix/supercolliderjs
 [travis-image]: https://travis-ci.org/crucialfelix/supercolliderjs.svg?branch=master

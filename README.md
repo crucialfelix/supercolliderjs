@@ -73,7 +73,7 @@ sc.server.boot().then((server) => {
   let def = server.loadSynthDef('formant', './formant.scd');
 
   // Create group at the root
-  let group = server.group();
+  let group = server.group()
 
   let freqSpec = {
     minval: 100,

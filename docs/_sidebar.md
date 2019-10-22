@@ -1,0 +1,11 @@
+- Packages
+  - [supercolliderjs](packages/supercolliderjs/README.md)
+  - [server](packages/server/README.md)
+  - [lang](packages/lang/README.md)
+  - [dryads](packages/dryads/README.md)
+  - [osc](packages/osc/README.md)
+  - [scapi](packages/scapi/README.md)
+- [Getting started](install.md)
+- [Guide](guide.md)
+- [Examples](examples.md)
+- [API](_includes/api.html)
