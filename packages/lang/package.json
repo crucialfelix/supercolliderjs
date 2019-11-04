@@ -32,8 +32,8 @@
     "url": "git+https://github.com/crucialfelix/supercolliderjs.git"
   },
   "bin": {
-    "supercollider": "node ./lib/bin/sclang.js",
-    "compile-synthdefs": "node ./lib/bin/compile-synthdefs.js"
+    "supercollider": "./lib/bin/sclang.js",
+    "compile-synthdefs": "./lib/bin/compile-synthdefs.js"
   },
   "scripts": {
     "build": "tsc -b . && npm run copy",
