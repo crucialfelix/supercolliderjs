@@ -1,0 +1,34 @@
+version: "2"
+
+tasks:
+  create-package:
+    desc: Create a new lerna package. Usage `task create-package NAME=newpackage`
+    cmds:
+      - echo {{.NAME}} || exit 1
+      - echo lerna create "{{.NAME}}"
+      - echo cp ./packages/supercolliderjs/.npmignore ./packages/"{{.NAME}}"/
+      - echo cp ./packages/supercolliderjs/tsconfig.json ./packages/"{{.NAME}}"/
+    silent: true
+
+  docs:
+    desc: Build docs
+    cmds:
+      - task: copy-docs
+      - task: typedocs
+
+  docs-serve:
+    desc: Start a development server with the docs/ directory
+    dir: docs
+    cmds:
+      - docsify serve
+
+  copy-docs:
+    desc: Copy each docs/packages/*/README.md to src/packages/*/README.md
+    cmds:
+      - cp ./docs/README.md ./docs/packages/supercolliderjs/README.md
+      - ./tasks/copydocs.sh
+
+  typedocs:
+    desc: Build TypeCode html into docs/packages/each/docs/
+    cmds:
+      - ./tasks/typedocs.sh

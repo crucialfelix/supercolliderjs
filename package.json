@@ -19,11 +19,13 @@
     "@types/temp": "0.8.34",
     "@typescript-eslint/eslint-plugin": "2.4.0",
     "@typescript-eslint/parser": "2.4.0",
+    "docsify-cli": "4.3.0",
     "eslint": "6.5.1",
     "eslint-config-prettier": "6.4.0",
     "eslint-plugin-prettier": "3.1.1",
     "jest": "^24.9.0",
     "lerna": "^3.18.1",
+    "mustache": "3.1.0",
     "prettier": "1.18.2",
     "rimraf": "3.0.0",
     "ts-jest": "24.1.0",
@@ -50,7 +52,9 @@
     "test": "npm run jest && npm run lint",
     "jest": "lerna exec -- jest --rootDir=. --config=../jest.config.json --passWithNoTests",
     "lint": "eslint --ext .ts packages/",
-    "clean": "lerna exec -- rimraf lib && lerna exec -- rm -f tsconfig.tsbuildinfo"
+    "clean": "lerna exec -- rimraf lib && lerna exec -- rm -f tsconfig.tsbuildinfo",
+    "docs:build": "node ./tasks/make-docs.js",
+    "docs:serve": "docsify serve docs"
   },
   "eslintIgnore": [
     "node_modules",
