@@ -6,17 +6,45 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="JavaScript library for the SuperCollider music language and synthesis server">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
+
+  <!-- <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css"> -->
+
+  	<link rel="stylesheet" href="https://unpkg.com/docsify-themeable/dist/css/theme-simple.css">
+	<!-- <link rel="stylesheet" href="https://unpkg.com/docsify-themeable/dist/css/theme-simple-dark.css"> -->
+	<!-- <link rel="stylesheet" href="https://unpkg.com/docsify-themeable/dist/css/theme-defaults.css"> -->
+
+	<!-- 2. PrismJS Themes -->
+	<link rel="stylesheet" href="https://unpkg.com/prism-github/prism-github.css">
+	<!-- <link rel="stylesheet" href="https://unpkg.com/prism-theme-one-dark/prism-onedark.css"> -->
+
 </head>
 <body>
   <div id="app"></div>
   <script>
     window.$docsify = {
       name: 'supercolliderjs',
-      repo: 'git://github.com/crucialfelix/supercolliderjs',
-      loadSidebar: true
+      repo: 'https://github.com/crucialfelix/supercolliderjs',
+      loadSidebar: true,
+      coverpage: true,
+      auto2top: true,
+      search: {
+        paths: 'auto'
+      },
+      // ga: 'UA...'
+      themeColor: '#81BEADEC'
     }
   </script>
+  <style>
+    .cover-main blockquote {
+      font-size: 1rem;
+    }
+  </style>
   <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+	<script src="//unpkg.com/docsify-themeable"></script>
+
+  <script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>
+  <script src="//unpkg.com/docsify/lib/plugins/ga.min.js"></script>
+  <script src="//unpkg.com/docsify-copy-code"></script>
+  <script async="" src="https://www.google-analytics.com/analytics.js"></script>
 </body>
 </html>

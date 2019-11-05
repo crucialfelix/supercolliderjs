@@ -1,11 +1,11 @@
-- Packages
+- [Getting started](README.md)
+- npm packages
   - [supercolliderjs](packages/supercolliderjs/README.md)
-  - [server](packages/server/README.md)
-  - [lang](packages/lang/README.md)
-  - [dryads](packages/dryads/README.md)
-  - [osc](packages/osc/README.md)
-  - [scapi](packages/scapi/README.md)
-- [Getting started](install.md)
-- [Guide](guide.md)
-- [Examples](examples.md)
-- [API](_includes/api.html)
+  - [@supercollider/server](packages/server/README.md)
+  - [@supercollider/lang](packages/lang/README.md)
+  - [@supercollider/dryads](packages/dryads/README.md)
+  - [@supercollider/osc](packages/osc/README.md)
+  - [@supercollider/scapi](packages/scapi/README.md)
+- Guide
+  - [Guide](https://crucialfelix.gitbooks.io/supercollider-js-guide/content/)
+  - [Examples](https://github.com/crucialfelix/supercolliderjs-examples)

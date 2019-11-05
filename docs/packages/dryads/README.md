@@ -4,6 +4,8 @@ Declarative, live updating components for SuperCollider built on the Dryadic fra
 
 (More docs coming)
 
+
+
 ## Usage
 
 ```js
@@ -17,3 +19,7 @@ let s = d.Synth({
 
 s.play();
 ```
+
+## API
+
+[API](/packages/docs/index.html)

@@ -2,51 +2,44 @@
 
 [![Build Status][travis-image]][travis-url] [![NPM downloads][npm-downloads-image]][npm-url] [![MIT License][license-image]][license-url]
 
-The JavaScript client library for SuperCollider.
+`supercollider.js` is a full-featured, batteries included client library for the `SuperCollider` audio synthesis server and the SuperCollider language interpreter.
 
-SuperCollider is a real time audio synthesis server that communicates over TCP/IP using the OSC (Open Sound Control) protocol.
+It is written in TypeScript and compiled for release as ES2018 (Node >= 10) JavaScript and can be used in Node applications for either JavaScript or TypeScript.
 
-## supercolliderjs
+### SuperCollider
 
-This is the full featured, batteries included package.
+SuperCollider is a platform for audio synthesis and algorithmic composition, used by musicians, artists, and researchers working with sound. It is free and open source software available for Windows, Mac OS X, and Linux. <a href="https://supercollider.github.io/" target="_blank">supercollider.github.io</a>
 
-It includes these lower level packages:
+It consists of two parts:
 
-### @supercollider/server
+- `scsynth`: A real-time audio synthesis server that communicates over TCP/IP using the OSC (Open Sound Control) protocol. It is portable, network native and has excellent sound quality.
+- `sclang`: A programming language similar to Smalltalk or Ruby with syntax similar to C or Javascript. This is the original reference client for `scsynth`.
 
-- Spawns the synthesis server, `scsynth`
-- Send and receive OSC messages
-- Comprehensive support for sending all commands the server understands
-- Call async commands on the server receive results as Promises
-- Synth/Group/Bus/Buffer allocators with clean immutable state implementation
-- Immutable server state and synth/group tracking
-- Just-in-time OSC scheduler
+## Install
 
-### @supercollider/server-plus
+1. Install SuperCollider:
+  https://supercollider.github.io/
 
-This extends the `Server` class adding methods for commonly used constructs.
+2. Install supercolliderjs:
+```shell
+npm install supercolliderjs
+```
 
-- .synth
-- .group
-- .synthDefs
-- .loadSynthDef
-- .synthDef
-- .buffer
-- .readBuffer
-- .audioBus
-- .controlBus
+## Examples
+
+### server
+
 
 ```javascript
-let sc = require('supercolliderjs');
+const sc = require('supercolliderjs');
 
-// When you import server from supercolliderjs you actually get a ServerPlus
 sc.server.boot().then((server) => {
 
   // Compile synthDef from a file
   // Will recompile and send to server if the file changes.
   let def = server.loadSynthDef('formant', './formant.scd');
 
-  // Create group at the root
+// Create group at the root
   let group = server.group();
 
   let freqSpec = {
@@ -77,29 +70,40 @@ sc.server.boot().then((server) => {
 });
 ```
 
-### @supercollider/dryads
+[Server](./packages/server/README.md) Core functionality, node and buffer id allocators.
 
-### @supercollider/lang
+[Server Plus](./packages/server-plus/README.md)
 
-SuperCollider is also a programming language and interpreter. This package enables calling SuperCollider code from JavaScript.
+Adds methods for
+
+- .synth
+- .group
+- .synthDefs
+- .loadSynthDef
+- .synthDef
+- .buffer
+- .readBuffer
+- .audioBus
+- .controlBus
+
+### dryads
+
+reason why it's a solution
+
+### lang
 
 - Spawns the language interpreter, `sclang`
+- Call SuperCollider code from JavaScript
 
 
 ```js
 var sc = require('supercolliderjs');
 
-sc.lang.boot().then(function(sclang) {
+sc.lang.boot().then(async function(sclang) {
 
-  sclang.interpret('(1..8).pyramid')
-    .then(function(result) {
-      // result is a native javascript array
-      console.log('= ' + result);
-    }, function(error) {
-      // syntax or runtime errors
-      // are returned as javascript objects
-      console.error(error);
-    });
+  const pyramid = await sclang.interpret('(1..8).pyramid');
+  console.log(pyramid);
+
 
 }, function(error) {
   console.error(error)
@@ -109,62 +113,20 @@ sc.lang.boot().then(function(sclang) {
 });
 ```
 
-### @supercollider/osc
 
-- Packs OSC messages and bundles into node `Buffer` for sending
-- Unpacks received OSC messages and bundles from node `Buffer`
+## Compatibility
 
-### @supercollider/scapi
-
-
-It provides an interpreted object-oriented language which functions as a network client to a state of the art, realtime sound synthesis server.
-
-This library provides functionality for working with:
-
-- scsynth (the synthesis server)
-- sclang (supercollider language interpreter)
-
-
-## Documentation
-
-[API](https://crucialfelix.github.io/supercolliderjs/api/)
-[Guide](https://crucialfelix.gitbooks.io/supercollider-js-guide/content/)
-
-## Features
-
-- Send and receive OSC messages
-- Comprehensive support for calling all commands the server understands
-- Call async commands on the server receive results as Promises
-- Synth/Group/Bus/Buffer allocators with clean immutable state implementation
-- Server state and synth/group tracking
-- Just-in-time OSC scheduler
-- Codebase written with Flow (type checking)
-- High unit test coverage
-
-- Dryadic: declarative DSL for managing component trees.
-
-## Examples
-
-See also the [Examples Repository](https://github.com/crucialfelix/supercolliderjs-examples).
-
-
-
-Compatibility
--------------
-
-Works on Node 10+
+Node 10+
 
 Source code is written in TypeScript and published for usage in with either JavaScript or TypeScript.
 
 
-Contribute
-----------
+## Contribute
 
 - Issue Tracker: https://github.com/crucialfelix/supercolliderjs/issues
 - Source Code: https://github.com/crucialfelix/supercolliderjs
 
-License
--------
+## License
 
 MIT license
 

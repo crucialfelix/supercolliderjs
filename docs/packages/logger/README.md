@@ -1,12 +1,12 @@
 # @supercollider/logger
 
-Console logging utility for supercollider.js with colors and special formatting for OSC messages.
+Console logging utility for supercollider.js for debugging with color support and special formatting for OSC messages.
 
-This is used internally.
+This is used internally by other `@supercollider` packages.
 
 ## Usage
 
-```js
+```javascript
 import Logger from "@supercollider/logger";
 
 let log = new Logger();
@@ -23,5 +23,5 @@ log.stderr("ERROR: ...");
 // Log OSC messages sent to scsynth.
 log.sendosc({ address: "/ping" });
 // Log OSC messages received from scsynth.
-log.rscosc({ value: "pong" });
+log.rcvosc({ value: "pong" });
 ```

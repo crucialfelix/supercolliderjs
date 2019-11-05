@@ -1,68 +1,34 @@
 # supercollider.js
 
-[![NPM downloads][npm-downloads-image]][npm-url] [![MIT License][license-image]][license-url] [![Dependency Status](https://david-dm.org/crucialfelix/supercolliderjs.svg)](https://david-dm.org/crucialfelix/supercolliderjs)
+[![Build Status][travis-image]][travis-url] [![NPM downloads][npm-downloads-image]][npm-url] [![MIT License][license-image]][license-url]
 
-The JavaScript client library for SuperCollider.
+`supercollider.js` is a full-featured, batteries included client library for the `SuperCollider` audio synthesis server and the SuperCollider language interpreter.
 
-SuperCollider is an environment and programming language for real time audio synthesis and algorithmic composition. It provides an interpreted object-oriented language which functions as a network client to a state of the art, realtime sound synthesis server.
+It is written in TypeScript and compiled for release as ES2018 (Node >= 10) JavaScript and can be used in Node applications for either JavaScript or TypeScript.
 
-This library provides functionality for working with:
+### SuperCollider
 
-- scsynth (the synthesis server)
-- sclang (supercollider language interpreter)
+SuperCollider is a platform for audio synthesis and algorithmic composition, used by musicians, artists, and researchers working with sound. It is free and open source software available for Windows, Mac OS X, and Linux. <a href="https://supercollider.github.io/" target="_blank">supercollider.github.io</a>
 
+It consists of two parts:
 
-## Documentation
+- `scsynth`: A real-time audio synthesis server that communicates over TCP/IP using the OSC (Open Sound Control) protocol. It is portable, network native and has excellent sound quality.
+- `sclang`: A programming language similar to Smalltalk or Ruby with syntax similar to C or Javascript. This is the original reference client for `scsynth`.
 
-[API](https://crucialfelix.github.io/supercolliderjs/api/)
+## Install
 
-[Guide](https://crucialfelix.gitbooks.io/supercollider-js-guide/content/)
+1. Install SuperCollider:
+  https://supercollider.github.io/
 
-## Features
-
-- Send and receive OSC messages
-- Comprehensive support for calling all commands the server understands
-- Call async commands on the server receive results as Promises
-- Synth/Group/Bus/Buffer allocators with clean immutable state implementation
-- Server state and synth/group tracking
-- Just-in-time OSC scheduler
-- Codebase written with Flow (type checking)
-- High unit test coverage
-
-- Dryadic: declarative DSL for managing component trees.
+2. Install supercolliderjs:
+```shell
+npm install supercolliderjs
+```
 
 ## Examples
 
-See also the [Examples Repository](https://github.com/crucialfelix/supercolliderjs-examples).
-
-### language
-
-Interpret SuperCollider language code.
-
-```javascript
-const sc = require('supercolliderjs');
-
-sc.lang.boot().then(function(sclang) {
-
-  sclang.interpret('(1..8).pyramid')
-    .then(function(result) {
-      // result is a native javascript array
-      console.log('= ' + result);
-    }, function(error) {
-      // syntax or runtime errors
-      // are returned as javascript objects
-      console.error(error);
-    });
-
-}, function(error) {
-  console.error(error)
-  // sclang failed to startup:
-  // - executable may be missing
-  // - class library may have failed with compile errors
-});
-```
-
 ### server
+
 
 ```javascript
 const sc = require('supercolliderjs');
@@ -71,21 +37,21 @@ sc.server.boot().then((server) => {
 
   // Compile synthDef from a file
   // Will recompile and send to server if the file changes.
-  const def = server.loadSynthDef('formant', './formant.scd');
+  let def = server.loadSynthDef('formant', './formant.scd');
 
-  // Create group at the root
-  const group = server.group();
+// Create group at the root
+  let group = server.group();
 
-  const freqSpec = {
+  let freqSpec = {
     minval: 100,
     maxval: 8000,
     warp: 'exp'
   };
 
   // Map 0..1 to an exponential frequency range from 100..8000
-  const randFreq = () => sc.map.mapWithSpec(Math.random(), freqSpec);
+  let randFreq = () => sc.map.mapWithSpec(Math.random(), freqSpec);
 
-  const spawn = (dur) => {
+  let spawn = (dur) => {
     server.synth(def, {
       fundfreq: randFreq(),
       formantfreq: randFreq(),
@@ -94,7 +60,7 @@ sc.server.boot().then((server) => {
       timeScale: dur
     }, group);
 
-    const next = Math.random() * 0.25;
+    let next = Math.random() * 0.25;
     // Schedule this function again:
     setTimeout(() => spawn(next), next * 1000);
   };
@@ -104,23 +70,63 @@ sc.server.boot().then((server) => {
 });
 ```
 
+[Server](./packages/server/README.md) Core functionality, node and buffer id allocators.
 
-Compatibility
--------------
+[Server Plus](./packages/server-plus/README.md)
 
-Works on Node 10+
+Adds methods for
 
-Source code is written in TypeScript
+- .synth
+- .group
+- .synthDefs
+- .loadSynthDef
+- .synthDef
+- .buffer
+- .readBuffer
+- .audioBus
+- .controlBus
+
+### dryads
+
+reason why it's a solution
+
+### lang
+
+- Spawns the language interpreter, `sclang`
+- Call SuperCollider code from JavaScript
 
 
-Contribute
-----------
+```js
+var sc = require('supercolliderjs');
+
+sc.lang.boot().then(async function(sclang) {
+
+  const pyramid = await sclang.interpret('(1..8).pyramid');
+  console.log(pyramid);
+
+
+}, function(error) {
+  console.error(error)
+  // sclang failed to startup:
+  // - executable may be missing
+  // - class library may have failed with compile errors
+});
+```
+
+
+## Compatibility
+
+Node 10+
+
+Source code is written in TypeScript and published for usage in with either JavaScript or TypeScript.
+
+
+## Contribute
 
 - Issue Tracker: https://github.com/crucialfelix/supercolliderjs/issues
 - Source Code: https://github.com/crucialfelix/supercolliderjs
 
-License
--------
+## License
 
 MIT license
 

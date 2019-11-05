@@ -1,12 +1,9 @@
 # @supercollider/server
 
-Client library for the SuperCollider scsynth audio engine.
+Client library for the SuperCollider `scsynth` audio engine.
 
-Starts a `scsynth` server as a child process.
-Sends and receives OSC messages to the server.
-Manages allocation of node and buffer resources.
+## scsynth features
 
-## Server - scsynth
 - High quality accurate and efficient audio engine
 - Fully adjustable sample rate (192k+) and block size
 - 32-bit float signal chain
@@ -17,16 +14,32 @@ Manages allocation of node and buffer resources.
 - Simple ANSI C plugin API
 - Hundreds more community contributed UGens
 - Supports any number of input and output channels, ideal for large multichannel setups
-- Multi-processor support using the Supernova server implementation
+
+
+## @supercollider/server Features
+
+- Spawns the synthesis server, `scsynth` as a subprocess
+- Send and receive OSC messages
+- Comprehensive support for sending all commands the server understands
+- Call async commands on the server and receive results as Promises
+- Synth/Group/Bus/Buffer allocators with clean immutable state implementation
+- Immutable server state and synth/group tracking
+- Just-in-time OSC scheduler
+
+You can install just this lib, but to compile SynthDefs you need to use sclang. SynthDefs and UGens are a planned upcoming feature.
+
+## Implementation
+
+TODO how it is different than sclang's implementation
+
+immutable: when errors happen it doesn't mess up the state.
+async await when sending messages
 
 ## Usage
 
-```js
-import Server from "@supercollider/server";
-
-let s = new Server();
-s.boot().then(async () => {
-  s.synth
-});
-```
+config and paths
+note about convience methods: server-plus
+sending a raw message
+using the internal allocator
+event
 

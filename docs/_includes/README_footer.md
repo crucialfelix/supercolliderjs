@@ -1,3 +1,8 @@
+Documentation
+-------------
+
+[Docs](https://supercollider.github.io/packages/${PACKAGE}/docs/index.html)
+
 Compatibility
 -------------
 
