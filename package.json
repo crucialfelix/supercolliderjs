@@ -1,7 +1,7 @@
 {
   "name": "supercolliderjs",
   "description": "JavaScript library for the SuperCollider music language and synthesis server",
-  "version": "0.14.2",
+  "version": "1.0.0-alpha.0",
   "author": "Chris Sattinger <crucialfelix@gmail.com>",
   "contributors": [
     {
@@ -9,6 +9,7 @@
       "email": "crucialfelix@gmail.com"
     }
   ],
+  "private": true,
   "dependencies": {},
   "devDependencies": {
     "@types/jest": "24.0.19",
@@ -41,8 +42,6 @@
     "type": "git",
     "url": "git://github.com/crucialfelix/supercolliderjs"
   },
-  "main": "lib/index",
-  "types": "lib/index.d.ts",
   "scripts": {
     "postinstall": "npm run bootstrap && npm run build",
     "bootstrap": "lerna bootstrap --hoist",
@@ -57,6 +56,6 @@
     "lib"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">= 10.0.0"
   }
 }
