@@ -133,8 +133,8 @@ export default class SCAPI extends events.EventEmitter {
   }
 
   receive(signal, msg): void {
-    const requestId = msg.args[1].value;
-    let result = msg.args[2].value;
+    const requestId = msg.args[1];
+    let result = msg.args[2];
     const request = this.requests[requestId];
     if (!request) {
       this.emit("error", "Unknown request " + requestId);
