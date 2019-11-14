@@ -1,22 +1,20 @@
 {{> header }}
 
+> A dryad (/ˈdraɪ.æd/; Greek: Δρυάδες, sing.: Δρυάς) is a tree nymph, or female tree spirit, in Greek mythology
 
-(More docs coming)
+Dryadic is a framework for writing components that encapsulate all the complexities of loading, state management, dependencies and execution order.
 
+https://github.com/crucialfelix/dryadic
 
+Just as SuperCollider synths have a call graph or UGens, Dryadic has a call graph of higher level components. In Dryadic this is referred to as a tree.
 
-## Usage
+Dryadic is declarative: you specify the resources you want and how they are connected. The framework does the rest.
+Because it is declarative, you can update your tree while performing and the resources (servers, sounds, synth defs, settings) update live.
 
-```js
-const d = require("@supercollider/dryads");
+## Examples
 
-let s = d.Synth({
-  def: d.SynthDef(``);
-}, {
-  freq: 440
-});
+More extensive examples will come with dryadic 1.0
 
-s.play();
-```
+{{#example}}examples/dryads-synth-event-list.js{{/example}}
 
 {{> footer }}

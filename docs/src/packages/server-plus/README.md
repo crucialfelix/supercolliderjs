@@ -1,6 +1,6 @@
 {{> header}}
 
-This extends `@supercollider/server` adding methods for commonly used constructs:
+This extends the `Server` class from `@supercollider/server`, adding methods for commonly used constructs:
 
 - .synth
 - .group

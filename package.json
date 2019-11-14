@@ -54,7 +54,8 @@
     "lint": "eslint --ext .ts packages/",
     "clean": "lerna exec -- rimraf lib && lerna exec -- rm -f tsconfig.tsbuildinfo",
     "docs:build": "node ./tasks/make-docs.js",
-    "docs:serve": "docsify serve docs"
+    "docs:serve": "npm run docs:build && docsify serve docs",
+    "docs:watch": "fswatch -o ./docs/src | xargs -n1 -I{} npm run docs:build"
   },
   "eslintIgnore": [
     "node_modules",

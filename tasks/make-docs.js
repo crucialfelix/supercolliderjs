@@ -7,6 +7,12 @@ const fsp = fs.promises;
 const root = path.resolve(path.join(__dirname, ".."));
 const packagesRoot = path.join(root, "packages");
 const docsRoot = path.join(root, "docs");
+const repository = "https://github.com/crucialfelix/supercolliderjs";
+
+const typedocRoot = "https://crucialfelix.github.io/supercolliderjs";
+
+// Test locally with:
+// const typedocRoot = "http://localhost:3000";
 
 async function fileExists(filePath) {
   return fsp.stat(filePath).then(stat => true, err => false);
@@ -19,9 +25,16 @@ const partials = {
   footer: fs.readFileSync(path.join(root, "docs", "src", "partials", "footer.md")).toString(),
 };
 
-const example = (text, render) => {
+// template lambdas
+const example = text => {
   const body = fs.readFileSync(path.join(root, text));
-  return `${triple}js\n${body}\n${triple}`;
+  const link = `${repository}/blob/develop/${text}`;
+  return `${triple}js\n${body}\n${triple}\n<small><a href=${link}>source</a></small>\n`;
+};
+const typedocLink = text => {
+  const [title, link] = text.split(":", 2);
+  const body = `[${title}](${typedocRoot}${link})`;
+  return body;
 };
 
 async function main() {
@@ -43,14 +56,14 @@ async function main() {
       description: pkg.description,
       version: pkg.version,
       homepage: pkg.hompage,
-      repository: "https://github.com/crucialfelix/supercolliderjs",
-      root: "https://crucialfelix.github.io/supercolliderjs",
+      repository,
+      typedocRoot: typedocRoot,
       example: () => example,
+      typedocLink: () => typedocLink,
     };
 
     const content = Mustache.render(tpl, data, partials);
 
-    // console.log(content);
     // Write to packages for publishing to npm
     await fsp.writeFile(path.join(packagesRoot, pkgdir, "README.md"), content);
     // Write it to docs

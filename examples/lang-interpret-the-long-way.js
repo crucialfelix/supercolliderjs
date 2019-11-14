@@ -16,17 +16,16 @@ function makePyramid(lang) {
 }
 
 // Verbose example to show Promises and full error handling
-sc.lang
-  .boot()
-  .then(lang => {
+sc.lang.boot().then(
+  // ok booted
+  lang => {
     makePyramid(lang);
-  })
-  .catch(
-    // Language interpreter failed to boot
-    function(error) {
-      console.error(error);
-      // sclang failed to startup:
-      // - The executable may be missing, incorrect path
-      // - The class library may have failed with compile errors
-    },
-  );
+  },
+  // failed to boot
+  error => {
+    console.error(error);
+    // Either:
+    // 1. The executable may be missing, incorrect path etc.
+    // 2. The class library may have failed with compile errors
+  },
+);

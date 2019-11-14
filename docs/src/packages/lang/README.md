@@ -9,58 +9,93 @@ If you are building something that just needs to communicate with sclang then yo
 
 ## Usage
 
+### Boot
+
+Start the `sclang` executable as a subprocess, returning a Promise.
+
+{{#example}}examples/boot-lang.js{{/example}}
 
 ```js
-// The long way
-var sc = require('supercolliderjs');
-
-// boot() returns a Promise that then resolves with an SCLang
-sc.lang.boot().then(function(sclang) {
-
-  // SCLang.interpret returns a Promise
-  sclang.interpret('(1..8).pyramid')
-    .then(function(result) {
-      // result is a native javascript array
-      console.log('= ' + result);
-    }, function(error) {
-      // syntax or runtime errors
-      // are returned as javascript objects
-      console.error(error);
-    });
-
-}, function(error) {
-  console.error(error)
-  // sclang failed to startup:
-  // - executable may be missing
-  // - class library may have failed with compile errors
-});
+const Lang = require("supercolliderjs").lang.default;
+const l = new Lang(options);
+l.boot();
 ```
+
+`sclang` will compile it's class library, and this may result in syntax or compile errors.
+
+Resolves with a list of SuperCollider class file directories that were compiled:
+
+```typescript
+{dirs: [/*compiled directories*/]}
+```
+
+or rejects with:
+
+```typescript
+{
+  dirs: [],
+  compileErrors: [],
+  parseErrors: [],
+  duplicateClasses: [],
+  errors[],
+  extensionErrors: [],
+  stdout: 'compiling class library...etc.'
+}
+```
+
+See `SclangCompileResult` in `packages/lang/src/internals/sclang-io.ts` for full details.
+
+### Interpret simple async await style
+
+{{#example}}examples/lang-interpret.js{{/example}}
+
+### Interpret with full error handling
+
+{{#example}}examples/lang-interpret-the-long-way.js{{/example}}
+
+
+### Options
+
+```typescript
+sc.lang.boot(options)
+// or
+const Lang = require("supercolliderjs").lang.default;
+const l = new Lang(options);
+l.boot();
+```
+
+```typescript
+{
+  // post verbose messages to console
+  debug: boolean;
+  // echo all commands sent TO sclang to console
+  echo: boolean;
+  // provide an alternate console like object for logging. eg. winston
+  log?: Console;
+  // path to sclang executable
+  sclang: string;
+  // To start sclang and immediately execute one file
+  executeFile?: string;
+  // path to existing non-default conf file
+  sclang_conf?: string;
+
+  // post sclang stdin to console
+  stdin: boolean;
+  // if specifying a non-default conf file then you may wish to fail if you got the path wrong
+  // rather than fall back to the default one
+  failIfSclangConfIsMissing: boolean;
+  // pass in a configuration without having to write it to a file
+  conf: SCLangConf;
+}
+```
+
+See: packages/lang/src/options.ts
+
+
+### executeFile
 
 ```js
-// The fast way
-const sc = require('supercolliderjs');
-
-// `run` boots a lanaguage interpreter
-sc.lang.run(async function(sclang) {
-  // This is an `async` function, so we can `await` the results of Promises.
-  let pyr8 = await sclang.interpret('(1..8).pyramid');
-  console.log(pyr8);
-
-  let threePromises = [16, 24, 32].map(n => {
-      return sclang.interpret(`(1..${n}).pyramid`)
-  });
-
-  // `interpret` many at the same time and wait until all are fulfilled.
-  // Note that `sclang` is single threaded,
-  // so the requests will still be processed by the interpreter one at a time.
-  let pyrs = await Promise.all(threePromises);
-  console.log(pyrs);
-
-  await sclang.quit();
-});
+await lang.executeFile("./some-supercollider-piece.scd");
 ```
-
-TODO: document options
-executeFile
 
 {{> footer }}

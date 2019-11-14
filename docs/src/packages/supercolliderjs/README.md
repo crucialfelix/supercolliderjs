@@ -66,30 +66,4 @@ Currently supercollider.js uses `sclang` to compile synth defs. Full support for
 
 {{#example}}examples/lang-interpret.js{{/example}}
 
-## Compatibility
-
-Node 10+
-
-Source code is written in TypeScript and published for usage in with either JavaScript or TypeScript.
-
-
-## Contribute
-
-- Issue Tracker: https://github.com/crucialfelix/supercolliderjs/issues
-- Source Code: https://github.com/crucialfelix/supercolliderjs
-
-## License
-
-MIT license
-
-[license-image]: http://img.shields.io/badge/license-MIT-blue.svg?style=flat
-[license-url]: LICENSE
-
-[npm-url]: https://npmjs.org/package/supercolliderjs
-[npm-version-image]: http://img.shields.io/npm/v/supercolliderjs.svg?style=flat
-[npm-downloads-image]: http://img.shields.io/npm/dm/supercolliderjs.svg?style=flat
-
-[travis-url]: http://travis-ci.org/crucialfelix/supercolliderjs
-[travis-image]: https://travis-ci.org/crucialfelix/supercolliderjs.svg?branch=master
-
 {{> footer }}

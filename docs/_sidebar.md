@@ -2,6 +2,7 @@
 - npm packages
   - [supercolliderjs](packages/supercolliderjs/README.md)
   - [@supercollider/server](packages/server/README.md)
+  - [@supercollider/server-plus](packages/server-plus/README.md)
   - [@supercollider/lang](packages/lang/README.md)
   - [@supercollider/dryads](packages/dryads/README.md)
   - [@supercollider/osc](packages/osc/README.md)
