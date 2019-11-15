@@ -175,6 +175,7 @@ export default class Server extends EventEmitter {
    *    'OSC'   - OSC responses from the server
    *
    * Emit signals are deprecated and will be removed in 1.0
+   * TODO: remove
    *
    * @deprecated
    *

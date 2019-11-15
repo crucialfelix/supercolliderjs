@@ -3,10 +3,10 @@ lib
 coverage
 .node-version
 .tags1
-docs/_site
-documentation.yml
 node_modules
 lerna-debug.log
 tsconfig.tsbuildinfo
 .vscode
 *.off
+docs/src/packages/**/api.json
+packages/**/typedoc.json

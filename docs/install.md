@@ -1,8 +1,4 @@
----
-layout: page
-title: Install
-order: 5
----
+# Install
 
 ```shell
 npm install --save supercolliderjs
