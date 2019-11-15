@@ -1,0 +1,490 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>&quot;node-watcher&quot; | @supercollider/server</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">@supercollider/server</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../index.html">Globals</a>
+				</li>
+				<li>
+					<a href="_node_watcher_.html">&quot;node-watcher&quot;</a>
+				</li>
+			</ul>
+			<h1>External module &quot;node-watcher&quot;</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Interfaces</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-interface tsd-parent-kind-external-module"><a href="../interfaces/_node_watcher_.nodestate.html" class="tsd-kind-icon">Node<wbr>State</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_node_watcher_.html#onnodeend" class="tsd-kind-icon">on<wbr>Node<wbr>End</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_node_watcher_.html#onnodego" class="tsd-kind-icon">on<wbr>Node<wbr>Go</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_node_watcher_.html#updatenodestate" class="tsd-kind-icon">update<wbr>Node<wbr>State</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_node_watcher_.html#watchnodenotifications" class="tsd-kind-icon">watch<wbr>Node<wbr>Notifications</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_node_watcher_.html#whennodeend" class="tsd-kind-icon">when<wbr>Node<wbr>End</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_node_watcher_.html#whennodego" class="tsd-kind-icon">when<wbr>Node<wbr>Go</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="onnodeend" class="tsd-anchor"></a>
+					<h3>on<wbr>Node<wbr>End</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Node<wbr>End<span class="tsd-signature-symbol">(</span>server<span class="tsd-signature-symbol">: </span><a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a>, id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, nodeID<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, handler<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/crucialfelix/supercolliderjs/blob/c953b43/packages/server/src/node-watcher.ts#L121">node-watcher.ts:121</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Call a function when the server sends an <code>/n_end</code> message
+									One callback allowed per id and node.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>server: <a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a></h5>
+								</li>
+								<li>
+									<h5>id: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>unique id for this callback registration</p>
+									</div>
+								</li>
+								<li>
+									<h5>nodeID: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>handler: <span class="tsd-signature-type">Function</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+							<ul>
+								<li>cancel function</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="onnodego" class="tsd-anchor"></a>
+					<h3>on<wbr>Node<wbr>Go</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">on<wbr>Node<wbr>Go<span class="tsd-signature-symbol">(</span>server<span class="tsd-signature-symbol">: </span><a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a>, id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, nodeID<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, handler<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/crucialfelix/supercolliderjs/blob/c953b43/packages/server/src/node-watcher.ts#L89">node-watcher.ts:89</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Call a function when the server sends an <code>/n_go</code> message
+										One callback allowed per id and node
+									The id is usually a context id but could be a random guid</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>server: <a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a></h5>
+								</li>
+								<li>
+									<h5>id: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>unique id for this callback registration</p>
+									</div>
+								</li>
+								<li>
+									<h5>nodeID: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>handler: <span class="tsd-signature-type">Function</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span></h4>
+							<ul>
+								<li>cancel function</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="updatenodestate" class="tsd-anchor"></a>
+					<h3>update<wbr>Node<wbr>State</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">update<wbr>Node<wbr>State<span class="tsd-signature-symbol">(</span>server<span class="tsd-signature-symbol">: </span><a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a>, nodeID<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, nodeState<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_node_watcher_.nodestate.html" class="tsd-signature-type">NodeState</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/crucialfelix/supercolliderjs/blob/c953b43/packages/server/src/node-watcher.ts#L146">node-watcher.ts:146</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Update values in the Server&#39;s node state registery.</p>
+								</div>
+								<p>This is for internal use.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>server: <a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a></h5>
+								</li>
+								<li>
+									<h5>nodeID: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>nodeState: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_node_watcher_.nodestate.html" class="tsd-signature-type">NodeState</a><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="watchnodenotifications" class="tsd-anchor"></a>
+					<h3>watch<wbr>Node<wbr>Notifications</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">watch<wbr>Node<wbr>Notifications<span class="tsd-signature-symbol">(</span>server<span class="tsd-signature-symbol">: </span><a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Disposable</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/crucialfelix/supercolliderjs/blob/c953b43/packages/server/src/node-watcher.ts#L59">node-watcher.ts:59</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Watch server OSC receive for any n_XXX messages:</p>
+								</div>
+								<ul>
+									<li><code>n_go</code></li>
+									<li><code>n_end</code></li>
+									<li><code>n_on</code></li>
+									<li><code>n_off</code></li>
+									<li><code>n_move</code></li>
+									<li><code>n_info</code></li>
+								</ul>
+								<p>Save all of the supplied info for the node
+								and call any registered callbacks.</p>
+								<p>Initially there is no need to unwatch unless you are
+									creating and discarding Server objects which can happen
+								during testing.</p>
+								<p>TODO: add Server.destroy</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>server: <a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Disposable</span></h4>
+							<ul>
+								<li>sub.dispose(); to turn it off.</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="whennodeend" class="tsd-anchor"></a>
+					<h3>when<wbr>Node<wbr>End</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">when<wbr>Node<wbr>End<span class="tsd-signature-symbol">(</span>server<span class="tsd-signature-symbol">: </span><a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a>, id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, nodeID<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/crucialfelix/supercolliderjs/blob/c953b43/packages/server/src/node-watcher.ts#L130">node-watcher.ts:130</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a Promise that resolves when the server sends an <code>/n_end</code> message.</p>
+								</div>
+								<p>The id is usually a context id but could be a random guid</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>server: <a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a></h5>
+								</li>
+								<li>
+									<h5>id: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>nodeID: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="whennodego" class="tsd-anchor"></a>
+					<h3>when<wbr>Node<wbr>Go</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">when<wbr>Node<wbr>Go<span class="tsd-signature-symbol">(</span>server<span class="tsd-signature-symbol">: </span><a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a>, id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, nodeID<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/crucialfelix/supercolliderjs/blob/c953b43/packages/server/src/node-watcher.ts#L105">node-watcher.ts:105</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a Promise that resolves when the server sends an
+									<code>/n_go</code> message.</p>
+								</div>
+								<p>The id is usually a context id (dryadic) but could be any random guid.
+								It can be anything you want to supply as long as it is unique.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>server: <a href="../classes/_server_.server.html" class="tsd-signature-type">Server</a></h5>
+								</li>
+								<li>
+									<h5>id: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>unique id for this callback registration</p>
+									</div>
+								</li>
+								<li>
+									<h5>nodeID: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<ul>
+								<li>resolves with nodeID</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../index.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_serverstate_.html">"<wbr>Server<wbr>State"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="___tests___serverstate_test_.html">"__tests__/<wbr>Server<wbr>State-<wbr>test"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="___tests___node_watcher_test_.html">"__tests__/node-<wbr>watcher-<wbr>test"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="___tests___resolve_options_test_.html">"__tests__/resolve-<wbr>options-<wbr>test"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="___tests___server_test_.html">"__tests__/server-<wbr>test"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_bin_scsynth_.html">"bin/scsynth"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_checkinstall_.html">"check<wbr>Install"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_index_.html">"index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_internals_sendosc_.html">"internals/<wbr>SendOSC"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_internals_store_.html">"internals/<wbr>Store"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_internals___tests___allocators_.html">"internals/__tests__/allocators"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_internals_allocators_.html">"internals/allocators"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_internals_side_effects_.html">"internals/side-<wbr>effects"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_mapping_.html">"mapping"</a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="_node_watcher_.html">"node-<wbr>watcher"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_options_.html">"options"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_osc_types_.html">"osc-<wbr>types"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_osc___tests___msg_.html">"osc/__tests__/msg"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_osc___tests___utils_.html">"osc/__tests__/utils"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_osc_msg_.html">"osc/msg"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_osc_utils_.html">"osc/utils"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_server_.html">"server"</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

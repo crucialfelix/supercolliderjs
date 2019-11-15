@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "lib": ["es2018", "dom"],
+    "module": "commonjs",
+    "target": "es2018",
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "src",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strict": true,
+    "strictNullChecks": true
+  },
+  "references": [
+    {
+      "path": "logger"
+    },
+    {
+      "path": "server"
+    },
+    {
+      "path": "lang"
+    },
+    {
+      "path": "dryads"
+    },
+    {
+      "path": "supercolliderjs"
+    },
+    {
+      "path": "scapi"
+    }
+  ],
+  "exclude": ["**/__tests__", "**/node_modules", "**/lib"]
+}

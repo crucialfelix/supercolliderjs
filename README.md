@@ -4,7 +4,7 @@
 
 The JavaScript client library for SuperCollider.
 
-SuperCollider is an environment and programming language for real time audio synthesis and algorithmic composition. It provides an interpreted object-oriented language which functions as a network client to a state of the art, realtime sound synthesis server.
+SuperCollider is an environment and programming language for real-time audio synthesis and algorithmic composition. It provides an interpreted object-oriented language which functions as a network client to a state of the art, realtime sound synthesis server.
 
 This library provides functionality for working with:
 
@@ -73,7 +73,7 @@ sc.server.boot().then((server) => {
   let def = server.loadSynthDef('formant', './formant.scd');
 
   // Create group at the root
-  let group = server.group();
+  let group = server.group()
 
   let freqSpec = {
     minval: 100,
@@ -107,9 +107,9 @@ sc.server.boot().then((server) => {
 Compatibility
 -------------
 
-Works on Node 4+
+Works on Node 10+
 
-Source code is written in ES2015 with Flow type annotations.
+Source code is written in TypeScript and published for usage in with either JavaScript or TypeScript.
 
 
 Contribute

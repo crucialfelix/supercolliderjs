@@ -1,0 +1,345 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>&quot;middleware/scserver&quot; | @supercollider/dryads</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">@supercollider/dryads</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../index.html">Globals</a>
+				</li>
+				<li>
+					<a href="_middleware_scserver_.html">&quot;middleware/scserver&quot;</a>
+				</li>
+			</ul>
+			<h1>External module &quot;middleware/scserver&quot;</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_middleware_scserver_.html#resolvefuncs" class="tsd-kind-icon">resolve<wbr>Funcs</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_middleware_scserver_.html#scserver" class="tsd-kind-icon">scserver</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="resolvefuncs" class="tsd-anchor"></a>
+					<h3>resolve<wbr>Funcs</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">resolve<wbr>Funcs<span class="tsd-signature-symbol">(</span>command<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Command</span>, context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Context</span>, properties<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Properties</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Command</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/crucialfelix/supercolliderjs/blob/c953b43/packages/dryads/src/middleware/scserver.ts#L135">middleware/scserver.ts:135</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Replace any functions in the command object&#39;s values with the result of
+									calling the function.</p>
+								</div>
+								<p>eg. msg: (context) =&gt; { ... return [&#39;/s_new&#39;, ...]; }
+								becomes msg: [&#39;/s_new&#39;, ...]</p>
+								<p>Non-functions are passed through.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>command: <span class="tsd-signature-type">Command</span></h5>
+								</li>
+								<li>
+									<h5>context: <span class="tsd-signature-type">Context</span></h5>
+								</li>
+								<li>
+									<h5>properties: <span class="tsd-signature-type">Properties</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Command</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="scserver" class="tsd-anchor"></a>
+					<h3>scserver</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">scserver<span class="tsd-signature-symbol">(</span>command<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Command</span>, context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Context</span>, properties<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Properties</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">MsgType</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/crucialfelix/supercolliderjs/blob/c953b43/packages/dryads/src/middleware/scserver.ts#L90">middleware/scserver.ts:90</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Command middlware that sends OSC to the SuperCollider server (scsynth).</p>
+								</div>
+								<p>Command objects are collected from each Dryad (<code>add()</code> <code>remove()</code>) and
+								this middlware is called for each Dryad that has <code>scserver</code> commands.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>command: <span class="tsd-signature-type">Command</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>For any of these you may supply a function that is called with context
+										and returns one of these forms.</p>
+										<p>For example, rather than:</p>
+										<pre><code><span class="hljs-string">msg:</span> [<span class="hljs-string">'/n_free'</span>, <span class="hljs-number">1005</span>]</code></pre><p>you would use the context to get the node id to free:</p>
+										<pre><code>msg:<span class="hljs-function"> (<span class="hljs-params">context</span>) =&gt;</span> node<span class="hljs-constructor">Free(<span class="hljs-params">context</span>.<span class="hljs-params">nodeID</span>)</span></code></pre><p>Command may have one of these forms:</p>
+										<p><strong>msg:</strong> {Array} - OSC message</p>
+										<pre><code><span class="hljs-string">msg:</span> [<span class="hljs-string">'/n_free'</span>, <span class="hljs-number">1005</span>]</code></pre><p><strong>bundle:</strong></p>
+										<pre><code>bundle: {
+  <span class="hljs-attr">time</span>: <span class="hljs-literal">null</span>|<span class="hljs-built_in">Number</span>|<span class="hljs-built_in">Array</span>|<span class="hljs-built_in">Date</span>
+  <span class="hljs-attr">packets</span>: <span class="hljs-built_in">Array</span> <span class="hljs-keyword">of</span> OSC messages
+}</code></pre><p><strong>callAndResponse:</strong></p>
+										<p> Returns a Promise. Only used in preparation, not for play / update.
+										Call and response object creator functions can be found in <code>osc/msg</code></p>
+										<pre><code><span class="hljs-selector-tag">callAndResponse</span>: {
+  <span class="hljs-attribute">call</span>: oscMessage,
+  response: oscMessagePattern
+}</code></pre><p><strong>schedLoop:</strong></p>
+										<pre><code>schedLoop: <span class="hljs-function">(<span class="hljs-params">context</span>) =&gt;</span> {
+ <span class="hljs-comment">// construct a function that will return successive events to be sent</span>
+ <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">now, memo={i: <span class="hljs-number">0</span>}</span>) =&gt;</span> {
+   <span class="hljs-keyword">return</span> {
+     <span class="hljs-comment">// time in seconds relative to the context.epoch</span>
+     time: <span class="hljs-number">0.4</span>,
+     <span class="hljs-attr">msgs</span>: [ ],
+     <span class="hljs-comment">// memo will be passed into the loop each time</span>
+     <span class="hljs-comment">// and can be used to store iterators and loop state.</span>
+     memo: {<span class="hljs-attr">i</span>: memo.i + <span class="hljs-number">1</span>}
+   }
+ }
+}</code></pre><p>schedLoop takes a function that iterates through events.
+										See <code>OSCSched</code></p>
+										<p>It uses a just-in-time scheduler, keeping the OSC messages in the node process
+											and only sending them to the server just before they should play. This doesn&#39;t overload
+											the server with a glut of messages and also allows cancellation and updating of the messages
+										and makes it easy to implement transport controls and looping.</p>
+									</div>
+								</li>
+								<li>
+									<h5>context: <span class="tsd-signature-type">Context</span></h5>
+								</li>
+								<li>
+									<h5>properties: <span class="tsd-signature-type">Properties</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">MsgType</span><span class="tsd-signature-symbol">&gt;</span>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">void</span>
+							</h4>
+							<p>Promise is only returned when using .callAndResponse</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../index.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_audiobus_.html">"<wbr>Audio<wbr>Bus"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_group_.html">"<wbr>Group"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_sclang_.html">"SCLang"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_scserver_.html">"SCServer"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_scsynthdef_.html">"SCSynth<wbr>Def"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_synth_.html">"<wbr>Synth"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_synthcontrol_.html">"<wbr>Synth<wbr>Control"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_syntheventlist_.html">"<wbr>Synth<wbr>Event<wbr>List"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_synthstream_.html">"<wbr>Synth<wbr>Stream"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="___tests___synth_spec_.html">"__tests__/<wbr>Synth.spec"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="___tests___syntheventlist_spec_.html">"__tests__/<wbr>Synth<wbr>Event<wbr>List.spec"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="___tests___synthstream_spec_.html">"__tests__/<wbr>Synth<wbr>Stream.spec"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="___tests___index_spec_.html">"__tests__/index-<wbr>spec"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_index_.html">"index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_middleware_oscsched_.html">"middleware/OSCSched"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_middleware___tests___oscsched_spec_.html">"middleware/__tests__/OSCSched.spec"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_middleware___tests___scserver_spec_.html">"middleware/__tests__/scserver.spec"</a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="_middleware_scserver_.html">"middleware/scserver"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_utils___tests___iterators_.html">"utils/__tests__/iterators"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_utils_iterators_.html">"utils/iterators"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="_utils_test_utils_.html">"utils/test-<wbr>utils"</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

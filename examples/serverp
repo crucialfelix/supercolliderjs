@@ -1,0 +1,84 @@
+
+
+// @supercollider/server-plus interface
+const sc = require('supercolliderjs');
+
+sc.server.boot().then((server) => {
+
+  // Compile a SynthDef from a supercollider language file.
+  // It will also watch the file and recompile and send to server when you save.
+  // You can live code the synth def while this example plays.
+  let def = server.loadSynthDef('formant', './formant.scd');
+
+// Create group at the root
+  let group = server.group();
+
+  let freqSpec = {
+    minval: 100,
+    maxval: 8000,
+    warp: 'exp'
+  };
+
+  // Map 0..1 to an exponential frequency range from 100..8000
+  let randFreq = () => sc.map.mapWithSpec(Math.random(), freqSpec);
+
+  let spawn = (dur) => {
+    server.synth(def, {
+      fundfreq: randFreq(),
+      formantfreq: randFreq(),
+      bwfreq: randFreq(),
+      pan: sc.map.linToLin(0, 1, -1, 1, Math.random()),
+      timeScale: dur
+      // spawn each synth into the same group
+    }, group);
+
+    let next = Math.random() * 0.25;
+
+    // Schedule this function again:
+    setTimeout(() => spawn(next), next * 1000);
+  };
+
+  spawn(Math.random());
+
+});
+// @supercollider/server-plus interface
+const sc = require('supercolliderjs');
+
+sc.server.boot().then((server) => {
+
+  // Compile a SynthDef from a supercollider language file.
+  // It will also watch the file and recompile and send to server when you save.
+  // You can live code the synth def while this example plays.
+  let def = server.loadSynthDef('formant', './formant.scd');
+
+// Create group at the root
+  let group = server.group();
+
+  let freqSpec = {
+    minval: 100,
+    maxval: 8000,
+    warp: 'exp'
+  };
+
+  // Map 0..1 to an exponential frequency range from 100..8000
+  let randFreq = () => sc.map.mapWithSpec(Math.random(), freqSpec);
+
+  let spawn = (dur) => {
+    server.synth(def, {
+      fundfreq: randFreq(),
+      formantfreq: randFreq(),
+      bwfreq: randFreq(),
+      pan: sc.map.linToLin(0, 1, -1, 1, Math.random()),
+      timeScale: dur
+      // spawn each synth into the same group
+    }, group);
+
+    let next = Math.random() * 0.25;
+
+    // Schedule this function again:
+    setTimeout(() => spawn(next), next * 1000);
+  };
+
+  spawn(Math.random());
+
+});
