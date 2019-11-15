@@ -29,7 +29,7 @@ const partials = {
 const example = text => {
   const body = fs.readFileSync(path.join(root, text));
   const link = `${repository}/blob/develop/${text}`;
-  return `${triple}js\n${body}\n${triple}\n<small><a href=${link}>source</a></small>\n`;
+  return `${triple}js\n${body}\n${triple}\n<small class="source-link"><a href=${link}>source</a></small>\n`;
 };
 const typedocLink = text => {
   const [title, link] = text.split(":", 2);

@@ -8,3 +8,5 @@ lerna-debug.log
 tsconfig.tsbuildinfo
 .vscode
 *.off
+docs/src/packages/**/api.json
+packages/**/typedoc.json
