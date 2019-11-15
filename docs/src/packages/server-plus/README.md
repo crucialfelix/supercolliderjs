@@ -1,66 +1,94 @@
 {{> header}}
 
-This extends the `Server` class from `@supercollider/server`, adding methods for commonly used constructs:
+This extends the `Server` class from `@supercollider/server`, adding methods for commonly used constructs.
 
-- .synth
-- .group
-- .synthDefs
-- .loadSynthDef
-- .synthDef
-- .buffer
-- .readBuffer
-- .audioBus
-- .controlBus
 
-[API](./docs/index.html)
+Each method returns a Promise that resolves when the resource is successfully created. Each method accepts Promises as arguments.
 
-conviencie methods: they return promises, and when supplied to other conviencience methods
+{{#example}}examples/server-plus-promises.js{{/example}}
+
+## synth
+Spawn a synth
+```js
+synth(
+    synthDef: SynthDef,
+    args: Params = {},
+    group?: Group,
+    addAction: number = msg.AddActions.TAIL,
+  ): Promise<Synth>;
+```
+
+## group
+A collection of other nodes organized as a linked list. The
+Nodes within a Group may be controlled together, and may be both Synths and
+other Groups. Groups are thus useful for controlling a number of nodes at once,
+and when used as targets can be very helpful in controlling order of execution.
 
 ```js
-const sc = require('supercolliderjs');
-
-sc.server.boot().then((server) => {
-
-  // Compile synthDef from a file
-  // This will also watch the file and recompile and send to server if the file changes.
-  // So you can live code by editing ./formant.scd while the spawn loop
-  // below sends events.
-  // It returns here a Promise for a SynthDef
-  let def = server.loadSynthDef('formant', './formant.scd');
-
-
-  // Create a group at the root
-  // TODO what is a Group
-  let group = server.group();
-
-  // TODO inline synthdef with an effect
-  //
-  let freqSpec = {
-    minval: 100,
-    maxval: 8000,
-    warp: 'exp'
-  };
-
-  // Map 0..1 to an exponential frequency range from 100..8000
-  let randFreq = () => sc.map.mapWithSpec(Math.random(), freqSpec);
-
-  let spawn = (dur) => {
-    server.synth(def, {
-      fundfreq: randFreq(),
-      formantfreq: randFreq(),
-      bwfreq: randFreq(),
-      pan: sc.map.linToLin(0, 1, -1, 1, Math.random()),
-      timeScale: dur
-    }, group);
-
-    let next = Math.random() * 0.25;
-    // Schedule this function again:
-    setTimeout(() => spawn(next), next * 1000);
-  };
-
-  spawn(Math.random());
-
-});
+group(group?: Group, addAction: number = msg.AddActions.TAIL): Promise<Group>;
 ```
+
+## synthDefs
+Compile multiple SynthDefs either from source or path.
+If you have more than one to compile then always use this
+as calling `server.synthDef` multiple times will start up
+multiple supercollider interpreters. This is harmless, but
+very inefficient.
+
+defs - An object with `{defName: spec, ...}` where spec is
+an object like `{source: "SynthDef('noise', { ...})"}`
+or `{path: "./noise.scd"}`
+
+Returns an object with the synthDef names as keys and Promises as values.
+Each Promise will resolve with a SynthDef.
+Each Promises can be supplied directly to `server.synth()`
+
+```js
+synthDefs(defs: { [defName: string]: SynthDefCompileRequest }): { [defName: string]: Promise<SynthDef> }
+```
+
+## loadSynthDef
+Load and compile a SynthDef from path and send it to the server.
+```js
+loadSynthDef(defName: string, path: string): Promise<SynthDef>;
+```
+
+## synthDef
+Compile a SynthDef from supercollider source code and send it to the server.
+```js
+synthDef(defName: string, sourceCode: string): Promise<SynthDef>;
+```
+
+## buffer
+Allocate a Buffer on the server.
+```js
+buffer(numFrames: number, numChannels = 1): Promise<Buffer>;
+```
+
+## audioBus
+Allocate an audio bus.
+```js
+audioBus(numChannels = 1): AudioBus;
+```
+
+## controlBus
+Allocate a control bus.
+```js
+controlBus(numChannels = 1): ControlBus;
+```
+
+## readBuffer
+Allocate a Buffer on the server and load a sound file into it.
+Problem: scsynth uses however many channels there are in the sound file,
+but the client (sclang or supercolliderjs) doesn't know how many there are.
+
+```js
+readBuffer(path: string, numChannels = 2, startFrame = 0, numFramesToRead = -1): Promise<Buffer>;
+```
+
+
+### Kitchen sink
+
+{{#example}}examples/server-plus.js{{/example}}
 
 {{> footer }}

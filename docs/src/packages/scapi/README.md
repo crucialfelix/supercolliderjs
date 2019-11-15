@@ -34,11 +34,4 @@ Start SuperCollider and activate the OSC responders:
 API.mountDuplexOSC
 ```
 
-```js
-
-
-```
-
-See examples/call-api-from-node.js
-
 {{> footer }}

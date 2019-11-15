@@ -120,8 +120,9 @@ You can also build your own way of working if you like—all the packages expose
     });
     ```
   - quit
-
-
+    ```js
+    await server.quit();
+    ```
 
 
 - {{#typedocLink}}msg:/packages/server/docs/modules/_osc_msg_.html{{/typedocLink}}

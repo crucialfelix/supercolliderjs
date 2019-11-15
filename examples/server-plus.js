@@ -5,8 +5,7 @@ sc.server.boot().then(async server => {
   // Compile a SynthDef from inline SuperCollider language code and send it to the server
   const def = await server.synthDef(
     "formant",
-    `
-      { arg out=0, fundfreq=440, formantfreq=440, bwfreq=100, timeScale=1, pan=0;
+    `{ |out=0, fundfreq=440, formantfreq=440, bwfreq=100, timeScale=1, pan=0|
         var saw, envd, panned;
 
         saw = Formant.ar(fundfreq, formantfreq, bwfreq);
@@ -15,8 +14,7 @@ sc.server.boot().then(async server => {
         panned = Pan2.ar(envd * AmpCompA.kr(fundfreq, 0.2, 0.7), pan);
 
         OffsetOut.ar(out, panned);
-      }
-    `,
+      }`,
   );
 
   // Create group at the root
