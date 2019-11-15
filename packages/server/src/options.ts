@@ -5,7 +5,7 @@ import os from "os";
 import path from "path";
 import untildify from "untildify";
 
-interface ScsynthArgs {
+export interface ScsynthArgs {
   numPrivateAudioBusChannels: number;
   /**
    *  numAudioBusChannels -  The number of internal audio rate busses. The default is 128.
@@ -206,15 +206,12 @@ function loadConfig(aPath: string): Partial<ServerArgs> {
 }
 
 function loadDotSupercolliderYaml(): Partial<ServerArgs> {
-  const paths = [
-    ".supercollider.yaml",
-    path.join(os.homedir(), ".supercollider.yaml")
-  ];
+  const paths = [".supercollider.yaml", path.join(os.homedir(), ".supercollider.yaml")];
   for (const cpath of paths) {
-    if(cpath) {
+    if (cpath) {
       const resolvedPath = path.resolve(untildify(cpath));
       const checked = fs.existsSync(resolvedPath) ? resolvedPath : null;
-      if(checked) {
+      if (checked) {
         console.log(`Loading config: ${checked}`);
         return loadConfig(cpath);
       }
@@ -232,4 +229,3 @@ export function resolveOptions(options: ServerArgs = {}): ServerOptions {
   }
   return opts;
 }
-
