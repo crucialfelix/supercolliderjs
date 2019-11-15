@@ -1,21 +1,23 @@
-[![NPM downloads][npm-downloads-image]][npm-url] [![MIT License][license-image]][license-url] [![Dependency Status](https://david-dm.org/@supercollider/logger.svg)](https://david-dm.org/@supercollider/logger)
-
 # @supercollider/logger
+[![NPM downloads][npm-downloads-image]][npm-url] [![MIT License][license-image]][license-url]
 
-Console logging utility for supercollider.js with colors and special formatting for OSC messages.
+<i>Console logging utility for supercollider.js for debugging with color support and special formatting for OSC messages.</i>
 
-This is used internally.
+This is used internally by other `@supercollider` packages.
 
 ## Usage
 
 ```js
-import Logger from "@supercollider/logger";
+const Logger = require("@supercollider/logger").default;
 
-let log = new Logger();
+const debug = true;
+const echo = true;
+
+const log = new Logger(debug, echo);
 // Log an error.
 log.err("Oh no!");
 // Log debugging information but only if this.debug is true
-log.dbug({log: "log", some: 1, context: 2, for: "The problem});
+log.dbug({ log: "log", some: 1, context: 2, for: "The problem" });
 // Log messages that were sent to stdin or sclang.
 log.stdin("1 + 1");
 // Log messages that were received from stdout of sclang/scsynth.
@@ -25,8 +27,16 @@ log.stderr("ERROR: ...");
 // Log OSC messages sent to scsynth.
 log.sendosc({ address: "/ping" });
 // Log OSC messages received from scsynth.
-log.rscosc({ value: "pong" });
+log.rcvosc({ value: "pong" });
+
 ```
+<small class="source-link"><a href=https://github.com/crucialfelix/supercolliderjs/blob/develop/examples/logger.js>source</a></small>
+
+
+Documentation
+-------------
+
+[TypeDocs](https://crucialfelix.github.io/supercolliderjs/packages/logger/docs/index.html)
 
 Compatibility
 -------------
