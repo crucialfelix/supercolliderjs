@@ -188,6 +188,7 @@ await lang.executeFile("./some-supercollider-piece.scd");
 Documentation
 -------------
 
+[Documentation](https://crucialfelix.github.io/supercolliderjs/)
 [TypeDocs](https://crucialfelix.github.io/supercolliderjs/packages/lang/docs/index.html)
 
 Compatibility

@@ -40,6 +40,7 @@ API.mountDuplexOSC
 Documentation
 -------------
 
+[Documentation](https://crucialfelix.github.io/supercolliderjs/)
 [TypeDocs](https://crucialfelix.github.io/supercolliderjs/packages/scapi/docs/index.html)
 
 Compatibility
