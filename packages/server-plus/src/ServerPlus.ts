@@ -263,7 +263,7 @@ export default class ServerPlus extends Server {
    * If you have more than one to compile then always use this
    * as calling `server.synthDef` multiple times will start up
    * multiple supercollider interpreters. This is harmless, but
-   * you do have a lot of icons bouncing in your dock.
+   * very inefficient.
    *
    * @param defs - An object with `{defName: spec, ...}` where spec is
    *               an object like `{source: "SynthDef('noise', { ...})"}`
@@ -345,12 +345,7 @@ export default class ServerPlus extends Server {
    * Problem: scsynth uses however many channels there are in the sound file,
    * but the client (sclang or supercolliderjs) doesn't know how many there are.
    */
-  async readBuffer(
-    path: string,
-    numChannels = 2,
-    startFrame = 0,
-    numFramesToRead = -1,
-  ): Promise<Buffer> {
+  async readBuffer(path: string, numChannels = 2, startFrame = 0, numFramesToRead = -1): Promise<Buffer> {
     const id = this.state.allocBufferID(numChannels);
     await this.callAndResponse(msg.bufferAllocRead(id, path, startFrame, numFramesToRead));
     return new Buffer(this, id, numFramesToRead, numChannels);
@@ -360,6 +355,7 @@ export default class ServerPlus extends Server {
    * Allocate an audio bus.
    */
   audioBus(numChannels = 1): AudioBus {
+    // TODO: should be a promise that rejects if you run out of busses
     const id = this.state.allocAudioBus(numChannels);
     return new AudioBus(this, id, numChannels);
   }
