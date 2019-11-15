@@ -1,6 +1,6 @@
 {
   "name": "@supercollider/logger",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "Console logging utility for supercollider.js for debugging with color support and special formatting for OSC messages.",
   "keywords": [
     "supercollider"

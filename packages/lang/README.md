@@ -1,7 +1,7 @@
 # @supercollider/lang
 [![NPM downloads][npm-downloads-image]][npm-url] [![MIT License][license-image]][license-url]
 
-<i>Client library for the SuperCollider language. This package enables calling SuperCollider code from JavaScript.</i>
+<i>Client library for the SuperCollider language: sclang. This package enables calling SuperCollider code from JavaScript.</i>
 
 - Spawns and manages one or more `sclang` processes.
 - Interpret SuperCollider code and return results as equivalent JavaScript objects.

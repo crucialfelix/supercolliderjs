@@ -1,6 +1,6 @@
 {
   "name": "@supercollider/scapi",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "Node to SuperCollider communication using OSC and the API quark.",
   "keywords": [
     "supercollider"
@@ -17,8 +17,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@supercollider/logger": "^1.0.0-alpha.1",
-    "@supercollider/osc": "^1.0.0-alpha.1",
+    "@supercollider/logger": "^1.0.0-alpha.2",
+    "@supercollider/osc": "^1.0.0-alpha.2",
     "cuid": "^2.1.6",
     "lodash": "^4.17.15",
     "tslib": "1.10.0"
