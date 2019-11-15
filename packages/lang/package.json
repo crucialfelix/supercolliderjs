@@ -1,7 +1,7 @@
 {
   "name": "@supercollider/lang",
   "version": "1.0.0-alpha.1",
-  "description": "Client library for the SuperCollider language: sclang",
+  "description": "Client library for the SuperCollider language: sclang. This package enables calling SuperCollider code from JavaScript.",
   "keywords": [
     "supercollider"
   ],
