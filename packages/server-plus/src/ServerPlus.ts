@@ -231,7 +231,7 @@ export default class ServerPlus extends Server {
   ): Promise<Synth> {
     const [def, g] = await Promise.all([Promise.resolve(synthDef), Promise.resolve(group)]);
     const nodeId = this.state.nextNodeID();
-    const sn = msg.synthNew(def.name, nodeId, addAction, g ? g.id : 0, args);
+    const sn = msg.synthNew(def.synthDefResult.name, nodeId, addAction, g ? g.id : 0, args);
     this.send.msg(sn);
     await whenNodeGo(this, String(nodeId), nodeId);
     return new Synth(this, nodeId);
@@ -302,16 +302,26 @@ export default class ServerPlus extends Server {
 
   private async _compileSynthDef(defName: string, sourceCode?: string, path?: string): Promise<SynthDef> {
     await this.synthDefCompiler.boot();
+    let compileRequest: SynthDefCompileRequest;
+
+    if (sourceCode) {
+      compileRequest = { source: sourceCode };
+    } else if (path) {
+      compileRequest = { path: path };
+    } else {
+      throw new Error(`Neither sourceCode nor path supplied for compileSynthDef ${defName}`);
+    }
+
     const defs = await this.synthDefCompiler.compileAndSend(
       {
-        [defName]: sourceCode ? { source: sourceCode } : { path: path },
+        [defName]: compileRequest,
       },
       this,
     );
     // what if defName does not match synthDefResult.name ?
     const synthDefResult = defs[defName];
     if (!synthDefResult) {
-      throw new Error(`SynthDefResult not found ${defName} in compile return values`);
+      throw new Error(`SynthDefResult not found ${defName} in synthDefCompiler return values: ${defs}`);
     }
     return new SynthDef(this, defName, synthDefResult, sourceCode, path);
   }
