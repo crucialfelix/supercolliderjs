@@ -43,7 +43,7 @@ export default class SynthDefCompiler {
     this.store = new Map();
   }
 
-  async boot() {
+  async boot(): Promise<SCLang> {
     if (!this.lang) {
       this.lang = await boot();
     }
@@ -90,7 +90,7 @@ export default class SynthDefCompiler {
     return this.store.get(defName);
   }
 
-  allSendCommands() {
+  allSendCommands(): msg.CallAndResponse[] {
     const commands: msg.CallAndResponse[] = [];
     this.store.forEach((value, defName) => {
       commands.push(this.sendCommand(defName));
@@ -98,7 +98,7 @@ export default class SynthDefCompiler {
     return commands;
   }
 
-  sendCommand(defName: string) {
+  sendCommand(defName: string): msg.CallAndResponse {
     const data = this.get(defName);
     if (!data) {
       throw new Error(`SynthDef not in store: ${defName}`);
