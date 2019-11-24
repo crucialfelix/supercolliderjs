@@ -71,6 +71,8 @@ async function main() {
     if (pkgdir === "supercolliderjs") {
       // Is also the main page in docs
       await fsp.writeFile(path.join(docsRoot, "README.md"), content);
+      // and main page on github
+      await fsp.writeFile(path.join(root, "README.md"), content);
     }
   }
 }

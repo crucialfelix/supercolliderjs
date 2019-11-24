@@ -160,7 +160,7 @@ sc.server.boot().then(async server => {
   await server.callAndResponse(defLoadMsg);
 
   // Load an entire directory of pre-compiled synth defs
-  await server.callAndResponse(sc.server.msg.defLoadDir("./synthdefs/"));
+  // await server.callAndResponse(sc.server.msg.defLoadDir("./synthdefs/"));
 });
 
 ```

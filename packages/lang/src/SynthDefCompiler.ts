@@ -43,7 +43,7 @@ export default class SynthDefCompiler {
     this.store = new Map();
   }
 
-  async boot() {
+  async boot(): Promise<SCLang> {
     if (!this.lang) {
       this.lang = await boot();
     }
@@ -54,10 +54,16 @@ export default class SynthDefCompiler {
    * Returns an object with each compiled synthdef
    * as a SynthDefResultType.
    */
-  async compile(defs: object): Promise<SynthDefResultMapType> {
-    const defsList = _.toPairs(defs);
-    const compiledDefs = await Promise.all(_.map(defsList, ([defName, spec]) => this._compileOne(defName, spec)));
-    return _.fromPairs(_.map(compiledDefs, result => [result.name, result]));
+  async compile(defs: Record<string, SynthDefCompileRequest>): Promise<SynthDefResultMapType> {
+    const results: SynthDefResultMapType = {};
+
+    const compiling = _.map(defs, async (request, defName) => {
+      const result = await this._compileOne(defName, request);
+      results[defName] = result;
+    });
+    await Promise.all(compiling);
+
+    return results;
   }
 
   /**
@@ -65,16 +71,17 @@ export default class SynthDefCompiler {
    *
    * @returns a Promise for {defName: SynthDefResult, ...}
    */
-  async compileAndSend(defs: object, server: Server): Promise<SynthDefResultMapType> {
+  async compileAndSend(defs: Record<string, SynthDefCompileRequest>, server: Server): Promise<SynthDefResultMapType> {
     // compile...
     const compiledDefs = await this.compile(defs);
+
     // send...
-    const commands = _.map(compiledDefs, ({ name }) => this.sendCommand(name));
+    const commands = _.map(compiledDefs, (compileResult, name) => this.sendCommand(name));
     await Promise.all(commands.map(cmd => server.callAndResponse(cmd)));
     return compiledDefs;
   }
 
-  set(defName: string, data: SynthDefResultType) {
+  set(defName: string, data: SynthDefResultType): SynthDefResultType {
     this.store.set(defName, data);
     return data;
   }
@@ -83,7 +90,7 @@ export default class SynthDefCompiler {
     return this.store.get(defName);
   }
 
-  allSendCommands() {
+  allSendCommands(): msg.CallAndResponse[] {
     const commands: msg.CallAndResponse[] = [];
     this.store.forEach((value, defName) => {
       commands.push(this.sendCommand(defName));
@@ -91,7 +98,7 @@ export default class SynthDefCompiler {
     return commands;
   }
 
-  sendCommand(defName: string) {
+  sendCommand(defName: string): msg.CallAndResponse {
     const data = this.get(defName);
     if (!data) {
       throw new Error(`SynthDef not in store: ${defName}`);
@@ -117,23 +124,19 @@ export default class SynthDefCompiler {
 
   private async _compileOne(defName: string, spec: SynthDefCompileRequest): Promise<SynthDefResultType> {
     // path or source
+    let result: SynthDefResultType;
     if ("source" in spec) {
-      return this.compileSource(spec.source).then((result: SynthDefResultType) => {
-        this.set(defName, result);
-        return result;
-      });
+      result = await this.compileSource(spec.source);
+    } else if ("path" in spec) {
+      result = await this.compilePath(spec.path);
+    } else {
+      throw new Error(`Spec to SynthDefCompiler not recognized ${defName} ${JSON.stringify(spec)}`);
     }
 
-    // if watch then add a watcher
+    this.set(defName, result);
+    return result;
 
-    if ("path" in spec) {
-      return this.compilePath(spec.path).then((result: SynthDefResultType) => {
-        this.set(result.name, result);
-        return result;
-      });
-    }
-
-    throw new Error(`Spec to SynthDefCompiler not recognized ${defName} ${JSON.stringify(spec)}`);
+    // TODO: if watch then add a watcher
   }
 
   /**
