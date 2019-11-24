@@ -27,7 +27,6 @@ const osc = require('@supercollider/osc');
 Documentation
 -------------
 
-[Documentation](https://crucialfelix.github.io/supercolliderjs/)
 [TypeDocs](https://crucialfelix.github.io/supercolliderjs/packages/osc/docs/index.html)
 
 Compatibility
