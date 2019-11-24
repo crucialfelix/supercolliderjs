@@ -1,6 +1,6 @@
 {
   "name": "@supercollider/dryads",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-beta.0",
   "description": "Dryadic components for SuperCollider",
   "keywords": [
     "supercollider",
@@ -18,9 +18,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@supercollider/lang": "^1.0.0-alpha.2",
-    "@supercollider/logger": "^1.0.0-alpha.2",
-    "@supercollider/server": "^1.0.0-alpha.2",
+    "@supercollider/lang": "^1.0.0-beta.0",
+    "@supercollider/logger": "^1.0.0-beta.0",
+    "@supercollider/server": "^1.0.0-beta.0",
     "baconjs": "^0.7.93",
     "dryadic": "^0.3.2",
     "lodash": "^4.17.15"

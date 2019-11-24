@@ -160,7 +160,7 @@ sc.server.boot().then(async server => {
   await server.callAndResponse(defLoadMsg);
 
   // Load an entire directory of pre-compiled synth defs
-  await server.callAndResponse(sc.server.msg.defLoadDir("./synthdefs/"));
+  // await server.callAndResponse(sc.server.msg.defLoadDir("./synthdefs/"));
 });
 
 ```
@@ -242,7 +242,6 @@ sc.lang.boot().then(async function(lang) {
 Documentation
 -------------
 
-[Documentation](https://crucialfelix.github.io/supercolliderjs/)
 [TypeDocs](https://crucialfelix.github.io/supercolliderjs/packages/supercolliderjs/docs/index.html)
 
 Compatibility
