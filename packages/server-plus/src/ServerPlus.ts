@@ -284,9 +284,6 @@ export default class ServerPlus extends Server {
       if (!result) {
         new Error(`${name} not found in compiled SynthDefs`);
       }
-      if (result.name !== name) {
-        throw new Error(`SynthDef compiled as ${result.name} but server.synthDefs was called with: ${name}`);
-      }
       const sourceCode = result.synthDesc.sourceCode;
 
       const synthDef = new SynthDef(
