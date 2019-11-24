@@ -1,6 +1,6 @@
 {
   "name": "@supercollider/server-plus",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-beta.0",
   "description": "Server class with added methods for Group, Synth and SynthDef creation",
   "keywords": [
     "supercollider",
@@ -17,8 +17,8 @@
     "lib"
   ],
   "dependencies": {
-    "@supercollider/lang": "^1.0.0-alpha.2",
-    "@supercollider/server": "^1.0.0-alpha.2",
+    "@supercollider/lang": "^1.0.0-beta.0",
+    "@supercollider/server": "^1.0.0-beta.0",
     "lodash": "^4.17.15",
     "tslib": "1.10.0"
   },
