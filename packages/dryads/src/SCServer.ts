@@ -1,4 +1,4 @@
-import { Dryad } from "dryadic";
+import { Dryad, CallOrder, Command, Properties } from "dryadic";
 import _ from "lodash";
 
 import Server, { boot, ServerArgs } from "@supercollider/server";
@@ -8,7 +8,7 @@ const defaultOptions = {
   debug: false,
 };
 
-interface Properties {
+interface ServerProperties extends Properties {
   options: ServerArgs;
 }
 
@@ -27,8 +27,8 @@ interface Context {
  * `options` are the command line options supplied to scsynth (note: not all options are passed through yet)
  * see {@link Server}
  */
-export default class SCServer extends Dryad<Properties> {
-  defaultProperties(): Properties {
+export default class SCServer extends Dryad<ServerProperties> {
+  defaultProperties(): ServerProperties {
     return {
       options: defaultOptions,
     };
@@ -41,16 +41,16 @@ export default class SCServer extends Dryad<Properties> {
     };
   }
 
-  prepareForAdd(): object {
+  prepareForAdd(): Command {
     return {
-      callOrder: "SELF_THEN_CHILDREN",
-      updateContext: (context: Context, properties: Properties) => ({
+      callOrder: CallOrder.SELF_THEN_CHILDREN,
+      updateContext: (context: Context, properties: ServerProperties) => ({
         scserver: boot(_.defaults(properties.options, { log: context.log })),
       }),
     };
   }
 
-  remove(): object {
+  remove(): Command {
     return {
       run: (context: Context) => {
         if (context.scserver) {

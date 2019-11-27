@@ -1,4 +1,4 @@
-import { Dryad } from "dryadic";
+import { Dryad, CallOrder, Command } from "dryadic";
 import _ from "lodash";
 
 import LanguageServer, { boot, SCLangArgs } from "@supercollider/lang";
@@ -37,16 +37,16 @@ export default class SCLang extends Dryad<Properties> {
     };
   }
 
-  prepareForAdd(): object {
+  prepareForAdd(): Command {
     return {
-      callOrder: "SELF_THEN_CHILDREN",
+      callOrder: CallOrder.SELF_THEN_CHILDREN,
       updateContext: (context: Context, properties: Properties) => ({
         sclang: boot(_.defaults(properties.options, { log: context.log })),
       }),
     };
   }
 
-  remove(): object {
+  remove(): Command {
     return {
       run: (context: Context) => {
         return context.sclang && context.sclang.quit();

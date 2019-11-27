@@ -10,6 +10,10 @@ export function makePlayer(dryad: Dryad): DryadPlayer {
 
 export function expectPlayGraphToEqual(dryad: Dryad, expected: JSONType, ignoreFn?: Function): JSONType {
   const p = makePlayer(dryad);
+  if (!p.tree) {
+    // never
+    throw new Error("p.tree is undefined");
+  }
   let g = p.tree.hyperscript();
 
   if (ignoreFn) {
