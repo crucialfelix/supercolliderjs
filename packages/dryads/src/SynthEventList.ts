@@ -1,5 +1,5 @@
 import { msg, OscType } from "@supercollider/server";
-import { Dryad, DryadPlayer } from "dryadic";
+import { Dryad, DryadPlayer, Command } from "dryadic";
 import _ from "lodash";
 
 import Group from "./Group";
@@ -35,11 +35,11 @@ interface Context {
   id: string;
 }
 
-interface AddCommand {
+interface AddCommand extends Command {
   scserver: {
     schedLoop: (context: Context, properties: Properties) => Function;
   };
-  run?: (context: Context, properties: Properties) => void;
+  // run?: (context: Context, properties: Properties) => Promise<void>;
 }
 
 /**
@@ -107,7 +107,7 @@ export default class SynthEventList extends Dryad<Properties> {
           // temporary: we need to know the play time of the whole document
           const epoch = context.epoch || _.now() + 200;
           if (epoch !== context.epoch) {
-            context = player.updateContext(context, { epoch });
+            context = player.updateContext(context, { epoch }) as Context;
           }
 
           // epoch, was 3rd arg
@@ -128,7 +128,7 @@ export default class SynthEventList extends Dryad<Properties> {
             if (epoch !== context.epoch) {
               context = player.updateContext(context, {
                 epoch,
-              });
+              }) as Context;
             }
 
             player.callCommand(context.id, {
@@ -166,10 +166,7 @@ export default class SynthEventList extends Dryad<Properties> {
     });
   }
 
-  /**
-   * @return {object}  command object
-   */
-  remove(): object {
+  remove(): Command {
     return {
       run: (context: Context) => {
         if (context.subscription) {
@@ -195,7 +192,6 @@ export default class SynthEventList extends Dryad<Properties> {
    * @return {Dryad}  Wraps itself in a Group so all child Synth events will be removed on removal of the Group.
    */
   subgraph(): Dryad {
-    // Dryad needs to typed properly
     return new Group({}, [this]);
   }
 }

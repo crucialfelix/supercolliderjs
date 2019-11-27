@@ -24,7 +24,9 @@ describe("scserver", function() {
         },
       };
 
-      scserver(cmd, context as any, properties);
+      scserver(cmd, context, properties, context => {
+        return context;
+      });
       expect(context.scserver.send.bundle).toHaveBeenCalled();
     });
   });

@@ -34,9 +34,9 @@ More extensive examples will come with dryadic 1.0
  */
 const { play, SCSynthDef, SynthEventList, SCServer } = require("supercolliderjs").dryads;
 
-function randomEvent() {
+function randomEvent(totalDuration) {
   return {
-    time: Math.round(Math.random() * 20) * 0.25,
+    time: Math.random() * totalDuration,
     defName: "saw",
     args: {
       freq: Math.random() * 500 + 100,
@@ -44,17 +44,18 @@ function randomEvent() {
   };
 }
 
-function randomEvents(n = 256) {
+function randomEvents(totalDuration = 60, density = 2) {
+  const n = Math.floor(totalDuration * density);
   const events = [];
   for (let index = 0; index < n; index++) {
-    events.push(randomEvent());
+    events.push(randomEvent(totalDuration));
   }
   return events;
 }
 
 // Currently this has to be expressed as a tree of nested dependencies.
 // dryadic 2 will make it much cleaner and simpler.
-const out = new SCServer({}, [
+const out = new SCServer({ numInputBusChannels: 0 }, [
   new SCSynthDef(
     {
       source: `
@@ -65,8 +66,8 @@ const out = new SCServer({}, [
     },
     [
       new SynthEventList({
-        events: randomEvents,
-        loopTime: 4,
+        events: randomEvents(60, 4),
+        loopTime: 65,
       }),
     ],
   ),

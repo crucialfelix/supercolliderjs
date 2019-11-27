@@ -1,4 +1,4 @@
-import { Dryad } from "dryadic";
+import { Dryad, Command, CallOrder } from "dryadic";
 
 import Server, { msg, whenNodeEnd, whenNodeGo } from "@supercollider/server";
 
@@ -24,9 +24,9 @@ export default class Group extends Dryad {
     return "SCServer";
   }
 
-  prepareForAdd(): object {
+  prepareForAdd(): Command {
     return {
-      callOrder: "SELF_THEN_CHILDREN",
+      callOrder: CallOrder.SELF_THEN_CHILDREN,
       updateContext: (context: Context /*, properties*/) => {
         const nodeID = context.scserver.state.nextNodeID();
         return {
@@ -44,7 +44,7 @@ export default class Group extends Dryad {
     };
   }
 
-  add(): object {
+  add(): Command {
     return {
       scserver: {
         msg: (context: Context) => groupNew(context.nodeID, AddActions.TAIL, context.parentGroup),
@@ -53,7 +53,7 @@ export default class Group extends Dryad {
     };
   }
 
-  remove(): object {
+  remove(): Command {
     return {
       scserver: {
         // children do not have to free their nodes

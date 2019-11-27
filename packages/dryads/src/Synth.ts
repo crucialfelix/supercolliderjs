@@ -1,4 +1,4 @@
-import { Dryad } from "dryadic";
+import { Dryad, Command } from "dryadic";
 import _ from "lodash";
 
 import Server, { OscType, updateNodeState, whenNodeEnd, whenNodeGo, msg } from "@supercollider/server";
@@ -38,7 +38,7 @@ export default class Synth extends Dryad<Properties> {
     return "SCServer";
   }
 
-  prepareForAdd(): object {
+  prepareForAdd(): Command {
     return {
       updateContext: context => ({
         nodeID: context.scserver.state.nextNodeID(),
@@ -55,7 +55,7 @@ export default class Synth extends Dryad<Properties> {
   //   return name;
   // }
 
-  add(): object {
+  add(): Command {
     const defName = def => (typeof def === "string" ? def : def.name);
     return {
       scserver: {
@@ -84,7 +84,7 @@ export default class Synth extends Dryad<Properties> {
     };
   }
 
-  remove(): object {
+  remove(): Command {
     return {
       scserver: {
         msg: (context: Context) => nodeFree(context.nodeID || -1),
