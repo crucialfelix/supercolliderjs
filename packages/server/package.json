@@ -1,6 +1,6 @@
 {
   "name": "@supercollider/server",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "Client library for the SuperCollider scsynth audio engine",
   "keywords": [
     "supercollider"
@@ -24,8 +24,8 @@
     "supercollider-server": "./lib/bin/scsynth.js"
   },
   "dependencies": {
-    "@supercollider/logger": "^1.0.0-beta.0",
-    "@supercollider/osc": "^1.0.0-beta.0",
+    "@supercollider/logger": "^1.0.0-beta.1",
+    "@supercollider/osc": "^1.0.0-beta.1",
     "commander": "^2.9.0",
     "immutable": "^3.8.1",
     "js-yaml": "3.13.1",
