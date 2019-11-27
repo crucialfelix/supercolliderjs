@@ -6,7 +6,7 @@ const fsp = fs.promises;
 
 const root = path.resolve(path.join(__dirname, ".."));
 const packagesRoot = path.join(root, "packages");
-const docsRoot = path.join(root, "docs");
+// const docsRoot = path.join(root, "docs");
 const repository = "https://github.com/crucialfelix/supercolliderjs";
 
 const typedocRoot = "https://crucialfelix.github.io/supercolliderjs";
@@ -37,44 +37,63 @@ const typedocLink = text => {
   return body;
 };
 
-async function main() {
+async function make(srcPath, destPath, data) {
+  const tplPath = path.join(root, srcPath);
+  if (!(await fileExists(tplPath))) {
+    await fsp.mkdir(path.dirname(tplPath), { recursive: true });
+    await fsp.writeFile(tplPath, "");
+  }
+  const tpl = (await fsp.readFile(tplPath)).toString();
+  const content = Mustache.render(tpl, data, partials);
+  await fsp.writeFile(path.join(root, destPath), content);
+}
+
+async function main(version) {
   const packages = (await fsp.readdir(packagesRoot)).filter(name => name.match(/^[a-z\-]+$/));
+
+  const pkg = JSON.parse(await fsp.readFile(path.join(root, "package.json")));
+
+  const rootData = {
+    name: pkg.name,
+    short: pkg.name.replace("@supercollider/", ""),
+    description: pkg.description,
+    version: version || pkg.version,
+    homepage: pkg.hompage,
+    repository,
+    typedocRoot: typedocRoot,
+    example: () => example,
+    typedocLink: () => typedocLink,
+  };
+
+  // _coverpage
+  await make("docs/src/_coverpage.md", "docs/_coverpage.md", rootData);
 
   for (const pkgdir of packages) {
     const pkg = JSON.parse(await fsp.readFile(path.join(packagesRoot, pkgdir, "package.json")));
 
-    const tplPath = path.join(root, "docs/src/packages", pkgdir, "README.md");
-    if (!(await fileExists(tplPath))) {
-      await fsp.mkdir(path.dirname(tplPath), { recursive: true });
-      await fsp.writeFile(tplPath, "");
-    }
-    const tpl = (await fsp.readFile(tplPath)).toString();
-
     const data = {
+      ...rootData,
       name: pkg.name,
       short: pkg.name.replace("@supercollider/", ""),
       description: pkg.description,
       version: pkg.version,
       homepage: pkg.hompage,
-      repository,
-      typedocRoot: typedocRoot,
-      example: () => example,
-      typedocLink: () => typedocLink,
     };
 
-    const content = Mustache.render(tpl, data, partials);
+    const tplPath = path.join("docs/src/packages", pkgdir, "README.md");
 
     // Write to packages for publishing to npm
-    await fsp.writeFile(path.join(packagesRoot, pkgdir, "README.md"), content);
+    await make(tplPath, path.join("packages", pkgdir, "README.md"), data);
     // Write it to docs
-    await fsp.writeFile(path.join(docsRoot, "packages", pkgdir, "README.md"), content);
+    await make(tplPath, path.join("docs/packages", pkgdir, "README.md"), data);
+
     if (pkgdir === "supercolliderjs") {
       // Is also the main page in docs
-      await fsp.writeFile(path.join(docsRoot, "README.md"), content);
+      await make(tplPath, path.join("docs", "README.md"), data);
       // and main page on github
-      await fsp.writeFile(path.join(root, "README.md"), content);
+      await make(tplPath, "README.md", data);
     }
   }
 }
 
-main().catch(console.error);
+main(process.argv[2]).catch(console.error);
