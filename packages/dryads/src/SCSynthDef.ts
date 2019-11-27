@@ -1,10 +1,10 @@
 /* eslint no-console: 0 */
-import { Dryad } from "dryadic";
+import SCLang, { SCLangError } from "@supercollider/lang";
+import Server, { msg, MsgType } from "@supercollider/server";
+import { CallOrder, Command, Dryad } from "dryadic";
 import fs from "fs";
 import path from "path";
 
-import SCLang, { SCLangError } from "@supercollider/lang";
-import Server, { msg, MsgType } from "@supercollider/server";
 const { defFree, defLoad, defRecv } = msg;
 
 const fsp = fs.promises;
@@ -46,16 +46,14 @@ interface Context {
   scserver?: Server;
   _watcher?: any;
 }
+
 /**
  * Compile a SynthDef from sclang source code
  * or load a precompiled .scsyndef
  *
  * If compilation is required then it will insert SCLang as a parent if necessary.
  *
- *
- *
  * Note that the synthDefName is not known until after the source code is compiled.
- *
  */
 export default class SCSynthDef extends Dryad<Properties> {
   defaultProperties(): Properties {
@@ -71,13 +69,13 @@ export default class SCSynthDef extends Dryad<Properties> {
     }
   }
 
-  prepareForAdd(): object {
+  prepareForAdd(): Command {
     // search context for a SynthDefCompiler, else create one with context.lang
     return {
       updateContext: (context: Context, properties: Properties) => ({
         synthDef: this._prepareForAdd(context, properties),
       }),
-      callOrder: "SELF_THEN_CHILDREN",
+      callOrder: CallOrder.SELF_THEN_CHILDREN,
     };
   }
 
@@ -182,7 +180,7 @@ export default class SCSynthDef extends Dryad<Properties> {
     return this.compileSource(context, source, sourcePath);
   }
 
-  add(): object {
+  add(): Command {
     return {
       run: (context: Context, properties: Properties) => {
         if (properties.compileFrom && properties.watch) {
@@ -199,7 +197,7 @@ export default class SCSynthDef extends Dryad<Properties> {
     };
   }
 
-  remove(): object {
+  remove(): Command {
     return {
       scserver: {
         // no need to do this if server has gone away
@@ -218,7 +216,7 @@ export default class SCSynthDef extends Dryad<Properties> {
     };
   }
 
-  putSynthDef(context: Context, synthDefName: string, synthDesc: object) {
+  putSynthDef(context: Context, synthDefName: string, synthDesc: object): void {
     context.scserver &&
       context.scserver.state.mutate(StateKeys.SYNTH_DEFS, state => {
         return state.set(synthDefName, synthDesc);

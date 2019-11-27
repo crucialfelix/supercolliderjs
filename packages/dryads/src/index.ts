@@ -14,37 +14,17 @@ import SynthStream from "./SynthStream";
 import SynthEventList from "./SynthEventList";
 
 // confusing to swap the names like this
-import { dryadic as makeDryadPlayer } from "dryadic";
-import { Dryad, DryadPlayer } from "dryadic";
+// import { dryadic as makeDryadPlayer } from "dryadic";
+import { Dryad, DryadPlayer, Middleware, dryadic as makeDryadPlayer, Layer } from "dryadic";
 
 // re-export all the Dryad classes
 export { SCServer, SCLang, Group, Synth, AudioBus, SCSynthDef, SynthControl, SynthStream, SynthEventList };
 
-// export the layer for app = dryadic().use(layer)
-type Middleware = Function;
-
 const middleware: Middleware[] = [scserver];
-
-type DryadClass =
-  | typeof SCServer
-  | typeof SCLang
-  | typeof Group
-  | typeof Synth
-  | typeof AudioBus
-  | typeof SCSynthDef
-  | typeof SynthControl
-  | typeof SynthStream
-  | typeof SynthEventList;
-const classes = [SCServer, SCLang, Group, Synth, AudioBus, SCSynthDef, SynthControl, SynthStream, SynthEventList];
-
-interface Layer {
-  middleware: Middleware[];
-  classes: DryadClass[];
-}
 
 export const layer: Layer = {
   middleware,
-  classes,
+  classes: [SCServer, SCLang, Group, Synth, AudioBus, SCSynthDef, SynthControl, SynthStream, SynthEventList],
 };
 
 export interface Context {
@@ -75,7 +55,7 @@ export interface Context {
  *   player.stop();
  */
 export function dryadic(rootDryad?: Dryad, moreLayers: Layer[] = [], rootContext: Context = {}): DryadPlayer {
-  return makeDryadPlayer(rootDryad, [layer, ...moreLayers], rootContext);
+  return makeDryadPlayer(rootDryad || new Dryad(), [layer, ...moreLayers], rootContext);
 }
 
 /**
@@ -99,7 +79,7 @@ export function dryadic(rootDryad?: Dryad, moreLayers: Layer[] = [], rootContext
  * @param {Dryad|Array} rootDryad - Dryad object or hyperscript document
  * @returns {DryadPlayer}
  */
-export function play(rootDryad: Dryad): DryadPlayer {
+export function play(rootDryad: Dryad): Promise<DryadPlayer> {
   return dryadic(rootDryad).play();
 }
 

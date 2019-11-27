@@ -1,6 +1,6 @@
 import Server, { msg, OscType, MsgType } from "@supercollider/server";
 import { EventStream } from "baconjs";
-import { Dryad, DryadPlayer } from "dryadic";
+import { Dryad, DryadPlayer, Command } from "dryadic";
 import _ from "lodash";
 
 import Group from "./Group";
@@ -41,7 +41,7 @@ export interface Event {
   type?: string; // "noteOn" | "noteOff";
 }
 
-interface SynthStreamEventCommand {
+interface SynthStreamEventCommand extends Command {
   scserver: {
     bundle: {
       time: number;
@@ -74,7 +74,7 @@ interface SynthStreamEventCommand {
  * defaultParams is a fixed object into which the event value is merged.
  */
 export default class SynthStream extends Dryad<Properties> {
-  add(player: DryadPlayer): object {
+  add(player: DryadPlayer): Command {
     return {
       run: (context: Context, properties: Properties) => {
         const subscription = properties.stream.subscribe(event => {
@@ -151,11 +151,11 @@ export default class SynthStream extends Dryad<Properties> {
     };
   }
 
-  handleEvent(event: Event, context: Context, properties: Properties, player: DryadPlayer) {
+  handleEvent(event: Event, context: Context, properties: Properties, player: DryadPlayer): void {
     player.callCommand(context.id, this.commandsForEvent(event, context, properties));
   }
 
-  remove(): object {
+  remove(): Command {
     return {
       run: (context: Context) => {
         if (context.subscription) {

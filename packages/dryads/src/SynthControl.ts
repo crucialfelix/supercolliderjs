@@ -1,6 +1,6 @@
 import { msg, OscType } from "@supercollider/server";
 import { EventStream } from "baconjs";
-import { Dryad, DryadPlayer } from "dryadic";
+import { Dryad, DryadPlayer, Command } from "dryadic";
 import _ from "lodash";
 
 const { nodeSet } = msg;
@@ -36,7 +36,7 @@ export default class SynthControl extends Dryad<Properties> {
     return "SCServer";
   }
 
-  add(player: DryadPlayer): object {
+  add(player: DryadPlayer): Command {
     return {
       run: (context: Context, properties: Properties) => {
         if (properties.stream) {
@@ -59,7 +59,7 @@ export default class SynthControl extends Dryad<Properties> {
     };
   }
 
-  remove(): object {
+  remove(): Command {
     return {
       run: (context: Context) => {
         if (context.subscription) {

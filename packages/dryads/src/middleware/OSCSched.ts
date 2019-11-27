@@ -108,6 +108,7 @@ export default class OSCSched {
     }
 
     const next = this.getNextFn(logicalNow, memo || { i: 0 });
+    console.log({ now, logicalNow, next, epoch: this.epoch, _now: _now(), sub: _now() - this.epoch });
 
     if (typeof next !== "undefined") {
       const delta = next.event.time - now;

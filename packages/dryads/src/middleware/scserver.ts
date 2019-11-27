@@ -1,19 +1,22 @@
 import _ from "lodash";
 import OSCSched from "./OSCSched";
-import Server, { msg, MsgType } from "@supercollider/server";
+import Server, { msg } from "@supercollider/server";
+import { Middleware, UpdateContext, Command, Context } from "dryadic";
 
 interface Properties {}
-interface Context {
+interface ServerContext extends Context {
   oscSched?: any;
   epoch?: number;
   scserver: Server;
 }
-interface Command {
-  scserver?: any;
-  msg?: any;
-  bundle?: any;
-  schedLoop?: any;
-  callAndResponse?: msg.CallAndResponse;
+interface ServerCommand extends Command {
+  scserver?: {
+    // thing or Promise for thing
+    msg?: any;
+    bundle?: any;
+    schedLoop?: any;
+    callAndResponse?: msg.CallAndResponse;
+  };
 }
 
 /**
@@ -87,41 +90,53 @@ interface Command {
  * @param {object} properties
  * @return Promise is only returned when using .callAndResponse
  */
-export default function scserver(command: Command, context: Context, properties: Properties): Promise<MsgType> | void {
+
+const scserver: Middleware = async (
+  command: ServerCommand,
+  context: Context,
+  properties: Properties,
+  updateContext: UpdateContext,
+): Promise<void> => {
   if (command.scserver) {
-    const cmds = resolveFuncs(command.scserver, context, properties);
+    // Assuming that it really conforms to ServerContext.
+    const ctx = context as ServerContext;
+    const cmds = resolveFuncs(command.scserver, ctx, properties);
 
     // send a single OSC message
     if (cmds.msg) {
-      // TODO get default latency from context
+      // TODO get default latency from ctx
       // TODO: should collect all messages into one bundle, in order
-      context.scserver.send.bundle(0.05, [cmds.msg]);
+      ctx.scserver.send.bundle(0.05, [cmds.msg]);
     }
 
     // send an OSC bundle
     if (cmds.bundle) {
-      context.scserver.send.bundle(cmds.bundle.time, cmds.bundle.packets);
+      ctx.scserver.send.bundle(cmds.bundle.time, cmds.bundle.packets);
     }
 
     // schedule events using a schedLoop function
     if (cmds.schedLoop) {
       // initialize the scheduler on first use
-      if (!context.oscSched) {
-        const sendFn = (time, packets) => context.scserver.send.bundle(time, packets);
-        context.oscSched = new OSCSched(sendFn);
+      let oscSched = ctx.oscSched;
+      if (!oscSched) {
+        const sendFn = (time, packets) => ctx.scserver.send.bundle(time, packets);
+        oscSched = new OSCSched(sendFn);
+        updateContext(context, { oscSched });
       }
 
-      context.oscSched.schedLoop(cmds.schedLoop, context.epoch);
+      oscSched.schedLoop(cmds.schedLoop, ctx.epoch);
     }
 
     // Preparation commands that get an OSC callback from the server.
     // Only this one returns.
     // These are used only in preparation, not for play / update.
     if (cmds.callAndResponse) {
-      return context.scserver.callAndResponse(cmds.callAndResponse);
+      await ctx.scserver.callAndResponse(cmds.callAndResponse);
     }
   }
-}
+};
+
+export default scserver;
 
 /**
  * Replace any functions in the command object's values with the result of

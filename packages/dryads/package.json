@@ -22,7 +22,7 @@
     "@supercollider/logger": "^1.0.0-beta.0",
     "@supercollider/server": "^1.0.0-beta.0",
     "baconjs": "^0.7.93",
-    "dryadic": "^0.3.2",
+    "dryadic": "^1.0.0",
     "lodash": "^4.17.15"
   },
   "devDependencies": {

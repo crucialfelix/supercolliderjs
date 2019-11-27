@@ -1,4 +1,4 @@
-import { Dryad } from "dryadic";
+import { Dryad, Command, CallOrder } from "dryadic";
 import Server from "@supercollider/server";
 
 interface Properties {
@@ -30,9 +30,9 @@ export default class AudioBus extends Dryad<Properties> {
     return "SCServer";
   }
 
-  prepareForAdd(): object {
+  prepareForAdd(): Command {
     return {
-      callOrder: "SELF_THEN_CHILDREN",
+      callOrder: CallOrder.SELF_THEN_CHILDREN,
       updateContext: (context: Context, properties: Properties) => ({
         out: context.scserver.state.allocAudioBus(properties.numChannels),
         numChannels: properties.numChannels,
@@ -40,7 +40,7 @@ export default class AudioBus extends Dryad<Properties> {
     };
   }
 
-  remove(): object {
+  remove(): Command {
     return {
       run: (context: Context, properties: Properties) =>
         context.scserver.state.freeAudioBus(context.out, properties.numChannels),
