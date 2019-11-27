@@ -3,7 +3,7 @@
 
 <!-- ![logo](_media/icon.svg) -->
 
-# supercollider.js <small>1.0.0-beta.0</small>
+# supercollider.js <small>1.0.0-beta.1</small>
 
 > The JavaScript client library for SuperCollider.
 

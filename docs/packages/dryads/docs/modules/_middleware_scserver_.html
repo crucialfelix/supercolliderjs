@@ -72,7 +72,6 @@
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_middleware_scserver_.html#resolvefuncs" class="tsd-kind-icon">resolve<wbr>Funcs</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_middleware_scserver_.html#scserver" class="tsd-kind-icon">scserver</a></li>
 							</ul>
 						</section>
 					</div>
@@ -90,7 +89,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/crucialfelix/supercolliderjs/blob/1ecb978/packages/dryads/src/middleware/scserver.ts#L135">middleware/scserver.ts:135</a></li>
+									<li>Defined in <a href="https://github.com/crucialfelix/supercolliderjs/blob/2c69e63/packages/dryads/src/middleware/scserver.ts#L150">packages/dryads/src/middleware/scserver.ts:150</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -118,83 +117,6 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
-					<a name="scserver" class="tsd-anchor"></a>
-					<h3>scserver</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">scserver<span class="tsd-signature-symbol">(</span>command<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Command</span>, context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Context</span>, properties<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Properties</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">MsgType</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/crucialfelix/supercolliderjs/blob/1ecb978/packages/dryads/src/middleware/scserver.ts#L90">middleware/scserver.ts:90</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Command middlware that sends OSC to the SuperCollider server (scsynth).</p>
-								</div>
-								<p>Command objects are collected from each Dryad (<code>add()</code> <code>remove()</code>) and
-								this middlware is called for each Dryad that has <code>scserver</code> commands.</p>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>command: <span class="tsd-signature-type">Command</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>For any of these you may supply a function that is called with context
-										and returns one of these forms.</p>
-										<p>For example, rather than:</p>
-										<pre><code><span class="hljs-string">msg:</span> [<span class="hljs-string">'/n_free'</span>, <span class="hljs-number">1005</span>]</code></pre><p>you would use the context to get the node id to free:</p>
-										<pre><code>msg:<span class="hljs-function"> (<span class="hljs-params">context</span>) =&gt;</span> node<span class="hljs-constructor">Free(<span class="hljs-params">context</span>.<span class="hljs-params">nodeID</span>)</span></code></pre><p>Command may have one of these forms:</p>
-										<p><strong>msg:</strong> {Array} - OSC message</p>
-										<pre><code><span class="hljs-string">msg:</span> [<span class="hljs-string">'/n_free'</span>, <span class="hljs-number">1005</span>]</code></pre><p><strong>bundle:</strong></p>
-										<pre><code>bundle: {
-  <span class="hljs-attr">time</span>: <span class="hljs-literal">null</span>|<span class="hljs-built_in">Number</span>|<span class="hljs-built_in">Array</span>|<span class="hljs-built_in">Date</span>
-  <span class="hljs-attr">packets</span>: <span class="hljs-built_in">Array</span> <span class="hljs-keyword">of</span> OSC messages
-}</code></pre><p><strong>callAndResponse:</strong></p>
-										<p> Returns a Promise. Only used in preparation, not for play / update.
-										Call and response object creator functions can be found in <code>osc/msg</code></p>
-										<pre><code><span class="hljs-selector-tag">callAndResponse</span>: {
-  <span class="hljs-attribute">call</span>: oscMessage,
-  response: oscMessagePattern
-}</code></pre><p><strong>schedLoop:</strong></p>
-										<pre><code>schedLoop: <span class="hljs-function">(<span class="hljs-params">context</span>) =&gt;</span> {
- <span class="hljs-comment">// construct a function that will return successive events to be sent</span>
- <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">now, memo={i: <span class="hljs-number">0</span>}</span>) =&gt;</span> {
-   <span class="hljs-keyword">return</span> {
-     <span class="hljs-comment">// time in seconds relative to the context.epoch</span>
-     time: <span class="hljs-number">0.4</span>,
-     <span class="hljs-attr">msgs</span>: [ ],
-     <span class="hljs-comment">// memo will be passed into the loop each time</span>
-     <span class="hljs-comment">// and can be used to store iterators and loop state.</span>
-     memo: {<span class="hljs-attr">i</span>: memo.i + <span class="hljs-number">1</span>}
-   }
- }
-}</code></pre><p>schedLoop takes a function that iterates through events.
-										See <code>OSCSched</code></p>
-										<p>It uses a just-in-time scheduler, keeping the OSC messages in the node process
-											and only sending them to the server just before they should play. This doesn&#39;t overload
-											the server with a glut of messages and also allows cancellation and updating of the messages
-										and makes it easy to implement transport controls and looping.</p>
-									</div>
-								</li>
-								<li>
-									<h5>context: <span class="tsd-signature-type">Context</span></h5>
-								</li>
-								<li>
-									<h5>properties: <span class="tsd-signature-type">Properties</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">MsgType</span><span class="tsd-signature-symbol">&gt;</span>
-								<span class="tsd-signature-symbol"> | </span>
-								<span class="tsd-signature-type">void</span>
-							</h4>
-							<p>Promise is only returned when using .callAndResponse</p>
-						</li>
-					</ul>
-				</section>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -204,67 +126,67 @@
 						<a href="../index.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_audiobus_.html">"<wbr>Audio<wbr>Bus"</a>
+						<a href="_audiobus_.html">&quot;<wbr>Audio<wbr>Bus&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_group_.html">"<wbr>Group"</a>
+						<a href="_group_.html">&quot;<wbr>Group&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_sclang_.html">"SCLang"</a>
+						<a href="_sclang_.html">&quot;SCLang&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_scserver_.html">"SCServer"</a>
+						<a href="_scserver_.html">&quot;SCServer&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_scsynthdef_.html">"SCSynth<wbr>Def"</a>
+						<a href="_scsynthdef_.html">&quot;SCSynth<wbr>Def&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_synth_.html">"<wbr>Synth"</a>
+						<a href="_synth_.html">&quot;<wbr>Synth&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_synthcontrol_.html">"<wbr>Synth<wbr>Control"</a>
+						<a href="_synthcontrol_.html">&quot;<wbr>Synth<wbr>Control&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_syntheventlist_.html">"<wbr>Synth<wbr>Event<wbr>List"</a>
+						<a href="_syntheventlist_.html">&quot;<wbr>Synth<wbr>Event<wbr>List&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_synthstream_.html">"<wbr>Synth<wbr>Stream"</a>
+						<a href="_synthstream_.html">&quot;<wbr>Synth<wbr>Stream&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="___tests___synth_spec_.html">"__tests__/<wbr>Synth.spec"</a>
+						<a href="___tests___synth_spec_.html">&quot;__tests__/<wbr>Synth.spec&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="___tests___syntheventlist_spec_.html">"__tests__/<wbr>Synth<wbr>Event<wbr>List.spec"</a>
+						<a href="___tests___syntheventlist_spec_.html">&quot;__tests__/<wbr>Synth<wbr>Event<wbr>List.spec&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="___tests___synthstream_spec_.html">"__tests__/<wbr>Synth<wbr>Stream.spec"</a>
+						<a href="___tests___synthstream_spec_.html">&quot;__tests__/<wbr>Synth<wbr>Stream.spec&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="___tests___index_spec_.html">"__tests__/index-<wbr>spec"</a>
+						<a href="___tests___index_spec_.html">&quot;__tests__/index-<wbr>spec&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_index_.html">"index"</a>
+						<a href="_index_.html">&quot;index&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_middleware_oscsched_.html">"middleware/OSCSched"</a>
+						<a href="_middleware_oscsched_.html">&quot;middleware/OSCSched&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_middleware___tests___oscsched_spec_.html">"middleware/__tests__/OSCSched.spec"</a>
+						<a href="_middleware___tests___oscsched_spec_.html">&quot;middleware/__tests__/OSCSched.spec&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_middleware___tests___scserver_spec_.html">"middleware/__tests__/scserver.spec"</a>
+						<a href="_middleware___tests___scserver_spec_.html">&quot;middleware/__tests__/scserver.spec&quot;</a>
 					</li>
 					<li class="current tsd-kind-external-module">
-						<a href="_middleware_scserver_.html">"middleware/scserver"</a>
+						<a href="_middleware_scserver_.html">&quot;middleware/scserver&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_utils___tests___iterators_.html">"utils/__tests__/iterators"</a>
+						<a href="_utils___tests___iterators_.html">&quot;utils/__tests__/iterators&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_utils_iterators_.html">"utils/iterators"</a>
+						<a href="_utils_iterators_.html">&quot;utils/iterators&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_utils_test_utils_.html">"utils/test-<wbr>utils"</a>
+						<a href="_utils_test_utils_.html">&quot;utils/test-<wbr>utils&quot;</a>
 					</li>
 				</ul>
 			</nav>
