@@ -17,13 +17,13 @@ const StateKeys = {
  * `synthDef` is returned from compilation by sclang and
  * is set in the context for children Dryads to access.
  */
-interface CompiledSynthDef {
+export interface CompiledSynthDef {
   name: string;
   bytes: Buffer;
   // object with descriptive meta data
   synthDesc: SynthDesc;
 }
-interface LoadedSynthDef {
+export interface LoadedSynthDef {
   name: string;
 }
 export type SynthDef = CompiledSynthDef | LoadedSynthDef;
@@ -56,6 +56,19 @@ interface Context {
  * Note that the synthDefName is not known until after the source code is compiled.
  */
 export default class SCSynthDef extends Dryad<Properties> {
+  static fromSource(source: string): SCSynthDef {
+    return new SCSynthDef({
+      source,
+      watch: false,
+    });
+  }
+  static fromFile(path: string): SCSynthDef {
+    return new SCSynthDef({
+      compileFrom: path,
+      watch: true,
+    });
+  }
+
   defaultProperties(): Properties {
     return { watch: false };
   }
