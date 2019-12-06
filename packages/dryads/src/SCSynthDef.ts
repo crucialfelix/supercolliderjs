@@ -157,8 +157,10 @@ export default class SCSynthDef extends Dryad<Properties> {
    * Returns a Promise for a SynthDef result object: name, bytes, synthDesc
    */
   async compileSource(context: Context, sourceCode: string, pathName?: string): Promise<CompiledSynthDef> {
+    // add surrounding { } to any expressions that start with arg or |
+    const autoBraced = /^ *arg|\|/.test(sourceCode) ? `{ ${sourceCode} }` : sourceCode;
     const wrappedCode = `{
-      var def = { ${sourceCode} }.value.asSynthDef;
+      var def = { ${autoBraced} }.value.asSynthDef;
       (
         name: def.name,
         synthDesc: def.asSynthDesc.asJSON(),
