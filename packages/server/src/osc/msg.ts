@@ -53,8 +53,9 @@ function flattenPairs(pairs: PairsType): OscType[] {
   if (_.isArray(pairs)) {
     return _.flatten(pairs);
   }
-  // unreachable
-  throw new Error(`Unmatched type: ${pairs}`);
+  throw new TypeError(
+    `Received ${typeof pairs} ${JSON.stringify(pairs)}. Expected \{key: value, ...\} or [[key, value],...]`,
+  );
 }
 
 /**
