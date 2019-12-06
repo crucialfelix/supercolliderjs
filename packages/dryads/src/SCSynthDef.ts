@@ -17,13 +17,13 @@ const StateKeys = {
  * `synthDef` is returned from compilation by sclang and
  * is set in the context for children Dryads to access.
  */
-interface CompiledSynthDef {
+export interface CompiledSynthDef {
   name: string;
   bytes: Buffer;
   // object with descriptive meta data
   synthDesc: SynthDesc;
 }
-interface LoadedSynthDef {
+export interface LoadedSynthDef {
   name: string;
 }
 export type SynthDef = CompiledSynthDef | LoadedSynthDef;
@@ -56,6 +56,19 @@ interface Context {
  * Note that the synthDefName is not known until after the source code is compiled.
  */
 export default class SCSynthDef extends Dryad<Properties> {
+  static fromSource(source: string): SCSynthDef {
+    return new SCSynthDef({
+      source,
+      watch: false,
+    });
+  }
+  static fromFile(path: string): SCSynthDef {
+    return new SCSynthDef({
+      compileFrom: path,
+      watch: true,
+    });
+  }
+
   defaultProperties(): Properties {
     return { watch: false };
   }
@@ -144,8 +157,10 @@ export default class SCSynthDef extends Dryad<Properties> {
    * Returns a Promise for a SynthDef result object: name, bytes, synthDesc
    */
   async compileSource(context: Context, sourceCode: string, pathName?: string): Promise<CompiledSynthDef> {
+    // add surrounding { } to any expressions that start with arg or |
+    const autoBraced = /^ *arg|\|/.test(sourceCode) ? `{ ${sourceCode} }` : sourceCode;
     const wrappedCode = `{
-      var def = { ${sourceCode} }.value.asSynthDef;
+      var def = { ${autoBraced} }.value.asSynthDef;
       (
         name: def.name,
         synthDesc: def.asSynthDesc.asJSON(),
