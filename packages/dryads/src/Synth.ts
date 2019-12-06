@@ -1,8 +1,8 @@
-import { Dryad, Command } from "dryadic";
+import Server, { msg, OscType, updateNodeState, whenNodeEnd, whenNodeGo } from "@supercollider/server";
+import { Command, Dryad } from "dryadic";
 import _ from "lodash";
 
-import Server, { OscType, updateNodeState, whenNodeEnd, whenNodeGo, msg } from "@supercollider/server";
-import { SynthDef } from "./SCSynthDef";
+import SynthDef, { CompiledSynthDef, LoadedSynthDef } from "./SCSynthDef";
 
 const { AddActions, nodeFree, synthNew } = msg;
 
@@ -12,7 +12,7 @@ interface SynthParams {
 
 interface Properties {
   args: SynthParams;
-  def: SynthDef | string;
+  def: SynthDef | CompiledSynthDef | LoadedSynthDef | string;
 }
 interface Context {
   id: string;
@@ -30,6 +30,26 @@ interface Context {
  * - args
  */
 export default class Synth extends Dryad<Properties> {
+  /**
+   * Make a Synth that will play the SynthDef compiled from sclang source code.
+   *
+   * source may be fully defined:
+   *   `SynthDef("defName", { |out=0, freq=440| Out.ar(SinOsc.ar(freq)) });`
+   * or more simply:
+   *   `{|freq| SinOsc.ar(freq)}`
+   * or even just:
+   *    `|freq| SinOsc.ar(freq)`
+   */
+  static fromSource(source: string, args: SynthParams = {}): Synth {
+    return new Synth({ def: SynthDef.fromSource(source), args });
+  }
+  /**
+   * Make a Synth that will play the SynthDef compiled from an *.scd source code file
+   */
+  static fromFile(path: string, args: SynthParams = {}): Synth {
+    return new Synth({ def: SynthDef.fromFile(path), args });
+  }
+
   /**
    * If there is no SCServer in the parent context,
    * then this will wrap itself in an SCServer
