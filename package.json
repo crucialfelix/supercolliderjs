@@ -53,9 +53,10 @@
     "jest": "lerna exec -- jest --rootDir=. --config=../jest.config.json --passWithNoTests",
     "lint": "eslint --ext .ts packages/",
     "clean": "lerna exec -- rimraf lib && lerna exec -- rm -f tsconfig.tsbuildinfo",
-    "docs:build": "./tasks/typedocs.sh && node ./tasks/make-docs.js",
-    "docs:serve": "npm run docs:build && docsify serve docs",
-    "docs:watch": "fswatch -o ./docs/src | xargs -n1 -I{} npm run docs:build"
+    "docs:api": "./tasks/typedocs.sh",
+    "docs:md": "node ./tasks/make-docs.js",
+    "docs:build": "npm run docs:api && npm run docs:md",
+    "docs:serve": "docsify serve docs"
   },
   "eslintIgnore": [
     "node_modules",
