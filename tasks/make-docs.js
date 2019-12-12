@@ -3,7 +3,7 @@ const Mustache = require("mustache");
 const path = require("path");
 const fs = require("fs");
 const fsp = fs.promises;
-const { renderDocForName } = require("./render-api");
+const { renderDocForName, renderIndexJson } = require("./render-api");
 
 const root = path.resolve(path.join(__dirname, ".."));
 
@@ -15,8 +15,11 @@ const typedocRoot = "https://crucialfelix.github.io/supercolliderjs";
 // TODO: should be a fixed path for each to api.md
 const docsRoot = "http://localhost:3000/#";
 
-const packageNames = async () =>
-  (await fsp.readdir(path.join(root, "packages"))).filter(name => name.match(/^[a-z\-]+$/));
+const packageNames = async () => {
+  const names = (await fsp.readdir(path.join(root, "packages"))).filter(name => name.match(/^[a-z\-]+$/));
+  // sort favored first
+  return names;
+};
 
 async function fileExists(...paths) {
   return fsp.stat(path.join(root, ...paths)).then(
@@ -26,6 +29,8 @@ async function fileExists(...paths) {
 }
 
 const readFile = (...paths) => fs.readFileSync(path.join(root, ...paths), { encoding: "utf-8" });
+const readJson = (...paths) => JSON.parse(readFile(...paths));
+const writeFile = (paths, content) => fs.writeFileSync(path.join(root, ...paths), content, { encoding: "utf-8" });
 
 const triple = "```";
 
@@ -80,6 +85,36 @@ async function renderTpl(tpl, destPath, data) {
   await fsp.writeFile(path.join(root, destPath), content);
 }
 
+const mdLink = (title, links) => `[${title}](${links.join("/")})`;
+const isString = thing => typeof thing === "string";
+
+async function generateSidebar(packages) {
+  const sb = [];
+  sb.push("- " + mdLink("Getting started", ["README.md"]));
+  sb.push("- npm packages");
+  packages.forEach(short => {
+    const index = readJson("packages", short, "index.json");
+    const { name } = readJson("packages", short, "package.json");
+    sb.push(`  - ${mdLink(name, ["packages", short, "README.md"])}`);
+    sb.push(`    - ` + mdLink("API", ["packages", short, "api.md"]));
+    // push one for each top level export
+    for (const [key, value] of Object.entries(index)) {
+      if (isString(value)) {
+        sb.push(`      - ` + mdLink(value, ["packages", short, value + ".md"]));
+      } else {
+        // it's a module
+        sb.push(`      - ` + mdLink(key, ["packages", short, key + ".md"]));
+      }
+    }
+  });
+  sb.push("- Guide");
+  sb.push("  - " + mdLink("Guide", ["https://crucialfelix.gitbooks.io/supercollider-js-guide/content/"]));
+  sb.push("  - " + mdLink("Examples", ["https://github.com/crucialfelix/supercolliderjs-examples"]));
+  const content = sb.join("\n");
+  // console.log(content);
+  writeFile(["docs", "_sidebar.md"], content);
+}
+
 async function parseSidebar() {
   // auto generate md files if they are listed in the sidebar
   const sidebar = readFile("docs", "_sidebar.md");
@@ -116,7 +151,6 @@ function generateAutodocument(package, { title, filename }) {
   const BBBR = "}}}";
 
   const fullname = filename.replace("_", "/").replace(".md", "");
-  console.log({ filename, fullname, title, package });
 
   const body = `# ${BBBL}name${BBBR} ${title}
 
@@ -126,10 +160,29 @@ ${BBL}#api${BBR}${package}:${fullname}${BBL}/api${BBR}
   return body;
 }
 
+/**
+ * Make api.md file for a package
+ */
+function generateApi(name, short, packages) {
+  const index = readJson("packages", short, "index.json");
+  // would want to know which file/url to link to for all of these
+  // based on the sidebar? you would need a different way to specify pages to make.
+  const content = renderIndexJson(index);
+
+  const body = `# ${name}
+
+${content}
+`;
+  // yes there is stuff there
+  // console.log({ content, body });
+
+  writeFile(["docs", "src", "packages", short, "api.md"], body);
+}
+
 async function main(version) {
   const packages = await packageNames();
 
-  const pkg = JSON.parse(readFile("package.json"));
+  const pkg = readJson("package.json");
 
   const rootData = {
     name: pkg.name,
@@ -148,10 +201,12 @@ async function main(version) {
   // _coverpage
   await renderTplPath("docs/src/_coverpage.md", "docs/_coverpage.md", rootData);
 
+  await generateSidebar(packages);
+
   const autos = await parseSidebar();
 
   for (const pkgdir of packages) {
-    const pkg = JSON.parse(readFile("packages", pkgdir, "package.json"));
+    const pkg = readJson("packages", pkgdir, "package.json");
     const short = pkg.name.replace("@supercollider/", "");
     const data = {
       ...rootData,
@@ -161,6 +216,9 @@ async function main(version) {
       version: pkg.version,
       homepage: pkg.hompage,
     };
+
+    // generate api.md file for the exports of a module
+    generateApi(pkg.name, short, packages);
 
     // generate autodocument for each entry in sidebar
     for (const sidebarLink of autos[short] || []) {

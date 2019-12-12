@@ -4,6 +4,50 @@ const fs = require("fs");
 const root = path.resolve(path.join(__dirname, ".."));
 const packagesRoot = path.join(root, "docs", "src", "packages");
 
+const redirects = {
+  server: {
+    msg: {
+      package: "server",
+      name: `"osc/msg"`,
+    },
+  },
+  supercolliderjs: {
+    server: {
+      package: "server-plus",
+      name: "ServerPlus", // actually the whole package
+    },
+    map: {
+      package: "server",
+      name: "mapping",
+    },
+    '"map"': {
+      package: "server",
+      name: "mapping",
+    },
+    resolveOptions: {
+      package: "server",
+      name: "resolveOptions",
+    },
+    SCLangError: {
+      package: "lang",
+    },
+    msg: {
+      package: "server",
+    },
+    dryads: {
+      package: "dryads",
+      name: '"index"',
+    },
+    lang: {
+      package: "lang",
+      name: '"index"',
+    },
+  },
+  // 'server-plus': {
+  //   boot:
+  // }
+};
+
 const apis = {};
 
 function loadApi(package) {
@@ -13,7 +57,31 @@ function loadApi(package) {
   return apis[package];
 }
 
-function find(node, name) {
+/**
+ * Find a TypeDoc node by name.
+ *
+ * Names in one package can be redirected to another name or package.
+ * eg. supercollider.server => server-plus/index
+ *
+ * @param {string} package - name of package
+ * @param {*} node -         typedoc node to search recursively
+ * @param {*} name  - name of node (method, class, module etc) you are looking for
+ * @returns node | undefined
+ */
+function find(package, node, name) {
+  const redirected = redirects[package] && redirects[package][name];
+  if (redirected) {
+    // default a redirect to this package, this name
+    // so you don't have to specify the whole thing.
+    // just makes it more complex actually
+    const goto = {
+      package,
+      name,
+      ...redirected,
+    };
+    return find(goto.package, loadApi(goto.package), goto.name);
+  }
+
   // ignore a property with that name: it is perhaps an export
   // or just a parent class that holds the thing we are searching for.
   if (node.name === name && node.kindString !== "Property") {
@@ -22,7 +90,7 @@ function find(node, name) {
   // console.log(node);
   if (!node.children) return;
   for (const child of node.children) {
-    const cn = find(child, name);
+    const cn = find(package, child, name);
     if (cn) {
       return cn;
     }
@@ -30,6 +98,7 @@ function find(node, name) {
 }
 
 const json = obj => JSON.stringify(obj, null, 2);
+const pre = obj => `<pre>${json(obj)}</pre>\n`;
 
 const joinWith = (lines, joiner = "\n\n") => lines.filter(l => !!l).join(joiner);
 const join = (...lines) => joinWith(lines, "");
@@ -38,8 +107,8 @@ const joins = (...lines) => joinWith(lines, " ");
 const joinnl = lines => joinWith(lines, "\n");
 
 const el = (element, body, attrs = "") => `<${element} ${attrs}>${body}</${element}>`;
-
 // const el = (element, attrs = {}) => body => `<${element} ${attrs}>${body}</${element}>`;
+
 const h4 = (txt, id = "") => `<h4 id="ref-${id}">${txt}</h4>`;
 const span = (txt, className = "") => `<span class="${className}">${txt}</span>`;
 const div = (txt, className = "") => `<div class="${className}">${txt}</div>`;
@@ -105,6 +174,7 @@ const type = obj => {
 // TODO
 // sources
 // flags
+
 const private = name => `<!-- private ${name} -->`;
 
 const comment = c => {
@@ -186,8 +256,6 @@ const CallSignature = signature => {
   // TODO breakout parameters that have comments and types
 };
 
-const pre = obj => `<pre>${JSON.stringify(obj, null, 2)}</pre>\n`;
-
 const nodeSummary = node => `${node.kindString} ${node.name}`;
 // pre({ name: node.name, kindString: node.kindString, comment: comment(node.comment) });
 // const nodeSummary = node => pre({ name: node.name, kindString: node.kindString, comment: comment(node.comment) });
@@ -204,7 +272,13 @@ const ExternalModule = node => {
       "module",
     );
   }
-  return div(node.name, "Module");
+
+  // modules that only have exports do not have any children in api.json
+  // only a sources
+
+  return div(joins(span("module", "token keyword"), node.name), "Module");
+  // direct exports are not exposed in the typedocs json:
+  // export { SCLangError } from "@supercollider/lang";
   // return `Empty module ${JSON.stringify(node)}`;
 };
 
@@ -216,7 +290,7 @@ const indexEntry = node => {
 };
 
 const Index = node => {
-  return div(join(node.name, ul(node.children.map(indexEntry))), "Index");
+  return div(join(h4(node.name, node.id), ul(node.children.map(indexEntry))), "Index");
 };
 
 const Interface = node => {
@@ -225,10 +299,7 @@ const Interface = node => {
 };
 
 const TypeAlias = node => {
-  // name
-  // type
-  const txt = `${span("type", "token keyword")} ${node.name} = ${type(node.type)};`;
-  return div(txt, "TypeAlias");
+  return div(`${span("type", "token keyword")} ${node.name} = ${type(node.type)};`, "TypeAlias");
 };
 
 const Enumeration = node => {
@@ -280,29 +351,36 @@ function renderNode(node) {
 }
 
 function renderDocForName(package, name) {
-  console.log("renderDocForName", { package, name });
-
   const api = loadApi(package);
-  let node = find(api, name);
+  // findWithRedirects
+  let node = find(package, api, name);
   if (!node) {
     if (!name.startsWith(`"`)) {
-      node = find(api, `"${name}"`);
+      node = find(package, api, `"${name}"`);
     }
   }
   if (!node) {
-    console.error(`ERROR: Unable to find an entry for ${name} in ${package} api.json`);
-    // console.log(xxddapi);
-    console.log(JSON.stringify(namesInApi(api), null, 2));
+    console.error(`ERROR: Unable to find an entry for name:"${name}" in package:${package} api.json`);
+    // console.log(JSON.stringify(namesInApi(api), null, 2));
     // throw new Error();
-    return "";
+    return null;
   }
   return renderNode(node);
 }
 
-const namesInApi = api => ({
-  [api.name]: api.children ? api.children.map(namesInApi) : null,
-});
+/**
+ * Render the index.json files as single page
+ */
+const renderIndexJson = kv => apiValue(kv);
+
+const isString = v => typeof v === "string";
+
+const apiLink = name => span(name, "link token property");
+const apiKey = k => span(k, "token property");
+const apiValue = v => (isString(v) ? apiLink(v) : ul(Object.entries(v).map(apiKeyValue)));
+const apiKeyValue = ([k, v]) => (isString(v) ? apiLink(v) : join(apiKey(k), apiValue(v)));
 
 module.exports = {
   renderDocForName,
+  renderIndexJson,
 };
