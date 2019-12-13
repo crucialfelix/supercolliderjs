@@ -92,55 +92,26 @@ async function generateSidebar(packages) {
   const sb = [];
   sb.push("- " + mdLink("Getting started", ["README.md"]));
   sb.push("- npm packages");
+  const autos = {};
   packages.forEach(short => {
+    autos[short] = [];
+
     const index = readJson("packages", short, "index.json");
     const { name } = readJson("packages", short, "package.json");
     sb.push(`  - ${mdLink(name, ["packages", short, "README.md"])}`);
     sb.push(`    - ` + mdLink("API", ["packages", short, "api.md"]));
     // push one for each top level export
     for (const [key, value] of Object.entries(index)) {
-      if (isString(value)) {
-        sb.push(`      - ` + mdLink(value, ["packages", short, value + ".md"]));
-      } else {
-        // it's a module
-        sb.push(`      - ` + mdLink(key, ["packages", short, key + ".md"]));
-      }
+      autos[short].push(
+        isString(value) ? { title: value, filename: value + ".md" } : { title: key, filename: key + ".md" },
+      );
     }
   });
   sb.push("- Guide");
   sb.push("  - " + mdLink("Guide", ["https://crucialfelix.gitbooks.io/supercollider-js-guide/content/"]));
   sb.push("  - " + mdLink("Examples", ["https://github.com/crucialfelix/supercolliderjs-examples"]));
   const content = sb.join("\n");
-  // console.log(content);
   writeFile(["docs", "_sidebar.md"], content);
-}
-
-async function parseSidebar() {
-  // auto generate md files if they are listed in the sidebar
-  const sidebar = readFile("docs", "_sidebar.md");
-  const autos = {};
-  function pushAuto(package, title, filename) {
-    if (!autos[package]) {
-      autos[package] = [];
-    }
-    autos[package].push({ title, filename });
-  }
-  const re = /\[(.+)\]\(packages\/([a-z\-_]+)\/([^)]+)\)/;
-  for (const line of sidebar.split("\n")) {
-    // if has []()
-    // if file is not README
-    //
-    const match = line.match(re);
-    if (match) {
-      const title = match[1];
-      const package = match[2];
-      const filename = match[3];
-      // or api?
-      if (filename !== "README.md") {
-        pushAuto(package, title, filename);
-      }
-    }
-  }
   return autos;
 }
 
@@ -200,9 +171,7 @@ async function main(version) {
   // _coverpage
   await renderTplPath("docs/src/_coverpage.md", "docs/_coverpage.md", rootData);
 
-  await generateSidebar(packages);
-
-  const autos = await parseSidebar();
+  const autos = await generateSidebar(packages);
 
   for (const pkgdir of packages) {
     const pkg = readJson("packages", pkgdir, "package.json");
@@ -216,15 +185,13 @@ async function main(version) {
       homepage: pkg.hompage,
     };
 
-    // generate api.md file for the exports of a module
+    // Generate api.md file for the module exports
     generateApi(pkg.name, short, packages);
 
-    // generate autodocument for each entry in sidebar
+    // Generate autodocument for each entry in autos
     for (const sidebarLink of autos[short] || []) {
-      if (!(await fileExists("docs/src/packages", short, sidebarLink.filename))) {
-        const tplBody = generateAutodocument(short, sidebarLink);
-        await renderTpl(tplBody, path.join("docs", "packages", pkgdir, sidebarLink.filename), data);
-      }
+      const tplBody = generateAutodocument(short, sidebarLink);
+      await renderTpl(tplBody, path.join("docs", "packages", short, sidebarLink.filename), data);
     }
 
     for (const filename of fs.readdirSync(path.join("docs/src/packages", pkgdir))) {
