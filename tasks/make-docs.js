@@ -151,8 +151,10 @@ function generateAutodocument(package, { title, filename }) {
   const BBBR = "}}}";
 
   const fullname = filename.replace("_", "/").replace(".md", "");
+  const packageLink = `#/packages/${package}/api`;
 
-  const body = `# ${BBBL}name${BBBR} ${title}
+  const body = `# ${title}
+Package: <a href="${packageLink}">${BBBL}name${BBBR}</a>
 
 ${BBL}#api${BBR}${package}:${fullname}${BBL}/api${BBR}
 `;
@@ -167,15 +169,12 @@ function generateApi(name, short, packages) {
   const index = readJson("packages", short, "index.json");
   // would want to know which file/url to link to for all of these
   // based on the sidebar? you would need a different way to specify pages to make.
-  const content = renderIndexJson(index);
+  const content = renderIndexJson(index, short, packages);
 
   const body = `# ${name}
 
 ${content}
 `;
-  // yes there is stuff there
-  // console.log({ content, body });
-
   writeFile(["docs", "src", "packages", short, "api.md"], body);
 }
 

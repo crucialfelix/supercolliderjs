@@ -10,6 +10,9 @@ const redirects = {
       package: "server",
       name: `"osc/msg"`,
     },
+    // quit: {
+    //   name: "msg.quit"
+    // }
   },
   supercolliderjs: {
     server: {
@@ -57,6 +60,28 @@ function loadApi(package) {
   return apis[package];
 }
 
+const indexes = {};
+function loadIndex(package) {
+  if (!indexes[package]) {
+    indexes[package] = JSON.parse(fs.readFileSync(path.join(root, "packages", package, "index.json")));
+  }
+  return indexes[package];
+}
+
+/**
+ * Breadth first search of a node tree
+ */
+function* bfs(node) {
+  const stack = [node];
+  while (stack.length) {
+    const next = stack.pop();
+    yield next;
+    if (next.children) {
+      stack.push(...next.children);
+    }
+  }
+}
+
 /**
  * Find a TypeDoc node by name.
  *
@@ -82,17 +107,17 @@ function find(package, node, name) {
     return find(goto.package, loadApi(goto.package), goto.name);
   }
 
-  // ignore a property with that name: it is perhaps an export
-  // or just a parent class that holds the thing we are searching for.
-  if (node.name === name && node.kindString !== "Property") {
-    return node;
-  }
-  // console.log(node);
-  if (!node.children) return;
-  for (const child of node.children) {
-    const cn = find(package, child, name);
-    if (cn) {
-      return cn;
+  const foundIt = n => {
+    // ignore a property with that name: it is perhaps an export
+    // or just a parent class that holds the thing we are searching for.
+    if (n.name === name && n.kindString !== "Property") {
+      return n;
+    }
+  };
+
+  for (const next of bfs(node)) {
+    if (foundIt(next)) {
+      return next;
     }
   }
 }
@@ -106,19 +131,24 @@ const joinc = lines => joinWith(lines, ", ");
 const joins = (...lines) => joinWith(lines, " ");
 const joinnl = lines => joinWith(lines, "\n");
 
-const el = (element, body, attrs = "") => `<${element} ${attrs}>${body}</${element}>`;
+// const el = (element, body, attrs = "") => `<${element} ${attrs}>${body}</${element}>`;
 // const el = (element, attrs = {}) => body => `<${element} ${attrs}>${body}</${element}>`;
 
-const h4 = (txt, id = "") => `<h4 id="ref-${id}">${txt}</h4>`;
+const h4 = (txt, id = "") => `<h4 id="${id}">${txt}</h4>`;
 const span = (txt, className = "") => `<span class="${className}">${txt}</span>`;
 const div = (txt, className = "") => `<div class="${className}">${txt}</div>`;
+const p = (txt, className = "") => (txt ? `<p class="${className}">${txt}</p>` : "");
 const ul = (lis, className = "no-dot") =>
   `<ul class="${className}">` + join(...lis.map(li => `<li>${li}</li>`)) + "</ul>";
 
-const shortText = txt => txt && el("p", txt);
-const text = txt => txt && el("p", txt); // It's markdown, needs to be processed
-const returns = txt => txt && `Returns ${txt}`;
-
+const shortText = txt => p(txt, "short-text"); // txt && el("p", txt);
+const text = txt => p(txt); // It's markdown, needs to be processed
+const returns = txt => {
+  if (txt && txt.trim()) {
+    return div(`Returns ${txt.trim()}`);
+  }
+};
+const ahref = (href, body) => `<a href="${href}">${body}</a>`;
 /**
  * Render a type definition
  */
@@ -189,7 +219,7 @@ const Class = node => {
       `<h3 class="class-header" id="${node.name}">class <span class="class">${node.name}</span></h3>`,
       xs && `extends: ${xs}`,
       comment(node.comment),
-      ...node.children.map(renderNode),
+      ...node.children.map(renderNode).map(html => div(html, "class-member")),
     ),
     "Class",
   );
@@ -205,7 +235,7 @@ const Property = node => {
   }
 
   // flags: static
-  const header = h4(span(node.name, "token property") + " " + type(node.type), node.id);
+  const header = h4(span(node.name, "token property") + " " + type(node.type), node.name);
   return joinnl([header, comment(node.comment)]);
 };
 
@@ -214,7 +244,7 @@ const Accessor = node => {
     return private(node.name);
   }
   const ty = node.getSignature[0].type;
-  return join(h4(span(node.name, "token property") + " " + type(ty), node.id), comment(node.comment));
+  return join(h4(span(node.name, "token property") + " " + type(ty), node.name), comment(node.comment));
 };
 
 const Method = node => {
@@ -226,7 +256,7 @@ const Method = node => {
     return null;
   }
   const signature = node.signatures[0];
-  return join(h4(functionTitle(signature), node.id), comment(signature.comment));
+  return join(h4(functionTitle(signature), node.name), comment(signature.comment));
 };
 
 const Constructor = node => {
@@ -290,12 +320,12 @@ const indexEntry = node => {
 };
 
 const Index = node => {
-  return div(join(h4(node.name, node.id), ul(node.children.map(indexEntry))), "Index");
+  return div(join(h4(node.name, node.name), ul(node.children.map(indexEntry))), "Index");
 };
 
 const Interface = node => {
   const children = (node.children || []).map(renderNode);
-  return div(join(h4(joins(span("interface", "token keyword"), node.name), node.id), ul(children)), "Interface");
+  return div(join(h4(joins(span("interface", "token keyword"), node.name), node.name), ul(children)), "Interface");
 };
 
 const TypeAlias = node => {
@@ -305,7 +335,7 @@ const TypeAlias = node => {
 const Enumeration = node => {
   return div(
     join(
-      h4(joins(span("enum", "token keyword"), node.name), node.id),
+      h4(joins(span("enum", "token keyword"), node.name), node.name),
       ul(node.children.map(child => joins(child.name, "=", child.defaultValue))),
       comment(node.comment),
     ),
@@ -368,17 +398,80 @@ function renderDocForName(package, name) {
   return renderNode(node);
 }
 
+function* indexBfs(node) {
+  const stack = [node];
+  while (stack.length) {
+    const next = stack.pop();
+    if (isString(next)) {
+      yield next;
+    } else {
+      stack.push(...Object.values(next));
+    }
+  }
+}
+
 /**
  * Render the index.json files as single page
  */
-const renderIndexJson = kv => apiValue(kv);
+const renderIndexJson = (kv, package, packages) => {
+  const api = loadApi(package);
+
+  const pageForName = (package, name) => {
+    const index = loadIndex(package);
+    // Return the first top level branch (branch.md contains docs)
+    // that contains an entity with this name
+    for (const branchName of Object.keys(index)) {
+      const branch = index[branchName];
+      if (isString(branch) && branch === name) {
+        // return the leaf "Server", not the key "default"
+        return branch;
+      }
+      // if it is a top level and the value is a string then you already have it
+
+      for (const leaf of indexBfs(branch)) {
+        if (leaf === name) {
+          console.log("found page", { branchName, branch, name, leaf });
+
+          return `${branchName}?id=${name}`;
+        }
+      }
+    }
+  };
+
+  const apiLink = name => {
+    const renderApiLink = (node, link) =>
+      ahref(link, joins(span(node.kindString.toLowerCase(), "token keyword"), span(node.name, node.kindString)));
+
+    const buildLink = (pkg, name) => {
+      const page = pageForName(pkg, name);
+      // TODO append ?id=
+      return `#/packages/${pkg}/${page || name}`;
+    };
+
+    const node = find(package, api, name);
+
+    if (node) {
+      return renderApiLink(node, buildLink(package, node.name));
+    }
+
+    // search through the others
+    for (const p of packages) {
+      const n = find(p, loadApi(p), name);
+      if (n) {
+        return renderApiLink(n, buildLink(p, n.name));
+      }
+    }
+    // Cannot find it. Maybe it is a module
+    return span(name, "link token property");
+  };
+  const apiKey = k => span(k, "token property");
+  const apiValue = v => (isString(v) ? apiLink(v) : ul(Object.entries(v).map(apiKeyValue)));
+  const apiKeyValue = ([k, v]) => (isString(v) ? apiLink(v) : join(apiKey(k), apiValue(v)));
+
+  return apiValue(kv);
+};
 
 const isString = v => typeof v === "string";
-
-const apiLink = name => span(name, "link token property");
-const apiKey = k => span(k, "token property");
-const apiValue = v => (isString(v) ? apiLink(v) : ul(Object.entries(v).map(apiKeyValue)));
-const apiKeyValue = ([k, v]) => (isString(v) ? apiLink(v) : join(apiKey(k), apiValue(v)));
 
 module.exports = {
   renderDocForName,
