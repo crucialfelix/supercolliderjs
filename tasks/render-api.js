@@ -293,15 +293,19 @@ const CallSignature = signature => {
   // TODO breakout parameters that have comments and types
 };
 
-const nodeSummary = node => `${node.kindString} ${node.name}`;
+const nodeSummary = node => `${kindString(node.kindString)} ${node.name}`;
 // pre({ name: node.name, kindString: node.kindString, comment: comment(node.comment) });
 // const nodeSummary = node => pre({ name: node.name, kindString: node.kindString, comment: comment(node.comment) });
 
+const stripQuotes = str => str && str.replace(/"/g, "");
+
 const ExternalModule = node => {
+  const name = stripQuotes(node.name);
+
   if (node.children) {
     return div(
       join(
-        `${span("module", "token keyword")} ${node.name}`,
+        `${span("module", "token keyword")} ${name}`,
         ...node.children
           .map(node.children.length > 100 ? nodeSummary : renderNode)
           .map(html => div(html, "module-child")),
@@ -313,7 +317,7 @@ const ExternalModule = node => {
   // modules that only have exports do not have any children in api.json
   // only a sources
 
-  return div(joins(span("module", "token keyword"), node.name), "Module");
+  return div(joins(span("module", "token keyword"), name), "Module");
   // direct exports are not exposed in the typedocs json:
   // export { SCLangError } from "@supercollider/lang";
   // return `Empty module ${JSON.stringify(node)}`;
@@ -323,7 +327,7 @@ const indexEntry = node => {
   if (node.kindString === "External module") {
     return ExternalModule(node);
   }
-  return `${node.kindString} ${node.name}`;
+  return `${kindString(node.kindString)} ${node.name}`;
 };
 
 const Index = node => {
@@ -357,6 +361,8 @@ const ObjectLiteral = node => {
 const Variable = node => {
   return joins(span(node.name, "token property"), ":", type(node.type), "=", node.defaultValue);
 };
+
+const kindString = str => (str === "External module" ? "module" : str);
 
 const Function = Method;
 
@@ -456,12 +462,17 @@ const renderIndexJson = (kv, package, packages) => {
 
   const apiLink = name => {
     const renderApiLink = (node, link) =>
-      ahref(link, joins(span(node.kindString.toLowerCase(), "token keyword"), span(node.name, node.kindString)));
+      ahref(
+        link,
+        joins(
+          span(kindString(node.kindString).toLowerCase(), "token keyword"),
+          span(node.name, kindString(node.kindString)),
+        ),
+      );
 
     const buildLink = (pkg, name) => {
-      const page = pageForName(pkg, name);
-      // TODO append ?id=
-      return `#/packages/${pkg}/${page || name}`;
+      const page = pageForName(pkg, name) || `api?id=${stripQuotes(name)}`;
+      return `#/packages/${pkg}/${page}`;
     };
 
     const node = find(package, api, name);
