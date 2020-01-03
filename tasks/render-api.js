@@ -33,9 +33,11 @@ const redirects = {
     },
     SCLangError: {
       package: "lang",
+      name: "SCLangError",
     },
     msg: {
       package: "server",
+      name: "msg",
     },
     dryads: {
       package: "dryads",
@@ -99,6 +101,8 @@ function find(package, node, name) {
     // default a redirect to this package, this name
     // so you don't have to specify the whole thing.
     // just makes it more complex actually
+    // But you need this to redirect supercolliderjs exports
+    // to the packages that have the code.
     const goto = {
       package,
       name,
@@ -111,6 +115,9 @@ function find(package, node, name) {
     // ignore a property with that name: it is perhaps an export
     // or just a parent class that holds the thing we are searching for.
     if (n.name === name && n.kindString !== "Property") {
+      return n;
+    }
+    if (n.kindString === "External module" && n.name === `"${name}"`) {
       return n;
     }
   };
@@ -394,6 +401,15 @@ function renderDocForName(package, name) {
     // console.log(JSON.stringify(namesInApi(api), null, 2));
     // throw new Error();
     return null;
+  }
+
+  // if node is an external module and package then render that.
+  // this is when a package re-exports another package
+  if (name !== "index" && node.name === `"index"` && node.kindString === "External module") {
+    const a = loadApi(name);
+    if (a) {
+      return renderNode(a);
+    }
   }
   return renderNode(node);
 }
