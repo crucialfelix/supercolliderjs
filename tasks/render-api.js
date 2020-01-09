@@ -303,12 +303,17 @@ const ExternalModule = node => {
   const name = stripQuotes(node.name);
 
   if (node.children) {
+    // if only one then display it without wrapping it in a module
+    if (node.children.length === 1) {
+      return join(...node.children.map(renderNode).map(html => div(html, "entity-box")));
+    }
+
     return div(
       join(
         `${span("module", "token keyword")} ${name}`,
         ...node.children
           .map(node.children.length > 100 ? nodeSummary : renderNode)
-          .map(html => div(html, "module-child")),
+          .map(html => div(html, "module-child entity-box")),
       ),
       "module",
     );
@@ -393,6 +398,9 @@ function renderNode(node) {
   return (fn(node) || "").trim();
 }
 
+/**
+ * Render content for a page.md from package and entity name
+ */
 function renderDocForName(package, name) {
   const api = loadApi(package);
   // findWithRedirects
@@ -417,7 +425,13 @@ function renderDocForName(package, name) {
       return renderNode(a);
     }
   }
-  return renderNode(node);
+
+  const body = renderNode(node);
+  // If this node is not an module, then wrap the individual item as though it were.
+  if (node.kindString !== "External module") {
+    return div(body, "entity-box");
+  }
+  return body;
 }
 
 function* indexBfs(node) {
@@ -452,8 +466,6 @@ const renderIndexJson = (kv, package, packages) => {
 
       for (const leaf of indexBfs(branch)) {
         if (leaf === name) {
-          console.log("found page", { branchName, branch, name, leaf });
-
           return `${branchName}?id=${name}`;
         }
       }

@@ -24,8 +24,9 @@
       .markdown-section {
         padding: 2rem 0.25rem 2rem 0.5rem;
       }
-      p {
+      p, .markdown-section p {
         line-height: 1.2;
+        margin: 0 0 1em 0;
       }
       li {
         font-size: 0.9rem;
@@ -53,8 +54,46 @@
       margin: 0 0 6px 0;
       line-height: 1.2;
     }
+    div.module {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: #e2e1e04d;
+      border-radius: 2px;
+      display: inline-block;
+      position: relative;
+    }
     .module-child {
-      margin: 2rem 0;
+      background: #fff;
+    }
+    .entity-box {
+      border-radius: 2px;
+      display: inline-block;
+      margin: 1rem;
+      padding: 1rem;
+      position: relative;
+      width: 95%;
+      max-width: 50rem;
+
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    }
+    p {
+      font-size: 0.9rem;
+      line-height: 1.2;
+    }
+    .short-text {
+      font-weight: 500;
+      max-width: 40em;
+      line-height: 1.2;
+    }
+    .class-member {
+      margin: 1em .5em;
+    }
+    .class-member h4 {
+      margin: 0;
+    }
+    .type {
+      font-style: italic;
     }
   </style>
 </head>
