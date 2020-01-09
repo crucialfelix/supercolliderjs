@@ -300,6 +300,11 @@ const nodeSummary = node => `${kindString(node.kindString)} ${node.name}`;
 const stripQuotes = str => str && str.replace(/"/g, "");
 
 const ExternalModule = node => {
+  // if __tests__ in node.name then ignore
+  if (/__tests__/.exec(node.name)) {
+    return "";
+  }
+
   const name = stripQuotes(node.name);
 
   if (node.children) {
