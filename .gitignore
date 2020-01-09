@@ -8,4 +8,5 @@ tsconfig.tsbuildinfo
 .vscode
 *.off
 docs/src/packages/**/api.json
+packages/**/index.json
 packages/**/typedoc.json
