@@ -1,0 +1,12 @@
+# SCLang
+Package: <a href="#/packages/dryads/api">@supercollider/dryads</a>
+
+<div class="entity-box"><div class="Class"><h3 class="class-header" id="SCLang"><span class="token keyword">class</span> <span class="class">SCLang</span></h3><span class="token keyword">extends</span> <span class="type reference">Dryad&lt;<span class="type reference">Properties</span>&gt;</span><p class="short-text">Boots a new SuperCollider language interpreter (sclang) making it available for all children as context.sclang</p><p class="">Always boots a new one, ignoring any possibly already existing one in the parent context.
+
+`options` are the command line options supplied to sclang (note: not all options are passed through yet)
+see {@link lang/SCLang}
+
+Not to be confused with the other class named SCLang which does all the hard work.
+This Dryad class is just a simple wrapper around that.
+</p><div class="section-heading">Constructor</div><div class="class-member"></div><div class="section-heading">Property</div><div class="class-member"><h4 id="children"><span class="token property">children</span> <span class="type ">[object Object]</span>[]</h4></div><div class="class-member"><h4 id="properties"><span class="token property">properties</span> <span class="type reference">Properties</span></h4></div><div class="section-heading">Accessor</div><div class="class-member"><h4 id="isDryad"><span class="token property">isDryad</span> <span class="type token entity">boolean</span></h4><p class="short-text">This method is never actually called, but merely because its implemented
+(dryad.isDryad is not undefined) it marks the things as being a Dryad.</p></div><div class="section-heading">Method</div><div class="class-member"></div><div class="class-member"></div><div class="class-member"></div><div class="class-member"><h4 id="defaultProperties"><span class="token function">defaultProperties</span>(): <span class="type reference">Properties</span></h4></div><div class="class-member"></div><div class="class-member"><h4 id="prepareForAdd"><span class="token function">prepareForAdd</span>(): <span class="type reference">Command</span></h4></div><div class="class-member"><h4 id="remove"><span class="token function">remove</span>(): <span class="type reference">Command</span></h4></div><div class="class-member"></div><div class="class-member"></div><div class="class-member"></div><div class="class-member"></div></div></div>

@@ -11,9 +11,11 @@ const repository = "https://github.com/crucialfelix/supercolliderjs";
 
 const typedocRoot = "https://crucialfelix.github.io/supercolliderjs";
 
+const docsRoot = "https://crucialfelix.github.io/supercolliderjs/#";
+
 // Test locally with:
 // TODO: should be a fixed path for each to api.md
-const docsRoot = "http://localhost:3000/#";
+// const docsRoot = "http://localhost:3000/#";
 
 const packageNames = async () => {
   const names = (await fsp.readdir(path.join(root, "packages"))).filter(name => name.match(/^[a-z\-]+$/));

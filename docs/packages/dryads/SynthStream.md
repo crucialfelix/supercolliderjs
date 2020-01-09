@@ -1,0 +1,20 @@
+# SynthStream
+Package: <a href="#/packages/dryads/api">@supercollider/dryads</a>
+
+<div class="module"><span class="token keyword">module</span> SynthStream<div class="module-child entity-box"><div class="Class"><h3 class="class-header" id="SynthStream"><span class="token keyword">class</span> <span class="class">SynthStream</span></h3><span class="token keyword">extends</span> <span class="type reference">Dryad&lt;<span class="type reference">Properties</span>&gt;</span><p class="short-text">Given a Bacon.js stream that returns objects, this spawns a series of Synths.</p><p class="">Properties:
+ {Bacon.EventStream} stream
+ {object} defaultParams
+
+The event values should be simple JavaScript objects:
+
+{
+  defName: 'synthDefName',
+  args: {
+    out: 0,
+    freq: 440
+  }
+}
+
+defaultParams is a fixed object into which the event value is merged.
+</p><div class="section-heading">Constructor</div><div class="class-member"></div><div class="section-heading">Property</div><div class="class-member"><h4 id="children"><span class="token property">children</span> <span class="type ">[object Object]</span>[]</h4></div><div class="class-member"><h4 id="properties"><span class="token property">properties</span> <span class="type reference">Properties</span></h4></div><div class="section-heading">Accessor</div><div class="class-member"><h4 id="isDryad"><span class="token property">isDryad</span> <span class="type token entity">boolean</span></h4><p class="short-text">This method is never actually called, but merely because its implemented
+(dryad.isDryad is not undefined) it marks the things as being a Dryad.</p></div><div class="section-heading">Method</div><div class="class-member"><h4 id="add"><span class="token function">add</span>(<span class="nowrap">player: <span class="type reference">DryadPlayer</span></span>): <span class="type reference">Command</span></h4></div><div class="class-member"></div><div class="class-member"></div><div class="class-member"><h4 id="commandsForEvent"><span class="token function">commandsForEvent</span>(<span class="nowrap">event: <span class="type reference">Event</span></span>, <span class="nowrap">context: <span class="type reference">Context</span></span>, <span class="nowrap">properties: <span class="type reference">Properties</span></span>): <span class="type reference">SynthStreamEventCommand</span></h4></div><div class="class-member"></div><div class="class-member"><h4 id="handleEvent"><span class="token function">handleEvent</span>(<span class="nowrap">event: <span class="type reference">Event</span></span>, <span class="nowrap">context: <span class="type reference">Context</span></span>, <span class="nowrap">properties: <span class="type reference">Properties</span></span>, <span class="nowrap">player: <span class="type reference">DryadPlayer</span></span>): <span class="type token entity">void</span></h4></div><div class="class-member"></div><div class="class-member"></div><div class="class-member"><h4 id="remove"><span class="token function">remove</span>(): <span class="type reference">Command</span></h4></div><div class="class-member"></div><div class="class-member"><h4 id="subgraph"><span class="token function">subgraph</span>(): <span class="type reference">Dryad</span></h4></div><div class="class-member"></div><div class="class-member"></div></div></div><div class="module-child entity-box"><div class="Interface"><h4 id="Event"><span class="token keyword">interface</span> Event</h4><ul class="no-dot"><li><h4 id="args"><span class="token property">args</span> <span class="type reference">Params</span></h4></li><li><h4 id="defName"><span class="token property">defName</span> <span class="type token entity">string</span></h4></li><li><h4 id="key"><span class="token property">key</span> <span class="type "><span class="type token entity">undefined</span> | <span class="type token entity">number</span></span></h4></li><li><h4 id="type"><span class="token property">type</span> <span class="type "><span class="type token entity">undefined</span> | <span class="type token entity">string</span></span></h4></li></ul></div></div></div>

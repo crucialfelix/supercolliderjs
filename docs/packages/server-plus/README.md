@@ -192,7 +192,7 @@ sc.server.boot().then(async server => {
 Documentation
 -------------
 
-[TypeDocs](https://crucialfelix.github.io/supercolliderjs/packages/server-plus/docs/index.html)
+[Documentation](https://crucialfelix.github.io/supercolliderjs/#/packages/server-plus/api)
 
 Compatibility
 -------------

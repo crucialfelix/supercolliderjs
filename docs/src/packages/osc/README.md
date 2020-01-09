@@ -10,9 +10,6 @@ This means it does not support inline arrays `[f]`
 
 This is used internally by `@supercollider/server`
 
-TODO: let TypeDoc document the public api
-exports of types
-
 ## Usage
 
 ```js

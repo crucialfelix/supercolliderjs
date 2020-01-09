@@ -1,7 +1,7 @@
 Documentation
 -------------
 
-[TypeDocs]({{{typedocRoot}}}/packages/{{{short}}}/docs/index.html)
+[Documentation]({{{docsRoot}}}/packages/{{{short}}}/api)
 
 Compatibility
 -------------
