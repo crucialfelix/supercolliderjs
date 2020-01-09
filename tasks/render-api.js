@@ -205,6 +205,9 @@ const type = obj => {
     case "intersection": {
       return obj.types.map(type).join(" &amp; ");
     }
+    case "typeParameter": {
+      return obj.name;
+    }
     default:
       console.error(obj);
 
