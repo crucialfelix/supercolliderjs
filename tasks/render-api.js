@@ -202,6 +202,9 @@ const type = obj => {
       // indexSignature
       // signatures
       const sigs = obj.declaration.indexSignature || obj.declaration.signatures;
+      if (!sigs) {
+        console.log("reflection:", obj);
+      }
       return sigs ? type(sigs[0].type) : "reflection";
     }
     case "intersection": {
@@ -221,23 +224,39 @@ const type = obj => {
 // sources
 // flags
 
-const private = name => `<!-- private ${name} -->`;
+const private = name => null; // `<!-- private ${name} -->`;
 
 const comment = c => {
   return c && join(shortText(c.shortText), text(c.text), returns(c.returns));
 };
 
 const Class = node => {
+  // TODO: use apiLink
   const xs = node.extendedTypes ? joinc(node.extendedTypes.map(type)) : null;
+
+  const renderChild = child => div(renderNode(child), "class-member");
+
+  // group by kindString
+  const children = [];
+  let kind = null;
+  node.children.forEach(child => {
+    if (child.kindString !== kind) {
+      children.push(div(child.kindString, "section-heading"));
+      kind = child.kindString;
+    }
+    console.log(kind, renderChild(child));
+
+    children.push(renderChild(child));
+  });
 
   return div(
     join(
       `<h3 class="class-header" id="${node.name}">${token("class", "keyword")} <span class="class">${
         node.name
       }</span></h3>`,
-      xs && `extends: ${xs}`,
+      xs && joins(token("extends", "keyword"), xs),
       comment(node.comment),
-      ...node.children.map(renderNode).map(html => div(html, "class-member")),
+      ...children,
     ),
     "Class",
   );
@@ -247,10 +266,11 @@ const Property = node => {
   if (node.flags && node.flags.isPrivate) {
     return private(node.name);
   }
-  if (node.inheritedFrom) {
-    // or show mini with link
-    return null;
-  }
+  // if (node.inheritedFrom) {
+  //   return div(node.name, "inherited");
+  //   // or show mini with link
+  //   // return null;
+  // }
 
   // flags: static
   const header = h4(token(node.name, "property") + " " + type(node.type), node.name);
@@ -284,9 +304,9 @@ const Constructor = node => {
 const Parameter = parameter => {
   const p = `${parameter.name}: ${type(parameter.type)}`;
   if (parameter.defaultValue) {
-    return `${p} = ${parameter.defaultValue}`;
+    return span(`${p} = ${parameter.defaultValue}`, "nowrap");
   }
-  return p;
+  return span(p, "nowrap");
 };
 
 const functionParameters = parameters => {
