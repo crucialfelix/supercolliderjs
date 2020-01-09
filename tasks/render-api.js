@@ -160,6 +160,8 @@ const returns = txt => {
   }
 };
 const ahref = (href, body) => `<a href="${href}">${body}</a>`;
+const token = (name, tokenType) => span(name, `token ${tokenType}`);
+
 /**
  * Render a type definition
  */
@@ -230,7 +232,9 @@ const Class = node => {
 
   return div(
     join(
-      `<h3 class="class-header" id="${node.name}">class <span class="class">${node.name}</span></h3>`,
+      `<h3 class="class-header" id="${node.name}">${token("class", "keyword")} <span class="class">${
+        node.name
+      }</span></h3>`,
       xs && `extends: ${xs}`,
       comment(node.comment),
       ...node.children.map(renderNode).map(html => div(html, "class-member")),
@@ -249,7 +253,7 @@ const Property = node => {
   }
 
   // flags: static
-  const header = h4(span(node.name, "token property") + " " + type(node.type), node.name);
+  const header = h4(token(node.name, "property") + " " + type(node.type), node.name);
   return joinnl([header, comment(node.comment)]);
 };
 
@@ -258,7 +262,7 @@ const Accessor = node => {
     return private(node.name);
   }
   const ty = node.getSignature[0].type;
-  return join(h4(span(node.name, "token property") + " " + type(ty), node.name), comment(node.comment));
+  return join(h4(token(node.name, "property") + " " + type(ty), node.name), comment(node.comment));
 };
 
 const Method = node => {
@@ -289,9 +293,7 @@ const functionParameters = parameters => {
   return `(${joinWith((parameters || []).map(Parameter), ", ")})`;
 };
 const functionTitle = signature => {
-  return `${span(signature.name, "token function")}${functionParameters(signature.parameters)}: ${type(
-    signature.type,
-  )}`;
+  return `${token(signature.name, "function")}${functionParameters(signature.parameters)}: ${type(signature.type)}`;
 };
 // bigger with all params and comments
 const CallSignature = signature => {
@@ -322,7 +324,7 @@ const ExternalModule = node => {
 
     return div(
       join(
-        `${span("module", "token keyword")} ${name}`,
+        `${token("module", "keyword")} ${name}`,
         ...node.children
           .map(node.children.length > 100 ? nodeSummary : renderNode)
           .map(html => div(html, "module-child entity-box")),
@@ -334,7 +336,7 @@ const ExternalModule = node => {
   // modules that only have exports do not have any children in api.json
   // only a sources
 
-  return div(joins(span("module", "token keyword"), name), "Module");
+  return div(joins(token("module", "keyword"), name), "Module");
   // direct exports are not exposed in the typedocs json:
   // export { SCLangError } from "@supercollider/lang";
   // return `Empty module ${JSON.stringify(node)}`;
@@ -353,7 +355,7 @@ const Index = node => {
 
 const Interface = node => {
   const children = (node.children || []).map(renderNode);
-  return div(join(h4(joins(span("interface", "token keyword"), node.name), node.name), ul(children)), "Interface");
+  return div(join(h4(joins(token("interface", "keyword"), node.name), node.name), ul(children)), "Interface");
 };
 
 const TypeAlias = node => {
@@ -363,7 +365,7 @@ const TypeAlias = node => {
 const Enumeration = node => {
   return div(
     join(
-      h4(joins(span("enum", "token keyword"), node.name), node.name),
+      h4(joins(token("enum", "keyword"), node.name), node.name),
       ul(node.children.map(child => joins(child.name, "=", child.defaultValue))),
       comment(node.comment),
     ),
@@ -372,11 +374,11 @@ const Enumeration = node => {
 };
 
 const ObjectLiteral = node => {
-  return join(h4(joins(span(node.name, "token variable"), "= {")), ...ul(node.children.map(renderNode)), "}");
+  return join(h4(joins(token(node.name, "variable"), "= {")), ...ul(node.children.map(renderNode)), "}");
 };
 
 const Variable = node => {
-  return joins(span(node.name, "token property"), ":", type(node.type), "=", node.defaultValue);
+  return joins(token(node.name, "property"), ":", type(node.type), "=", node.defaultValue);
 };
 
 const kindString = str => (str === "External module" ? "module" : str);
