@@ -19,6 +19,10 @@ const redirects = {
       package: "server-plus",
       name: "ServerPlus", // actually the whole package
     },
+    ServerState: {
+      package: "server",
+      name: "ServerState",
+    },
     map: {
       package: "server",
       name: "mapping",
@@ -488,7 +492,8 @@ const renderIndexJson = (kv, package, packages) => {
       );
 
     const buildLink = (pkg, name) => {
-      const page = pageForName(pkg, name) || `api?id=${stripQuotes(name)}`;
+      const n = stripQuotes(name);
+      const page = pageForName(pkg, n) || `api?id=${stripQuotes(name)}`;
       return `#/packages/${pkg}/${page}`;
     };
 
