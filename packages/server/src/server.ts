@@ -161,7 +161,10 @@ export default class Server extends EventEmitter {
       },
       (err: Error) => log.stderr(err),
     );
-    this.processEvents.subscribe(o => log.dbug(o), (err: Error) => log.err(err));
+    this.processEvents.subscribe(
+      o => log.dbug(o),
+      (err: Error) => log.err(err),
+    );
 
     return log;
   }
@@ -186,8 +189,14 @@ export default class Server extends EventEmitter {
     this.receive.subscribe(msg => {
       this.emit("OSC", msg);
     });
-    this.processEvents.subscribe(() => {}, err => this.emit("exit", err));
-    this.stdout.subscribe(out => this.emit("out", out), out => this.emit("stderr", out));
+    this.processEvents.subscribe(
+      () => {},
+      err => this.emit("exit", err),
+    );
+    this.stdout.subscribe(
+      out => this.emit("out", out),
+      out => this.emit("stderr", out),
+    );
   }
 
   private _initSender(): void {
@@ -250,7 +259,7 @@ export default class Server extends EventEmitter {
    *
    * See ServerOptions documentation: http://danielnouri.org/docs/SuperColliderHelp/ServerArchitecture/ServerOptions.html
    *
-   * @return {string[]} List of non-default args
+   * @return List of non-default args
    */
   args(): string[] {
     const flagMap = {
@@ -346,12 +355,16 @@ export default class Server extends EventEmitter {
           stdoutBuffer += text;
           return !stdoutBuffer.match(/SuperCollider 3 server ready/);
         })
-        .subscribe(() => {}, this.log.err, () => {
-          // onComplete
-          stdoutBuffer = "";
-          this.isRunning = true;
-          resolve(this);
-        });
+        .subscribe(
+          () => {},
+          this.log.err,
+          () => {
+            // onComplete
+            stdoutBuffer = "";
+            this.isRunning = true;
+            resolve(this);
+          },
+        );
 
       setTimeout(() => {
         if (!this.isRunning) {
@@ -545,7 +558,8 @@ export default class Server extends EventEmitter {
    *  {
    *      call: ['/some_osc_msg', 1, 2],
    *      response: ['/expected_osc_response', 1, 2, 3]
-   *  }```
+   *  }
+   *   ```
    * @param {int} timeout - in milliseconds before rejecting the `Promise`
    * @returns {Promise} - resolves with all values the server responsed with after the matched response.
    */

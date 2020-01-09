@@ -25,7 +25,7 @@ type Params = msg.Params;
  *
  * See `server.group(...)`
  */
-class Group {
+export class Group {
   id: number;
   server: ServerPlus;
 
@@ -65,11 +65,11 @@ class Group {
 }
 
 /**
- * scsynth Synth
+ * Created with `server.synth(...)`
  *
- * See `server.synth(...)`
+ * Extends Group
  */
-class Synth extends Group {
+export class Synth extends Group {
   // store def and args
   // synthDef
   // release
@@ -78,13 +78,13 @@ class Synth extends Group {
 
 /**
  * scsynth audio bus
-
+ *
  * See `server.audioBus(...)`
  *
  * These bus numbers (ids) and numChannels are allocated here in the client.
  * The server only gets bus ids for reading and writing to.
  */
-class AudioBus {
+export class AudioBus {
   id: number;
   server: ServerPlus;
   numChannels: number;
@@ -104,14 +104,14 @@ class AudioBus {
 }
 
 /**
- * scsynth control bus
+  * scsynth control bus
 
- * See `server.controlBus(...)`
- *
- * These bus numbers (ids) and numChannels are allocated here in the client.
- * The server only gets bus ids for reading and writing to.
- */
-class ControlBus extends AudioBus {
+  * See `server.controlBus(...)`
+  *
+  * These bus numbers (ids) and numChannels are allocated here in the client.
+  * The server only gets bus ids for reading and writing to.
+  */
+export class ControlBus extends AudioBus {
   /**
    * Deallocate the ControlBus, freeing it for resuse.
    */
@@ -128,7 +128,7 @@ class ControlBus extends AudioBus {
  *
  * See `server.buffer(...)` and `server.readBuffer(...)`
  */
-class Buffer {
+export class Buffer {
   id: number;
   server: ServerPlus;
   numFrames: number;
@@ -172,7 +172,7 @@ class Buffer {
  * The SynthDef may have been compiled from a sourceCode string
  * or compiled from a file at path.
  */
-class SynthDef {
+export class SynthDef {
   server: ServerPlus;
   name: string;
   synthDefResult: SynthDefResultType;
@@ -231,7 +231,8 @@ export default class ServerPlus extends Server {
   ): Promise<Synth> {
     const [def, g] = await Promise.all([Promise.resolve(synthDef), Promise.resolve(group)]);
     const nodeId = this.state.nextNodeID();
-    const sn = msg.synthNew(def.synthDefResult.name, nodeId, addAction, g ? g.id : 0, args);
+    // src/ServerPlus.ts:236:29 - error TS2532: Object is possibly 'undefined'. ?
+    const sn = msg.synthNew((def as SynthDef).synthDefResult.name, nodeId, addAction, g ? g.id : 0, args);
     this.send.msg(sn);
     await whenNodeGo(this, String(nodeId), nodeId);
     return new Synth(this, nodeId);

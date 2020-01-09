@@ -113,7 +113,7 @@ export default class Synth extends Dryad<Properties> {
     };
   }
 
-  _checkOscType(v: any, key: string, id: string): any {
+  private _checkOscType(v: any, key: string, id: string): any {
     switch (typeof v) {
       case "number":
       case "string":
