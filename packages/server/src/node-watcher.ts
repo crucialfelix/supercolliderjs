@@ -57,12 +57,6 @@ enum Key {
  * @returns {Rx.Disposable} - sub.dispose(); to turn it off.
  */
 export function watchNodeNotifications(server: Server): Disposable {
-  // n_go
-  // n_end
-  // n_on
-  // n_off
-  // n_move
-  // n_info
   const re = /^\/n_(go|end|on|off|move|info)$/;
   const stream = server.receive.filter(msg => !!msg[0].match(re));
   const dispose = stream.subscribe(msg => {
@@ -110,7 +104,7 @@ export function whenNodeGo(server: Server, id: string, nodeID: number): Promise<
 
 /**
  * Call a function when the server sends an `/n_end` message
- * One callback allowed per id and node.
+ * One callback allowed per id and nodeID.
  *
  * @param {Server} server
  * @param {String} id - unique id for this callback registration
@@ -125,7 +119,11 @@ export function onNodeEnd(server: Server, id: string, nodeID: number, handler: F
 /**
  * Returns a Promise that resolves when the server sends an `/n_end` message.
  *
- * The id is usually a context id but could be a random guid
+ * @export
+ * @param {Server} server
+ * @param {string} id - unique id for this callback registration
+ * @param {number} nodeID - the node on whose end we are awaiting news of.
+ * @returns {Promise<number>}
  */
 export function whenNodeEnd(server: Server, id: string, nodeID: number): Promise<number> {
   return new Promise(resolve => {
@@ -141,9 +139,9 @@ export function whenNodeEnd(server: Server, id: string, nodeID: number): Promise
 /**
  * Update values in the Server's node state registery.
  *
- * This is for internal use.
+ * @private
  */
-export function updateNodeState(server: Server, nodeID: number, nodeState: Partial<NodeState>) {
+export function updateNodeState(server: Server, nodeID: number, nodeState: Partial<NodeState>): void {
   // unless its n_end then delete
   server.state.mutate(Key.NODE_WATCHER, (state: State) => {
     return state.mergeIn([Key.NODES, String(nodeID)], Map(), nodeState);
@@ -154,7 +152,7 @@ export function updateNodeState(server: Server, nodeID: number, nodeState: Parti
  * @private
  */
 function _registerHandler(type: Key, server: Server, id: string, nodeID: number, handler: Function): Function {
-  const dispose = () => {
+  const dispose = (): void => {
     _disposeHandler(type, server, id, nodeID);
   };
 

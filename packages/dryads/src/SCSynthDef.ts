@@ -92,7 +92,7 @@ export default class SCSynthDef extends Dryad<Properties> {
     };
   }
 
-  async _prepareForAdd(context: Context, properties: Properties): Promise<CompiledSynthDef | LoadedSynthDef> {
+  private async _prepareForAdd(context: Context, properties: Properties): Promise<CompiledSynthDef | LoadedSynthDef> {
     if (properties.source) {
       const result = await this.compileSource(context, properties.source);
       await this._sendSynthDef(context, properties, result);
@@ -124,7 +124,11 @@ export default class SCSynthDef extends Dryad<Properties> {
     );
   }
 
-  async _sendSynthDef(context: Context, properties: Properties, result: CompiledSynthDef): Promise<CompiledSynthDef> {
+  private async _sendSynthDef(
+    context: Context,
+    properties: Properties,
+    result: CompiledSynthDef,
+  ): Promise<CompiledSynthDef> {
     // ! alters context
     // name bytes
     // synthDefName should be set for child context
@@ -144,7 +148,7 @@ export default class SCSynthDef extends Dryad<Properties> {
     return result;
   }
 
-  async _writeSynthDef(name: string, buffer: Buffer, synthDesc: SynthDesc, saveToDir: string): Promise<void> {
+  private async _writeSynthDef(name: string, buffer: Buffer, synthDesc: SynthDesc, saveToDir: string): Promise<void> {
     const dir = path.resolve(saveToDir);
     const pathname = path.join(dir, name + ".scsyndef");
     await fsp.writeFile(pathname, buffer);
@@ -189,7 +193,7 @@ export default class SCSynthDef extends Dryad<Properties> {
   /**
    * Returns a Promise for a SynthDef result object: name, bytes, synthDesc
    */
-  async compileFrom(context: Context, sourcePath: string): Promise<CompiledSynthDef> {
+  private async compileFrom(context: Context, sourcePath: string): Promise<CompiledSynthDef> {
     // TODO: utf-8, no?
     const source = (await fsp.readFile(path.resolve(sourcePath))).toString("ascii");
     return this.compileSource(context, source, sourcePath);
@@ -231,7 +235,7 @@ export default class SCSynthDef extends Dryad<Properties> {
     };
   }
 
-  putSynthDef(context: Context, synthDefName: string, synthDesc: object): void {
+  private putSynthDef(context: Context, synthDefName: string, synthDesc: object): void {
     context.scserver &&
       context.scserver.state.mutate(StateKeys.SYNTH_DEFS, state => {
         return state.set(synthDefName, synthDesc);

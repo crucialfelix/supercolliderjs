@@ -21,7 +21,7 @@ describe("SynthEventList", function() {
   describe("_makeMsgs", function() {
     // context group epoch
     const sel = new SynthEventList();
-    const scheded = sel._makeMsgs(events, context);
+    const scheded = sel["_makeMsgs"](events, context);
     const first = scheded[0];
 
     it("should have events in the packet", function() {

@@ -1,4 +1,3 @@
-*.sh
 lib
 coverage
 .node-version

@@ -82,7 +82,7 @@ play(out);
 Documentation
 -------------
 
-[TypeDocs](https://crucialfelix.github.io/supercolliderjs/packages/dryads/docs/index.html)
+[Documentation](https://crucialfelix.github.io/supercolliderjs/#/packages/dryads/api)
 
 Compatibility
 -------------

@@ -1,5 +1,7 @@
 /**
- * @module dryads
+ * Dryadic components for SuperCollider
+ *
+ * @package dryads
  */
 import scserver from "./middleware/scserver";
 
@@ -21,11 +23,17 @@ import { Dryad, DryadPlayer, Middleware, dryadic as makeDryadPlayer, Layer } fro
 export { SCServer, SCLang, Group, Synth, AudioBus, SCSynthDef, SynthControl, SynthStream, SynthEventList };
 
 const middleware: Middleware[] = [scserver];
+const classes = [SCServer, SCLang, Group, Synth, AudioBus, SCSynthDef, SynthControl, SynthStream, SynthEventList];
 
+/**
+ * A layer adds Dryad classes and middleware for an external library. eg. for Supercolliderjs
+ */
 export const layer: Layer = {
   middleware,
-  classes: [SCServer, SCLang, Group, Synth, AudioBus, SCSynthDef, SynthControl, SynthStream, SynthEventList],
+  classes,
 };
+
+// export const ServerMiddleware = scserver;
 
 export interface Context {
   [name: string]: any;
@@ -37,7 +45,7 @@ export interface Context {
  * Automatically includes the supercollider.js layer
  *
  * usage:
- *
+ * ```js
  *   var sc = require('supercolliderjs');
  *   var player = sc.dryadic([
  *     'scserver', [
@@ -51,8 +59,9 @@ export interface Context {
  *       ]
  *   ]);
  *   player.play();
- *   ...
+ *   // ...
  *   player.stop();
+ * ```
  */
 export function dryadic(rootDryad?: Dryad, moreLayers: Layer[] = [], rootContext: Context = {}): DryadPlayer {
   return makeDryadPlayer(rootDryad || new Dryad(), [layer, ...moreLayers], rootContext);
@@ -63,6 +72,7 @@ export function dryadic(rootDryad?: Dryad, moreLayers: Layer[] = [], rootContext
  *
  * usage:
  *
+ * ```js
  *   var sc = require('supercolliderjs');
  *   var player = sc.play([
  *     'scserver', [
@@ -75,7 +85,7 @@ export function dryadic(rootDryad?: Dryad, moreLayers: Layer[] = [], rootContext
  *         }]
  *       ]
  *   ]);
- *
+ * ```
  * @param {Dryad|Array} rootDryad - Dryad object or hyperscript document
  * @returns {DryadPlayer}
  */

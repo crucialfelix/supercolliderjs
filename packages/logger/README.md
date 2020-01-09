@@ -36,7 +36,7 @@ log.rcvosc({ value: "pong" });
 Documentation
 -------------
 
-[TypeDocs](https://crucialfelix.github.io/supercolliderjs/packages/logger/docs/index.html)
+[Documentation](https://crucialfelix.github.io/supercolliderjs/#/packages/logger/api)
 
 Compatibility
 -------------
