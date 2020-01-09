@@ -17,8 +17,16 @@ const docsRoot = "http://localhost:3000/#";
 
 const packageNames = async () => {
   const names = (await fsp.readdir(path.join(root, "packages"))).filter(name => name.match(/^[a-z\-]+$/));
-  // sort favored first
-  return names;
+  // preferred order
+  const nn = ["supercolliderjs", "server", "server-plus", "lang", "dryads", "osc"];
+  // add any not already in that list
+  names.forEach(n => {
+    if (!nn.includes(n)) {
+      nn.push(n);
+    }
+  });
+
+  return nn;
 };
 
 async function fileExists(...paths) {
@@ -88,6 +96,10 @@ async function renderTpl(tpl, destPath, data) {
 const mdLink = (title, links) => `[${title}](${links.join("/")})`;
 const isString = thing => typeof thing === "string";
 
+/**
+ * Generate _sidebar.md
+ * and return
+ */
 async function generateSidebar(packages) {
   const sb = [];
   sb.push("- " + mdLink("Getting started", ["README.md"]));
@@ -102,9 +114,10 @@ async function generateSidebar(packages) {
     sb.push(`    - ` + mdLink("API", ["packages", short, "api.md"]));
     // push one for each top level export
     for (const [key, value] of Object.entries(index)) {
-      autos[short].push(
-        isString(value) ? { title: value, filename: value + ".md" } : { title: key, filename: key + ".md" },
-      );
+      const page = isString(value) ? { title: value, filename: value + ".md" } : { title: key, filename: key + ".md" };
+      autos[short].push(page);
+      // top level export
+      sb.push(`      - ` + mdLink(page.title, ["packages", short, page.filename]));
     }
   });
   sb.push("- Guide");
@@ -151,7 +164,6 @@ ${content}
 
 async function main(version) {
   const packages = await packageNames();
-
   const pkg = readJson("package.json");
 
   const rootData = {
@@ -168,7 +180,6 @@ async function main(version) {
     api: () => renderApi,
   };
 
-  // _coverpage
   await renderTplPath("docs/src/_coverpage.md", "docs/_coverpage.md", rootData);
 
   const autos = await generateSidebar(packages);
