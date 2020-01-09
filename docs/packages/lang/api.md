@@ -1,0 +1,3 @@
+# @supercollider/lang
+
+<ul class="no-dot"><li><a href="#/packages/lang/SCLang"><span class="token keyword">class</span> <span class="Class">SCLang</span></a></li><li><a href="#/packages/lang/boot"><span class="token keyword">function</span> <span class="Function">boot</span></a></li><li><a href="#/packages/lang/resolveOptions"><span class="token keyword">function</span> <span class="Function">resolveOptions</span></a></li><li><a href="#/packages/lang/SynthDefCompiler"><span class="token keyword">module</span> <span class="module">"SynthDefCompiler"</span></a></li><li><a href="#/packages/lang/SCLangError"><span class="token keyword">class</span> <span class="Class">SCLangError</span></a></li></ul>

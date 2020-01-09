@@ -146,7 +146,7 @@ You can also build your own way of working if you like—all the packages expose
 Documentation
 -------------
 
-[TypeDocs](https://crucialfelix.github.io/supercolliderjs/packages/server/docs/index.html)
+[Documentation](https://crucialfelix.github.io/supercolliderjs/#/packages/server/api)
 
 Compatibility
 -------------

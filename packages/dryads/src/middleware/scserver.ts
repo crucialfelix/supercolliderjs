@@ -84,14 +84,8 @@ interface ServerCommand extends Command {
  * and only sending them to the server just before they should play. This doesn't overload
  * the server with a glut of messages and also allows cancellation and updating of the messages
  * and makes it easy to implement transport controls and looping.
- *
- *
- * @param {object} context
- * @param {object} properties
- * @return Promise is only returned when using .callAndResponse
  */
-
-const scserver: Middleware = async (
+export const scserver: Middleware = async (
   command: ServerCommand,
   context: Context,
   properties: Properties,
@@ -128,7 +122,6 @@ const scserver: Middleware = async (
     }
 
     // Preparation commands that get an OSC callback from the server.
-    // Only this one returns.
     // These are used only in preparation, not for play / update.
     if (cmds.callAndResponse) {
       await ctx.scserver.callAndResponse(cmds.callAndResponse);

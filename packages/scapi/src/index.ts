@@ -14,7 +14,6 @@ interface RequestHandlers {
 }
 
 /*
- *
  *  Communicates via OSC with the SuperCollider API quark
  *
  *  The 'API' quark implements a two-way communication protocol.
@@ -36,11 +35,11 @@ interface RequestHandlers {
  *  See examples/call-api-from-node.js
  */
 export default class SCAPI extends events.EventEmitter {
-  schost: string;
-  scport: number;
-  requests: RequestHandlers = {};
-  log: Logger;
-  udp?: dgram.Socket;
+  readonly schost: string;
+  readonly scport: number;
+  private requests: RequestHandlers = {};
+  private log: Logger;
+  private udp?: dgram.Socket;
 
   constructor(schost = "localhost", scport = 57120) {
     super();
@@ -74,7 +73,13 @@ export default class SCAPI extends events.EventEmitter {
     }
   }
 
-  call(requestId, oscpath, args, ok, err) {
+  call(
+    requestId: string | undefined,
+    oscpath: string,
+    args,
+    ok?: (value: unknown) => any,
+    err?: ((reason: any) => any) | null | undefined,
+  ): Promise<any> {
     const promise = new Promise((resolve, reject) => {
       const clientId = 0; // no longer needed
       let clumps: RegExpMatchArray | null = null;
@@ -132,7 +137,7 @@ export default class SCAPI extends events.EventEmitter {
     }
   }
 
-  receive(signal, msg): void {
+  private receive(signal, msg): void {
     const requestId = msg.args[1];
     let result = msg.args[2];
     const request = this.requests[requestId];

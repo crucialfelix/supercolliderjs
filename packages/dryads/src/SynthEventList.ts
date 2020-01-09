@@ -45,7 +45,7 @@ interface AddCommand extends Command {
 /**
  * Takes a list of synth event objects with relative times and schedules them.
  *
- * ## properties
+ * #### properties
  *
  * __events:__ Array
  *
@@ -147,12 +147,12 @@ export default class SynthEventList extends Dryad<Properties> {
     return commands;
   }
 
-  _makeSchedLoop(events: SynthEvent[], loopTime: number | undefined, context: Context): Function {
+  private _makeSchedLoop(events: SynthEvent[], loopTime: number | undefined, context: Context): Function {
     const synthEvents = this._makeMsgs(events, context);
     return loopTime ? loopedEventListIterator(synthEvents, loopTime) : eventListIterator(synthEvents);
   }
 
-  _makeMsgs(events: SynthEvent[], context: Context): OSCEvent[] {
+  private _makeMsgs(events: SynthEvent[], context: Context): OSCEvent[] {
     const defaultParams = this.properties.defaultParams || {};
     return events.map(event => {
       // TODO: do this a jit time in the schedLoop

@@ -242,7 +242,7 @@ sc.lang.boot().then(async function(lang) {
 Documentation
 -------------
 
-[TypeDocs](https://crucialfelix.github.io/supercolliderjs/packages/supercolliderjs/docs/index.html)
+[Documentation](https://crucialfelix.github.io/supercolliderjs/#/packages/supercolliderjs/api)
 
 Compatibility
 -------------
