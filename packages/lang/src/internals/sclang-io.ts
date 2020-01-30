@@ -334,7 +334,7 @@ export class SclangIO extends EventEmitter {
                       delete this.capturing[guid];
                     }
                     this.calls[guid].reject(
-                      new SCLangError(`Interpret error: ${obj["errorString"]}`, response.type, err || obj),
+                      new SCLangError(`Interpret error: ${obj && obj["errorString"]}`, response.type, err || obj),
                     );
                   }
                   delete this.calls[guid];
